@@ -24,7 +24,7 @@ class SharedMemory:
         max_chars: int = 80,
         sim_threshold: float = 0.86,
         top_k: int = 5,
-        collection_name: str = "agent_society_ltm",
+        collection_name: str | None = None,
     ):
         """
         Initialize SharedMemory.
@@ -36,13 +36,18 @@ class SharedMemory:
             sim_threshold: cosine similarity (1 - distance) required to consider two
                 entries candidates for consensus merge.
             top_k: default number of nearest neighbors to consider/return.
-            collection_name: name of the underlying chroma collection.
+            collection_name: name of the underlying chroma collection. Default
+                None auto-generates a unique name — chromadb's default clients
+                share one in-process store, so same-name collections in the same
+                process would silently share data.
         """
         self._embed_fn = embed_fn
         self._llm = llm
         self.max_chars = max_chars
         self.sim_threshold = sim_threshold
         self.top_k = top_k
+        if collection_name is None:
+            collection_name = f"agent_society_ltm_{uuid.uuid4().hex[:8]}"
         self._client = chromadb.Client()
         self._collection = self._client.get_or_create_collection(
             name=collection_name, metadata={"hnsw:space": "cosine"}

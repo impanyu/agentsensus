@@ -1,4 +1,3 @@
-import json, pytest
 from society.ltm import SharedMemory
 from tests.helpers import FakeLLM, afake_embed
 
