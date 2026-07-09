@@ -18,6 +18,9 @@ async def test_load_and_build_demo():
     acted = [e for e in k.event_log.all() if e["kind"] == "action" and e["agent"] == "alice"]
     assert acted, "kickoff must wake alice"
 
+def test_demo_red_chamber_loads():
+    load_scenario("scenarios/demo_red_chamber.yaml")
+
 def test_load_validation_errors(tmp_path):
     bad = {"scenario": "x", "agents": [{"id": "a", "kind": "character", "brain": "llm",
                                         "status": {"location": "nowhere"}}]}
