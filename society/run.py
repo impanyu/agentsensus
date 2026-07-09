@@ -9,6 +9,7 @@ from society.embeddings import EmbeddingClient
 from society.events import EventLog
 from society.llm import LLMClient
 from society.scenario import build_society, load_scenario
+from society.screenplay import generate_screenplay
 
 
 def write_transcripts(events: list[dict], agents: dict, out_dir: str) -> None:
@@ -140,7 +141,14 @@ def main(argv=None):
     )
 
     if args.screenplay:
-        print("screenplay generation pending")
+        cfg = load_scenario(args.scenario)
+        language = cfg.get("language", "zh")
+        events = EventLog.load(os.path.join(args.out, "events.jsonl"))
+        asyncio.run(
+            generate_screenplay(
+                events, llm, out_path=os.path.join(args.out, "screenplay.md"), language=language
+            )
+        )
 
     print(json.dumps(summary, ensure_ascii=False))
     return summary
