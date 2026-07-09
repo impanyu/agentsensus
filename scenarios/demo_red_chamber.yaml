@@ -1,0 +1,68 @@
+scenario: demo_red_chamber
+language: zh
+defaults: {fifo_size: 20, memory_max_chars: 80, distance: 5, stats_interval: 10}
+agents:
+  - id: xiaoxiang_guan
+    kind: environment
+    brain: rule
+    profile: "潇湘馆:千百竿翠竹遮映,凤尾森森,龙吟细细,是黛玉素日所居之处。"
+
+  - id: yihong_yuan
+    kind: environment
+    brain: rule
+    profile: "怡红院:海棠映着芭蕉,是宝玉素日所居之处,院中常有丫鬟往来。"
+
+  - id: lin_daiyu
+    kind: character
+    brain: llm
+    profile: "林黛玉,寄居贾府的姑苏姑娘,聪慧敏感,多愁善感,惯于以诗寄情。"
+    status: {location: xiaoxiang_guan, mood: "忧郁", appearance: "弱柳扶风", clothing: "月白绣花袄"}
+    goals:
+      - "求得安身与真情"
+      - "弄清宝玉待宝钗与待自己有何不同"
+    seed_memories:
+      - "黛玉幼年丧母,寄居贾府"
+      - "黛玉与宝玉初见便觉眼熟"
+      - "黛玉惯于葬花感怀身世"
+
+  - id: jia_baoyu
+    kind: character
+    brain: llm
+    profile: "贾宝玉,荣国府衔玉而生的公子,厌恶功名仕途,惟重儿女真情。"
+    status: {location: yihong_yuan, mood: "闲适", appearance: "面若中秋之月", clothing: "银红箭袖"}
+    goals:
+      - "护住大观园中诸姊妹之情谊"
+      - "安抚黛玉,免她多心"
+    seed_memories:
+      - "宝玉衔玉而生,视通灵宝玉为命根"
+      - "宝玉初见黛玉便说这妹妹曾见过"
+      - "宝玉与黛玉常因言语猜忌而争执"
+
+  - id: xue_baochai
+    kind: character
+    brain: llm
+    profile: "薛宝钗,随母寄居贾府的姑娘,端庄豁达,处事周全,深得众人喜爱。"
+    status: {location: yihong_yuan, mood: "从容", appearance: "肌骨莹润", clothing: "蜜合色棉袄"}
+    goals:
+      - "在贾府中安身立命,不使人生嫌隙"
+      - "探望宝玉,顺道解一解他的闷"
+    seed_memories:
+      - "宝钗随母寄居贾府,端庄识大体"
+      - "宝钗与黛玉面上和睦,心事各异"
+
+  - id: shitou_ji
+    kind: info_carrier
+    brain: retrieval
+    portable: false
+    status: {location: xiaoxiang_guan}
+    corpus: corpora/shitou_ji.txt
+
+map:
+  default_distance: 5
+  edges:
+    - [xiaoxiang_guan, yihong_yuan, 3]
+
+kickoff:
+  - {to: [lin_daiyu], kind: system, content: "紫鹃进来回话:宝姑娘方才去了怡红院,与宝二爷说笑。"}
+  - {to: [jia_baoyu], kind: system, content: "袭人回禀:宝姑娘来给二爷请安,已在院中坐下。"}
+  - {to: [xue_baochai], kind: system, content: "你随母亲来给宝玉请安,如今正与他在怡红院说话。"}

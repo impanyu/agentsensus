@@ -1,0 +1,23 @@
+scenario: demo_min
+language: zh
+defaults: {fifo_size: 20, memory_max_chars: 80, distance: 5, stats_interval: 10}
+agents:
+  - {id: hall, kind: environment, brain: rule, profile: "大厅"}
+  - {id: garden, kind: environment, brain: rule, profile: "花园"}
+  - id: alice
+    kind: character
+    brain: llm
+    profile: "爱丽丝,好奇。"
+    status: {location: hall, mood: "好奇"}
+    goals: ["弄清此地何处"]
+    seed_memories: ["爱丽丝掉进了兔子洞"]
+  - id: guide_book
+    kind: info_carrier
+    brain: retrieval
+    status: {location: hall}
+    corpus: corpora/demo_guide.txt
+map:
+  default_distance: 5
+  edges: [[hall, garden, 2]]
+kickoff:
+  - {to: [alice], kind: system, content: "你醒来发现自己在大厅。"}
