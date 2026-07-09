@@ -13,7 +13,7 @@ action 参考手册见 `docs/actions.md`。
 
 ```bash
 python3 -m venv venv
-venv/bin/pip install pyyaml chromadb aiohttp numpy pytest pytest-asyncio
+venv/bin/pip install -r requirements.txt
 cp config.json.example config.json
 ```
 
