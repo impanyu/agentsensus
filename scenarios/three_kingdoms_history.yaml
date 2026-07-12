@@ -6,7 +6,7 @@ agents:
   brain: llm
   profile: 东汉末年的仁义之君，桃园三结义的重要角色。
   status:
-    location: 'null'
+    location: luoyang
   goals: []
   name: 刘备
 - id: guanyu
@@ -14,7 +14,7 @@ agents:
   brain: llm
   profile: 刘备的义兄，以忠义和武艺闻名。
   status:
-    location: 'null'
+    location: jingzhou
   goals: []
   name: 关羽
 - id: zhangfei
@@ -22,7 +22,7 @@ agents:
   brain: llm
   profile: 刘备的义弟，勇猛好斗的武将。
   status:
-    location: 'null'
+    location: jingzhou
   goals: []
   name: 张飞
 - id: zhangjiao
@@ -30,7 +30,7 @@ agents:
   brain: llm
   profile: 黄巾贼的领袖，发动起义。
   status:
-    location: 'null'
+    location: zhuoxian
   goals: []
   name: 张角
   archived: true
@@ -39,7 +39,7 @@ agents:
   brain: llm
   profile: 张角的弟弟，黄巾贼的重要角色。
   status:
-    location: guangzong
+    location: yangcheng
   goals: []
   name: 张宝
   archived: true
@@ -48,7 +48,7 @@ agents:
   brain: llm
   profile: 张角的弟弟，参与黄巾起义。
   status:
-    location: 冀州
+    location: longan
   goals: []
   name: 张梁
   archived: true
@@ -57,7 +57,7 @@ agents:
   brain: llm
   profile: 权臣，逐步掌握了汉朝的实权。
   status:
-    location: dongjun
+    location: yuanzhou
   goals: []
   name: 曹操
 - id: dongzhuo
@@ -74,7 +74,7 @@ agents:
   brain: llm
   profile: 正直的政治家，反对董卓。
   status:
-    location: 广宗
+    location: shuiuan
   goals: []
   name: 卢植
 - id: zhujun
@@ -82,7 +82,7 @@ agents:
   brain: llm
   profile: 参与政治斗争的角色。
   status:
-    location: 'null'
+    location: longan
   goals: []
   name: 朱俊
 - id: lvbu
@@ -90,7 +90,7 @@ agents:
   brain: llm
   profile: 强大的武将，背叛养父投靠董卓。
   status:
-    location: youzhou
+    location: longan
   goals: []
   name: 吕布
 - id: dingyuan
@@ -98,7 +98,7 @@ agents:
   brain: llm
   profile: 吕布的养父，被吕布所杀。
   status:
-    location: 长安
+    location: shuiuan
   goals: []
   name: 丁原
   archived: true
@@ -116,7 +116,7 @@ agents:
   brain: llm
   profile: 重要的诸侯，与各路英雄争斗。
   status:
-    location: 冀州
+    location: guangzong
   goals: []
   name: 袁绍
 - id: chen_gong
@@ -124,7 +124,7 @@ agents:
   brain: llm
   profile: 吕布的谋士，参与权力争斗。
   status:
-    location: 长安
+    location: shuiuan
   goals: []
   name: 陈宫
 - id: huaxiong
@@ -132,7 +132,7 @@ agents:
   brain: llm
   profile: 董卓手下的猛将，曾战胜孙坚。
   status:
-    location: 'null'
+    location: shuiuan
   goals: []
   name: 华雄
   archived: true
@@ -141,7 +141,7 @@ agents:
   brain: llm
   profile: 东汉末年名将，为复仇而战。
   status:
-    location: luoyang
+    location: xiangyang
   goals: []
   name: 孙坚
   archived: true
@@ -150,7 +150,7 @@ agents:
   brain: llm
   profile: 孙坚之子，誓言为父报仇。
   status:
-    location: guangzong
+    location: shuiuan
   goals: []
   name: 孙策
 - id: gongsunzan
@@ -158,7 +158,7 @@ agents:
   brain: llm
   profile: 著名的诸侯，敢于与袁绍对抗。
   status:
-    location: 冀州
+    location: zhuoxian
   goals: []
   name: 公孙瓒
 - id: zhaoyun
@@ -166,7 +166,7 @@ agents:
   brain: llm
   profile: 出色的武将，以勇猛著称。
   status:
-    location: 'null'
+    location: zhongyuan
   goals: []
   name: 赵云
 - id: diao_chan
@@ -174,7 +174,7 @@ agents:
   brain: llm
   profile: 董卓的宠妾，卷入政治阴谋。
   status:
-    location: 'null'
+    location: longan
   goals: []
   name: 貂蝉
 - id: wang_yun
@@ -191,7 +191,7 @@ agents:
   brain: llm
   profile: 抵抗西凉兵的将领。
   status:
-    location: guangzong
+    location: longan
   goals: []
   name: 李蒙
 - id: wang_fang
@@ -199,15 +199,16 @@ agents:
   brain: llm
   profile: 抵抗西凉兵的将领。
   status:
-    location: guangzong
+    location: longan
   goals: []
   name: 王方
+  archived: true
 - id: guo_shi
   kind: character
   brain: llm
   profile: 董卓的手下，参与权力斗争。
   status:
-    location: guangzong
+    location: longan
   goals: []
   name: 郭汜
 - id: lijing
@@ -215,7 +216,7 @@ agents:
   brain: llm
   profile: 董卓的手下，与郭汜并肩作战。
   status:
-    location: guangzong
+    location: longan
   goals: []
   name: 李傕
 - id: hangsu
@@ -223,7 +224,7 @@ agents:
   brain: llm
   profile: 西凉的将领，参与对抗董卓的斗争。
   status:
-    location: guangzong
+    location: shuiuan
   goals: []
   name: 韩遂
 - id: fan_chou
@@ -231,7 +232,7 @@ agents:
   brain: llm
   profile: 西凉将领，卷入权力游戏。
   status:
-    location: 'null'
+    location: longan
   goals: []
   name: 樊稠
 - id: caosong
@@ -239,15 +240,16 @@ agents:
   brain: llm
   profile: 曹操的父亲，因奸臣被杀。
   status:
-    location: guangzong
+    location: shuiuan
   goals: []
   name: 曹嵩
+  archived: true
 - id: taoqian
   kind: character
   brain: llm
   profile: 地方实力派，因权谋斗争被杀。
   status:
-    location: guangzong
+    location: shuiuan
   goals: []
   name: 陶谦
 - id: taoyuan
@@ -385,44 +387,54 @@ agents:
   brain: rule
   profile: 作为中央与西凉对抗的地方。
   name: 青州
-- id: 'null'
+- id: null_reference
   kind: environment
   brain: rule
-  profile: (自动补全的地点)
-  name: 'null'
-- id: 冀州
+  profile: 未能识别的地点引用，可能需要进一步考证数据来源。
+  name: 未知地点
+- id: zhongyuan
   kind: environment
   brain: rule
-  profile: (自动补全的地点)
-  name: 冀州
-- id: 广宗
+  profile: 中国内地的中心区域，历代为兵家必争之地。
+  name: 中原
+- id: xiangyang
   kind: environment
   brain: rule
-  profile: (自动补全的地点)
-  name: 广宗
-- id: 长安
+  profile: 汉末三国时期的重要城池，战略军事重镇。
+  name: 襄阳
+- id: meiwufu
   kind: environment
   brain: rule
-  profile: (自动补全的地点)
-  name: 长安
+  profile: 三国时期地名，历史上为豪族居所。
+  name: 郿坞
+- id: xuzhou
+  kind: environment
+  brain: rule
+  name: 徐州
+  profile: 徐州:陶谦治下富庶之州,今曹操以报父仇为名兴兵来攻,兵祸将至,士民惶惶。
 map:
   default_distance: 20
   edges: []
 kickoff:
 - to:
+  - cao_cao
+  kind: system
+  content: 父亲曹嵩举家赴兖州途中,被陶谦部将张闿杀害于华费之间。此仇不共戴天——你已尽起大军,杀奔徐州而来。
+- to:
+  - taoqian
+  kind: system
+  content: 曹操以报父仇为名兴兵杀奔徐州,所过残戮百姓。你一面坚守,一面急遣使者四出求援。
+- to:
   - liubei
+  kind: system
+  content: 徐州告急:曹操为父报仇兴兵攻徐,屠戮甚惨。陶谦遣使来请玄德发兵相救。
+- to:
   - guanyu
   - zhangfei
   kind: system
-  content: 在长安的动荡局势中，刘备集合关羽和张飞，讨论如何应对曹操一统北方的威胁及其可能带来的影响。
-- to:
-  - cao_cao
-  - taoqian
-  kind: system
-  content: 曹操以报父仇为名尽起大军杀奔徐州,所到之处鸡犬不留;陶谦震恐,一面坚壁清野,一面遣使四方求援。
+  content: 曹操大军攻打徐州的消息传来,兄长处已有徐州使者求援,速与兄长共商对策。
 - to:
   - lvbu
-  - luzhi
   kind: system
-  content: 吕布与卢植在长安附近会晤，商讨借助当前政局动荡，两人如何再度联合自保与扩展领土。
+  content: 董卓死后,李傕郭汜反攻长安挟持朝廷,你兵败出走,如今须寻立足之地,以图再起。
 ltm_file: three_kingdoms_history.yaml.ltm.json
