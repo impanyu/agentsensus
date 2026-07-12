@@ -668,6 +668,20 @@ def _build_parser() -> argparse.ArgumentParser:
         default=None,
         help="history mode: path to an existing registry json; skips Pass 1",
     )
+    parser.add_argument(
+        "--detail",
+        choices=["exhaustive", "fast"],
+        default="exhaustive",
+        help="history mode Pass 2 strategy: exhaustive (default, Task H5: roster + "
+        "per-character sedimentation + coverage audits) or fast (v1: one call per chunk)",
+    )
+    parser.add_argument(
+        "--coverage-rounds",
+        type=int,
+        default=1,
+        help="history mode: number of 补漏 coverage-audit rounds per chunk in exhaustive "
+        "detail mode (0 disables)",
+    )
     return parser
 
 
@@ -699,6 +713,8 @@ def main(argv=None):
                 registry=registry,
                 registry_only=args.registry_only,
                 max_agents=args.max_agents,
+                detail=args.detail,
+                coverage_rounds=args.coverage_rounds,
             )
         )
     else:

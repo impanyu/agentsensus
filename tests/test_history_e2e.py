@@ -94,7 +94,9 @@ async def test_history_e2e_full_pipeline(tmp_path):
     out = str(tmp_path / "sanguo_sequel.yaml")
     extraction_llm = FakeLLM(fn=make_extraction_fake())
 
-    await extract_history(TEXT, extraction_llm, out, embed_fn=afake_embed, chunk_chars=200)
+    await extract_history(
+        TEXT, extraction_llm, out, embed_fn=afake_embed, chunk_chars=200, detail="fast"
+    )
 
     # ------------------------------------------------------------------
     # 1. extract_history wrote yaml + .ltm.json + registry.json.

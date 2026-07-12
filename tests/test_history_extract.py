@@ -239,7 +239,7 @@ async def test_assembly_alive_dead_and_ltm_file(tmp_path):
 
     llm = FakeLLM(fn=make_fake(sediment_fn))
 
-    cfg = await extract_history(TEXT, llm, out, embed_fn=afake_embed, chunk_chars=200)
+    cfg = await extract_history(TEXT, llm, out, embed_fn=afake_embed, chunk_chars=200, detail="fast")
 
     import os
 
@@ -282,7 +282,7 @@ async def test_registry_reuse_skips_pass1(tmp_path):
     llm = FakeLLM(fn=make_fake())
 
     cfg = await extract_history(
-        TEXT, llm, out, embed_fn=afake_embed, chunk_chars=200, registry=REGISTRY
+        TEXT, llm, out, embed_fn=afake_embed, chunk_chars=200, registry=REGISTRY, detail="fast"
     )
 
     markers_hit = {"摘要": False, "注册表": False}
@@ -333,3 +333,22 @@ def test_cli_parses_history_mode_flags():
     assert args2.model is None
     assert args2.registry_only is False
     assert args2.registry is None
+    assert args2.detail == "exhaustive"
+    assert args2.coverage_rounds == 1
+
+    args3 = parser.parse_args(
+        [
+            "--input",
+            "book.txt",
+            "--output",
+            "out.yaml",
+            "--mode",
+            "history",
+            "--detail",
+            "fast",
+            "--coverage-rounds",
+            "2",
+        ]
+    )
+    assert args3.detail == "fast"
+    assert args3.coverage_rounds == 2
