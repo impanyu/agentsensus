@@ -8,6 +8,7 @@ import yaml
 from society.embeddings import EmbeddingClient
 from society.events import EventLog
 from society.llm import LLMClient
+from society.persistence import load_checkpoint, restore_society
 from society.scenario import build_society, load_scenario
 from society.screenplay import generate_screenplay
 
@@ -106,7 +107,9 @@ def write_outputs(
     write_transcripts(kernel.event_log.all(), kernel.agents, out_dir)
 
 
-async def run_scenario(scenario_path, ticks, out_dir, *, llm, embed_fn) -> dict:
+async def run_scenario(
+    scenario_path, ticks, out_dir, *, llm, embed_fn, checkpoint: bool = False
+) -> dict:
     """Load, build, and run a scenario, then write all outputs.
 
     Orchestrates: load_scenario -> EventLog(events.jsonl) -> build_society
@@ -114,6 +117,10 @@ async def run_scenario(scenario_path, ticks, out_dir, *, llm, embed_fn) -> dict:
     a final metrics snapshot (so stats/ always has at least one file, even
     if the run quiesces before the first periodic interval) -> write_outputs.
     Returns the summary dict from kernel.run().
+
+    If `checkpoint` is True, `{out_dir}/checkpoint.json` is written on each
+    periodic metrics snapshot and once more when the run stops, via
+    `kernel.checkpoint_path` (see `society.persistence.save_checkpoint`).
     """
     os.makedirs(out_dir, exist_ok=True)
 
@@ -123,6 +130,8 @@ async def run_scenario(scenario_path, ticks, out_dir, *, llm, embed_fn) -> dict:
     kernel = await build_society(
         cfg, llm=llm, embed_fn=embed_fn, event_log=event_log, out_dir=out_dir
     )
+    if checkpoint:
+        kernel.checkpoint_path = os.path.join(out_dir, "checkpoint.json")
 
     summary = await kernel.run(max_ticks=ticks)
 
@@ -130,6 +139,40 @@ async def run_scenario(scenario_path, ticks, out_dir, *, llm, embed_fn) -> dict:
         kernel.metrics.snapshot(kernel.tick)
 
     write_outputs(kernel, out_dir, cfg, summary, embed_fn=embed_fn)
+    return summary
+
+
+async def resume_scenario(out_dir: str, ticks: int, *, llm, embed_fn) -> dict:
+    """Resume a checkpointed run from `{out_dir}/checkpoint.json` for
+    `ticks` ADDITIONAL ticks beyond the checkpoint's tick, then write all
+    outputs (final metrics snapshot + write_outputs), same as run_scenario.
+
+    The resumed EventLog picks up its sequence counter where the
+    checkpoint left off (`start_seq=ckpt["event_seq"]`) so seq numbers keep
+    increasing monotonically across the resume boundary in events.jsonl,
+    and it opens the same events.jsonl file in append mode so history is
+    preserved. Seeds/kickoff are NOT replayed (restore_society only
+    restores runtime state).
+    """
+    ckpt = load_checkpoint(os.path.join(out_dir, "checkpoint.json"))
+    event_log = EventLog(
+        os.path.join(out_dir, "events.jsonl"), start_seq=ckpt["event_seq"]
+    )
+
+    kernel = await restore_society(
+        ckpt, llm=llm, embed_fn=embed_fn, event_log=event_log, out_dir=out_dir
+    )
+    kernel.checkpoint_path = os.path.join(out_dir, "checkpoint.json")
+
+    # kernel.run()'s max_ticks is an absolute tick limit (the loop breaks
+    # once self.tick >= max_ticks), so "ticks more ticks" means the
+    # checkpoint's tick plus the requested additional ticks.
+    summary = await kernel.run(max_ticks=ckpt["tick"] + ticks)
+
+    if kernel.metrics is not None:
+        kernel.metrics.snapshot(kernel.tick)
+
+    write_outputs(kernel, out_dir, kernel.scenario_cfg, summary, embed_fn=embed_fn)
     return summary
 
 
@@ -163,7 +206,9 @@ def _build_llm_and_embed(config_path: str | None):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description="Run an AgentSociety scenario")
-    parser.add_argument("--scenario", required=True, help="path to scenario yaml")
+    parser.add_argument(
+        "--scenario", help="path to scenario yaml (required unless --resume)"
+    )
     parser.add_argument("--ticks", type=int, required=True, help="max ticks to run")
     parser.add_argument("--out", required=True, help="output directory")
     parser.add_argument(
@@ -172,17 +217,50 @@ def main(argv=None):
     parser.add_argument(
         "--config", default="config.json", help="path to config.json (api_key, base_url, ...)"
     )
+    parser.add_argument(
+        "--checkpoint",
+        action="store_true",
+        help="periodically write {out}/checkpoint.json so the run can be resumed",
+    )
+    parser.add_argument(
+        "--resume",
+        action="store_true",
+        help="resume from {out}/checkpoint.json instead of starting a fresh run "
+        "(--ticks additional ticks; --scenario is ignored)",
+    )
     args = parser.parse_args(argv)
+
+    if not args.resume and not args.scenario:
+        parser.error("--scenario is required unless --resume is given")
 
     llm, embed_fn = _build_llm_and_embed(args.config)
 
-    summary = asyncio.run(
-        run_scenario(args.scenario, args.ticks, args.out, llm=llm, embed_fn=embed_fn)
-    )
+    if args.resume:
+        summary = asyncio.run(
+            resume_scenario(args.out, args.ticks, llm=llm, embed_fn=embed_fn)
+        )
+    else:
+        summary = asyncio.run(
+            run_scenario(
+                args.scenario,
+                args.ticks,
+                args.out,
+                llm=llm,
+                embed_fn=embed_fn,
+                checkpoint=args.checkpoint,
+            )
+        )
 
     if args.screenplay:
-        cfg = load_scenario(args.scenario)
-        language = cfg.get("language", "zh")
+        if args.scenario:
+            language = load_scenario(args.scenario).get("language", "zh")
+        else:
+            # --resume without --scenario: recover language from this run's
+            # own config snapshot (written by write_outputs) instead.
+            snapshot = yaml.safe_load(
+                open(os.path.join(args.out, "config_snapshot.yaml"), encoding="utf-8")
+            )
+            language = (snapshot or {}).get("language", "zh")
         events = EventLog.load(os.path.join(args.out, "events.jsonl"))
         asyncio.run(
             generate_screenplay(

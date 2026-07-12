@@ -5,16 +5,19 @@ from pathlib import Path
 class EventLog:
     """Event log with global monotonic sequence and optional file persistence."""
 
-    def __init__(self, path: str | None):
+    def __init__(self, path: str | None, start_seq: int = 0):
         """
         Initialize EventLog.
 
         Args:
             path: Path to JSONL file for persistence, or None for in-memory only.
+            start_seq: First sequence number to assign (used when resuming a
+                run from a checkpoint, so seq numbers keep increasing across
+                the resume boundary instead of restarting at 0).
         """
         self.path = path
         self._events = []
-        self._seq_counter = 0
+        self._seq_counter = start_seq
 
     def append(self, tick: int, kind: str, agent: str, payload: dict) -> int:
         """

@@ -268,7 +268,11 @@ runs/<run_name>/
 └── config_snapshot.yaml       # 完整配置快照(可复现)
 ```
 
-可选 `--checkpoint`:每 stats_interval 落一份可恢复状态(STM + LTM 导出 + tick),长跑防崩。
+可选 `--checkpoint`(已实现,见 `society/persistence.py`):每 stats_interval
+落一份可恢复状态到 `{out}/checkpoint.json`(STM + LTM 全息导出含 embedding +
+tick + event_seq + presence + 待投递消息 + 通信图有向计数),运行停止时再补
+落一次;`--resume --out <dir> --ticks N` 从中恢复并继续跑 N 个 tick,长跑
+防崩、可续跑。
 
 ### 剧本生成器(`society/screenplay.py`,离线)
 

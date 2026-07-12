@@ -102,32 +102,25 @@ def _make_brain(a: dict, *, llm, language: str, scenario_dir: str):
     return RetrievalBrain(corpus_text)
 
 
-async def build_society(
-    cfg: dict,
-    *,
-    llm,
-    embed_fn,
-    event_log,
-    out_dir=None,
-    metrics_interval=None,
-) -> Kernel:
-    """Build a fully-wired Kernel from a loaded scenario dict.
+def build_agents_and_map(cfg: dict, *, llm) -> tuple[dict, "WorldMap", dict, list]:
+    """Build the agents dict + WorldMap from a loaded scenario dict.
 
-    Creates all agents (brain selected per agent's "brain" field), a
-    WorldMap from cfg["map"], a SharedMemory seeded with each agent's
-    seed_memories, and a Metrics instance. Kickoff messages are queued
-    with tick_sent=-1 before the kernel is returned so they are already
-    pending on kernel.send() (visible to recipients once the caller calls
-    kernel.run(), per the tick-0 delivery semantics in Kernel.run()).
+    This is the brain/agent-construction core shared by `build_society`
+    (fresh run) and `society.persistence.restore_society` (resume from a
+    checkpoint) -- kept in exactly one place so the two paths can never
+    drift apart on how a scenario's agents/brains/map are constructed.
+
+    Returns (agents, worldmap, defaults, seed_specs) where `defaults` is
+    the resolved `cfg["defaults"]` dict and `seed_specs` is the
+    `[(agent_id, [seed_memory_texts]), ...]` list -- callers that must NOT
+    replay seed memories (i.e. resume) simply ignore `seed_specs`.
     """
     defaults = cfg.get("defaults", {}) or {}
     language = cfg.get("language", "zh")
     scenario_dir = cfg.get("_dir", ".")
 
     fifo_size = defaults.get("fifo_size", 20)
-    memory_max_chars = defaults.get("memory_max_chars", 80)
     distance = defaults.get("distance", 20)
-    stats_interval = defaults.get("stats_interval", 10)
 
     agents: dict[str, Agent] = {}
     env_ids = []
@@ -164,12 +157,39 @@ async def build_society(
         default_distance=map_cfg.get("default_distance", distance),
     )
 
+    return agents, worldmap, defaults, seed_specs
+
+
+async def build_society(
+    cfg: dict,
+    *,
+    llm,
+    embed_fn,
+    event_log,
+    out_dir=None,
+    metrics_interval=None,
+) -> Kernel:
+    """Build a fully-wired Kernel from a loaded scenario dict.
+
+    Creates all agents (brain selected per agent's "brain" field), a
+    WorldMap from cfg["map"], a SharedMemory seeded with each agent's
+    seed_memories, and a Metrics instance. Kickoff messages are queued
+    with tick_sent=-1 before the kernel is returned so they are already
+    pending on kernel.send() (visible to recipients once the caller calls
+    kernel.run(), per the tick-0 delivery semantics in Kernel.run()).
+    """
+    agents, worldmap, defaults, seed_specs = build_agents_and_map(cfg, llm=llm)
+
+    memory_max_chars = defaults.get("memory_max_chars", 80)
+    stats_interval = defaults.get("stats_interval", 10)
+
     shared = SharedMemory(embed_fn, llm, max_chars=memory_max_chars)
 
     interval = metrics_interval if metrics_interval is not None else stats_interval
     metrics = Metrics(agents, shared, out_dir, interval=interval)
 
     kernel = Kernel(agents, worldmap, event_log, shared_memory=shared, llm=llm, metrics=metrics)
+    kernel.scenario_cfg = cfg
 
     for agent_id, texts in seed_specs:
         for text in texts:

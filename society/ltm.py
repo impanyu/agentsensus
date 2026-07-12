@@ -257,6 +257,83 @@ class SharedMemory:
             entries.append({"id": eid, "text": doc, "owners": owners, "meta": meta})
         return entries
 
+    def export(self) -> list[dict]:
+        """Holographic export: every entry with its embedding, for checkpointing.
+
+        Returns a list of {"id", "text", "owners", "meta", "embedding"}, where
+        "meta" is {"created_at", "source", "tick"} and "embedding" is the raw
+        vector (list[float]) fetched straight from the collection.
+        """
+        if self._collection.count() == 0:
+            return []
+        got = self._collection.get(include=["documents", "metadatas", "embeddings"])
+        entries = []
+        embeddings = got.get("embeddings")
+        for i, (eid, doc, meta) in enumerate(
+            zip(got["ids"], got["documents"], got["metadatas"])
+        ):
+            owners = sorted(json.loads(meta.get("owners", "[]")))
+            embedding = None
+            if embeddings is not None:
+                vec = embeddings[i]
+                if vec is not None:
+                    embedding = [float(x) for x in vec]
+            entries.append(
+                {
+                    "id": eid,
+                    "text": doc,
+                    "owners": owners,
+                    "meta": {
+                        "created_at": meta.get("created_at"),
+                        "source": meta.get("source"),
+                        "tick": meta.get("tick"),
+                    },
+                    "embedding": embedding,
+                }
+            )
+        return entries
+
+    async def restore(self, entries: list[dict]) -> None:
+        """Re-populate the collection from `export()`'s output, preserving
+        ids/owners/meta/embeddings exactly (no re-normalization, no
+        consensus merge, no new embed calls for entries that already carry
+        an embedding). Entries missing an embedding recompute it via
+        `_embed_fn` (kept async to support that path)."""
+        if not entries:
+            return
+
+        missing_idx = [i for i, e in enumerate(entries) if not e.get("embedding")]
+        computed = {}
+        if missing_idx:
+            texts = [entries[i]["text"] for i in missing_idx]
+            vectors = await self._embed_fn(texts)
+            for i, vec in zip(missing_idx, vectors):
+                computed[i] = list(vec)
+
+        ids = []
+        docs = []
+        embeddings = []
+        metadatas = []
+        for i, entry in enumerate(entries):
+            owners = entry.get("owners", [])
+            meta = entry.get("meta", {}) or {}
+            metadata = {"owners": json.dumps(list(owners))}
+            for key in ("created_at", "source", "tick"):
+                value = meta.get(key)
+                if value is not None:
+                    metadata[key] = value
+            for owner in owners:
+                metadata[f"owner_{owner}"] = True
+
+            ids.append(entry["id"])
+            docs.append(entry["text"])
+            embeddings.append(entry.get("embedding") or computed[i])
+            metadatas.append(metadata)
+
+        self._collection.add(
+            ids=ids, documents=docs, embeddings=embeddings, metadatas=metadatas
+        )
+
     def stats(self) -> dict:
         """Return {"total", "shared", "ratio"} where shared = entries with >=2 owners."""
         entries = self.all_entries()

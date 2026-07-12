@@ -51,6 +51,15 @@ class Kernel:
         self.presence: dict[str, set] = {}
         self._build_presence()
 
+        # Set by build_society (holds the loaded scenario cfg dict, incl.
+        # "_dir") so a checkpoint can record enough to rebuild the society
+        # on resume. None until build_society wires it up.
+        self.scenario_cfg: dict | None = None
+        # When set (by run.py's --checkpoint flag), run() writes a
+        # checkpoint to this path on each periodic metrics snapshot and
+        # once more right before returning, regardless of stop reason.
+        self.checkpoint_path: str | None = None
+
     # ------------------------------------------------------------------
     # Presence index
     # ------------------------------------------------------------------
@@ -618,7 +627,11 @@ class Kernel:
             if self.metrics is not None:
                 maybe_snapshot = getattr(self.metrics, "maybe_snapshot", None)
                 if maybe_snapshot is not None:
-                    maybe_snapshot(self.tick)
+                    snap = maybe_snapshot(self.tick)
+                    if snap is not None and self.checkpoint_path is not None:
+                        from society.persistence import save_checkpoint
+
+                        save_checkpoint(self, self.checkpoint_path)
 
             transit_pending = any(a.transit is not None for a in self.agents.values())
             waiting_timers = [
@@ -649,5 +662,10 @@ class Kernel:
                     self.tick += 1
             else:
                 self.tick += 1
+
+        if self.checkpoint_path is not None:
+            from society.persistence import save_checkpoint
+
+            save_checkpoint(self, self.checkpoint_path)
 
         return {"ticks_run": self.tick, "stop_reason": stop_reason}

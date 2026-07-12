@@ -34,9 +34,6 @@ bucket 累计的调用次数 / token 数上限,一旦下一次调用会超出就
 `BudgetExceeded`,`kernel.run()` 据此在跑完当前 tick 后以
 `stop_reason="budget"` 停止并落盘全部输出(细节见 `docs/actions.md`)。
 
-设计文档中提到的可选 `--checkpoint`(运行中断点续跑)不在本阶段
-(phase 1)范围内,当前 `society.run` 未实现该参数。
-
 ### 2. 运行内置的红楼梦 demo 场景
 
 ```bash
@@ -61,12 +58,46 @@ venv/bin/python -m society.run --help
 ```
 
 ```
---scenario   场景 yaml 路径(必填)
---ticks      最大 tick 数(必填)
+--scenario   场景 yaml 路径(--resume 时可省略)
+--ticks      最大 tick 数(必填;--resume 时表示在断点基础上再跑多少 tick)
 --out        输出目录(必填)
 --screenplay 跑完后额外生成 screenplay.md
 --config     config.json 路径(默认 config.json)
+--checkpoint 运行中定期(随 stats snapshot)落一份 {out}/checkpoint.json,
+             并在运行停止时(无论何种 stop_reason)再落一次
+--resume     从 {out}/checkpoint.json 续跑,而不是从 --scenario 重新开始
 ```
+
+### 持久化 / 断点续跑(--checkpoint / --resume)
+
+`--checkpoint` 让长跑任务可以从中断处恢复:开启后,`society.run` 会在每次
+`stats_interval` 周期快照(`stats/tick_NNNNNN.json`)的同时,把整个 Kernel
+的可恢复状态原子写入 `{out}/checkpoint.json`(先写 `.tmp` 再 `os.replace`,
+避免半截文件),并在运行因任何原因停止(`max_ticks` / `wall_time` /
+`quiescent` / `budget`)时再补写一次,所以 checkpoint 里的 `tick` 总是等于
+`run_summary.ticks_run`。
+
+checkpoint 内容是"全息"的:每个 agent 的 STM(FIFO、目标栈、状态寄存器含
+私有键、收件箱)、内核的 presence 索引与待投递消息队列、共享 LTM 的每条
+记忆(含 embedding,恢复时无需重新调用 embedding 接口)、事件日志的全局序号
+计数器,以及通信图的有向计数,足以精确重建运行到该 tick 时的完整状态。
+
+```bash
+# 开启断点续跑,每 stats_interval 落一次 checkpoint
+venv/bin/python -m society.run \
+  --scenario scenarios/demo_red_chamber.yaml \
+  --ticks 200 --out runs/demo --checkpoint
+
+# 从 runs/demo/checkpoint.json 续跑,再多跑 100 tick
+venv/bin/python -m society.run --resume --out runs/demo --ticks 100
+```
+
+`--resume` 复用 `--out` 作为运行目录:从其中的 `checkpoint.json` 恢复
+Kernel(场景的 agents/brains/地图按 checkpoint 保存的场景配置原样重建,
+但**不会**重放种子记忆或 kickoff 消息——checkpoint 里的状态已经反映了它们
+的效果),`events.jsonl` 以追加模式续写,序列号从 checkpoint 记录的
+`event_seq` 继续递增,不会跳号也不会重复。`--ticks` 在 `--resume` 下表示
+"在断点 tick 基础上再跑多少 tick",不是绝对 tick 数上限。
 
 ### 3. 从小说文本抽取场景
 
