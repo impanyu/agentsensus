@@ -1,0 +1,168 @@
+scenario: three_kingdoms_chibi
+language: zh
+agents:
+- id: liubei
+  kind: character
+  brain: llm
+  profile: 汉室宗亲，以仁德闻名于世，屡遭挫败而志向不改。
+  status:
+    location: xiakou
+    mood: 忧虑
+  goals:
+  - 拯救汉室
+  - 联合江东抗曹
+  seed_memories:
+  - 屡遭挫败但志向不改
+  - 三顾茅庐请出诸葛亮
+  - 当阳长坂坡百姓扶老携幼相随
+- id: zhugeliang
+  kind: character
+  brain: llm
+  profile: 卧龙，智计深远，善观天下大势。
+  status:
+    location: xiakou
+    mood: 安然
+  goals:
+  - 说服孙权
+  - 促进孙刘联盟
+  seed_memories:
+  - 定下三分天下之策
+  - 隆中草庐中陈说天下三分的午后
+  - 新野练兵、博望坡初用火攻的战绩
+- id: guanyu
+  kind: character
+  brain: llm
+  profile: 刘备义弟，忠义无双，手提青龙偃月刀。
+  status:
+    location: xiakou
+    mood: 疑虑
+  goals:
+  - 支持刘备
+  - 保护江东
+  seed_memories:
+  - 桃园结义誓同生死
+  - 曹操厚待自己而挂印封金
+  - 千里走单骑回到兄长身边
+- id: caocao
+  kind: character
+  brain: llm
+  profile: 挟天子以令诸侯，雄才大略而生性多疑。
+  status:
+    location: wulin
+    mood: 踌躇满志
+  goals:
+  - 扫平江南
+  - 统一天下
+  seed_memories:
+  - 官渡以少胜多大破袁绍
+  - 青梅煮酒论英雄时对刘备的评价
+  - 轻视江东孙权，并派遣战书
+- id: sunquan
+  kind: character
+  brain: llm
+  profile: 江东大都督，年方二十六，内心摇摆。
+  status:
+    location: chaisang
+    mood: 沉吟不决
+  goals:
+  - 维护江东基业
+  - 权衡战降之策
+  seed_memories:
+  - 兄长孙策临终嘱托
+  - 满堂文臣皆劝降的情景
+  - 外事不决问周瑜
+- id: zhouyu
+  kind: character
+  brain: llm
+  profile: 江东大都督，雄姿英发，精通兵法。
+  status:
+    location: chaisang
+    mood: 待命
+  goals:
+  - 抗曹
+  - 配合孙权
+  seed_memories:
+  - 力主抗曹，熟知水战
+  - 与孙策总角之好
+  - 曹军远来疲惫、不习水战、马无草料
+- id: lusuc
+  kind: character
+  brain: llm
+  profile: 江东谋士，忠厚长者而深有远略。
+  status:
+    location: chaisang
+    mood: 恳切
+  goals:
+  - 促进联合
+  - 探听虚实
+  seed_memories:
+  - 主动请命过江吊丧探听虚实
+  - 初见孙权时纵论天下的榻上策
+  - 对孙权说众人皆可降曹，唯将军不可降曹
+- id: xiakou
+  kind: environment
+  brain: rule
+  profile: 夏口:江夏门户,刘备残军屯驻地,水寨连绵,大战将至。
+- id: wulin
+  kind: environment
+  brain: rule
+  profile: 乌林:江北曹军大营,连营数十里,战船以铁索相连。
+- id: chaisang
+  kind: environment
+  brain: rule
+  profile: 柴桑:江东孙氏行辕,议事厅中战降两派争论不休。
+- id: chibi
+  kind: environment
+  brain: rule
+  profile: 赤壁:长江南岸,与乌林隔江相对,江面收窄水流湍急,预设决战之场。
+- id: sunzi_bingfa
+  kind: info_carrier
+  brain: retrieval
+  profile: 《孙子兵法》,将帅必读之书,周瑜案头常备。
+  status:
+    location: chaisang
+  corpus: corpora/sunzi_bingfa.txt
+map:
+  default_distance: 20
+  edges:
+  - - xiakou
+    - chaisang
+    - 3
+  - - chaisang
+    - chibi
+    - 1
+  - - chibi
+    - wulin
+    - 1
+  - - xiakou
+    - chibi
+    - 3
+kickoff:
+- to:
+  - liubei
+  kind: system
+  content: 消息传来，曹操大军已饮马长江，刘备感到局势危急。
+- to:
+  - zhugeliang
+  kind: system
+  content: 诸葛亮收到消息，明白必须前往柴桑说服孙权，形成合力抗曹。
+- to:
+  - guanyu
+  kind: system
+  content: 关羽得知曹军逼近，感受到兄长的忧虑，决心全力护卫。
+- to:
+  - caocao
+  kind: system
+  content: 曹操接到部下报告，称刘备在夏口屯兵，考虑如何一举击破敌军。
+- to:
+  - sunquan
+  kind: system
+  content: 孙权听闻曹操发来战书，内心产生动摇，思考该如何应对。
+- to:
+  - zhouyu
+  kind: system
+  content: 周瑜收到刘备动向的信息，决定向孙权建议联合抗曹。
+- to:
+  - lusuc
+  kind: system
+  content: 鲁肃随诸葛亮一起出发，心中盘算着如何促成孙刘联盟。
