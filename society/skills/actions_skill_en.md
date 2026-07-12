@@ -208,6 +208,9 @@ The view you receive typically contains:
 3. `say` or `gesture` toward `targets`;
 4. `wait` for a reply — you'll be woken automatically when their response
    arrives on a later tick.
+   Action target parameters must use the agent's id (given in the view's
+   `colocated`/`known_locations`), not a character's display name in prose
+   (the kernel can resolve some aliases, but id is authoritative).
 
 ### 3. Moving (observe → move → wait to arrive → observe)
 1. `observe` your current environment to confirm your location and which

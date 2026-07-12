@@ -19,6 +19,7 @@ class Agent:
         portable: bool = False,
         holder: str | None = None,
         profile: str = "",
+        name: str | None = None,
     ):
         self.id = agent_id
         self.kind = kind
@@ -27,6 +28,10 @@ class Agent:
         self.profile = profile
         self.portable = portable
         self.holder = holder
+        # Optional display name (e.g. a Chinese character name for a
+        # pinyin-id agent). Used by Kernel to build an alias->id map so
+        # brains can refer to agents by display name as well as id.
+        self.name = name
 
         # Kernel-managed runtime state.
         # waiting_until: None = not waiting; -1 = waiting forever (only a

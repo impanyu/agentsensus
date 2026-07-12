@@ -253,18 +253,30 @@ def main(argv=None):
 
     if args.screenplay:
         if args.scenario:
-            language = load_scenario(args.scenario).get("language", "zh")
+            screenplay_cfg = load_scenario(args.scenario)
         else:
-            # --resume without --scenario: recover language from this run's
-            # own config snapshot (written by write_outputs) instead.
-            snapshot = yaml.safe_load(
+            # --resume without --scenario: recover the scenario cfg (incl.
+            # agent names, for cast grounding) from this run's own config
+            # snapshot (written by write_outputs) instead -- the checkpoint
+            # scenario cfg it was built from carries the same "agents"
+            # list, "name" fields included.
+            screenplay_cfg = yaml.safe_load(
                 open(os.path.join(args.out, "config_snapshot.yaml"), encoding="utf-8")
-            )
-            language = (snapshot or {}).get("language", "zh")
+            ) or {}
+        language = screenplay_cfg.get("language", "zh")
+        names = {
+            a["id"]: a.get("name")
+            for a in screenplay_cfg.get("agents", [])
+            if a.get("id")
+        }
         events = EventLog.load(os.path.join(args.out, "events.jsonl"))
         asyncio.run(
             generate_screenplay(
-                events, llm, out_path=os.path.join(args.out, "screenplay.md"), language=language
+                events,
+                llm,
+                out_path=os.path.join(args.out, "screenplay.md"),
+                language=language,
+                names=names,
             )
         )
 

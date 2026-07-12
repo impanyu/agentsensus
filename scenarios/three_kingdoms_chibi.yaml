@@ -4,6 +4,7 @@ agents:
 - id: liubei
   kind: character
   brain: llm
+  name: 刘备
   profile: 汉室宗亲，以仁德闻名于世，屡遭挫败而志向不改。
   status:
     location: xiakou
@@ -18,6 +19,7 @@ agents:
 - id: zhugeliang
   kind: character
   brain: llm
+  name: 诸葛亮
   profile: 卧龙，智计深远，善观天下大势。
   status:
     location: xiakou
@@ -32,6 +34,7 @@ agents:
 - id: guanyu
   kind: character
   brain: llm
+  name: 关羽
   profile: 刘备义弟，忠义无双，手提青龙偃月刀。
   status:
     location: xiakou
@@ -46,6 +49,7 @@ agents:
 - id: caocao
   kind: character
   brain: llm
+  name: 曹操
   profile: 挟天子以令诸侯，雄才大略而生性多疑。
   status:
     location: wulin
@@ -60,6 +64,7 @@ agents:
 - id: sunquan
   kind: character
   brain: llm
+  name: 孙权
   profile: 江东大都督，年方二十六，内心摇摆。
   status:
     location: chaisang
@@ -74,6 +79,7 @@ agents:
 - id: zhouyu
   kind: character
   brain: llm
+  name: 周瑜
   profile: 江东大都督，雄姿英发，精通兵法。
   status:
     location: chaisang
@@ -88,6 +94,7 @@ agents:
 - id: lusuc
   kind: character
   brain: llm
+  name: 鲁肃
   profile: 江东谋士，忠厚长者而深有远略。
   status:
     location: chaisang
@@ -102,22 +109,27 @@ agents:
 - id: xiakou
   kind: environment
   brain: rule
+  name: 夏口
   profile: 夏口:江夏门户,刘备残军屯驻地,水寨连绵,大战将至。
 - id: wulin
   kind: environment
   brain: rule
+  name: 乌林
   profile: 乌林:江北曹军大营,连营数十里,战船以铁索相连。
 - id: chaisang
   kind: environment
   brain: rule
+  name: 柴桑
   profile: 柴桑:江东孙氏行辕,议事厅中战降两派争论不休。
 - id: chibi
   kind: environment
   brain: rule
+  name: 赤壁
   profile: 赤壁:长江南岸,与乌林隔江相对,江面收窄水流湍急,预设决战之场。
 - id: sunzi_bingfa
   kind: info_carrier
   brain: retrieval
+  name: 孙子兵法
   profile: 《孙子兵法》,将帅必读之书,周瑜案头常备。
   status:
     location: chaisang

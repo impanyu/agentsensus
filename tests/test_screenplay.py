@@ -39,3 +39,32 @@ async def test_noop_and_failed_actions_excluded():
     await generate_screenplay(evs, llm)
     joined = "".join(c[1] for c in llm.calls)
     assert "noop" not in joined and "not here" not in joined
+
+
+async def test_render_prompt_contains_cast_and_constraints():
+    calls = []
+
+    def fn(prompt, system=None):
+        calls.append(prompt)
+        return "ok"
+
+    llm = FakeLLM(fn=fn)
+    await generate_screenplay(EVENTS, llm, scene_gap=5)
+
+    hall_prompt = calls[0]
+    assert "amy" in hall_prompt and "ben" in hall_prompt
+    assert "禁止虚构" in hall_prompt
+    assert "ghost_agent" not in hall_prompt
+
+
+async def test_names_mapping_reaches_prompt():
+    calls = []
+
+    def fn(prompt, system=None):
+        calls.append(prompt)
+        return "ok"
+
+    llm = FakeLLM(fn=fn)
+    await generate_screenplay(EVENTS, llm, scene_gap=5, names={"amy": "艾米"})
+
+    assert "艾米" in calls[0]

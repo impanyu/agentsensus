@@ -51,6 +51,14 @@ class Kernel:
         self.presence: dict[str, set] = {}
         self._build_presence()
 
+        # Display-name -> agent-id alias map (Fix 1a). Lets brains refer to
+        # an agent by its scenario "name" (e.g. a Chinese character name)
+        # in addition to its raw id (usually pinyin/ascii). Built once at
+        # construction time; every agent's own id always maps to itself,
+        # and on a name/id collision the first agent encountered wins.
+        self._alias: dict[str, str] = {}
+        self._build_alias()
+
         # Set by build_society (holds the loaded scenario cfg dict, incl.
         # "_dir") so a checkpoint can record enough to rebuild the society
         # on resume. None until build_society wires it up.
@@ -71,6 +79,40 @@ class Kernel:
             loc = agent.location()
             if loc is not None:
                 self.presence.setdefault(loc, set()).add(agent.id)
+
+    def _build_alias(self) -> None:
+        self._alias = {}
+        # Pass 1: every agent's own id always resolves to itself. Done
+        # first so a later agent's display name can never shadow an
+        # earlier (or any) agent's real id.
+        for agent in self.agents.values():
+            self._alias[agent.id] = agent.id
+        # Pass 2: display names, first agent with a given name wins.
+        for agent in self.agents.values():
+            name = getattr(agent, "name", None)
+            if name and name not in self._alias:
+                self._alias[name] = agent.id
+
+    def _resolve_ref(self, ref):
+        """Resolve a single ref through the alias map. Unknown strings
+        (not a key in _alias) pass through unchanged."""
+        if isinstance(ref, str) and ref in self._alias:
+            return self._alias[ref]
+        return ref
+
+    def _resolve_action_refs(self, action: Action) -> None:
+        """Resolve target/destination/targets refs in `action.params` in
+        place, through the display-name -> id alias map (Fix 1a). Unknown
+        strings are left untouched so existing "no such target" error
+        paths still fire for genuinely unknown refs."""
+        params = dict(action.params)
+        for key in ("target", "destination"):
+            if key in params:
+                params[key] = self._resolve_ref(params[key])
+        targets = params.get("targets")
+        if isinstance(targets, list):
+            params["targets"] = [self._resolve_ref(t) for t in targets]
+        action.params = params
 
     def _presence_move(self, agent_id: str, origin, dest) -> None:
         if origin is not None:
@@ -210,6 +252,14 @@ class Kernel:
     # Action execution
     # ------------------------------------------------------------------
     async def execute(self, agent, action: Action) -> ActionResult:
+        # Fix 1a: resolve display-name refs (e.g. Chinese character names)
+        # to agent ids before any target/destination validation below, so
+        # say/observe/act_on/move/read all accept either an id or a known
+        # alias. Mutates action.params in place (a fresh dict) -- the
+        # caller's FIFO/event-log record then reflects the resolved refs,
+        # which is fine and simpler than keeping two versions around.
+        self._resolve_action_refs(action)
+
         name = action.name
         params = action.params
 
@@ -331,7 +381,7 @@ class Kernel:
 
         handle_act_on = getattr(target.brain, "handle_act_on", None)
         if handle_act_on is not None:
-            view = target.build_view(self.tick)
+            view = self._build_agent_view(target)
             reply = handle_act_on(agent.id, description, view)
             msg = Message(
                 id=str(uuid.uuid4()),
@@ -353,6 +403,48 @@ class Kernel:
             )
             self.send(msg)
         return ActionResult(True, data="acted")
+
+    # ------------------------------------------------------------------
+    # View construction (Fix 1b: discoverability of ids for say/observe/
+    # act_on/move targets)
+    # ------------------------------------------------------------------
+    def _colocated_view(self, agent) -> list[dict]:
+        """Other non-environment agents sharing `agent`'s location (or, for
+        an environment agent, the agents currently present there), sorted
+        by id, self excluded."""
+        loc = agent.id if agent.kind == "environment" else agent.location()
+        if loc is None:
+            return []
+        result = []
+        for oid in sorted(self.presence.get(loc, set())):
+            if oid == agent.id:
+                continue
+            other = self.agents.get(oid)
+            if other is None:
+                continue
+            result.append(
+                {"id": other.id, "kind": other.kind, "name": getattr(other, "name", None)}
+            )
+        return result
+
+    def _known_locations_view(self) -> list[dict]:
+        """All environment agents in the scenario, sorted by id."""
+        result = [
+            {"id": a.id, "name": getattr(a, "name", None)}
+            for a in self.agents.values()
+            if a.kind == "environment"
+        ]
+        result.sort(key=lambda d: d["id"])
+        return result
+
+    def _build_agent_view(self, agent) -> dict:
+        """Build `agent`'s STM view, enriched with `colocated` and
+        `known_locations` so brains can discover the exact ids to use as
+        say/observe/act_on/move refs instead of guessing at display names."""
+        view = agent.build_view(self.tick)
+        view["colocated"] = self._colocated_view(agent)
+        view["known_locations"] = self._known_locations_view()
+        return view
 
     def _is_readable(self, agent, target) -> bool:
         """An info_carrier is readable if it shares the reader's location,
@@ -481,7 +573,7 @@ class Kernel:
             return ActionResult(False, error="no llm configured")
 
         question = action.params["question"]
-        view = agent.build_view(self.tick)
+        view = self._build_agent_view(agent)
         prompt = f"Current view: {view}\n\nQuestion: {question}"
         reply = await self.llm.chat(prompt, bucket="think")
         return ActionResult(True, data=reply)
@@ -498,7 +590,7 @@ class Kernel:
         can neither abort the tick for its siblings nor leave a dangling
         background mutation after run() has moved on.
         """
-        view = agent.build_view(self.tick)
+        view = self._build_agent_view(agent)
         try:
             action = await agent.brain.decide(view)
         except Exception as exc:  # noqa: BLE001 - isolate brain failures per agent

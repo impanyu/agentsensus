@@ -41,6 +41,27 @@ _USER_TEMPLATE = {
     "en": "Location: {location}\nTick range: {tick_start}–{tick_end}\n\nEvents:\n{beats}\n",
 }
 
+# Hard grounding constraints (Task: no hallucination). Prepended to every
+# scene's user prompt so the LLM cannot invent characters/locations/events
+# beyond what the logged run actually produced.
+_CONSTRAINT_TEMPLATE = {
+    "zh": (
+        "你只能使用以下角色:{cast}。场景地点:{location}。"
+        "绝对禁止虚构任何未列出的角色、未出现的地点或未发生的事件。"
+        "每句对白和动作都必须对应所给的实际事件记录,可以润色语言表达,"
+        "但不可改变事实、不可增加情节。think/conclude 渲染为内心独白。"
+    ),
+    "en": (
+        "You may only use the following characters: {cast}. Scene location: "
+        "{location}. It is strictly forbidden to invent any character not "
+        "listed, any location that did not appear, or any event that did "
+        "not happen. Every line of dialogue and every action must "
+        "correspond to the actual event record provided — you may polish "
+        "the wording, but you must not change the facts or add plot. "
+        "Render think/conclude as inner monologue."
+    ),
+}
+
 
 def _is_beat(event: dict) -> bool:
     """Whether `event` should be kept as a dramatizable beat."""
@@ -134,12 +155,49 @@ def _split_scenes(beats: list[dict], scene_gap: int) -> list[dict]:
     return scenes
 
 
+def _scene_cast(scene: dict) -> list[str]:
+    """The unique agent ids that actually appear in `scene`'s beats: the
+    actor (or sender) plus any say/gesture/act_on targets. This is the
+    "allowed cast" a scene's constraint prompt is built from, so the LLM
+    has no cover to invent a character that never showed up in the log.
+    """
+    ids: set[str] = set()
+    for beat in scene["beats"]:
+        if beat.get("kind") == "action":
+            ids.add(beat.get("agent"))
+            params = beat.get("action", {}).get("params", {}) or {}
+            targets = params.get("targets")
+            if isinstance(targets, list):
+                ids.update(targets)
+            target = params.get("target")
+            if isinstance(target, str):
+                ids.add(target)
+        else:
+            message = beat.get("message", {})
+            ids.add(message.get("sender"))
+            recipient = beat.get("recipient")
+            if recipient is not None:
+                ids.add(recipient)
+    ids.discard(None)
+    return sorted(ids)
+
+
+def _format_cast(cast_ids: list[str], names: dict | None) -> str:
+    names = names or {}
+    parts = []
+    for cid in cast_ids:
+        display_name = names.get(cid)
+        parts.append(f"{cid}({display_name})" if display_name else cid)
+    return ", ".join(parts)
+
+
 async def generate_screenplay(
     events: list[dict],
     llm,
     out_path: str | None = None,
     language: str = "zh",
     scene_gap: int = 5,
+    names: dict | None = None,
 ) -> str:
     """Turn a run's event log into a markdown screenplay.
 
@@ -152,6 +210,10 @@ async def generate_screenplay(
             (utf-8).
         language: "zh" or "en"; selects the prompt language.
         scene_gap: Max tick gap within one scene before a new scene starts.
+        names: Optional {agent_id: display_name} map (events themselves
+            carry no display names). When given, the per-scene cast line
+            shows "id(display_name)" so the LLM can use natural names
+            while the grounding constraint still keys off real ids.
 
     Returns:
         The full screenplay as a markdown string.
@@ -161,11 +223,14 @@ async def generate_screenplay(
 
     system_prompt = _SYSTEM_PROMPT.get(language, _SYSTEM_PROMPT["en"])
     user_template = _USER_TEMPLATE.get(language, _USER_TEMPLATE["en"])
+    constraint_template = _CONSTRAINT_TEMPLATE.get(language, _CONSTRAINT_TEMPLATE["en"])
 
     blocks = []
     for i, scene in enumerate(scenes, start=1):
         beat_lines = "\n".join(_beat_line(b) for b in scene["beats"])
-        prompt = user_template.format(
+        cast_str = _format_cast(_scene_cast(scene), names)
+        constraint = constraint_template.format(cast=cast_str, location=scene["location"])
+        prompt = constraint + "\n\n" + user_template.format(
             location=scene["location"],
             tick_start=scene["tick_start"],
             tick_end=scene["tick_end"],

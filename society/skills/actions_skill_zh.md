@@ -174,6 +174,7 @@
 2. 从在场者中选出要互动的 `targets`;
 3. `say` 或 `gesture` 向 `targets` 表达;
 4. `wait` 等待对方回应——下一 tick 对方的回复消息到达时,你会被自动唤醒。
+   action 参数中的目标必须用 agent 的 id(view 的 colocated/known_locations 里给出),不要用人物的中文名字(内核可解析部分别名,但以 id 为准)。
 
 ### 3. 移动(observe → move → 等到达 → observe)
 1. `observe` 当前环境,确认当前位置以及与之连通的相邻环境;

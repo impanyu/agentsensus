@@ -420,6 +420,21 @@ async def extract_scenario(
     return cfg
 
 
+def _id_as_name(agent_id: str) -> dict:
+    """Environments/carriers only carry an "id" + "profile" out of the
+    extraction stages (no separate "name" field). When the id itself is a
+    non-ascii display string (e.g. a Chinese location/carrier name rather
+    than a pinyin/ascii short id), reuse it as the "name" too so the
+    kernel's alias map (Fix 1a) and view enrichment (Fix 1b) have a name
+    to surface -- harmless no-op for ascii ids.
+
+    Returns {"name": agent_id} or {} (spread into a dict literal).
+    """
+    if not agent_id.isascii():
+        return {"name": agent_id}
+    return {}
+
+
 def _assemble_scenario(
     *,
     characters,
@@ -445,17 +460,22 @@ def _assemble_scenario(
             # the scenario stays loadable.
             locations.append({"id": loc, "profile": "(自动补全的地点)"})
             location_ids.add(loc)
-        agents.append(
-            {
-                "id": c["id"],
-                "kind": "character",
-                "brain": "llm",
-                "profile": c.get("profile", ""),
-                "status": status,
-                "goals": c.get("goals", []),
-                "seed_memories": memories.get(c["id"], []),
-            }
-        )
+        agent = {
+            "id": c["id"],
+            "kind": "character",
+            "brain": "llm",
+            "profile": c.get("profile", ""),
+            "status": status,
+            "goals": c.get("goals", []),
+            "seed_memories": memories.get(c["id"], []),
+        }
+        # The characters stage already extracts a display "name" -- carry
+        # it into the assembled agent dict so the kernel's name->id alias
+        # resolution (Fix 1a) has something to key off of.
+        char_name = c.get("name")
+        if char_name:
+            agent["name"] = char_name
+        agents.append(agent)
 
     location_agents = [
         {
@@ -463,6 +483,7 @@ def _assemble_scenario(
             "kind": "environment",
             "brain": "rule",
             "profile": loc.get("profile", ""),
+            **_id_as_name(loc["id"]),
         }
         for loc in locations
         if "id" in loc
@@ -477,7 +498,13 @@ def _assemble_scenario(
         if cloc is not None and cloc not in location_ids:
             locations.append({"id": cloc, "profile": "(自动补全的地点)"})
             location_agents.append(
-                {"id": cloc, "kind": "environment", "brain": "rule", "profile": "(自动补全的地点)"}
+                {
+                    "id": cloc,
+                    "kind": "environment",
+                    "brain": "rule",
+                    "profile": "(自动补全的地点)",
+                    **_id_as_name(cloc),
+                }
             )
             location_ids.add(cloc)
         carrier_agents.append(
@@ -488,6 +515,7 @@ def _assemble_scenario(
                 "profile": carrier.get("profile", ""),
                 "status": {"location": cloc} if cloc is not None else {},
                 "corpus": f"corpora/{cid}.txt",
+                **_id_as_name(cid),
             }
         )
 

@@ -62,6 +62,10 @@ def load_scenario(path: str) -> dict:
                     f"agent {aid!r}: private_status_keys must be a list of strings"
                 )
 
+        name = a.get("name")
+        if name is not None and not isinstance(name, str):
+            raise ValueError(f"agent {aid!r}: name must be a string")
+
         if a["kind"] == "environment":
             env_ids.add(aid)
 
@@ -142,6 +146,7 @@ def build_agents_and_map(cfg: dict, *, llm) -> tuple[dict, "WorldMap", dict, lis
             portable=a.get("portable", False),
             holder=a.get("holder"),
             profile=a.get("profile", ""),
+            name=a.get("name"),
         )
         agents[a["id"]] = agent
         if a["kind"] == "environment":
