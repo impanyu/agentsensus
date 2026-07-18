@@ -161,3 +161,32 @@ async def test_private_status_keys_respected():
     assert "secret" not in result.data
     assert "mood" not in result.data
     assert result.data == {"location": "hall", "appearance": "tall"}
+
+
+async def test_ltm_final_exported_without_checkpoint(tmp_path):
+    """Run WITHOUT --checkpoint must still export the final LTM holographically."""
+    import json as _json
+    import yaml as _yaml
+    from tests.helpers import FakeLLM, afake_embed
+    from society.run import run_scenario
+
+    scen = {
+        "scenario": "ltmfinal", "language": "zh",
+        "agents": [
+            {"id": "hall", "kind": "environment", "brain": "rule", "profile": "hall"},
+            {"id": "amy", "kind": "character", "brain": "llm", "profile": "amy",
+             "status": {"location": "hall"}, "goals": ["记录"]},
+        ],
+        "kickoff": [{"to": ["amy"], "kind": "system", "content": "开始"}],
+    }
+    spath = tmp_path / "s.yaml"
+    spath.write_text(_yaml.safe_dump(scen, allow_unicode=True), encoding="utf-8")
+    seq = ['{"action": "remember", "params": {"text": "花园着火"}}',
+           '{"action": "pop_goal", "params": {}}']
+    llm = FakeLLM(fn=lambda p, s=None: seq.pop(0) if seq else '{"action": "wait", "params": {}}')
+    out = str(tmp_path / "run")
+    await run_scenario(str(spath), ticks=5, out_dir=out, llm=llm, embed_fn=afake_embed)
+
+    entries = _json.load(open(f"{out}/ltm_final.json", encoding="utf-8"))
+    assert any("花园着火" in e["text"] for e in entries)
+    assert all(e.get("embedding") for e in entries)     # holographic

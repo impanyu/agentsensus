@@ -194,6 +194,7 @@ venv/bin/python -m society.extract --input scenarios/sources/three_kingdoms_ch01
 │                          #   consensus_owners — 每条共识条目 {id, text, owners}
 ├── screenplay.md          # 仅当 --screenplay 时生成:剧本(离线读 events.jsonl,
 │                          # 按 tick/地点/参与者切幕,LLM 两阶段筛选+渲染)
+├── ltm_final.json        # 运行结束时的 LTM 全息导出(可作下次场景的 ltm_file)
 ├── llm_usage.json         # LLM 调用按用途分桶的次数/token 统计
 │                          # (decide/think/consensus/normalize/extract/screenplay)
 └── config_snapshot.yaml   # 本次运行使用的完整场景配置快照 + run_summary

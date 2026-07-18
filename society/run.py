@@ -98,6 +98,13 @@ def write_outputs(
     with open(os.path.join(out_dir, "llm_usage.json"), "w", encoding="utf-8") as f:
         json.dump(usage, f, ensure_ascii=False, indent=2)
 
+    # Always export the final LTM state (holographic, embeddings included) so a
+    # run's memories survive without --checkpoint and can seed a later scenario
+    # via its ltm_file key.
+    if getattr(kernel, "shared_memory", None) is not None:
+        with open(os.path.join(out_dir, "ltm_final.json"), "w", encoding="utf-8") as f:
+            json.dump(kernel.shared_memory.export(), f, ensure_ascii=False)
+
     snapshot_cfg = {k: v for k, v in scenario_cfg.items() if not k.startswith("_")}
     snapshot_cfg["run_summary"] = summary
     snapshot_cfg["llm_config"] = _llm_config_snapshot(kernel.llm, embed_fn)
