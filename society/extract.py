@@ -613,7 +613,7 @@ def _build_llm(config_path: str | None, *, model_override: str | None = None):
 
     api_key = cfg.get("api_key") or os.environ.get("OPENAI_API_KEY", "")
     base_url = cfg.get("base_url", "https://api.openai.com/v1")
-    chat_model = model_override or cfg.get("chat_model", "gpt-4o-mini")
+    chat_model = model_override or cfg.get("chat_model", "gpt-4o")
 
     return LLMClient(api_key, base_url, chat_model)
 
@@ -630,7 +630,7 @@ def _build_llm_and_embed(config_path: str | None, *, model_override: str | None 
 
     api_key = cfg.get("api_key") or os.environ.get("OPENAI_API_KEY", "")
     base_url = cfg.get("base_url", "https://api.openai.com/v1")
-    chat_model = model_override or cfg.get("chat_model", "gpt-4o-mini")
+    chat_model = model_override or cfg.get("chat_model", "gpt-4o")
     embed_model = cfg.get("embed_model", "text-embedding-3-small")
 
     llm = LLMClient(api_key, base_url, chat_model)

@@ -193,7 +193,7 @@ def _build_llm_and_embed(config_path: str | None):
 
     api_key = cfg.get("api_key") or os.environ.get("OPENAI_API_KEY", "")
     base_url = cfg.get("base_url", "https://api.openai.com/v1")
-    chat_model = cfg.get("chat_model", "gpt-4o-mini")
+    chat_model = cfg.get("chat_model", "gpt-4o")
     embed_model = cfg.get("embed_model", "text-embedding-3-small")
     max_concurrency = cfg.get("max_concurrency", 16)
     max_calls = cfg.get("max_calls")
