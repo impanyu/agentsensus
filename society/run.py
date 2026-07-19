@@ -185,7 +185,18 @@ async def resume_scenario(out_dir: str, ticks: int, *, llm, embed_fn) -> dict:
 
 def _build_llm_and_embed(config_path: str | None):
     """Build a real LLMClient + EmbeddingClient.embed from a config.json,
-    falling back to the OPENAI_API_KEY env var for the API key."""
+    falling back to the OPENAI_API_KEY env var for the API key.
+
+    The chat provider (api_key/base_url) and the embedding provider can be
+    split: `embed_api_key`/`embed_base_url` in config.json, when present,
+    override the chat provider's api_key/base_url for the EmbeddingClient
+    only (e.g. DeepSeek for chat, OpenAI for embeddings, since DeepSeek has
+    no embedding endpoint). Absent, embeddings fall back to the chat
+    api_key/base_url (backward compatible). `embed_api_key` additionally
+    falls back to the `EMBED_API_KEY` env var before the chat api_key, so
+    the chat key can live in config.json while the embed key comes from the
+    environment.
+    """
     cfg = {}
     if config_path and os.path.exists(config_path):
         with open(config_path, "r", encoding="utf-8") as f:
@@ -195,6 +206,8 @@ def _build_llm_and_embed(config_path: str | None):
     base_url = cfg.get("base_url", "https://api.openai.com/v1")
     chat_model = cfg.get("chat_model", "gpt-4o")
     embed_model = cfg.get("embed_model", "text-embedding-3-small")
+    embed_api_key = cfg.get("embed_api_key") or os.environ.get("EMBED_API_KEY") or api_key
+    embed_base_url = cfg.get("embed_base_url") or base_url
     max_concurrency = cfg.get("max_concurrency", 16)
     max_calls = cfg.get("max_calls")
     max_tokens = cfg.get("max_tokens")
@@ -207,7 +220,7 @@ def _build_llm_and_embed(config_path: str | None):
         max_calls=max_calls,
         max_tokens=max_tokens,
     )
-    embed_client = EmbeddingClient(api_key, base_url, embed_model)
+    embed_client = EmbeddingClient(embed_api_key, embed_base_url, embed_model)
     return llm, embed_client.embed
 
 

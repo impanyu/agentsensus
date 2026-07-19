@@ -1,3 +1,5 @@
-{"api_key": "sk-...", "base_url": "https://api.openai.com/v1",
- "chat_model": "gpt-4o", "embed_model": "text-embedding-3-small",
- "max_concurrency": 16, "max_calls": null, "max_tokens": null}
+{"api_key": "sk-deepseek-...", "base_url": "https://api.deepseek.com/v1",
+ "chat_model": "deepseek-v4-pro",
+ "embed_api_key": "sk-openai-...", "embed_base_url": "https://api.openai.com/v1",
+ "embed_model": "text-embedding-3-small",
+ "max_concurrency": 16, "max_calls": 5000, "max_tokens": null}

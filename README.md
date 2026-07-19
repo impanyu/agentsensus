@@ -34,6 +34,30 @@ bucket 累计的调用次数 / token 数上限,一旦下一次调用会超出就
 `BudgetExceeded`,`kernel.run()` 据此在跑完当前 tick 后以
 `stop_reason="budget"` 停止并落盘全部输出(细节见 `docs/actions.md`)。
 
+#### 使用不同的 chat / embedding 供应商
+
+`api_key` / `base_url` 是 chat 模型的供应商配置。`config.json` 可以额外填
+`embed_api_key` / `embed_base_url`(均可选)为 embedding 单独指定另一个供
+应商——这两个 key 缺省时会分别回退到 `api_key` / `base_url`(即原来的单供
+应商行为,完全向后兼容)。典型场景是 chat 走 DeepSeek(DeepSeek 没有
+embedding 接口)、embedding 走 OpenAI:
+
+```json
+{"api_key": "sk-deepseek-...", "base_url": "https://api.deepseek.com/v1",
+ "chat_model": "deepseek-v4-pro",
+ "embed_api_key": "sk-openai-...", "embed_base_url": "https://api.openai.com/v1",
+ "embed_model": "text-embedding-3-small",
+ "max_concurrency": 16, "max_calls": 5000, "max_tokens": null}
+```
+
+`embed_api_key` 还可以用环境变量 `EMBED_API_KEY` 代替(优先级:
+`config.json` 的 `embed_api_key` > `EMBED_API_KEY` 环境变量 > chat 的
+`api_key`),方便 chat key 写进 `config.json`、embed key 只放在环境变量里。
+`society.extract --mode history` 的沉淀流程内部复用同一套拆分逻辑,因此
+`--model` 覆盖 chat 模型时,embedding 仍然按 `embed_*` 配置走。`llm_config`
+快照(`config_snapshot.yaml`)只记录 `chat_model` / `embed_model` 等元信息,
+不会写入任何 api_key。
+
 ### 2. 运行内置的红楼梦 demo 场景
 
 ```bash

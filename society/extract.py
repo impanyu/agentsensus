@@ -620,7 +620,15 @@ def _build_llm(config_path: str | None, *, model_override: str | None = None):
 
 def _build_llm_and_embed(config_path: str | None, *, model_override: str | None = None):
     """Build a real LLMClient + EmbeddingClient.embed from config.json
-    (mirrors society.run._build_llm_and_embed), honoring `--model`."""
+    (mirrors society.run._build_llm_and_embed), honoring `--model`.
+
+    Same chat/embed provider split as society.run._build_llm_and_embed:
+    `embed_api_key`/`embed_base_url` (config.json, falling back to the
+    `EMBED_API_KEY` env var for the key) override the chat provider's
+    api_key/base_url for the EmbeddingClient only, so `--mode history`
+    sedimentation embeds via the embed provider even when the chat model
+    is overridden with `--model`.
+    """
     from society.embeddings import EmbeddingClient
 
     cfg = {}
@@ -632,9 +640,11 @@ def _build_llm_and_embed(config_path: str | None, *, model_override: str | None 
     base_url = cfg.get("base_url", "https://api.openai.com/v1")
     chat_model = model_override or cfg.get("chat_model", "gpt-4o")
     embed_model = cfg.get("embed_model", "text-embedding-3-small")
+    embed_api_key = cfg.get("embed_api_key") or os.environ.get("EMBED_API_KEY") or api_key
+    embed_base_url = cfg.get("embed_base_url") or base_url
 
     llm = LLMClient(api_key, base_url, chat_model)
-    embed_client = EmbeddingClient(api_key, base_url, embed_model)
+    embed_client = EmbeddingClient(embed_api_key, embed_base_url, embed_model)
     return llm, embed_client.embed
 
 
