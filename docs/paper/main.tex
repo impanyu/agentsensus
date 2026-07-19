@@ -308,6 +308,19 @@ Each scenario $\times$ backend: identical kickoff and tick budget (50 ticks),
 memory size and vs.\ cumulative token cost. \todo{seeds/ticks may increase for
 camera-ready}
 
+\paragraph{Models.} All agent brains and the sedimentation extractor use a
+single fixed chat model (DeepSeek~V4~Pro) across \emph{every} system, so the
+memory-layer comparison is held strictly controlled; the choice of chat model
+affects absolute quality but not the relative ranking. Embeddings use OpenAI
+\texttt{text-embedding-3-small} (the client separates the chat and embedding
+providers, since the chat provider exposes no embedding endpoint). Quality
+judges use a different model family (\texttt{gpt-4.1}) to avoid self-evaluation
+bias. Chinese-language simulations are run natively; human-facing deliverables
+(screenplays, quoted memories, figure labels) are translated to English for
+presentation, with source-language originals retained (Appendix~\todo{ref}
+gives representative Chinese/English pairs). \todo{finalize model versions and
+per-run token/cost numbers}
+
 \section{Results}
 \label{sec:results}
 \todo{Main table: 4 scenarios $\times$ 4 systems $\times$ (memory, cost, quality
