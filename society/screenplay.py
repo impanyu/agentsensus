@@ -41,6 +41,36 @@ _USER_TEMPLATE = {
     "en": "Location: {location}\nTick range: {tick_start}–{tick_end}\n\nEvents:\n{beats}\n",
 }
 
+# Target-language render instruction (Deliverable 1). Prepended to the
+# constraint when `target_language` differs from `language`: renders the
+# screenplay directly in the target language in one pass (never render in
+# `language` then machine-translate), grounding on the source-language
+# beats and romanizing/rendering names via the `names` mapping.
+_TARGET_LANGUAGE_NAMES = {
+    "en": "English",
+    "zh": "Chinese",
+}
+
+_TARGET_LANGUAGE_INSTRUCTION = {
+    "en": (
+        "Write the screenplay in English, even though the source events "
+        "below are in another language. For every character, use the "
+        "display name given in the cast list (already romanized / an "
+        "English name); if a character has no display name, use standard "
+        "romanization of their id. Ground every line strictly in the "
+        "source-language beats provided — translate and dramatize them "
+        "directly into English in a single pass; do not leave any "
+        "non-English text in the output."
+    ),
+    "zh": (
+        "请用中文撰写剧本正文,即使下方的源事件使用了其他语言。"
+        "每个角色都使用演员表中给出的显示名称;如果没有显示名称,"
+        "则使用其 id 的标准中文译名。所有台词都必须严格基于下方提供的"
+        "源语言事件,一次性直接译写为中文,不要在输出中保留任何非中文文本。"
+    ),
+}
+
+
 # Hard grounding constraints (Task: no hallucination). Prepended to every
 # scene's user prompt so the LLM cannot invent characters/locations/events
 # beyond what the logged run actually produced.
@@ -198,6 +228,7 @@ async def generate_screenplay(
     language: str = "zh",
     scene_gap: int = 5,
     names: dict | None = None,
+    target_language: str | None = None,
 ) -> str:
     """Turn a run's event log into a markdown screenplay.
 
@@ -214,6 +245,14 @@ async def generate_screenplay(
             carry no display names). When given, the per-scene cast line
             shows "id(display_name)" so the LLM can use natural names
             while the grounding constraint still keys off real ids.
+        target_language: Optional language code (e.g. "en"). When None
+            (default), behaves exactly as before -- the screenplay is
+            rendered in `language`. When set and different from
+            `language`, the per-scene render prompt instructs the LLM to
+            write the screenplay directly in `target_language` in a
+            single pass (grounded on the source-language beats, names
+            romanized/rendered via `names`) instead of rendering in
+            `language` and translating afterwards.
 
     Returns:
         The full screenplay as a markdown string.
@@ -225,12 +264,21 @@ async def generate_screenplay(
     user_template = _USER_TEMPLATE.get(language, _USER_TEMPLATE["en"])
     constraint_template = _CONSTRAINT_TEMPLATE.get(language, _CONSTRAINT_TEMPLATE["en"])
 
+    target_instruction = ""
+    if target_language and target_language != language:
+        target_instruction = (
+            _TARGET_LANGUAGE_INSTRUCTION.get(
+                target_language, _TARGET_LANGUAGE_INSTRUCTION["en"]
+            )
+            + "\n\n"
+        )
+
     blocks = []
     for i, scene in enumerate(scenes, start=1):
         beat_lines = "\n".join(_beat_line(b) for b in scene["beats"])
         cast_str = _format_cast(_scene_cast(scene), names)
         constraint = constraint_template.format(cast=cast_str, location=scene["location"])
-        prompt = constraint + "\n\n" + user_template.format(
+        prompt = target_instruction + constraint + "\n\n" + user_template.format(
             location=scene["location"],
             tick_start=scene["tick_start"],
             tick_end=scene["tick_end"],

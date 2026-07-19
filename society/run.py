@@ -235,6 +235,13 @@ def main(argv=None):
         "--screenplay", action="store_true", help="generate a screenplay (Task 12)"
     )
     parser.add_argument(
+        "--screenplay-lang",
+        default=None,
+        help="optional target language code (e.g. 'en') for an ADDITIONAL "
+        "screenplay_<lang>.md rendered directly in that language, alongside "
+        "the source-language screenplay.md (requires --screenplay)",
+    )
+    parser.add_argument(
         "--config", default="config.json", help="path to config.json (api_key, base_url, ...)"
     )
     parser.add_argument(
@@ -299,6 +306,19 @@ def main(argv=None):
                 names=names,
             )
         )
+        if args.screenplay_lang and args.screenplay_lang != language:
+            asyncio.run(
+                generate_screenplay(
+                    events,
+                    llm,
+                    out_path=os.path.join(
+                        args.out, f"screenplay_{args.screenplay_lang}.md"
+                    ),
+                    language=language,
+                    names=names,
+                    target_language=args.screenplay_lang,
+                )
+            )
 
     print(json.dumps(summary, ensure_ascii=False))
     return summary

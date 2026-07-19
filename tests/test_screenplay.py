@@ -68,3 +68,60 @@ async def test_names_mapping_reaches_prompt():
     await generate_screenplay(EVENTS, llm, scene_gap=5, names={"amy": "艾米"})
 
     assert "艾米" in calls[0]
+
+
+async def test_screenplay_target_language():
+    calls = []
+
+    def fn(prompt, system=None):
+        calls.append(prompt)
+        return "the rendered english screenplay"
+
+    llm = FakeLLM(fn=fn)
+    md = await generate_screenplay(
+        EVENTS,
+        llm,
+        language="zh",
+        target_language="en",
+        scene_gap=5,
+        names={"amy": "Amy", "ben": "Ben"},
+    )
+
+    hall_prompt = calls[0]
+    # instructs English rendering
+    assert "English" in hall_prompt
+    # still carries the grounding constraint (zh constraint template, since
+    # language="zh" -- only the render target changes)
+    assert "禁止虚构" in hall_prompt
+    # names mapping still reaches the prompt for romanization
+    assert "Amy" in hall_prompt
+    # returned markdown is exactly the fake's rendered text
+    assert "the rendered english screenplay" in md
+
+
+async def test_screenplay_target_language_none_is_noop():
+    calls = []
+
+    def fn(prompt, system=None):
+        calls.append(prompt)
+        return "ok"
+
+    llm = FakeLLM(fn=fn)
+    await generate_screenplay(EVENTS, llm, language="zh", scene_gap=5)
+
+    assert "English" not in calls[0]
+
+
+async def test_screenplay_target_language_same_as_language_is_noop():
+    calls = []
+
+    def fn(prompt, system=None):
+        calls.append(prompt)
+        return "ok"
+
+    llm = FakeLLM(fn=fn)
+    await generate_screenplay(
+        EVENTS, llm, language="zh", target_language="zh", scene_gap=5
+    )
+
+    assert "English" not in calls[0]
