@@ -110,18 +110,35 @@ Generative Agents~\cite{park2023generative} introduced the memory stream:
 append-only observations with recency/importance/relevance retrieval and
 periodic reflection. MemGPT~\cite{packer2023memgpt} pages memory between
 context and external storage. These designs are per-agent: in a society,
-shared experiences are duplicated per participant. \todo{1-2 more recent
-memory works (e.g., HippoRAG, MemoryBank) if venue expects}
+shared experiences are duplicated per participant.
 
-\paragraph{Multi-agent societies and story worlds.}
-BookWorld~\cite{chen2025bookworld} constructs role-agent societies from novels
-with a world agent that periodically distills consensus summaries into world
-memory while compressing per-role histories. G-Memory~\cite{gmemory2025}
-maintains hierarchical interaction/insight structures shared across agents.
-Our approach differs in \emph{where} deduplication happens: not as a
+\paragraph{Multi-agent memory systems.}
+G-Memory~\cite{gmemory2025} maintains hierarchical insight/query/interaction
+graphs shared across agents, inspired by organizational memory theory.
+Collaborative Memory~\cite{collabmem2025} shares memory \emph{fragments}
+across users and agents under dynamic bipartite access-control policies with
+immutable provenance --- the design closest to ours, but it governs
+\emph{who may read} a fragment, whereas we govern \emph{how many copies
+exist}: consensus dedup, atomicity, and story-time provenance are absent.
+LEGOMem~\cite{legomem2025} distributes modular \emph{procedural} memory
+(task trajectories) between orchestrators and workers for workflow
+automation; DAMCS~\cite{damcs2025} couples a decentralized adaptive
+knowledge-graph memory with structured communication for embodied
+cooperation. Both target task execution rather than long-horizon social
+memory. Our approach differs in \emph{where} deduplication happens: not as a
 posterior summarization step over private logs, but at insert time in the
 storage layer, preserving atomic facts with provenance (owner sets, story
-time) instead of prose summaries. \todo{verify G-Memory citation details}
+time) instead of prose summaries.
+
+\paragraph{Story worlds and role-play societies.}
+BookWorld~\cite{chen2025bookworld} constructs role-agent societies from
+novels with a world agent that distills consensus summaries while compressing
+per-role histories. BOOKMARKS~\cite{bookmarks2026} maintains per-role
+storyline ``bookmarks'' for long-form role-play consistency, and
+SALM~\cite{salm2025} reports sublinear memory growth in social-network
+simulation platforms; both keep memory per-role rather than as a shared,
+owner-attributed store. \todo{optional: add FURINA (role-play benchmark) and
+a survey citation if space permits}
 
 \paragraph{Simulation grounded in real timelines.}
 \todo{brief para: social simulacra / world-model sims / wargaming with LLMs;
@@ -247,14 +264,19 @@ key documents as information carriers. \todo{finalize counts}}
 \label{sec:baselines}
 All baselines are re-implemented as \emph{memory backends} inside the \sysname{}
 runtime: identical brains, action space, scheduler, kickoffs, and budgets ---
-only the memory layer varies.
-\textbf{Generative Agents}~\cite{park2023generative}: per-agent append-only
-stream, recency/importance/relevance retrieval, periodic reflection.
-\textbf{BookWorld}~\cite{chen2025bookworld}: per-role flat histories with
-world-agent consensus summarization and post-hoc history compression.
-\textbf{G-Memory}~\cite{gmemory2025}: shared hierarchical interaction/insight
-memory. Sedimentation feeds each backend the same source span through its own
-ingestion mechanism. \todo{document per-backend ingestion adaptations in appendix}
+only the memory layer varies. The three chosen backends span the design space:
+\textbf{Generative Agents}~\cite{park2023generative} (per-agent append-only
+stream with recency/importance/relevance retrieval and periodic reflection ---
+the canonical private-log design);
+\textbf{G-Memory}~\cite{gmemory2025} (shared hierarchical
+insight/query/interaction graph memory --- the recent structured-sharing
+design);
+\textbf{Collaborative Memory}~\cite{collabmem2025} (shared fragments with
+provenance under per-agent access policies --- the closest access-controlled
+sharing design, which controls visibility but does not deduplicate).
+Sedimentation feeds each backend the same source span through its own
+ingestion mechanism. \todo{document per-backend ingestion adaptations in
+appendix; optionally add BOOKMARKS as a story-domain per-role baseline}
 
 \subsection{Metrics}
 \label{sec:metrics}
@@ -321,9 +343,23 @@ ongoing conflicts. \todo{expand}
 Simulacra of Human Behavior. UIST 2023.
 \bibitem{packer2023memgpt} C.~Packer et al. MemGPT: Towards LLMs as Operating
 Systems. arXiv:2310.08560.
-\bibitem{chen2025bookworld} \todo{BookWorld: From Novels to Interactive Agent
-Societies for Story Creation. ACL 2025. verify authors}
-\bibitem{gmemory2025} \todo{G-Memory citation — verify title/venue/authors}
+\bibitem{chen2025bookworld} Y.~Chen et al. BookWorld: From Novels to
+Interactive Agent Societies for Creative Story Generation. ACL 2025.
+\todo{verify author list}
+\bibitem{gmemory2025} G-Memory: A Hierarchical Graph Memory System for
+Multi-Agent Systems Inspired by Organizational Memory Theory.
+arXiv:2506.07398. \todo{authors}
+\bibitem{collabmem2025} Collaborative Memory: Multi-User Memory Sharing in
+LLM Agents with Dynamic Access Control. arXiv:2505.18279. \todo{authors}
+\bibitem{legomem2025} LEGOMem: Modular Procedural Memory for Multi-agent LLM
+Systems for Workflow Automation. arXiv:2510.04851. \todo{authors}
+\bibitem{damcs2025} Decentralized Adaptive Knowledge Graph Memory and
+Structured Communication for Multi-Agent Cooperation (DAMCS).
+arXiv:2502.05453. \todo{authors}
+\bibitem{salm2025} SALM: A Multi-Agent Framework for Language Model-Driven
+Social Network Simulation. arXiv:2505.09081. \todo{authors}
+\bibitem{bookmarks2026} BOOKMARKS: Efficient Active Storyline Memory for
+Role-playing. arXiv:2605.14169. \todo{authors}
 \end{thebibliography}
 
 \end{document}
