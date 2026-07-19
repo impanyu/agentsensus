@@ -2,7 +2,7 @@
 
 **日期:** 2026-07-08
 **状态:** 草稿(待用户审阅)
-**位置:** `agent_society/`(仓库根目录下,与 BookWorld/、GMemory/ 平级,零代码依赖它们)
+**位置:** `agentsensus/`(仓库根目录下,与 BookWorld/、GMemory/ 平级,零代码依赖它们)
 **分期:** 一期只做基础设施(本 spec);评估 benchmark 二期单独出 spec,本期以事件日志、统计快照、预算计数为其预留数据源。
 
 ---
@@ -18,7 +18,7 @@
 ## 2. 目录结构
 
 ```
-agent_society/
+agentsensus/
 ├── config.json                 # API key、模型名、并发/预算/各默认参数
 ├── society/
 │   ├── kernel.py               # tick 调度、消息路由、同步 action 执行、在场索引、静止检测
@@ -194,7 +194,7 @@ LLMBrain 注入浓缩版;场景可为个别智能体追加自定义 skill 文档
 
 ## 9. LLM client 与成本控制
 
-- 独立异步 OpenAI 兼容 client(chat + embedding),key/模型名从 `agent_society/config.json` 读。
+- 独立异步 OpenAI 兼容 client(chat + embedding),key/模型名从 `agentsensus/config.json` 读。
 - 全局 `asyncio.Semaphore` 限并发(默认 **16**,可配);指数退避重试(最多 3 次)。
 - **运行级预算熔断:** 最大 LLM 调用次数 / 最大 token(可配);触发即优雅停止(完成当前 tick、落盘全部输出)。
 - 所有调用计数按用途分桶记录(decide/think/consensus/normalize/extract/screenplay),写入 run 输出,供二期 benchmark 使用。

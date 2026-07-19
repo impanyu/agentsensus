@@ -1,0 +1,4122 @@
+[
+ {
+  "id": "d74dbee97f0f4715be910246ee2f3998",
+  "text": "【第一回　宴桃园豪杰三结义　斩黄巾英雄首立功】刘备自称汉室宗亲，欲破贼安民。",
+  "owners": [
+   "liubei"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:50:47.455220+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 0,
+   "story_time": "东汉末期, 张角起义期间"
+  },
+  "text_en": "Liu Bei claims to be a descendant of the Han imperial family, wishing to defeat the rebels and bring peace to the people."
+ },
+ {
+  "id": "b3ed0e3a0c29469fbc47d2064c9b99e9",
+  "text": "【第一回　宴桃园豪杰三结义　斩黄巾英雄首立功】张飞成为结拜兄弟中的弟弟。",
+  "owners": [
+   "liubei",
+   "zhangfei"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:50:47.703377+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 1,
+   "story_time": "东汉末期, 张角起义期间"
+  },
+  "text_en": "Zhang Fei becomes the youngest brother in the sworn brotherhood."
+ },
+ {
+  "id": "fba2fb71904740a28cc0f264e7ec732b",
+  "text": "【第一回　宴桃园豪杰三结义　斩黄巾英雄首立功】刘备见皇甫嵩并报告卢植情况。",
+  "owners": [
+   "liubei"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:50:47.947717+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 2,
+   "story_time": "东汉末期, 张角起义期间"
+  },
+  "text_en": "Liu Bei meets Huangfu Song and reports on Lu Zhi's situation."
+ },
+ {
+  "id": "427308baaee243079a9c1eca5b85565a",
+  "text": "【第一回　宴桃园豪杰三结义　斩黄巾英雄首立功】刘备制止张飞意图斩护送军人。",
+  "owners": [
+   "liubei"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:50:48.250345+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 3,
+   "story_time": "东汉末期, 张角起义期间"
+  },
+  "text_en": "Liu Bei stops Zhang Fei from killing the escort soldiers."
+ },
+ {
+  "id": "d0804e0b054842c1a563c4163387e39d",
+  "text": "【第一回　宴桃园豪杰三结义　斩黄巾英雄首立功】关羽自称杀人逃难江湖五六年。",
+  "owners": [
+   "guanyu"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:50:48.550666+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 4,
+   "story_time": "东汉末期, 张角起义期间"
+  },
+  "text_en": "Guan Yu claims to have killed someone and been roaming as a fugitive for five or six years."
+ },
+ {
+  "id": "391b7ed5d869479d9e4c5056047bdc70",
+  "text": "【第一回　宴桃园豪杰三结义　斩黄巾英雄首立功】关羽制作青龙偃月刀，重八十二斤。",
+  "owners": [
+   "guanyu"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:50:48.787818+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 5,
+   "story_time": "东汉末期, 张角起义期间"
+  },
+  "text_en": "Guan Yu forges the Green Dragon Crescent Blade, weighing 82 jin."
+ },
+ {
+  "id": "e8c21603ea64493197cfbeac878afad5",
+  "text": "【第一回　宴桃园豪杰三结义　斩黄巾英雄首立功】关羽斩程远志立功。",
+  "owners": [
+   "guanyu"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:50:49.055626+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 6,
+   "story_time": "东汉末期, 张角起义期间"
+  },
+  "text_en": "Guan Yu kills Cheng Yuanzhi, gaining merit."
+ },
+ {
+  "id": "8b5e6d0f7df740e8a56b5d5cb2f5fb18",
+  "text": "【第一回　宴桃园豪杰三结义　斩黄巾英雄首立功】关羽建议回涿郡，避免无所依。",
+  "owners": [
+   "guanyu"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:50:49.283663+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 7,
+   "story_time": "东汉末期, 张角起义期间"
+  },
+  "text_en": "Guan Yu suggests returning to Zhuo Commandery to avoid being without support."
+ },
+ {
+  "id": "ed045ff9232946eda62ff56f857826e6",
+  "text": "【第一回　宴桃园豪杰三结义　斩黄巾英雄首立功】张飞性格宽和，寡言语，喜怒不言于色。",
+  "owners": [
+   "zhangfei"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:50:49.569767+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 8,
+   "story_time": "东汉末期, 张角起义期间"
+  },
+  "text_en": "Zhang Fei has a gentle and easygoing nature, is taciturn, and does not reveal joy or anger on his face."
+ },
+ {
+  "id": "d26150f9afc142c38822b35fc745401f",
+  "text": "【第一回　宴桃园豪杰三结义　斩黄巾英雄首立功】张飞身长八尺，豹头环眼，燕颔虎须，声若巨雷，势如奔马。",
+  "owners": [
+   "zhangfei"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:50:49.840140+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 9,
+   "story_time": "东汉末期, 张角起义期间"
+  },
+  "text_en": "Zhang Fei is eight chi tall, with a leopard's head and round eyes, a swallow's jaw and tiger's beard, a voice like thunder, and a manner like a galloping horse."
+ },
+ {
+  "id": "8663e38643d947f08b44415f2af1b563",
+  "text": "【第一回　宴桃园豪杰三结义　斩黄巾英雄首立功】张飞与刘备初次相识时，自我介绍曰，某姓张，名飞，字翼德。",
+  "owners": [
+   "zhangfei"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:50:50.091740+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 10,
+   "story_time": "东汉末期, 张角起义期间"
+  },
+  "text_en": "When Zhang Fei first meets Liu Bei, he introduces himself: \"My surname is Zhang, given name Fei, courtesy name Yide.\""
+ },
+ {
+  "id": "0786e222d87d44af83ba976f64eb9aa1",
+  "text": "【第一回　宴桃园豪杰三结义　斩黄巾英雄首立功】张飞世居涿郡，有庄田，卖酒屠猪，喜欢结交豪杰。",
+  "owners": [
+   "zhangfei"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:50:50.381064+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 11,
+   "story_time": "东汉末期, 张角起义期间"
+  },
+  "text_en": "Zhang Fei's family has lived in Zhuo Commandery for generations, owns farmland, sells wine and slaughters pigs, and likes to make friends with heroes."
+ },
+ {
+  "id": "52fffd8b86d24ccba7a0fdb4e02fd1fa",
+  "text": "【第一回　宴桃园豪杰三结义　斩黄巾英雄首立功】张飞提出与刘备同举大事，并愿意出资招募乡勇。",
+  "owners": [
+   "zhangfei"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:50:51.032323+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 12,
+   "story_time": "东汉末期, 张角起义期间"
+  },
+  "text_en": "Zhang Fei proposes joining Liu Bei in undertaking a great cause and is willing to provide funds to recruit local militia."
+ },
+ {
+  "id": "c1b2f5492f7c4d91bc9633b9ec88f621",
+  "text": "【第一回　宴桃园豪杰三结义　斩黄巾英雄首立功】张飞邀请刘备、关羽到他的庄上共同商议大事。",
+  "owners": [
+   "zhangfei"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:50:51.664518+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 13,
+   "story_time": "东汉末期, 张角起义期间"
+  },
+  "text_en": "Zhang Fei invites Liu Bei and Guan Yu to his estate to discuss the great undertaking together."
+ },
+ {
+  "id": "04b5edb69b46466fbcb53b97bcd7ef60",
+  "text": "【第一回　宴桃园豪杰三结义　斩黄巾英雄首立功】张飞提议在其庄后的桃园中结拜，誓言同心协力。",
+  "owners": [
+   "zhangfei"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:50:51.986708+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 14,
+   "story_time": "东汉末期, 张角起义期间"
+  },
+  "text_en": "Zhang Fei suggests swearing brotherhood in the peach garden behind his estate, pledging to be of one heart and effort."
+ },
+ {
+  "id": "2c7fe1b6c18040dd8ad66b61f2ef5397",
+  "text": "【第一回　宴桃园豪杰三结义　斩黄巾英雄首立功】张飞与刘备、关羽誓言同年同月同日死。",
+  "owners": [
+   "zhangfei"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:50:53.133903+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 16,
+   "story_time": "东汉末期, 张角起义期间"
+  },
+  "text_en": "Zhang Fei, Liu Bei, and Guan Yu swear to die on the same day, in the same month, and in the same year."
+ },
+ {
+  "id": "7b900cc608584fa6868566a6966791d8",
+  "text": "【第一回　宴桃园豪杰三结义　斩黄巾英雄首立功】张飞在桃园中与乡勇一起饮酒。",
+  "owners": [
+   "zhangfei"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:50:54.483192+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 18,
+   "story_time": "东汉末期, 张角起义期间"
+  },
+  "text_en": "Zhang Fei drinks with the local militia in the peach garden."
+ },
+ {
+  "id": "41681c00a8674b96afb05129b7b95a72",
+  "text": "【第一回　宴桃园豪杰三结义　斩黄巾英雄首立功】张飞与刘备、关羽得到了良马、金银和铁器。",
+  "owners": [
+   "zhangfei"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:50:54.776944+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 19,
+   "story_time": "东汉末期, 张角起义期间"
+  },
+  "text_en": "Zhang Fei, along with Liu Bei and Guan Yu, obtain fine horses, gold and silver, and iron implements."
+ },
+ {
+  "id": "fd7c5869c7434a949b955c03e0e52cd9",
+  "text": "【第一回　宴桃园豪杰三结义　斩黄巾英雄首立功】张飞制造了一杆丈八点钢矛。",
+  "owners": [
+   "zhangfei"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:50:55.235044+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 20,
+   "story_time": "东汉末期, 张角起义期间"
+  },
+  "text_en": "Zhang Fei forges a 1.8-zhang spear of tempered steel."
+ },
+ {
+  "id": "174b55ae82c246a995b995191b4e5ca0",
+  "text": "【第一回　宴桃园豪杰三结义　斩黄巾英雄首立功】张飞随刘备、关羽与黄巾贼在大兴山下交战。",
+  "owners": [
+   "zhangfei"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:50:55.539188+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 21,
+   "story_time": "东汉末期, 张角起义期间"
+  },
+  "text_en": "Zhang Fei follows Liu Bei and Guan Yu into battle with the Yellow Turban rebels at the foot of Daxing Mountain."
+ },
+ {
+  "id": "0f5ad357febf450cb0178d9318a5f7db",
+  "text": "【第一回　宴桃园豪杰三结义　斩黄巾英雄首立功】张飞出战程远志的副将邓茂，以丈八蛇矛刺中邓茂心窝。",
+  "owners": [
+   "zhangfei"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:50:55.795868+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 22,
+   "story_time": "东汉末期, 张角起义期间"
+  },
+  "text_en": "Zhang Fei fights Cheng Yuanzhi's deputy general Deng Mao, stabbing him in the heart with his 1.8-zhang serpent spear."
+ },
+ {
+  "id": "6cd9216c2beb4eef96f5e58ea898d2a0",
+  "text": "【第一回　宴桃园豪杰三结义　斩黄巾英雄首立功】张飞与刘备、关羽在青州城下夹攻大胜黄巾贼。",
+  "owners": [
+   "zhangfei"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:50:56.464878+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 23,
+   "story_time": "东汉末期, 张角起义期间"
+  },
+  "text_en": "Zhang Fei, Liu Bei, and Guan Yu attack the Yellow Turban rebels in a pincer movement under the walls of Qingzhou, winning a great victory."
+ },
+ {
+  "id": "9f85a9552010443082c601cb5c145763",
+  "text": "【第一回　宴桃园豪杰三结义　斩黄巾英雄首立功】张飞对卢植因未贿赂被逮捕而愤怒，欲救卢植。",
+  "owners": [
+   "zhangfei"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:50:56.806316+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 24,
+   "story_time": "东汉末期, 张角起义期间"
+  },
+  "text_en": "Zhang Fei is angered by Lu Zhi's arrest for not offering bribes, and wants to rescue Lu Zhi."
+ },
+ {
+  "id": "6f40429a757640b785fc5622227921b2",
+  "text": "【第一回　宴桃园豪杰三结义　斩黄巾英雄首立功】张飞对董卓无礼对待自己一行人感到极为愤怒。",
+  "owners": [
+   "zhangfei"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:50:57.017696+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 25,
+   "story_time": "东汉末期, 张角起义期间"
+  },
+  "text_en": "Zhang Fei is extremely enraged by Dong Zhuo's rude treatment of their party."
+ },
+ {
+  "id": "0cceadf66732492a8af93ae3a7933592",
+  "text": "【第一回　宴桃园豪杰三结义　斩黄巾英雄首立功】张角称「天公将军」，黄巾军势浩大。",
+  "owners": [
+   "zhangjiao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:50:58.259156+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 27,
+   "story_time": "东汉末期, 张角起义期间"
+  },
+  "text_en": "Zhang Jiao declares himself \"General of Heaven,\" and the Yellow Turban army is vast and powerful."
+ },
+ {
+  "id": "f896236d7e4d4a1f99f63e68168a96d0",
+  "text": "【第一回　宴桃园豪杰三结义　斩黄巾英雄首立功】张角用妖术抵抗卢植围攻。",
+  "owners": [
+   "zhangjiao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:50:58.491515+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 28,
+   "story_time": "东汉末期, 张角起义期间"
+  },
+  "text_en": "Zhang Jiao used sorcery to resist Lu Zhi's siege."
+ },
+ {
+  "id": "3d43dcc7b4e044df98e5ee41bbb208ad",
+  "text": "【第一回　宴桃园豪杰三结义　斩黄巾英雄首立功】张角被朝廷命将董卓替代卢植。",
+  "owners": [
+   "zhangjiao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:50:58.755259+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 29,
+   "story_time": "东汉末期, 张角起义期间"
+  },
+  "text_en": "Zhang Jiao faced the imperial appointment of Dong Zhuo to replace Lu Zhi."
+ },
+ {
+  "id": "bc56390c50954c39956d9c397be66bbb",
+  "text": "【第一回　宴桃园豪杰三结义　斩黄巾英雄首立功】张宝称「地公将军」，参与黄巾起事。",
+  "owners": [
+   "zhangbao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:50:59.500462+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 30,
+   "story_time": "东汉末期, 张角起义期间"
+  },
+  "text_en": "Zhang Bao called himself 'General of the Earth' and joined the Yellow Turban uprising."
+ },
+ {
+  "id": "71598d50a41747b6afddd82b60d7d2aa",
+  "text": "【第一回　宴桃园豪杰三结义　斩黄巾英雄首立功】张宝与张梁在颍川被击败后逃往广宗。",
+  "owners": [
+   "zhangbao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:50:59.790086+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 31,
+   "story_time": "东汉末期, 张角起义期间"
+  },
+  "text_en": "Zhang Bao and Zhang Liang fled to Guangzong after being defeated at Yingchuan."
+ },
+ {
+  "id": "383ddbde7e924d98957bf74b7ea2159d",
+  "text": "【第一回　宴桃园豪杰三结义　斩黄巾英雄首立功】张梁称「人公将军」，领导黄巾起义。",
+  "owners": [
+   "zhanglei"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:51:00.503715+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 32,
+   "story_time": "东汉末期, 张角起义期间"
+  },
+  "text_en": "Zhang Liang called himself 'General of the People' and led the Yellow Turban rebellion."
+ },
+ {
+  "id": "f0b959bd48e24f9f82a53a50ae8a3de1",
+  "text": "【第一回　宴桃园豪杰三结义　斩黄巾英雄首立功】张梁与张宝一同败走，被曹操击败。",
+  "owners": [
+   "zhanglei"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:51:00.834938+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 33,
+   "story_time": "东汉末期, 张角起义期间"
+  },
+  "text_en": "Zhang Liang and Zhang Bao retreated together and were defeated by Cao Cao."
+ },
+ {
+  "id": "d32943bd918c4b17af1b900dc3e9fcc3",
+  "text": "【第一回　宴桃园豪杰三结义　斩黄巾英雄首立功】董卓替代卢植领兵，轻视刘备等人。",
+  "owners": [
+   "dongzhuo"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:51:01.062806+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 34,
+   "story_time": "东汉末期, 张角起义期间"
+  },
+  "text_en": "Dong Zhuo replaced Lu Zhi in command and looked down on Liu Bei and his companions."
+ },
+ {
+  "id": "e4b5cfacbd084048841e37694510c607",
+  "text": "【第一回　宴桃园豪杰三结义　斩黄巾英雄首立功】董卓败于张角，幸得刘备等人相救。",
+  "owners": [
+   "dongzhuo"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:51:01.753157+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 35,
+   "story_time": "东汉末期, 张角起义期间"
+  },
+  "text_en": "Dong Zhuo was defeated by Zhang Jiao and was lucky to be rescued by Liu Bei and the others."
+ },
+ {
+  "id": "6ad996fd2b57413caa79da2716dd3006",
+  "text": "【第一回　宴桃园豪杰三结义　斩黄巾英雄首立功】朱隽与皇甫嵩分路讨伐黄巾，在颍川火攻成功。",
+  "owners": [
+   "zhujun"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:51:02.032712+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 36,
+   "story_time": "东汉末期, 张角起义期间"
+  },
+  "text_en": "Zhu Jun and Huangfu Song divided their forces to attack the Yellow Turbans and successfully used a fire attack at Yingchuan."
+ },
+ {
+  "id": "d30063b97f9e4164af41a96c7a17621b",
+  "text": "【第二回　张翼德怒鞭督邮　何国舅谋诛宦竖】刘备因督邮无礼，虽心怀不满但仍然克制。",
+  "owners": [
+   "liubei"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:51:30.623167+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 1000,
+   "story_time": "东汉末年，黄巾起义期间，灵帝驾崩前后"
+  },
+  "text_en": "Liu Bei, though resentful of the inspector's rudeness, still restrained himself."
+ },
+ {
+  "id": "a2bd4e80ff064c808fef73a3d8f23024",
+  "text": "【第二回　张翼德怒鞭督邮　何国舅谋诛宦竖】督邮到安喜县，傲慢无礼，令张飞和关羽愤怒。",
+  "owners": [
+   "liubei",
+   "zhangfei"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:51:30.935048+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 1001,
+   "story_time": "东汉末年，黄巾起义期间，灵帝驾崩前后"
+  },
+  "text_en": "The inspector arrived at Anxi County, arrogant and rude, angering Zhang Fei and Guan Yu."
+ },
+ {
+  "id": "bbf1c081fd3743f4831353c6ce801f5a",
+  "text": "【第二回　张翼德怒鞭督邮　何国舅谋诛宦竖】刘备在朱俊的建议下，以猪羊狗血解张宝妖法。",
+  "owners": [
+   "liubei"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:51:31.992028+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 1003,
+   "story_time": "东汉末年，黄巾起义期间，灵帝驾崩前后"
+  },
+  "text_en": "Under Zhu Jun's suggestion, Liu Bei used pig, sheep, and dog blood to break Zhang Bao's sorcery."
+ },
+ {
+  "id": "d3497f80332742ddb934cd66be198c11",
+  "text": "【第二回　张翼德怒鞭督邮　何国舅谋诛宦竖】刘备与关羽、张飞协力解破张宝的妖法，战斗获胜。",
+  "owners": [
+   "liubei",
+   "zhujun"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:51:32.234386+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 1004,
+   "story_time": "东汉末年，黄巾起义期间，灵帝驾崩前后"
+  },
+  "text_en": "Liu Bei, Guan Yu, and Zhang Fei worked together to break Zhang Bao's sorcery and won the battle."
+ },
+ {
+  "id": "667bd00bae884a5494a6d585f70a2b95",
+  "text": "【第二回　张翼德怒鞭督邮　何国舅谋诛宦竖】朱俊与刘备等人合作成功围攻并平定阳城。",
+  "owners": [
+   "liubei",
+   "zhujun"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:51:32.517799+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 1005,
+   "story_time": "东汉末年，黄巾起义期间，灵帝驾崩前后"
+  },
+  "text_en": "Zhu Jun cooperated with Liu Bei and others to successfully besiege and pacify Yangcheng."
+ },
+ {
+  "id": "cb844645b17c458a860c91f981909174",
+  "text": "【第二回　张翼德怒鞭督邮　何国舅谋诛宦竖】刘备与张飞、关羽一起上街，抱怨未得赏。",
+  "owners": [
+   "guanyu",
+   "liubei",
+   "zhangfei"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:51:33.191273+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 1006,
+   "story_time": "东汉末年，黄巾起义期间，灵帝驾崩前后"
+  },
+  "text_en": "Liu Bei, Zhang Fei, and Guan Yu went to the streets together, complaining about not receiving rewards."
+ },
+ {
+  "id": "5b38b757542d4c7e9316745824aa325a",
+  "text": "【第二回　张翼德怒鞭督邮　何国舅谋诛宦竖】刘备与张飞、关羽辞官，返回家乡。",
+  "owners": [
+   "guanyu",
+   "zhangfei"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:51:33.449155+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 1007,
+   "story_time": "东汉末年，黄巾起义期间，灵帝驾崩前后"
+  },
+  "text_en": "Liu Bei, Zhang Fei, and Guan Yu resigned from office and returned to their hometown."
+ },
+ {
+  "id": "01d1235ef6264db5807eebb995fdf41e",
+  "text": "【第二回　张翼德怒鞭督邮　何国舅谋诛宦竖】张飞夹击张宝军，与关羽、刘备合力大败贼兵。",
+  "owners": [
+   "guanyu",
+   "zhangfei"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:51:34.218548+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 1008,
+   "story_time": "东汉末年，黄巾起义期间，灵帝驾崩前后"
+  },
+  "text_en": "Zhang Fei attacked Zhang Bao's army from both sides and, together with Guan Yu and Liu Bei, heavily defeated the rebel forces."
+ },
+ {
+  "id": "c862605a91ef4a10a870620d366304a3",
+  "text": "【第二回　张翼德怒鞭督邮　何国舅谋诛宦竖】关羽随刘备改谋策略攻宛城，最终成功。",
+  "owners": [
+   "guanyu"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:51:34.511543+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 1009,
+   "story_time": "东汉末年，黄巾起义期间，灵帝驾崩前后"
+  },
+  "text_en": "Guan Yu followed Liu Bei in changing their strategy to attack Wancheng, eventually succeeding."
+ },
+ {
+  "id": "c855bbd1bb01429f93b1d80dcda1e42f",
+  "text": "【第二回　张翼德怒鞭督邮　何国舅谋诛宦竖】张飞因性格火爆想杀董卓。",
+  "owners": [
+   "zhangfei"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:51:35.521705+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 1011,
+   "story_time": "东汉末年，黄巾起义期间，灵帝驾崩前后"
+  },
+  "text_en": "Zhang Fei, due to his hot temper, wanted to kill Dong Zhuo."
+ },
+ {
+  "id": "8c1c16736aad4657821f809f83381f9a",
+  "text": "【第二回　张翼德怒鞭督邮　何国舅谋诛宦竖】刘备和关羽阻止张飞杀董卓。",
+  "owners": [
+   "zhangfei"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:51:36.164807+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 1012,
+   "story_time": "东汉末年，黄巾起义期间，灵帝驾崩前后"
+  },
+  "text_en": "Liu Bei and Guan Yu stopped Zhang Fei from killing Dong Zhuo."
+ },
+ {
+  "id": "feb6897533d04e5f9f6ad1896bb42c2e",
+  "text": "【第二回　张翼德怒鞭督邮　何国舅谋诛宦竖】张飞表示不愿再在董卓部下听令，欲离开。",
+  "owners": [
+   "zhangfei"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:51:36.444641+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 1013,
+   "story_time": "东汉末年，黄巾起义期间，灵帝驾崩前后"
+  },
+  "text_en": "Zhang Fei expressed that he was unwilling to serve under Dong Zhuo any longer and wished to leave."
+ },
+ {
+  "id": "15827330d518465dbd0ff2725fde77aa",
+  "text": "【第二回　张翼德怒鞭督邮　何国舅谋诛宦竖】张飞等三人夜奔朱俊处，投靠他。",
+  "owners": [
+   "zhangfei"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:51:36.761300+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 1014,
+   "story_time": "东汉末年，黄巾起义期间，灵帝驾崩前后"
+  },
+  "text_en": "Zhang Fei and the other two fled at night to Zhu Jun and sought refuge with him."
+ },
+ {
+  "id": "71665b02c57d4816913b843340da97ec",
+  "text": "【第二回　张翼德怒鞭督邮　何国舅谋诛宦竖】张飞与刘备、朱俊合兵攻打张宝。",
+  "owners": [
+   "zhangfei"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:51:37.408098+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 1015,
+   "story_time": "东汉末年，黄巾起义期间，灵帝驾崩前后"
+  },
+  "text_en": "Zhang Fei joined forces with Liu Bei and Zhu Jun to attack Zhang Bao."
+ },
+ {
+  "id": "7176c8a90d504d49b6a3328e51228f73",
+  "text": "【第二回　张翼德怒鞭督邮　何国舅谋诛宦竖】张飞单挑高升，刺其落马。",
+  "owners": [
+   "zhangfei"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:51:37.688590+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 1016,
+   "story_time": "东汉末年，黄巾起义期间，灵帝驾崩前后"
+  },
+  "text_en": "Zhang Fei dueled Gao Sheng and stabbed him off his horse."
+ },
+ {
+  "id": "d6b31b5e129444d9b16e94a5c86b8e7d",
+  "text": "【第二回　张翼德怒鞭督邮　何国舅谋诛宦竖】张飞等泼秽物解张宝妖法，逼其撤退。",
+  "owners": [
+   "zhangfei"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:51:39.373921+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 1019,
+   "story_time": "东汉末年，黄巾起义期间，灵帝驾崩前后"
+  },
+  "text_en": "Zhang Fei and others threw filth to break Zhang Bao's sorcery, forcing him to retreat."
+ },
+ {
+  "id": "f042efccb31b484d8cd9736fec73205f",
+  "text": "【第二回　张翼德怒鞭督邮　何国舅谋诛宦竖】朱俊围攻阳城，张宝被围后逃脱。",
+  "owners": [
+   "zhangfei"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:51:40.365176+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 1021,
+   "story_time": "东汉末年，黄巾起义期间，灵帝驾崩前后"
+  },
+  "text_en": "Zhu Jun besieged Yangcheng; Zhang Bao was surrounded but escaped."
+ },
+ {
+  "id": "11b51ebbc64045dabbabce2c58b8eabd",
+  "text": "【第二回　张翼德怒鞭督邮　何国舅谋诛宦竖】朱俊平定阳城后，又攻打宛城。",
+  "owners": [
+   "zhangfei"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:51:41.082100+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 1022,
+   "story_time": "东汉末年，黄巾起义期间，灵帝驾崩前后"
+  },
+  "text_en": "After pacifying Yangcheng, Zhu Jun attacked Wancheng."
+ },
+ {
+  "id": "dfe773c7e9644e4eb8af6480cb807c70",
+  "text": "【第二回　张翼德怒鞭督邮　何国舅谋诛宦竖】张飞随刘备、朱俊一同攻打宛城西南角。",
+  "owners": [
+   "zhangfei"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:51:41.724063+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 1023,
+   "story_time": "东汉末年，黄巾起义期间，灵帝驾崩前后"
+  },
+  "text_en": "Zhang Fei followed Liu Bei and Zhu Jun to attack the southwest corner of Wancheng."
+ },
+ {
+  "id": "074070c6d1184488a46372aed4703efd",
+  "text": "【第二回　张翼德怒鞭督邮　何国舅谋诛宦竖】韩忠弃西南城，反攻东北，张飞等从背后掩杀。",
+  "owners": [
+   "zhangfei"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:51:41.974311+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 1024,
+   "story_time": "东汉末年，黄巾起义期间，灵帝驾崩前后"
+  },
+  "text_en": "Han Zhong abandoned the southwest wall and counterattacked in the northeast; Zhang Fei and others attacked from behind."
+ },
+ {
+  "id": "021df9e7eaa04a75ae0dbf9e515d2402",
+  "text": "【第二回　张翼德怒鞭督邮　何国舅谋诛宦竖】朱俊军围城，韩忠乞降，被朱俊拒绝。",
+  "owners": [
+   "zhangfei"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:51:42.341979+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 1025,
+   "story_time": "东汉末年，黄巾起义期间，灵帝驾崩前后"
+  },
+  "text_en": "Zhu Jun's army besieged the city; Han Zhong begged to surrender but was refused by Zhu Jun."
+ },
+ {
+  "id": "28464a294eef4f6fa502a790bb167ffc",
+  "text": "【第二回　张翼德怒鞭督邮　何国舅谋诛宦竖】张飞帮助玄德说服朱俊改变策略，分兵攻城。",
+  "owners": [
+   "zhangfei"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:51:42.602274+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 1026,
+   "story_time": "东汉末年，黄巾起义期间，灵帝驾崩前后"
+  },
+  "text_en": "Zhang Fei helped Xuande persuade Zhu Jun to change strategy and divide the troops to attack the city."
+ },
+ {
+  "id": "a996f0439089442999677f186803b9b8",
+  "text": "【第二回　张翼德怒鞭督邮　何国舅谋诛宦竖】撤去东南兵力后，张飞等攻西北角，击退韩忠军。",
+  "owners": [
+   "zhangfei"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:51:43.385665+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 1027,
+   "story_time": "东汉末年，黄巾起义期间，灵帝驾崩前后"
+  },
+  "text_en": "After withdrawing troops from the southeast, Zhang Fei and others attacked the northwest corner and repelled Han Zhong's army."
+ },
+ {
+  "id": "6f363badf6d84101b321b6278dbf289c",
+  "text": "【第二回　张翼德怒鞭督邮　何国舅谋诛宦竖】张飞随玄德等追击被击溃的贼军。",
+  "owners": [
+   "zhangfei"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:51:43.687544+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 1028,
+   "story_time": "东汉末年，黄巾起义期间，灵帝驾崩前后"
+  },
+  "text_en": "Zhang Fei followed Xuande and others to pursue the routed rebel army."
+ },
+ {
+  "id": "db391ca7da844996a3a904bf3b8e2c00",
+  "text": "【第二回　张翼德怒鞭督邮　何国舅谋诛宦竖】张飞随刘备一起与朱俊班师回京。",
+  "owners": [
+   "zhangfei"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:51:44.460358+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 1029,
+   "story_time": "东汉末年，黄巾起义期间，灵帝驾崩前后"
+  },
+  "text_en": "Zhang Fei returned to the capital with Liu Bei and Zhu Jun."
+ },
+ {
+  "id": "b652ef198b7449129dc08bda7a3b32b5",
+  "text": "【第二回　张翼德怒鞭督邮　何国舅谋诛宦竖】刘备因战功久待未得封赏，与张飞等不乐。",
+  "owners": [
+   "zhangfei"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:51:44.749377+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 1030,
+   "story_time": "东汉末年，黄巾起义期间，灵帝驾崩前后"
+  },
+  "text_en": "Liu Bei, having received no reward for his long service, was unhappy with Zhang Fei and the others."
+ },
+ {
+  "id": "007686e0dfe24b30b423dc10d4c31b9a",
+  "text": "【第二回　张翼德怒鞭督邮　何国舅谋诛宦竖】张钧建言朝廷惩治宦官，刘备得授安喜县尉。",
+  "owners": [
+   "zhangfei"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:51:45.715976+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 1032,
+   "story_time": "东汉末年，黄巾起义期间，灵帝驾崩前后"
+  },
+  "text_en": "Zhang Jun remonstrated with the court to punish the eunuchs; Liu Bei was appointed as the county magistrate of Anxi."
+ },
+ {
+  "id": "4c110d1bc3ad42788fa28221cca3eb3b",
+  "text": "【第二回　张翼德怒鞭督邮　何国舅谋诛宦竖】张飞与关羽随刘备赴任安喜县，关系亲密如故。",
+  "owners": [
+   "zhangfei"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:51:46.004407+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 1033,
+   "story_time": "东汉末年，黄巾起义期间，灵帝驾崩前后"
+  },
+  "text_en": "Zhang Fei and Guan Yu accompanied Liu Bei to take up his post in Anxi, remaining as close as before."
+ },
+ {
+  "id": "3dda556ebb8b427aa817571be2b83cab",
+  "text": "【第二回　张翼德怒鞭督邮　何国舅谋诛宦竖】张飞因不满督邮迫害刘备，怒鞭督邮。",
+  "owners": [
+   "zhangfei"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:51:47.415344+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 1035,
+   "story_time": "东汉末年，黄巾起义期间，灵帝驾崩前后"
+  },
+  "text_en": "Enraged by the inspector's persecution of Liu Bei, Zhang Fei fiercely flogged the inspector."
+ },
+ {
+  "id": "6083b0f3657648f282721fab04a62402",
+  "text": "【第二回　张翼德怒鞭督邮　何国舅谋诛宦竖】张飞随刘备投靠代州刘恢，匿身不出。",
+  "owners": [
+   "zhangfei"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:51:49.203399+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 1038,
+   "story_time": "东汉末年，黄巾起义期间，灵帝驾崩前后"
+  },
+  "text_en": "Zhang Fei followed Liu Bei to seek refuge with Liu Hui of Daizhou and stayed in hiding."
+ },
+ {
+  "id": "e42e318a6e7d4bb089f9b5f247407339",
+  "text": "【第二回　张翼德怒鞭督邮　何国舅谋诛宦竖】张宝在与刘关张的对抗中施展妖法，意图用计打败对手。",
+  "owners": [
+   "zhangbao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:51:49.504354+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 1039,
+   "story_time": "东汉末年，黄巾起义期间，灵帝驾崩前后"
+  },
+  "text_en": "Zhang Bao used sorcery in the battle against Liu, Guan, and Zhang, intending to defeat them with a stratagem."
+ },
+ {
+  "id": "21d7635cab5746118b69acb8644e76a3",
+  "text": "【第二回　张翼德怒鞭督邮　何国舅谋诛宦竖】董卓在刘备等人面前骄横，对刘备表现出很大的不尊重。",
+  "owners": [
+   "dongzhuo"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:51:49.771316+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 1040,
+   "story_time": "东汉末年，黄巾起义期间，灵帝驾崩前后"
+  },
+  "text_en": "Dong Zhuo was arrogant before Liu Bei and others, showing great disrespect toward Liu Bei."
+ },
+ {
+  "id": "70c3aebbd3554953bb81e56358630045",
+  "text": "【第二回　张翼德怒鞭督邮　何国舅谋诛宦竖】袁绍支持何进入宫，并提出正君位后讨贼的策略。",
+  "owners": [
+   "yuanshao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:51:51.588652+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 1043,
+   "story_time": "东汉末年，黄巾起义期间，灵帝驾崩前后"
+  },
+  "text_en": "Yuan Shao supported He Jin's entry into the palace and proposed the strategy of correcting the succession before suppressing the rebels."
+ },
+ {
+  "id": "aaa99441a254494aaeb87ca9859a68ca",
+  "text": "【第三回】曹操劝何进不可召外兵，认为此举必败。",
+  "owners": [
+   "cao_cao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:52:11.794515+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 2000,
+   "story_time": "东汉末年，何进被杀，董卓进京掌权"
+  },
+  "text_en": "Cao Cao advised He Jin not to summon outside troops, believing that this would surely lead to defeat."
+ },
+ {
+  "id": "edb17c1967df4be4a357683348b6012f",
+  "text": "【第三回】何进质疑曹操怀私意，曹操退出表示乱天下者是何进。",
+  "owners": [
+   "cao_cao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:52:12.265826+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 2001,
+   "story_time": "东汉末年，何进被杀，董卓进京掌权"
+  },
+  "text_en": "He Jin questioned Cao Cao's personal motives; Cao Cao withdrew, declaring that He Jin would be the one to throw the realm into chaos."
+ },
+ {
+  "id": "b2d23e8f5ac64b4e9d71ce49e4531aa9",
+  "text": "【第三回】袁绍、曹操各选精兵五百，护送何进入宫。",
+  "owners": [
+   "cao_cao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:52:12.603397+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 2002,
+   "story_time": "东汉末年，何进被杀，董卓进京掌权"
+  },
+  "text_en": "Yuan Shao and Cao Cao each selected five hundred elite soldiers to escort He Jin into the palace."
+ },
+ {
+  "id": "c0ca39c226744632b58ac5ccbfcda9b3",
+  "text": "【第三回】曹操救灭宫中火灾，请何太后权摄大事，追袭张让等人。",
+  "owners": [
+   "cao_cao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:52:12.946447+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 2003,
+   "story_time": "东汉末年，何进被杀，董卓进京掌权"
+  },
+  "text_en": "Cao Cao extinguished the fire in the palace, asked Empress Dowager He to temporarily oversee major affairs, and pursued Zhang Rang and the others."
+ },
+ {
+  "id": "49d393e0e3354ab7a3aa7ef7fca3ed9a",
+  "text": "【第三回】董卓因破黄巾无功，曾被朝廷欲治罪。",
+  "owners": [
+   "dongzhuo"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:52:13.305361+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 2004,
+   "story_time": "东汉末年，何进被杀，董卓进京掌权"
+  },
+  "text_en": "Dong Zhuo had previously faced punishment by the court for failing to achieve merit against the Yellow Turbans."
+ },
+ {
+  "id": "775465540afd455587421aac4ea2bb18",
+  "text": "【第三回】董卓通过贿赂十常侍避免了处罚。",
+  "owners": [
+   "dongzhuo"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:52:13.653134+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 2005,
+   "story_time": "东汉末年，何进被杀，董卓进京掌权"
+  },
+  "text_en": "Dong Zhuo avoided punishment by bribing the Ten Regular Attendants."
+ },
+ {
+  "id": "41e5703f8a0e41f78d89c2e546d01946",
+  "text": "【第三回】董卓结托朝中权贵，获得显赫职位。",
+  "owners": [
+   "dongzhuo"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:52:14.078937+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 2006,
+   "story_time": "东汉末年，何进被杀，董卓进京掌权"
+  },
+  "text_en": "Dong Zhuo allied himself with influential nobles at court and gained a prominent position."
+ },
+ {
+  "id": "eed00e77d35d4e08a7e7cb96620ab8ea",
+  "text": "【第三回】董卓统领西州大军二十万，心怀不臣之心。",
+  "owners": [
+   "dongzhuo"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:52:14.390674+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 2007,
+   "story_time": "东汉末年，何进被杀，董卓进京掌权"
+  },
+  "text_en": "Dong Zhuo commanded a great army of two hundred thousand in Xizhou and harbored disloyal intentions."
+ },
+ {
+  "id": "177d0c79f2bf486a82e24bce0d0d20d1",
+  "text": "【第三回】收到何进密诏后，董卓非常高兴，决定起兵进发洛阳。",
+  "owners": [
+   "dongzhuo"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:52:14.604275+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 2008,
+   "story_time": "东汉末年，何进被杀，董卓进京掌权"
+  },
+  "text_en": "【Chapter 3】After receiving He Jin's secret decree, Dong Zhuo was overjoyed and decided to mobilize his troops to march on Luoyang."
+ },
+ {
+  "id": "45240e1072df472fa564f0062edde67f",
+  "text": "【第三回】董卓派中郎将牛辅驻守陕西，自己率兵前往洛阳。",
+  "owners": [
+   "dongzhuo"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:52:14.887177+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 2009,
+   "story_time": "东汉末年，何进被杀，董卓进京掌权"
+  },
+  "text_en": "【Chapter 3】Dong Zhuo ordered his general Niu Fu to guard Shaanxi, while he himself led his army toward Luoyang."
+ },
+ {
+  "id": "727294d398044952b521cf3c6a6c2f98",
+  "text": "【第三回】董卓决定采纳李儒建议，上表请求除掉张让等人。",
+  "owners": [
+   "dongzhuo"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:52:15.287626+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 2010,
+   "story_time": "东汉末年，何进被杀，董卓进京掌权"
+  },
+  "text_en": "【Chapter 3】Dong Zhuo decided to adopt Li Ru's suggestion and submit a memorial requesting the removal of Zhang Rang and the other eunuchs."
+ },
+ {
+  "id": "56122089f9b34de08141517950cf6df7",
+  "text": "【第三回】董卓上表批评宦官祸乱天下，并请示愿意入洛阳解决宦官问题。",
+  "owners": [
+   "dongzhuo"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:52:15.591278+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 2011,
+   "story_time": "东汉末年，何进被杀，董卓进京掌权"
+  },
+  "text_en": "【Chapter 3】Dong Zhuo submitted a memorial criticizing the eunuchs for bringing chaos to the realm and expressed his willingness to enter Luoyang to resolve the eunuch problem."
+ },
+ {
+  "id": "19a7ad092151484b80ead4f89641a38b",
+  "text": "【第三回】何进对董卓的上表示意，未听朝臣的劝阻。",
+  "owners": [
+   "dongzhuo"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:52:15.792257+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 2012,
+   "story_time": "东汉末年，何进被杀，董卓进京掌权"
+  },
+  "text_en": "【Chapter 3】He Jin approved Dong Zhuo's memorial and ignored the dissuasion of the court officials."
+ },
+ {
+  "id": "bb1f913cfab84172b801575a6f50d522",
+  "text": "【第三回】张让等人知外兵到来，密谋对付何进。",
+  "owners": [
+   "dongzhuo"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:52:16.040210+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 2013,
+   "story_time": "东汉末年，何进被杀，董卓进京掌权"
+  },
+  "text_en": "【Chapter 3】Zhang Rang and the others learned that outside troops were coming and secretly plotted against He Jin."
+ },
+ {
+  "id": "988e8e4c0fee4e4ca40c1fa0ea19e707",
+  "text": "【第三回】董卓与百官相遇，由衷欣赏陈留王的机智，心怀废立之意。",
+  "owners": [
+   "dongzhuo"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:52:16.337673+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 2014,
+   "story_time": "东汉末年，何进被杀，董卓进京掌权"
+  },
+  "text_en": "【Chapter 3】Dong Zhuo met the assembled officials and wholeheartedly admired Prince Chenliu's intelligence, secretly harboring the intent to depose the emperor and enthrone another."
+ },
+ {
+  "id": "118c1b61200e4cba9284f1320276083a",
+  "text": "【第三回】董卓屯兵城外，进出宫庭，尸横街市，引起百姓不安。",
+  "owners": [
+   "dongzhuo"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:52:16.603891+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 2015,
+   "story_time": "东汉末年，何进被杀，董卓进京掌权"
+  },
+  "text_en": "【Chapter 3】Dong Zhuo stationed his troops outside the city while freely entering and exiting the palace; corpses littered the streets, causing unease among the common people."
+ },
+ {
+  "id": "5602eb216b264b139ae532d37cbffee6",
+  "text": "【第三回】董卓计划招纳何进兄弟部下的军队，尽入掌握。",
+  "owners": [
+   "dongzhuo"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:52:16.938422+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 2016,
+   "story_time": "东汉末年，何进被杀，董卓进京掌权"
+  },
+  "text_en": "【Chapter 3】Dong Zhuo planned to incorporate the troops under He Jin and his brother's command so that they would all fall under his control."
+ },
+ {
+  "id": "b698a91dc2de45efb1ff399c17976cb6",
+  "text": "【第三回】董卓想废黜幼帝，立陈留王为新帝。",
+  "owners": [
+   "dongzhuo"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:52:17.342118+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 2017,
+   "story_time": "东汉末年，何进被杀，董卓进京掌权"
+  },
+  "text_en": "【Chapter 3】Dong Zhuo wished to depose the young emperor and install Prince Chenliu as the new emperor."
+ },
+ {
+  "id": "cd489e0d51a04eb19cb90d45a9ecae1b",
+  "text": "【第三回】李儒建议董卓在温明园中召集百官，宣布废立之事。",
+  "owners": [
+   "dongzhuo"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:52:17.570341+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 2018,
+   "story_time": "东汉末年，何进被杀，董卓进京掌权"
+  },
+  "text_en": "【Chapter 3】Li Ru suggested that Dong Zhuo gather all the officials in the Warm Bright Garden to announce the plan of deposing the emperor."
+ },
+ {
+  "id": "ae8107bb4f804ad3b328113536e4903c",
+  "text": "【第三回】董卓宴请百官，提出废帝立陈留王之事。",
+  "owners": [
+   "dongzhuo"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:52:17.845736+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 2019,
+   "story_time": "东汉末年，何进被杀，董卓进京掌权"
+  },
+  "text_en": "【Chapter 3】Dong Zhuo hosted a banquet for the officials and proposed deposing the emperor and setting up Prince Chenliu."
+ },
+ {
+  "id": "523f0393fa2b4af7b40a01a0af984025",
+  "text": "【第三回】董卓与丁原发生冲突，欲杀丁原，被李儒劝阻。",
+  "owners": [
+   "dongzhuo"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:52:18.126652+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 2020,
+   "story_time": "东汉末年，何进被杀，董卓进京掌权"
+  },
+  "text_en": "【Chapter 3】Dong Zhuo came into conflict with Ding Yuan and wanted to kill him, but was dissuaded by Li Ru."
+ },
+ {
+  "id": "6f7e99bd93374d158d9d6c8b233c09f7",
+  "text": "【第三回】董卓计划收吕布为己用，由李肃负责劝降。",
+  "owners": [
+   "dongzhuo"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:52:18.367738+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 2021,
+   "story_time": "东汉末年，何进被杀，董卓进京掌权"
+  },
+  "text_en": "【Chapter 3】Dong Zhuo schemed to win Lü Bu over to his side, with Li Su tasked with persuading him to surrender."
+ },
+ {
+  "id": "5a79941bbae442f0b806e33b98fcf74a",
+  "text": "【第三回】李肃提出用赤兔马和金珠玉带来结交吕布。",
+  "owners": [
+   "dongzhuo"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:52:18.642840+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 2022,
+   "story_time": "东汉末年，何进被杀，董卓进京掌权"
+  },
+  "text_en": "【Chapter 3】Li Su proposed using the Red Hare horse along with gold, pearls, and jade belts to befriend Lü Bu."
+ },
+ {
+  "id": "c831cbacd5e143e88e769bf61eb3b218",
+  "text": "【第三回】董卓同意交出赤兔马和黄金、明珠以吸引吕布。",
+  "owners": [
+   "dongzhuo"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:52:18.872890+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 2023,
+   "story_time": "东汉末年，何进被杀，董卓进京掌权"
+  },
+  "text_en": "【Chapter 3】Dong Zhuo agreed to give up the Red Hare horse, gold, and bright pearls to attract Lü Bu."
+ },
+ {
+  "id": "d7cf7c67b5f04aeebf5380cbf090f6c4",
+  "text": "【第三回】李肃成功游说吕布，促使吕布决定背叛丁原。",
+  "owners": [
+   "dongzhuo"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:52:19.175172+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 2024,
+   "story_time": "东汉末年，何进被杀，董卓进京掌权"
+  },
+  "text_en": "【Chapter 3】Li Su successfully persuaded Lü Bu, prompting him to decide to betray Ding Yuan."
+ },
+ {
+  "id": "8452946beef64d998d5f3959357e32e2",
+  "text": "【第三回】吕布夜入丁原帐中，将其杀死，并归顺董卓。",
+  "owners": [
+   "dongzhuo"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:52:19.479131+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 2025,
+   "story_time": "东汉末年，何进被杀，董卓进京掌权"
+  },
+  "text_en": "【Chapter 3】Lü Bu entered Ding Yuan's tent at night, killed him, and then submitted to Dong Zhuo."
+ },
+ {
+  "id": "bf5f2dbbc4344cc593a44288b8158718",
+  "text": "【第三回】董卓大喜，以吕布为义子，提升其职位。",
+  "owners": [
+   "dongzhuo"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:52:19.749299+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 2026,
+   "story_time": "东汉末年，何进被杀，董卓进京掌权"
+  },
+  "text_en": "【Chapter 3】Dong Zhuo was overjoyed and adopted Lü Bu as his sworn son, promoting him to a higher position."
+ },
+ {
+  "id": "720c625af7324a5dba8b8715f4fb3504",
+  "text": "【第三回】董卓在省中设宴，再次提出废立之事，遭袁绍反对。",
+  "owners": [
+   "dongzhuo"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:52:20.049030+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 2027,
+   "story_time": "东汉末年，何进被杀，董卓进京掌权"
+  },
+  "text_en": "【Chapter 3】Dong Zhuo held another banquet at the Ministry and once again raised the issue of deposing the emperor, encountering opposition from Yuan Shao."
+ },
+ {
+  "id": "a78764f88e6b498ab5495619b39c5b68",
+  "text": "【第三回】李儒建议董卓上表讨伐宦官，图名正顺。",
+  "owners": [
+   "li_ru"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:52:20.272787+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 2028,
+   "story_time": "东汉末年，何进被杀，董卓进京掌权"
+  },
+  "text_en": "【Chapter 3】Li Ru advised Dong Zhuo to submit a memorial to punish the eunuchs, so as to seek a righteous and legitimate reputation."
+ },
+ {
+  "id": "05aee672a51b47efbc407daae0bc9a6d",
+  "text": "【第三回】李儒劝阻董卓在宴会上杀丁原，并建议回都堂再议。",
+  "owners": [
+   "li_ru"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:52:20.522910+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 2029,
+   "story_time": "东汉末年，何进被杀，董卓进京掌权"
+  },
+  "text_en": "【Chapter 3】Li Ru dissuaded Dong Zhuo from killing Ding Yuan at the banquet and suggested returning to the capital hall to discuss further."
+ },
+ {
+  "id": "a04ab714934d471fb88d0f0a6a8dbdda",
+  "text": "【第三回】李儒警告董卓吕布武艺高强，建议暂时避之。",
+  "owners": [
+   "li_ru"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:52:20.731164+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 2030,
+   "story_time": "东汉末年，何进被杀，董卓进京掌权"
+  },
+  "text_en": "【Chapter 3】Li Ru warned Dong Zhuo that Lü Bu possessed exceptional martial skills and advised him to temporarily avoid him."
+ },
+ {
+  "id": "e0a2f9ad812a4112b8d52d6b5b8ee753",
+  "text": "【第三回】袁绍警告何进宫中之行可能有祸，建议召十常侍先出。",
+  "owners": [
+   "yuanshao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:52:20.924136+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 2031,
+   "story_time": "东汉末年，何进被杀，董卓进京掌权"
+  },
+  "text_en": "【Chapter 3】Yuan Shao warned He Jin that entering the palace could lead to disaster and suggested that he summon the Ten Regular Attendants to exit first."
+ },
+ {
+  "id": "da5b0ac15c5e417da7b7de360430da2a",
+  "text": "【第三回】袁绍怒斥阉官谋杀大臣，号召士兵助战讨伐十常侍。",
+  "owners": [
+   "yuanshao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:52:21.221011+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 2032,
+   "story_time": "东汉末年，何进被杀，董卓进京掌权"
+  },
+  "text_en": "【Chapter 3】Yuan Shao angrily denounced the eunuchs for plotting to murder ministers and called upon the soldiers to assist in the campaign to eliminate the Ten Regular Attendants."
+ },
+ {
+  "id": "d3f77e10d5c34d568d14c1191cb6fdca",
+  "text": "【第三回】袁绍力劝董卓废帝之事有违常理，并拔剑对峙。",
+  "owners": [
+   "yuanshao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:52:21.652167+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 2033,
+   "story_time": "东汉末年，何进被杀，董卓进京掌权"
+  },
+  "text_en": "[Chapter 3] Yuan Shao strongly argued that deposing the emperor defied reason, and drew his sword in confrontation."
+ },
+ {
+  "id": "98d48a513ccc42d49263355b64deb04d",
+  "text": "【第三回】吕布初次登场，是丁原的义儿，因赤兔马和利诱投奔董卓。",
+  "owners": [
+   "lvbu"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:52:21.968279+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 2034,
+   "story_time": "东汉末年，何进被杀，董卓进京掌权"
+  },
+  "text_en": "[Chapter 3] Lü Bu makes his debut as Ding Yuan's adopted son, and defects to Dong Zhuo lured by the Red Hare horse and other enticements."
+ },
+ {
+  "id": "ede616959e164ee6b800d1514b064b5f",
+  "text": "【第三回】吕布杀死丁原后，携首级投董卓，被奉为义子。",
+  "owners": [
+   "lvbu"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:52:22.231055+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 2035,
+   "story_time": "东汉末年，何进被杀，董卓进京掌权"
+  },
+  "text_en": "[Chapter 3] After killing Ding Yuan, Lü Bu brings his head to Dong Zhuo and is honored as his adopted son."
+ },
+ {
+  "id": "2d931279e1824ff38ec139bc02f78e7a",
+  "text": "【第四回 废汉帝陈留为皇 谋董贼孟德献刀】赏赐袁绍渤海太守，以安其心。",
+  "owners": [
+   "dongzhuo"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:52:31.968398+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 3000,
+   "story_time": "东汉末年，黄巾之乱后，董卓掌权时期"
+  },
+  "text_en": "[Chapter 4: Deposing the Han Emperor; Chenliu Becomes Emperor / Plotting against Dong Zhuo; Mengde Presents a Sword] Grants Yuan Shao the post of Governor of Bohai to appease him."
+ },
+ {
+  "id": "aa6bff5b6ceb435bbad60ccde5da514d",
+  "text": "【第四回 废汉帝陈留为皇 谋董贼孟德献刀】废少帝为弘农王，立陈留王为帝。",
+  "owners": [
+   "dongzhuo"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:52:32.205953+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 3001,
+   "story_time": "东汉末年，黄巾之乱后，董卓掌权时期"
+  },
+  "text_en": "[Chapter 4: Deposing the Han Emperor; Chenliu Becomes Emperor / Plotting against Dong Zhuo; Mengde Presents a Sword] Deposes the young emperor to Prince of Hongnong and enthrones the Prince of Chenliu as emperor."
+ },
+ {
+  "id": "c72e05a37d314a5dabecb00bb92b6e14",
+  "text": "【第四回 废汉帝陈留为皇 谋董贼孟德献刀】逼李儒带武士入宫弑少帝。",
+  "owners": [
+   "dongzhuo"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:52:32.497825+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 3002,
+   "story_time": "东汉末年，黄巾之乱后，董卓掌权时期"
+  },
+  "text_en": "[Chapter 4: Deposing the Han Emperor; Chenliu Becomes Emperor / Plotting against Dong Zhuo; Mengde Presents a Sword] Forces Li Ru to lead warriors into the palace to assassinate the young emperor."
+ },
+ {
+  "id": "a9a4e0b841944d578680e917d613343a",
+  "text": "【第四回 废汉帝陈留为皇 谋董贼孟德献刀】曹操行刺未遂，派人通缉曹操。",
+  "owners": [
+   "dongzhuo"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:52:32.730414+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 3003,
+   "story_time": "东汉末年，黄巾之乱后，董卓掌权时期"
+  },
+  "text_en": "[Chapter 4: Deposing the Han Emperor; Chenliu Becomes Emperor / Plotting against Dong Zhuo; Mengde Presents a Sword] Cao Cao's assassination attempt fails; orders are issued to arrest Cao Cao."
+ },
+ {
+  "id": "29038bee5fa74faeae7098f3535400b3",
+  "text": "【第四回 废汉帝陈留为皇 谋董贼孟德献刀】建议董卓赦免袁绍，以防激起变乱。",
+  "owners": [
+   "li_ru"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:52:33.035151+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 3004,
+   "story_time": "东汉末年，黄巾之乱后，董卓掌权时期"
+  },
+  "text_en": "[Chapter 4: Deposing the Han Emperor; Chenliu Becomes Emperor / Plotting against Dong Zhuo; Mengde Presents a Sword] Advises Dong Zhuo to pardon Yuan Shao to prevent an uprising."
+ },
+ {
+  "id": "756573ad139740e394da4c23d5a8e967",
+  "text": "【第四回 废汉帝陈留为皇 谋董贼孟德献刀】带武士入宫，用鸩酒和绞杀等手段弑少帝及其亲人。",
+  "owners": [
+   "li_ru"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:52:33.803316+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 3005,
+   "story_time": "东汉末年，黄巾之乱后，董卓掌权时期"
+  },
+  "text_en": "[Chapter 4: Deposing the Han Emperor; Chenliu Becomes Emperor / Plotting against Dong Zhuo; Mengde Presents a Sword] Leads warriors into the palace and uses poisoned wine and strangulation to kill the young emperor and his relatives."
+ },
+ {
+  "id": "100f3263998f485dbf37274a0c5d9cf3",
+  "text": "【第四回 废汉帝陈留为皇 谋董贼孟德献刀】因不满董卓阴谋，离开洛阳至冀州。",
+  "owners": [
+   "yuanshao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:52:34.106865+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 3006,
+   "story_time": "东汉末年，黄巾之乱后，董卓掌权时期"
+  },
+  "text_en": "[Chapter 4: Deposing the Han Emperor; Chenliu Becomes Emperor / Plotting against Dong Zhuo; Mengde Presents a Sword] Dissatisfied with Dong Zhuo's schemes, leaves Luoyang for Jizhou."
+ },
+ {
+  "id": "ce7e58579ef84ffabcb66834ba7e622b",
+  "text": "【第四回 废汉帝陈留为皇 谋董贼孟德献刀】从董卓手上接任渤海太守。",
+  "owners": [
+   "yuanshao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:52:34.398531+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 3007,
+   "story_time": "东汉末年，黄巾之乱后，董卓掌权时期"
+  },
+  "text_en": "[Chapter 4: Deposing the Han Emperor; Chenliu Becomes Emperor / Plotting against Dong Zhuo; Mengde Presents a Sword] Receives the appointment of Governor of Bohai from Dong Zhuo."
+ },
+ {
+  "id": "9cdcdf68ec9742a2a27057fdec597b68",
+  "text": "【第五回 发矫诏诸镇应曹公 破关兵三英战吕布】陈宫欲杀曹操未遂，曹操在觉醒后发现陈宫逃走。",
+  "owners": [
+   "cao_cao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:53:00.653699+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 4000,
+   "story_time": "东汉末年"
+  },
+  "text_en": "[Chapter 5: Issuing a Forged Edict, Various Lords Respond to Lord Cao / Breaking Through the Passes, Three Heroes Battle Lü Bu] Chen Gong attempts to kill Cao Cao but fails; after waking, Cao Cao finds Chen Gong has fled."
+ },
+ {
+  "id": "c356ae4463754c15a73101028276e42a",
+  "text": "【第五回 发矫诏诸镇应曹公 破关兵三英战吕布】曹操认为陈宫因疑其不仁而弃他而去，决定连夜离开。",
+  "owners": [
+   "cao_cao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:53:00.944267+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 4001,
+   "story_time": "东汉末年"
+  },
+  "text_en": "[Chapter 5: Issuing a Forged Edict, Various Lords Respond to Lord Cao / Breaking Through the Passes, Three Heroes Battle Lü Bu] Cao Cao believes Chen Gong abandoned him doubting his benevolence, and decides to leave that very night."
+ },
+ {
+  "id": "dbcbceb7237448e394eb8c19056139af",
+  "text": "【第五回 发矫诏诸镇应曹公 破关兵三英战吕布】曹操到达陈留，与父亲曹嵩商议招募义兵。",
+  "owners": [
+   "cao_cao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:53:01.196233+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 4002,
+   "story_time": "东汉末年"
+  },
+  "text_en": "[Chapter 5: Issuing a Forged Edict, Various Lords Respond to Lord Cao / Breaking Through the Passes, Three Heroes Battle Lü Bu] Cao Cao arrives in Chenliu and discusses raising a volunteer army with his father Cao Song."
+ },
+ {
+  "id": "4a7bbd3e5fe84a878bae4fdcc44ea241",
+  "text": "【第五回 发矫诏诸镇应曹公 破关兵三英战吕布】曹操父亲建议曹操寻求卫弘帮助。",
+  "owners": [
+   "cao_cao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:53:01.458622+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 4003,
+   "story_time": "东汉末年"
+  },
+  "text_en": "[Chapter 5: Issuing a Forged Edict, Various Lords Respond to Lord Cao / Breaking Through the Passes, Three Heroes Battle Lü Bu] Cao Cao's father suggests he seek help from Wei Hong."
+ },
+ {
+  "id": "b07d4d274b96499c9463e646e89447b4",
+  "text": "【第五回 发矫诏诸镇应曹公 破关兵三英战吕布】曹操置酒请卫弘，表示欲扶汉室。",
+  "owners": [
+   "cao_cao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:53:01.763370+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 4004,
+   "story_time": "东汉末年"
+  },
+  "text_en": "[Chapter 5: Issuing a Forged Edict, Various Lords Respond to Lord Cao / Breaking Through the Passes, Three Heroes Battle Lü Bu] Cao Cao prepares a banquet and invites Wei Hong, expressing his desire to support the Han dynasty."
+ },
+ {
+  "id": "bc14c376b9134c29aad1eac56157e8c2",
+  "text": "【第五回 发矫诏诸镇应曹公 破关兵三英战吕布】卫弘同意帮助曹操，曹操非常高兴。",
+  "owners": [
+   "cao_cao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:53:02.063928+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 4005,
+   "story_time": "东汉末年"
+  },
+  "text_en": "[Chapter 5: Issuing a Forged Edict, Various Lords Respond to Lord Cao / Breaking Through the Passes, Three Heroes Battle Lü Bu] Wei Hong agrees to help Cao Cao, who is overjoyed."
+ },
+ {
+  "id": "ef297c2a49fc48f5afdf3d821bb1adb8",
+  "text": "第五回：曹操发矫诏给各镇。",
+  "owners": [
+   "cao_cao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:53:03.177831+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 4006,
+   "story_time": "东汉末年"
+  },
+  "text_en": "Chapter 5: Cao Cao sends a forged edict to the various lords."
+ },
+ {
+  "id": "092fe723557741aeb566370a15f4c981",
+  "text": "曹操破关兵。",
+  "owners": [
+   "cao_cao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:53:03.445239+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 4006,
+   "story_time": "东汉末年"
+  },
+  "text_en": "Cao Cao breaks through the pass defenders."
+ },
+ {
+  "id": "255ee2ff8fab4addb379a1ee980b86a5",
+  "text": "三英战吕布。",
+  "owners": [
+   "cao_cao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:53:03.716969+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 4006,
+   "story_time": "东汉末年"
+  },
+  "text_en": "The three heroes battle Lü Bu."
+ },
+ {
+  "id": "019eeb249a7f443b8e100e88f89ed034",
+  "text": "曹操先发矫诏于各道。",
+  "owners": [
+   "cao_cao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:53:03.994705+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 4006,
+   "story_time": "东汉末年"
+  },
+  "text_en": "Cao Cao first issues the forged edict to every circuit."
+ },
+ {
+  "id": "ab5dcad8d2e54482b57b6cf195d5a213",
+  "text": "曹操招募义兵。",
+  "owners": [
+   "cao_cao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:53:04.252119+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 4006,
+   "story_time": "东汉末年"
+  },
+  "text_en": "Cao Cao recruits volunteer soldiers."
+ },
+ {
+  "id": "89ffa1ec89df4915b9feac8fdba5d32c",
+  "text": "【第五回 发矫诏诸镇应曹公 破关兵三英战吕布】阳平卫国乐进和山阳巨鹿李典来投曹操。",
+  "owners": [
+   "cao_cao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:53:04.542106+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 4007,
+   "story_time": "东汉末年"
+  },
+  "text_en": "[Chapter 5: Issuing a Forged Edict, Various Lords Respond to Lord Cao / Breaking Through the Passes, Three Heroes Battle Lü Bu] Yue Jin from Yangping Weiguo and Li Dian from Shanyang Julu come to join Cao Cao."
+ },
+ {
+  "id": "2bd0223c4bfb488db2f07596b29c6916",
+  "text": "【第五回 发矫诏诸镇应曹公 破关兵三英战吕布】曹操将乐进和李典留为帐前吏。",
+  "owners": [
+   "cao_cao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:53:05.063230+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 4008,
+   "story_time": "东汉末年"
+  },
+  "text_en": "[Chapter 5: Issuing a Forged Edict, Various Lords Respond to Lord Cao / Breaking Through the Passes, Three Heroes Battle Lü Bu] Cao Cao retains Yue Jin and Li Dian as officers under his command."
+ },
+ {
+  "id": "4bec9f1011eb44ef8693029f3094ff2e",
+  "text": "【第五回 发矫诏诸镇应曹公 破关兵三英战吕布】夏侯惇和夏侯渊带壮士来投曹操，因同族关系。",
+  "owners": [
+   "cao_cao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:53:05.298530+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 4009,
+   "story_time": "东汉末年"
+  },
+  "text_en": "[Chapter 5: Issuing a Forged Edict, Various Lords Respond to Lord Cao / Breaking Through the Passes, Three Heroes Battle Lü Bu] Xiahou Dun and Xiahou Yuan bring strong men to join Cao Cao due to their kinship."
+ },
+ {
+  "id": "098bfe9540b142f489e0609194758598",
+  "text": "【第五回 发矫诏诸镇应曹公 破关兵三英战吕布】曹仁、曹洪各引兵千余来助曹操。",
+  "owners": [
+   "cao_cao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:53:05.581054+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 4010,
+   "story_time": "东汉末年"
+  },
+  "text_en": "Cao Ren and Cao Hong each led over a thousand troops to assist Cao Cao."
+ },
+ {
+  "id": "efa730d9b5b94c02aaef66742ca9502e",
+  "text": "【第五回 发矫诏诸镇应曹公 破关兵三英战吕布】曹操在村中调谏军马，四方送粮者纷至。",
+  "owners": [
+   "cao_cao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:53:05.908424+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 4011,
+   "story_time": "东汉末年"
+  },
+  "text_en": "Cao Cao drilled and organized his troops in the village; grain deliveries arrived in a steady stream from all around."
+ },
+ {
+  "id": "f00907ee418040f3ad25c145989af900",
+  "text": "【第五回 发矫诏诸镇应曹公 破关兵三英战吕布】袁绍接得曹操矫诏，引兵前来会盟。",
+  "owners": [
+   "cao_cao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:53:06.192068+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 4012,
+   "story_time": "东汉末年"
+  },
+  "text_en": "Yuan Shao received Cao Cao's forged edict and led his troops to join the alliance."
+ },
+ {
+  "id": "50df8a6176d84fd392e6e01ae14ed0ab",
+  "text": "【第五回 发矫诏诸镇应曹公 破关兵三英战吕布】曹操草拟檄文，以大义告天下，呼吁共讨董卓。",
+  "owners": [
+   "cao_cao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:53:06.474262+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 4013,
+   "story_time": "东汉末年"
+  },
+  "text_en": "Cao Cao drafted a call to arms, proclaiming righteous principles to the realm and calling for a joint campaign against Dong Zhuo."
+ },
+ {
+  "id": "46a8c068a8b64fd588267e8b2669cff6",
+  "text": "【第五回 发矫诏诸镇应曹公 破关兵三英战吕布】檄文发出后，各镇诸侯皆起兵响应。",
+  "owners": [
+   "cao_cao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:53:06.789104+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 4014,
+   "story_time": "东汉末年"
+  },
+  "text_en": "After the call to arms was issued, the regional lords all raised troops in response."
+ },
+ {
+  "id": "9656a295020640c6b464ac08352e8cbd",
+  "text": "【第五回 发矫诏诸镇应曹公 破关兵三英战吕布】曹操倡议推举袁绍为盟主，于盟会上支援此立场。",
+  "owners": [
+   "cao_cao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:53:07.063187+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 4015,
+   "story_time": "东汉末年"
+  },
+  "text_en": "Cao Cao proposed that Yuan Shao be nominated as the leader of the alliance and supported this position at the alliance assembly."
+ },
+ {
+  "id": "dce3544d420044909de26373b4b107f4",
+  "text": "【第五回 发矫诏诸镇应曹公 破关兵三英战吕布】曹操行酒并表示应同扶国家，不以强弱计较。",
+  "owners": [
+   "cao_cao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:53:07.513097+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 4016,
+   "story_time": "东汉末年"
+  },
+  "text_en": "Cao Cao offered wine and declared that all should work together to uphold the state, without concern over relative strength or weakness."
+ },
+ {
+  "id": "ff8f989789634319ba371ede2242c820",
+  "text": "【第五回 发矫诏诸镇应曹公 破关兵三英战吕布】曹操建议使关羽出战华雄，并支持关羽立功。",
+  "owners": [
+   "cao_cao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:53:07.801795+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 4017,
+   "story_time": "东汉末年"
+  },
+  "text_en": "Cao Cao suggested sending Guan Yu to face Hua Xiong and supported Guan Yu in achieving that merit."
+ },
+ {
+  "id": "c8fdd5541b4c4613a190e11dcb4b5cc5",
+  "text": "【第五回 发矫诏诸镇应曹公 破关兵三英战吕布】曹操因关羽胜华雄而大喜，并进一步安慰刘备等三人。",
+  "owners": [
+   "cao_cao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:53:08.137396+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 4018,
+   "story_time": "东汉末年"
+  },
+  "text_en": "Cao Cao was overjoyed by Guan Yu's victory over Hua Xiong and further comforted Liu Bei and the other two brothers."
+ },
+ {
+  "id": "dbd74fa7e3ae4d14885c27235a72f0d5",
+  "text": "【第五回 发矫诏诸镇应曹公 破关兵三英战吕布】曹操建议联合各方诸侯，共擒吕布易诛董卓。",
+  "owners": [
+   "cao_cao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:53:08.422803+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 4019,
+   "story_time": "东汉末年"
+  },
+  "text_en": "Cao Cao proposed uniting the various regional lords to capture Lü Bu, which would make eliminating Dong Zhuo easier."
+ },
+ {
+  "id": "12b7269a36394f6cadece0fd4a80ec5a",
+  "text": "【第五回 发矫诏诸镇应曹公 破关兵三英战吕布】陈宫离开曹操后，自投东郡。",
+  "owners": [
+   "chen_gong"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:53:08.708124+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 4020,
+   "story_time": "东汉末年"
+  },
+  "text_en": "After parting ways with Cao Cao, Chen Gong went on his own to Dong Commandery."
+ },
+ {
+  "id": "b751eab8b342417095070e0e2f9b4663",
+  "text": "【第五回 发矫诏诸镇应曹公 破关兵三英战吕布】袁绍被推举为各路诸侯的盟主。",
+  "owners": [
+   "yuanshao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:53:09.048777+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 4021,
+   "story_time": "东汉末年"
+  },
+  "text_en": "Yuan Shao was nominated as the leader of the coalition of regional lords."
+ },
+ {
+  "id": "cbe9ddc5b554439facfa2b895c8d5809",
+  "text": "【第五回 发矫诏诸镇应曹公 破关兵三英战吕布】关羽出战并斩杀华雄。",
+  "owners": [
+   "guanyu"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:53:09.343878+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 4022,
+   "story_time": "东汉末年"
+  },
+  "text_en": "Guan Yu went into battle and beheaded Hua Xiong."
+ },
+ {
+  "id": "582c8aa7c821423bb02c97e28e8fe4aa",
+  "text": "【第五回 发矫诏诸镇应曹公 破关兵三英战吕布】张飞与关羽、刘备共同对抗吕布。",
+  "owners": [
+   "guanyu",
+   "liubei",
+   "lvbu",
+   "zhangfei"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:53:09.670974+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 4023,
+   "story_time": "东汉末年"
+  },
+  "text_en": "Zhang Fei, together with Guan Yu and Liu Bei, jointly fought against Lü Bu."
+ },
+ {
+  "id": "6a68391b378f4625918ad4e509052af0",
+  "text": "【第五回 发矫诏诸镇应曹公 破关兵三英战吕布】张飞嘲讽吕布为三姓家奴，并以勇猛的表现震动敌人。",
+  "owners": [
+   "zhangfei"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:53:10.663571+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 4025,
+   "story_time": "东汉末年"
+  },
+  "text_en": "Zhang Fei mocked Lü Bu as a 'slave of three surnames' and terrified the enemy with his ferocious display of valor."
+ },
+ {
+  "id": "63e25580bf554c8aaa37421227da92d6",
+  "text": "【第五回 发矫诏诸镇应曹公 破关兵三英战吕布】吕布率军迎战诸侯，表现出极强的战斗力。",
+  "owners": [
+   "lvbu"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:53:10.986940+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 4026,
+   "story_time": "东汉末年"
+  },
+  "text_en": "Lü Bu led his army to confront the coalition lords, demonstrating overwhelming martial prowess."
+ },
+ {
+  "id": "d3fa3c2178c54ccea2ebb7dd1d622841",
+  "text": "【第五回 发矫诏诸镇应曹公 破关兵三英战吕布】董卓因失去华雄，上令加强防守准备进一步军事行动。",
+  "owners": [
+   "dongzhuo"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:53:11.941168+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 4028,
+   "story_time": "东汉末年"
+  },
+  "text_en": "Because he had lost Hua Xiong, Dong Zhuo issued orders to strengthen defences and prepare for further military action."
+ },
+ {
+  "id": "14afc0c6f9e246c9b38c20d7c8ee7423",
+  "text": "【第五回 发矫诏诸镇应曹公 破关兵三英战吕布】公孙瓒召刘备随行以谋共讨董卓。",
+  "owners": [
+   "gongsunzan",
+   "liubei"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:53:12.336639+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 4029,
+   "story_time": "东汉末年"
+  },
+  "text_en": "Gongsun Zan summoned Liu Bei to accompany him in planning the joint campaign against Dong Zhuo."
+ },
+ {
+  "id": "b1cc5aff219846d586b4b7ee5a97aa7a",
+  "text": "【第六回 焚金阙董卓行凶 匿玉玺孙坚背约】张飞赶到关下，遭矢石如雨，被迫撤退。",
+  "owners": [
+   "zhangfei"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:53:52.663286+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 5000,
+   "story_time": "东汉末年,董卓之乱时期"
+  },
+  "text_en": "Zhang Fei rushed to the pass but was forced to retreat under a rain of arrows and stones."
+ },
+ {
+  "id": "a74759174cf847909dc61682ffb8b8f2",
+  "text": "【第六回 焚金阙董卓行凶 匿玉玺孙坚背约】刘备与其他诸侯一起请孙坚等庆祝胜利。",
+  "owners": [
+   "liubei"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:53:52.909481+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 5001,
+   "story_time": "东汉末年,董卓之乱时期"
+  },
+  "text_en": "Liu Bei and the other lords invited Sun Jian and others to celebrate the victory."
+ },
+ {
+  "id": "cd5c0e0b40584fe1aac187b9a2a1393c",
+  "text": "【第六回 焚金阙董卓行凶 匿玉玺孙坚背约】刘备杀入虎牢关，迎接诸侯入城。",
+  "owners": [
+   "liubei"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:53:53.176346+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 5002,
+   "story_time": "东汉末年,董卓之乱时期"
+  },
+  "text_en": "Liu Bei fought his way into Hulao Pass and welcomed the coalition lords into the stronghold."
+ },
+ {
+  "id": "2e323a894caf4f2993286306f9d32382",
+  "text": "【第六回 焚金阙董卓行凶 匿玉玺孙坚背约】刘备与公孙瓒商议返回北方，自守平原。",
+  "owners": [
+   "liubei"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:53:53.432630+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 5003,
+   "story_time": "东汉末年,董卓之乱时期"
+  },
+  "text_en": "Liu Bei and Gongsun Zan discussed returning north, with Liu Bei guarding Pingyuan."
+ },
+ {
+  "id": "ebc027555dd54cac9f39999a256e0426",
+  "text": "【第六回 焚金阙董卓行凶 匿玉玺孙坚背约】关羽与刘备、张飞杀入虎牢关，诸侯入城。",
+  "owners": [
+   "guanyu"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:53:54.143073+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 5004,
+   "story_time": "东汉末年,董卓之乱时期"
+  },
+  "text_en": "Guan Yu, together with Liu Bei and Zhang Fei, fought their way into Hulao Pass, and the lords entered the stronghold."
+ },
+ {
+  "id": "9b1b050ebf824778b67f97efe25c5298",
+  "text": "【第六回 焚金阙董卓行凶 匿玉玺孙坚背约】袁绍下令孙坚进兵，指责其匿玉玺。",
+  "owners": [
+   "yuanshao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:53:54.441527+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 5005,
+   "story_time": "东汉末年,董卓之乱时期"
+  },
+  "text_en": "Yuan Shao ordered Sun Jian to advance his troops and reproached him for concealing the Imperial Seal."
+ },
+ {
+  "id": "db5670a740e84508b0ef835c7fee949d",
+  "text": "【第六回 焚金阙董卓行凶 匿玉玺孙坚背约】袁绍质疑并逼迫孙坚交出传国玺。",
+  "owners": [
+   "yuanshao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:53:54.685435+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 5006,
+   "story_time": "东汉末年,董卓之乱时期"
+  },
+  "text_en": "Yuan Shao questioned Sun Jian and pressured him to hand over the Imperial Seal."
+ },
+ {
+  "id": "a19fd792ddb449abacc55e912a6fdb4c",
+  "text": "【第六回 焚金阙董卓行凶 匿玉玺孙坚背约】袁绍对曹操提议的不满，没有进攻董卓。",
+  "owners": [
+   "yuanshao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:53:54.963552+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 5007,
+   "story_time": "东汉末年,董卓之乱时期"
+  },
+  "text_en": "Chapter 6: Dong Zhuo commits atrocities by burning the capital; Sun Jian breaks faith by hiding the imperial jade seal. Yuan Shao is unhappy with Cao Cao's proposal and does not attack Dong Zhuo."
+ },
+ {
+  "id": "824209f89f9b4e9d962516db7d7065ed",
+  "text": "【第六回 焚金阙董卓行凶 匿玉玺孙坚背约】袁绍要求荆州刺史刘表阻截孙坚。",
+  "owners": [
+   "yuanshao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:53:55.245065+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 5008,
+   "story_time": "东汉末年,董卓之乱时期"
+  },
+  "text_en": "Chapter 6: Dong Zhuo commits atrocities by burning the capital; Sun Jian breaks faith by hiding the imperial jade seal. Yuan Shao orders Jing Province governor Liu Biao to intercept Sun Jian."
+ },
+ {
+  "id": "fcdda1f24ba947d09a0ba89e0c3b0ca9",
+  "text": "【第六回 焚金阙董卓行凶 匿玉玺孙坚背约】李儒建议董卓迁都长安以应童谣之兆。",
+  "owners": [
+   "li_ru"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:53:55.550437+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 5009,
+   "story_time": "东汉末年,董卓之乱时期"
+  },
+  "text_en": "Chapter 6: Dong Zhuo commits atrocities by burning the capital; Sun Jian breaks faith by hiding the imperial jade seal. Li Ru suggests that Dong Zhuo move the capital to Chang'an in response to a prophetic children's rhyme."
+ },
+ {
+  "id": "813f01e8ea1a4c1ab288ddfb1cb126ef",
+  "text": "【第六回 焚金阙董卓行凶 匿玉玺孙坚背约】董卓因孙坚不愿结亲而大怒。",
+  "owners": [
+   "dongzhuo"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:53:55.827472+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 5010,
+   "story_time": "东汉末年,董卓之乱时期"
+  },
+  "text_en": "Chapter 6: Dong Zhuo commits atrocities by burning the capital; Sun Jian breaks faith by hiding the imperial jade seal. Dong Zhuo is enraged because Sun Jian refuses to form a marriage alliance."
+ },
+ {
+  "id": "d2cf6376ca6d4d3d8c975aeefc60a12b",
+  "text": "【第六回 焚金阙董卓行凶 匿玉玺孙坚背约】董卓采纳李儒建议，计划迁都长安。",
+  "owners": [
+   "dongzhuo"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:53:56.135256+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 5011,
+   "story_time": "东汉末年,董卓之乱时期"
+  },
+  "text_en": "Chapter 6: Dong Zhuo commits atrocities by burning the capital; Sun Jian breaks faith by hiding the imperial jade seal. Dong Zhuo adopts Li Ru's suggestion and plans to move the capital to Chang'an."
+ },
+ {
+  "id": "fba6d12bc8854567b1320376cbe44efe",
+  "text": "【第六回 焚金阙董卓行凶 匿玉玺孙坚背约】董卓愤怒镇压反对迁都之声，决意迁往长安。",
+  "owners": [
+   "dongzhuo"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:53:56.458729+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 5012,
+   "story_time": "东汉末年,董卓之乱时期"
+  },
+  "text_en": "Chapter 6: Dong Zhuo commits atrocities by burning the capital; Sun Jian breaks faith by hiding the imperial jade seal. Dong Zhuo angrily suppresses opposition to the move and resolutely decides to relocate to Chang'an."
+ },
+ {
+  "id": "cd56efef144a453eabe545091a09ce30",
+  "text": "【第六回 焚金阙董卓行凶 匿玉玺孙坚背约】董卓在离开洛阳时，命令焚烧城市。",
+  "owners": [
+   "dongzhuo"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:53:56.745405+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 5013,
+   "story_time": "东汉末年,董卓之乱时期"
+  },
+  "text_en": "Chapter 6: Dong Zhuo commits atrocities by burning the capital; Sun Jian breaks faith by hiding the imperial jade seal. As Dong Zhuo leaves Luoyang, he orders the city to be burned."
+ },
+ {
+  "id": "e4c8781bc2354f7699638d8f65fd595a",
+  "text": "【第六回 焚金阙董卓行凶 匿玉玺孙坚背约】曹操见董卓西去，提议袁绍乘势追击董卓。",
+  "owners": [
+   "cao_cao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:53:57.026763+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 5014,
+   "story_time": "东汉末年,董卓之乱时期"
+  },
+  "text_en": "Chapter 6: Dong Zhuo commits atrocities by burning the capital; Sun Jian breaks faith by hiding the imperial jade seal. Seeing Dong Zhuo heading west, Cao Cao proposes that Yuan Shao seize the chance to pursue him."
+ },
+ {
+  "id": "c34a0269fc63465d90f30696c51eaca9",
+  "text": "【第六回 焚金阙董卓行凶 匿玉玺孙坚背约】曹操质问袁绍为何不进兵，称诸侯应当乘胜追击董卓。",
+  "owners": [
+   "cao_cao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:53:57.324066+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 5015,
+   "story_time": "东汉末年,董卓之乱时期"
+  },
+  "text_en": "Chapter 6: Dong Zhuo commits atrocities by burning the capital; Sun Jian breaks faith by hiding the imperial jade seal. Cao Cao questions Yuan Shao on why he does not advance, stating that the allied lords should follow up victory with a pursuit of Dong Zhuo."
+ },
+ {
+  "id": "0734dcbaec5643aa9a2244a3cdc71c76",
+  "text": "【第六回 焚金阙董卓行凶 匿玉玺孙坚背约】曹操感到愤怒，称其他诸侯为竖子，不足与谋，决定单独追击董卓。",
+  "owners": [
+   "cao_cao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:53:57.571934+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 5016,
+   "story_time": "东汉末年,董卓之乱时期"
+  },
+  "text_en": "Chapter 6: Dong Zhuo commits atrocities by burning the capital; Sun Jian breaks faith by hiding the imperial jade seal. Cao Cao becomes furious, calls the other lords worthless fellows unworthy of planning, and decides to pursue Dong Zhuo alone."
+ },
+ {
+  "id": "a98d12d7ab66452787a9927bbde76968",
+  "text": "【第六回 焚金阙董卓行凶 匿玉玺孙坚背约】曹操带领万余兵马追击董卓，刘备、夏侯惇等人同行。",
+  "owners": [
+   "cao_cao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:53:57.854934+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 5017,
+   "story_time": "东汉末年,董卓之乱时期"
+  },
+  "text_en": "Chapter 6: Dong Zhuo commits atrocities by burning the capital; Sun Jian breaks faith by hiding the imperial jade seal. Cao Cao leads over ten thousand troops to chase Dong Zhuo, accompanied by Liu Bei, Xiahou Dun, and others."
+ },
+ {
+  "id": "a3fcf6ce8c8e4710a4b693d4131dd8f7",
+  "text": "【第六回 焚金阙董卓行凶 匿玉玺孙坚背约】曹操遭吕布、李傕、郭汜联军伏击，败退至荒山。",
+  "owners": [
+   "cao_cao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:53:58.131079+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 5018,
+   "story_time": "东汉末年,董卓之乱时期"
+  },
+  "text_en": "Chapter 6: Dong Zhuo commits atrocities by burning the capital; Sun Jian breaks faith by hiding the imperial jade seal. Cao Cao is ambushed by the combined forces of Lü Bu, Li Jue, and Guo Si, and retreats to a barren hill."
+ },
+ {
+  "id": "da7c176dcb944fcfac8acb28cb1cc46e",
+  "text": "【第六回 焚金阙董卓行凶 匿玉玺孙坚背约】曹操在荒山遇伏，徐荣射中其肩膊，曹洪救其性命。",
+  "owners": [
+   "cao_cao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:53:58.466662+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 5019,
+   "story_time": "东汉末年,董卓之乱时期"
+  },
+  "text_en": "Chapter 6: Dong Zhuo commits atrocities by burning the capital; Sun Jian breaks faith by hiding the imperial jade seal. Cao Cao encounters an ambush on the barren hill; Xu Rong shoots him in the shoulder, and Cao Hong saves his life."
+ },
+ {
+  "id": "b354a9be84d046bea80e1997de3882a5",
+  "text": "【第六回 焚金阙董卓行凶 匿玉玺孙坚背约】曹操在逃离伏击后，感激曹洪的救命之恩。",
+  "owners": [
+   "cao_cao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:53:58.796629+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 5020,
+   "story_time": "东汉末年,董卓之乱时期"
+  },
+  "text_en": "Chapter 6: Dong Zhuo commits atrocities by burning the capital; Sun Jian breaks faith by hiding the imperial jade seal. After escaping the ambush, Cao Cao feels grateful to Cao Hong for saving his life."
+ },
+ {
+  "id": "2112654a3db24f58b122376fcbad4e79",
+  "text": "【第六回 焚金阙董卓行凶 匿玉玺孙坚背约】曹操渡河后继续逃跑，最终被夏侯惇营救脱险。",
+  "owners": [
+   "cao_cao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:53:59.069890+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 5021,
+   "story_time": "东汉末年,董卓之乱时期"
+  },
+  "text_en": "Chapter 6: Dong Zhuo commits atrocities by burning the capital; Sun Jian breaks faith by hiding the imperial jade seal. After crossing the river, Cao Cao continues to flee and is eventually rescued by Xiahou Dun."
+ },
+ {
+  "id": "f62ef504b5714a5896e39c13a2a4b7bc",
+  "text": "【第六回 焚金阙董卓行凶 匿玉玺孙坚背约】逃脱后的曹操聚集了残余军队，返回河内。",
+  "owners": [
+   "cao_cao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:53:59.316706+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 5022,
+   "story_time": "东汉末年,董卓之乱时期"
+  },
+  "text_en": "Chapter 6: Dong Zhuo commits atrocities by burning the capital; Sun Jian breaks faith by hiding the imperial jade seal. After his escape, Cao Cao gathers his remaining troops and returns to Henei."
+ },
+ {
+  "id": "7eb9dea9d42e4e3db12163f47a9b30c9",
+  "text": "【第六回 焚金阙董卓行凶 匿玉玺孙坚背约】曹操与袁绍等诸侯饮酒时，因战败而感到忧伤。",
+  "owners": [
+   "cao_cao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:53:59.560980+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 5023,
+   "story_time": "东汉末年,董卓之乱时期"
+  },
+  "text_en": "Chapter 6: Dong Zhuo commits atrocities by burning the capital; Sun Jian breaks faith by hiding the imperial jade seal. While drinking with Yuan Shao and the other lords, Cao Cao feels sorrowful because of his defeat."
+ },
+ {
+  "id": "ba5890fc026f4e2987345796ae5f922e",
+  "text": "【第六回 焚金阙董卓行凶 匿玉玺孙坚背约】曹操在饮酒时表述了对袁绍等人战斗策略的失望。",
+  "owners": [
+   "cao_cao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:53:59.827683+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 5024,
+   "story_time": "东汉末年,董卓之乱时期"
+  },
+  "text_en": "Chapter 6: Dong Zhuo commits atrocities by burning the capital; Sun Jian breaks faith by hiding the imperial jade seal. While drinking, Cao Cao expresses his disappointment with the battle strategies of Yuan Shao and the others."
+ },
+ {
+  "id": "657edfe9b11b4985895cce37e8ca20f6",
+  "text": "【第六回 焚金阙董卓行凶 匿玉玺孙坚背约】曹操察觉诸侯各怀异心，并决定离开，投扬州。",
+  "owners": [
+   "cao_cao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:54:00.071431+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 5025,
+   "story_time": "东汉末年,董卓之乱时期"
+  },
+  "text_en": "Chapter 6: Dong Zhuo commits atrocities by burning the capital; Sun Jian breaks faith by hiding the imperial jade seal. Cao Cao realizes that the lords each harbor their own ambitions and decides to leave, heading for Yangzhou."
+ },
+ {
+  "id": "1cc5e4dac9474239988ee7934f6aeb70",
+  "text": "第七回 袁绍磐河战公孙",
+  "owners": [
+   "yuanshao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:54:14.289313+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 6000,
+   "story_time": "东汉末年，三国时期"
+  },
+  "text_en": "Chapter 7: Yuan Shao fights Gongsun Zan at the Pan River"
+ },
+ {
+  "id": "830eacefdf574dbf9288b38022cf18dc",
+  "text": "孙坚跨江击刘表",
+  "owners": [
+   "yuanshao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:54:14.570978+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 6000,
+   "story_time": "东汉末年，三国时期"
+  },
+  "text_en": "Sun Jian crosses the river to attack Liu Biao"
+ },
+ {
+  "id": "0bb8fcd75f744e09a98064f061449233",
+  "text": "策划让公孙瓒进攻冀州",
+  "owners": [
+   "yuanshao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:54:14.852295+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 6000,
+   "story_time": "东汉末年，三国时期"
+  },
+  "text_en": "Plot to have Gongsun Zan attack Jizhou"
+ },
+ {
+  "id": "3db8165cca9e45458991654864cc913e",
+  "text": "坐收渔翁之利",
+  "owners": [
+   "yuanshao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:54:15.127875+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 6000,
+   "story_time": "东汉末年，三国时期"
+  },
+  "text_en": "Reap the benefits from others' conflict"
+ },
+ {
+  "id": "e68d42fdcf5849a4854613801d4114c2",
+  "text": "【第七回 袁绍磐河战公孙 孙坚跨江击刘表】进入冀州后，完全夺取韩馥的权力，将其仅留为名义职务。",
+  "owners": [
+   "yuanshao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:54:15.332343+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 6001,
+   "story_time": "东汉末年，三国时期"
+  },
+  "text_en": "Chapter 7: Yuan Shao fights Gongsun Zan at the Pan River; Sun Jian crosses the river to attack Liu Biao. After entering Jizhou, Yuan Shao completely seizes Han Fu's power, leaving him with only a nominal post."
+ },
+ {
+  "id": "229b3fb833d648a08493d2dfd4667563",
+  "text": "【第七回 袁绍磐河战公孙 孙坚跨江击刘表】与公孙瓒在磐河遭遇战中，先遭到强烈抵抗，后见刘备助瓒，惊慌失措逃回。",
+  "owners": [
+   "yuanshao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:54:15.557855+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 6002,
+   "story_time": "东汉末年，三国时期"
+  },
+  "text_en": "Chapter 7: Yuan Shao fights Gongsun Zan at the Pan River; Sun Jian crosses the river to attack Liu Biao. In the encounter battle at the Pan River with Gongsun Zan, Yuan Shao first faces strong resistance, then sees Liu Bei coming to aid Zan, and flees back in panic."
+ },
+ {
+  "id": "2b1a717f82db410581966c2439932988",
+  "text": "【第七回 袁绍磐河战公孙 孙坚跨江击刘表】在李儒劝董卓派人调停后，与公孙瓒暂时和解。",
+  "owners": [
+   "yuanshao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:54:15.864606+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 6003,
+   "story_time": "东汉末年，三国时期"
+  },
+  "text_en": "In Chapter 7: Yuan Shao Fights Gongsun at Pan River / Sun Jian Crosses the River to Attack Liu Biao, Li Ru advises Dong Zhuo to mediate, leading to a temporary reconciliation with Gongsun Zan."
+ },
+ {
+  "id": "7deebfe4e7bb44bb99edba1dc765310f",
+  "text": "【第七回 袁绍磐河战公孙 孙坚跨江击刘表】与袁术因拒绝其求助而关系恶化。",
+  "owners": [
+   "yuanshao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:54:16.180527+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 6004,
+   "story_time": "东汉末年，三国时期"
+  },
+  "text_en": "In Chapter 7: Yuan Shao Fights Gongsun at Pan River / Sun Jian Crosses the River to Attack Liu Biao, relations with Yuan Shu deteriorate after he refuses to help."
+ },
+ {
+  "id": "c5f6465e23b34871abaeae7613996e13",
+  "text": "【第七回 袁绍磐河战公孙 孙坚跨江击刘表】被刘表围困后，对刘表心生怨恨，并发誓要报复。",
+  "owners": [
+   "sunjian"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:54:16.427652+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 6005,
+   "story_time": "东汉末年，三国时期"
+  },
+  "text_en": "In Chapter 7: Yuan Shao Fights Gongsun at Pan River / Sun Jian Crosses the River to Attack Liu Biao, after being besieged by Liu Biao, he harbors resentment and vows revenge."
+ },
+ {
+  "id": "df2ba3850b2645f98ffbc44871b8a5ee",
+  "text": "【第七回 袁绍磐河战公孙 孙坚跨江击刘表】接到袁术诱使兴兵伐刘表的书信，对苏唆已久的叛变计划心动。",
+  "owners": [
+   "sunjian"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:54:16.734633+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 6006,
+   "story_time": "东汉末年，三国时期"
+  },
+  "text_en": "In Chapter 7: Yuan Shao Fights Gongsun at Pan River / Sun Jian Crosses the River to Attack Liu Biao, he receives a letter from Yuan Shu enticing him to attack Liu Biao and is tempted by the long-discussed rebellion plan."
+ },
+ {
+  "id": "7649f37e61704f4495c4a6fbed3b93ae",
+  "text": "【第七回 袁绍磐河战公孙 孙坚跨江击刘表】无视风折帅旗的预兆，继续攻打襄阳。",
+  "owners": [
+   "sunjian"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:54:16.997218+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 6007,
+   "story_time": "东汉末年，三国时期"
+  },
+  "text_en": "In Chapter 7: Yuan Shao Fights Gongsun at Pan River / Sun Jian Crosses the River to Attack Liu Biao, he ignores the omen of the wind breaking the command flag and continues advancing on Xiangyang."
+ },
+ {
+  "id": "9ecd04e4130d4f69a7c6abea29ad3fe7",
+  "text": "【第七回 袁绍磐河战公孙 孙坚跨江击刘表】在岘山被伏击，乱石乱箭之中身负重伤而亡，年仅三十七岁。",
+  "owners": [
+   "sunjian"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:54:17.261641+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 6008,
+   "story_time": "东汉末年，三国时期"
+  },
+  "text_en": "In Chapter 7: Yuan Shao Fights Gongsun at Pan River / Sun Jian Crosses the River to Attack Liu Biao, he is ambushed at Xian Mountain and dies at age thirty-seven from severe wounds amid falling rocks and arrows."
+ },
+ {
+  "id": "e316941f237c42c6b6380c4e1f181126",
+  "text": "【第七回 袁绍磐河战公孙 孙坚跨江击刘表】原为袁绍部下，因不满其行为，投入公孙瓒麾下。",
+  "owners": [
+   "zhaoyun"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:54:17.566972+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 6009,
+   "story_time": "东汉末年，三国时期"
+  },
+  "text_en": "In Chapter 7: Yuan Shao Fights Gongsun at Pan River / Sun Jian Crosses the River to Attack Liu Biao, originally a subordinate of Yuan Shao, he defects to Gongsun Zan's side due to dissatisfaction with Yuan Shao's behavior."
+ },
+ {
+  "id": "1875d77dd7e84ea892c0ca0736c450fb",
+  "text": "【第七回 袁绍磐河战公孙 孙坚跨江击刘表】战场上救下公孙瓒，展现了杰出的战斗能力。",
+  "owners": [
+   "zhaoyun"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:54:17.832905+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 6010,
+   "story_time": "东汉末年，三国时期"
+  },
+  "text_en": "In Chapter 7: Yuan Shao Fights Gongsun at Pan River / Sun Jian Crosses the River to Attack Liu Biao, he saves Gongsun Zan on the battlefield, demonstrating outstanding combat ability."
+ },
+ {
+  "id": "3d3b0322afb74933b4498d8d930c40e9",
+  "text": "【第七回 袁绍磐河战公孙 孙坚跨江击刘表】参加战斗中显出无比勇武，令刘备钦佩。",
+  "owners": [
+   "zhaoyun"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:54:18.638139+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 6011,
+   "story_time": "东汉末年，三国时期"
+  },
+  "text_en": "In Chapter 7: Yuan Shao Fights Gongsun at Pan River / Sun Jian Crosses the River to Attack Liu Biao, he displays extraordinary valor in battle, earning Liu Bei's admiration."
+ },
+ {
+  "id": "f3ebbc191d2c416fad60842952141d16",
+  "text": "【第七回 袁绍磐河战公孙 孙坚跨江击刘表】与刘备告别时，既有崇敬，又有落寞。",
+  "owners": [
+   "zhaoyun"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:54:18.909685+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 6012,
+   "story_time": "东汉末年，三国时期"
+  },
+  "text_en": "In Chapter 7: Yuan Shao Fights Gongsun at Pan River / Sun Jian Crosses the River to Attack Liu Biao, when saying farewell to Liu Bei, he feels both reverence and desolation."
+ },
+ {
+  "id": "e8b1b5145eb843af9d4d24d125aa227e",
+  "text": "【第七回 袁绍磐河战公孙 孙坚跨江击刘表】二度被袁绍欺骗利用，愤而起兵进攻袁绍。",
+  "owners": [
+   "gongsunzan"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:54:19.168169+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 6013,
+   "story_time": "东汉末年，三国时期"
+  },
+  "text_en": "In Chapter 7: Yuan Shao Fights Gongsun at Pan River / Sun Jian Crosses the River to Attack Liu Biao, deceived and exploited by Yuan Shao for a second time, he angrily raises troops to attack Yuan Shao."
+ },
+ {
+  "id": "8b84a029e9ec4884bcf68796136d757b",
+  "text": "【第七回 袁绍磐河战公孙 孙坚跨江击刘表】在与袁绍的战斗中遭遇险境，被赵云相助脱险。",
+  "owners": [
+   "gongsunzan"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:54:19.431965+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 6014,
+   "story_time": "东汉末年，三国时期"
+  },
+  "text_en": "In Chapter 7: Yuan Shao Fights Gongsun at Pan River / Sun Jian Crosses the River to Attack Liu Biao, he encounters danger during the battle with Yuan Shao and is rescued by Zhao Yun."
+ },
+ {
+  "id": "5c8391d395fa44d282858e3e201a05df",
+  "text": "【第七回 袁绍磐河战公孙 孙坚跨江击刘表】迎来刘备、关羽、张飞的支援，重整队伍，战局逆转。",
+  "owners": [
+   "gongsunzan"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:54:19.693462+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 6015,
+   "story_time": "东汉末年，三国时期"
+  },
+  "text_en": "In Chapter 7: Yuan Shao Fights Gongsun at Pan River / Sun Jian Crosses the River to Attack Liu Biao, he welcomes reinforcements from Liu Bei, Guan Yu, and Zhang Fei, regroups his forces, and turns the tide of battle."
+ },
+ {
+  "id": "2cc0bfd959144064a0dd2957e5397a17",
+  "text": "【第七回 袁绍磐河战公孙 孙坚跨江击刘表】赵云表现出色，瓒与其结交，视为重将。",
+  "owners": [
+   "gongsunzan"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:54:19.958114+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 6016,
+   "story_time": "东汉末年，三国时期"
+  },
+  "text_en": "In Chapter 7: Yuan Shao Fights Gongsun at Pan River / Sun Jian Crosses the River to Attack Liu Biao, Zhao Yun performs brilliantly; Gongsun Zan befriends him and regards him as an important general."
+ },
+ {
+  "id": "98f1d1b101aa4978b9f0a43159d0175c",
+  "text": "【第七回 袁绍磐河战公孙 孙坚跨江击刘表】接到董卓使者和解帮忙书信后，与袁绍讲和。",
+  "owners": [
+   "gongsunzan"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:54:20.252009+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 6017,
+   "story_time": "东汉末年，三国时期"
+  },
+  "text_en": "In Chapter 7: Yuan Shao Fights Gongsun at Pan River / Sun Jian Crosses the River to Attack Liu Biao, after receiving a peacemaking letter from Dong Zhuo's envoy, he makes peace with Yuan Shao."
+ },
+ {
+  "id": "129ce4ae901445e3a5767b26d422e9a5",
+  "text": "【第八回】董卓在长安得知孙坚已死，感到安心除去一个心腹之患。",
+  "owners": [
+   "dongzhuo"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:54:42.037323+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 7000,
+   "story_time": "东汉末年三国初期"
+  },
+  "text_en": "In Chapter 8, Dong Zhuo, in Chang'an, learns that Sun Jian is dead and feels relieved that a major threat has been removed."
+ },
+ {
+  "id": "e08857ccfa8c4373b45b54ca1a6f437c",
+  "text": "【第八回】董卓询问孙坚之子孙策的年龄，被告知十七岁，不以为意。",
+  "owners": [
+   "dongzhuo"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:54:42.352501+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 7001,
+   "story_time": "东汉末年三国初期"
+  },
+  "text_en": "In Chapter 8, Dong Zhuo asks the age of Sun Jian's son, Sun Ce, and upon being told he is seventeen, he does not take him seriously."
+ },
+ {
+  "id": "20fdb4f54601431a9723211693f755b7",
+  "text": "【第八回】董卓骄横跋扈，自号「尚父」，出入僭用天子仪仗。",
+  "owners": [
+   "dongzhuo"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:54:42.642336+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 7002,
+   "story_time": "东汉末年三国初期"
+  },
+  "text_en": "In Chapter 8, Dong Zhuo is arrogant and domineering; he calls himself 'Father Shang' and improperly uses the imperial regalia when going out."
+ },
+ {
+  "id": "c30b681d82874f9b931560da39503366",
+  "text": "【第八回】董卓封赏董氏宗族，越多宗族成员被封列侯。",
+  "owners": [
+   "dongzhuo"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:54:42.920817+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 7003,
+   "story_time": "东汉末年三国初期"
+  },
+  "text_en": "In Chapter 8, Dong Zhuo bestows titles on the Dong clan; many clan members are appointed as marquises."
+ },
+ {
+  "id": "c60adbe9ea18407397a44e444a918891",
+  "text": "【第八回】董卓在长安城外郿坞建筑，役民夫二十五万人，储备二十年粮。",
+  "owners": [
+   "dongzhuo"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:54:43.168874+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 7004,
+   "story_time": "东汉末年三国初期"
+  },
+  "text_en": "In Chapter 8, Dong Zhuo builds a fortress at Meiwu outside Chang'an city, employing 250,000 laborers and storing twenty years' worth of grain."
+ },
+ {
+  "id": "c2e6a4abf94e4271851a1b500b88a8d3",
+  "text": "【第八回】董卓召集年轻美女居住郿坞，显其奢靡。",
+  "owners": [
+   "dongzhuo"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:54:43.442527+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 7005,
+   "story_time": "东汉末年三国初期"
+  },
+  "text_en": "In Chapter 8, Dong Zhuo gathers young beauties to live at Meiwu, demonstrating his extravagance."
+ },
+ {
+  "id": "3950c433b26842dbb60b096b6766ab5a",
+  "text": "【第八回】董卓往返长安与郿坞，公卿皆于横门外候送。",
+  "owners": [
+   "dongzhuo"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:54:43.734745+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 7006,
+   "story_time": "东汉末年三国初期"
+  },
+  "text_en": "In Chapter 8, whenever Dong Zhuo travels between Chang'an and Meiwu, all the officials must wait and see him off outside Heng Gate."
+ },
+ {
+  "id": "627db1a4e9024d8cacb55ee4430b6a71",
+  "text": "【第八回】董卓设宴路上，命人残酷处置北地降卒数百人，谈笑自若。",
+  "owners": [
+   "dongzhuo"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:54:44.019563+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 7007,
+   "story_time": "东汉末年三国初期"
+  },
+  "text_en": "In Chapter 8, during a banquet on the road, Dong Zhuo orders the brutal execution of several hundred surrendered soldiers from the north, talking and laughing as if nothing happened."
+ },
+ {
+  "id": "0f1ddee80ae04364b95df0b99510ef40",
+  "text": "【第八回】董卓在省台大会，吕布告密，命其揪司空张温下堂。",
+  "owners": [
+   "dongzhuo"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:54:44.281794+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 7008,
+   "story_time": "东汉末年三国初期"
+  },
+  "text_en": "In Chapter 8, at a grand assembly in the imperial offices, Lü Bu reports secretly, and Dong Zhuo orders him to drag Minister Zhang Wen out of the hall."
+ },
+ {
+  "id": "cfcd9f2a3cf64551a942882c4fe2b8b5",
+  "text": "【第八回】董卓斩张温后，告知百官原因，众官惊惧散去。",
+  "owners": [
+   "dongzhuo"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:54:44.527080+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 7009,
+   "story_time": "东汉末年三国初期"
+  },
+  "text_en": "In Chapter 8, after executing Zhang Wen, Dong Zhuo tells the officials the reason, and all the officials leave in terror."
+ },
+ {
+  "id": "c59d60574f1d49c086b9506fc423694b",
+  "text": "【第八回】董卓被王允邀约赴宴，在王允府接受款待。",
+  "owners": [
+   "dongzhuo"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:54:44.797562+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 7010,
+   "story_time": "东汉末年三国初期"
+  },
+  "text_en": "[Chapter 8] Dong Zhuo is invited by Wang Yun to a banquet and receives hospitality at Wang Yun's residence."
+ },
+ {
+  "id": "9b058ec50914438186308a9c7fdef88a",
+  "text": "【第八回】董卓接受貂蝉作为礼物，并将其送往相府。",
+  "owners": [
+   "dongzhuo"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:54:45.067533+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 7011,
+   "story_time": "东汉末年三国初期"
+  },
+  "text_en": "[Chapter 8] Dong Zhuo accepts Diaochan as a gift and sends her to the prime minister's mansion."
+ },
+ {
+  "id": "ff620722f1e14c2a81cebe6d37afec7b",
+  "text": "【第八回】董卓对貂蝉产生浓厚兴趣，将其纳为己有。",
+  "owners": [
+   "dongzhuo"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:54:45.348806+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 7012,
+   "story_time": "东汉末年三国初期"
+  },
+  "text_en": "[Chapter 8] Dong Zhuo develops a strong interest in Diaochan and takes her for himself."
+ },
+ {
+  "id": "699ff047fb8d473c970b3952f9dd4971",
+  "text": "【第八回】董卓因貂蝉，小疾不出理事，对貂蝉宠爱有加。",
+  "owners": [
+   "dongzhuo"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:54:45.606472+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 7013,
+   "story_time": "东汉末年三国初期"
+  },
+  "text_en": "[Chapter 8] Because of Diaochan, Dong Zhuo neglects state affairs due to a minor illness and dotes on her deeply."
+ },
+ {
+  "id": "dba012e25b1a47288939de0a86697183",
+  "text": "【第八回】吕布进入董卓府中，董卓因貂蝉怀疑吕布。",
+  "owners": [
+   "dongzhuo"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:54:45.830886+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 7014,
+   "story_time": "东汉末年三国初期"
+  },
+  "text_en": "[Chapter 8] Lü Bu enters Dong Zhuo's mansion, and Dong Zhuo becomes suspicious of Lü Bu because of Diaochan."
+ },
+ {
+  "id": "abe2d3a8aa854254b9b8d5e29cfd2ec5",
+  "text": "【第八回】董卓被李儒劝慰吕布，后赠金帛安抚吕布。",
+  "owners": [
+   "dongzhuo",
+   "li_ru"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:54:46.100487+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 7015,
+   "story_time": "东汉末年三国初期"
+  },
+  "text_en": "[Chapter 8] Dong Zhuo is persuaded by Li Ru to placate Lü Bu and later gifts him gold and silk to soothe him."
+ },
+ {
+  "id": "3d2686fe78d040df92969ba8dfee4fb3",
+  "text": "【第八回】董卓在朝议事，见吕布离去，心生怀疑。",
+  "owners": [
+   "dongzhuo"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:54:46.395192+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 7016,
+   "story_time": "东汉末年三国初期"
+  },
+  "text_en": "[Chapter 8] While discussing state affairs at court, Dong Zhuo sees Lü Bu leave and grows suspicious."
+ },
+ {
+  "id": "8be45e55f0054db9b7a0e5880aa9f6d3",
+  "text": "【第八回】董卓发现吕布与貂蝉在凤仪亭私会，大发雷霆。",
+  "owners": [
+   "dongzhuo"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:54:46.702462+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 7017,
+   "story_time": "东汉末年三国初期"
+  },
+  "text_en": "[Chapter 8] Dong Zhuo discovers Lü Bu and Diaochan having a secret rendezvous at Fengyi Pavilion and flies into a rage."
+ },
+ {
+  "id": "48d3d97b00344adba8f7537b41ebca48",
+  "text": "【第八回】董卓追吕布不及，误撞来人后仰面倒地。",
+  "owners": [
+   "dongzhuo"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:54:46.971821+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 7018,
+   "story_time": "东汉末年三国初期"
+  },
+  "text_en": "[Chapter 8] Dong Zhuo fails to catch Lü Bu, accidentally crashes into someone, and falls flat on his back."
+ },
+ {
+  "id": "e044cae3edf84581aca1c57cf8caccf6",
+  "text": "【第八回】吕布打听貂蝉下落，闻她与董卓同寝，怒火中烧。",
+  "owners": [
+   "lvbu"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:54:47.265228+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 7019,
+   "story_time": "东汉末年三国初期"
+  },
+  "text_en": "[Chapter 8] Lü Bu inquires about Diaochan's whereabouts; hearing that she sleeps with Dong Zhuo, he burns with fury."
+ },
+ {
+  "id": "651bfdb9e46045e78db34d58ea9e9d12",
+  "text": "【第八回】吕布怀疑董卓，窥探貂蝉梳妆，目睹她以眼泪相待。",
+  "owners": [
+   "lvbu"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:54:47.624247+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 7020,
+   "story_time": "东汉末年三国初期"
+  },
+  "text_en": "[Chapter 8] Lü Bu suspects Dong Zhuo and spies on Diaochan while she dresses, witnessing her respond with tears."
+ },
+ {
+  "id": "a025d69838654265ae180f12effca7c8",
+  "text": "【第八回】吕布对貂蝉表露情感，承诺救出她，并拥抱告别。",
+  "owners": [
+   "lvbu"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:54:47.913188+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 7021,
+   "story_time": "东汉末年三国初期"
+  },
+  "text_en": "[Chapter 8] Lü Bu reveals his feelings to Diaochan, promises to rescue her, and they embrace before parting."
+ },
+ {
+  "id": "3be47e6a4ce344ae8677e584e3742672",
+  "text": "【第八回】吕布被董卓召回安慰，心中仍挂念貂蝉，无法安心。",
+  "owners": [
+   "lvbu"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:54:48.166856+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 7022,
+   "story_time": "东汉末年三国初期"
+  },
+  "text_en": "[Chapter 8] Lü Bu is summoned back by Dong Zhuo to be placated, but his heart remains preoccupied with Diaochan and he cannot find peace."
+ },
+ {
+  "id": "03710a5557ab474c890887d3e603dc99",
+  "text": "【第八回 王司徒巧使连环计 董太师大闹凤仪亭】王允参加董卓的宴席，目睹董卓设宴行凶。",
+  "owners": [
+   "wang_yun"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:54:48.464064+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 7023,
+   "story_time": "东汉末年三国初期"
+  },
+  "text_en": "[Chapter 8: Minister Wang Skillfully Uses the Interlocking Scheme; Grand Tutor Dong Raises Chaos at Fengyi Pavilion] Wang Yun attends Dong Zhuo's banquet and witnesses Dong Zhuo using the feast to commit murder."
+ },
+ {
+  "id": "dee1b8caf286404781a825ff74eb12a9",
+  "text": "【第八回 王司徒巧使连环计 董太师大闹凤仪亭】王允在董卓的宴席上不安，回家后在后园沉思。",
+  "owners": [
+   "wang_yun"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:54:48.776055+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 7024,
+   "story_time": "东汉末年三国初期"
+  },
+  "text_en": "[Chapter 8: Minister Wang Skillfully Uses the Interlocking Scheme; Grand Tutor Dong Raises Chaos at Fengyi Pavilion] Wang Yun feels uneasy at Dong Zhuo's banquet and, upon returning home, ponders in the rear garden."
+ },
+ {
+  "id": "911d2d83fe3e4b2dbd1afc5fc38fa508",
+  "text": "【第八回 王司徒巧使连环计 董太师大闹凤仪亭】王允在后园发现貂蝉长叹，询问原因。",
+  "owners": [
+   "diao_chan",
+   "wang_yun"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:54:49.050187+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 7025,
+   "story_time": "东汉末年三国初期"
+  },
+  "text_en": "[Chapter 8: Minister Wang Skillfully Uses the Interlocking Scheme; Grand Tutor Dong Raises Chaos at Fengyi Pavilion] Wang Yun finds Diaochan sighing deeply in the rear garden and asks the reason."
+ },
+ {
+  "id": "e248879de9294497be444bd5d6239d2d",
+  "text": "【第八回 王司徒巧使连环计 董太师大闹凤仪亭】王允拜谢貂蝉，貂蝉正式参与连环计。",
+  "owners": [
+   "diao_chan",
+   "wang_yun"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:54:49.335844+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 7026,
+   "story_time": "东汉末年三国初期"
+  },
+  "text_en": "[Chapter 8: Minister Wang Skillfully Uses the Interlocking Scheme; Grand Tutor Dong Raises Chaos at Fengyi Pavilion] Wang Yun bows in gratitude to Diaochan, and Diaochan formally joins the interlocking scheme."
+ },
+ {
+  "id": "5927c69098a94f2297f04408742028bf",
+  "text": "【第八回 王司徒巧使连环计 董太师大闹凤仪亭】王允获得貂蝉的承诺，愿意为计策献身。",
+  "owners": [
+   "wang_yun"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:54:49.613799+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 7027,
+   "story_time": "东汉末年三国初期"
+  },
+  "text_en": "[Chapter 8: Minister Wang Skillfully Uses the Interlocking Scheme; Grand Tutor Dong Raises Chaos at Fengyi Pavilion] Wang Yun gains Diaochan's promise that she is willing to sacrifice herself for the stratagem."
+ },
+ {
+  "id": "5ed90b81810449e6805635e4756f2615",
+  "text": "【第八回 王司徒巧使连环计 董太师大闹凤仪亭】王允赠吕布金冠，笼络吕布。",
+  "owners": [
+   "wang_yun"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:54:50.066824+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 7028,
+   "story_time": "东汉末年三国初期"
+  },
+  "text_en": "[Chapter 8: Minister Wang Skillfully Uses the Interlocking Scheme; Grand Tutor Dong Raises Chaos at Fengyi Pavilion] Wang Yun presents Lü Bu with a golden crown to win him over."
+ },
+ {
+  "id": "cc3c370ce717489bb40210e7f7cee03a",
+  "text": "【第八回 王司徒巧使连环计 董太师大闹凤仪亭】王允在家中宴请吕布，讓貂蝉艳妆出见。",
+  "owners": [
+   "diao_chan",
+   "wang_yun"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:54:50.350366+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 7029,
+   "story_time": "东汉末年三国初期"
+  },
+  "text_en": "[Chapter 8: Minister Wang Skillfully Uses the Interlocking Scheme; Grand Tutor Dong Raises Chaos at Fengyi Pavilion] Wang Yun hosts a banquet for Lü Bu at his home and has Diaochan appear in splendid attire."
+ },
+ {
+  "id": "217e17c1bf89454c9595c0ab94bae22d",
+  "text": "【第八回 王司徒巧使连环计 董太师大闹凤仪亭】王允承诺将貂蝉许给吕布，貂蝉接受。",
+  "owners": [
+   "diao_chan",
+   "wang_yun"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:54:50.600891+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 7030,
+   "story_time": "东汉末年三国初期"
+  },
+  "text_en": "[Chapter 8: Minister Wang Skillfully Uses the Interlocking Scheme; Grand Tutor Dong Raises Chaos at Fengyi Pavilion] Wang Yun promises to betroth Diaochan to Lü Bu, and Diaochan accepts."
+ },
+ {
+  "id": "acd0d6da0f264be9be17c7cfc76b2b0e",
+  "text": "【第八回 王司徒巧使连环计 董太师大闹凤仪亭】王允在宴后将貂蝉送到董卓相府。",
+  "owners": [
+   "diao_chan",
+   "wang_yun"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:54:51.368774+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 7031,
+   "story_time": "东汉末年三国初期"
+  },
+  "text_en": "[Chapter 8: Minister Wang Skillfully Uses the Interlocking Scheme; Grand Tutor Dong Raises Chaos at Fengyi Pavilion] After the banquet, Wang Yun sends Diaochan to Dong Zhuo's prime minister mansion."
+ },
+ {
+  "id": "fe74b62b40b3430492175b713aa59472",
+  "text": "【第八回 王司徒巧使连环计 董太师大闹凤仪亭】王允力陈天命归董卓，献貂蝉为侍奠。",
+  "owners": [
+   "wang_yun"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:54:52.273763+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 7033,
+   "story_time": "东汉末年三国初期"
+  },
+  "text_en": "[Chapter 8: Minister Wang Skillfully Uses the Interlocking Scheme; Grand Tutor Dong Raises Chaos at Fengyi Pavilion] Wang Yun vigorously asserts that the Mandate of Heaven rests with Dong Zhuo and offers Diaochan as a serving maid."
+ },
+ {
+  "id": "66507dec133647068bf58a54884851ef",
+  "text": "【第八回 王司徒巧使连环计 董太师大闹凤仪亭】吕布质问王允赠嫁之事，王允假称董卓求为儿媳。",
+  "owners": [
+   "wang_yun"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:54:53.305770+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 7035,
+   "story_time": "东汉末年三国初期"
+  },
+  "text_en": "[Chapter 8: Minister Wang Skillfully Uses the Interlocking Scheme; Grand Tutor Dong Raises Chaos at Fengyi Pavilion] Lü Bu confronts Wang Yun about the promised marriage; Wang Yun falsely claims that Dong Zhuo sought Diaochan as a daughter-in-law."
+ },
+ {
+  "id": "4c0574f4a4bd4ddf958975965f77cdf3",
+  "text": "【第八回 王司徒巧使连环计 董太师大闹凤仪亭】王允的计策成功使吕布与董卓因貂蝉心生嫌隙。",
+  "owners": [
+   "wang_yun"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:54:53.575390+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 7036,
+   "story_time": "东汉末年三国初期"
+  },
+  "text_en": "[Chapter 8: Minister Wang Skillfully Uses the Interlocking Scheme; Grand Tutor Dong Raises Chaos at Fengyi Pavilion] Wang Yun's stratagem successfully causes Lü Bu and Dong Zhuo to become suspicious of each other due to Diaochan."
+ },
+ {
+  "id": "fdfa1cdb764549de938041a69eaeb43a",
+  "text": "【第八回 王司徒巧使连环计 董太师大闹凤仪亭】王允安抚吕布，承诺安排貂蝉嫁妆。",
+  "owners": [
+   "wang_yun"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:54:53.848505+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 7037,
+   "story_time": "东汉末年三国初期"
+  },
+  "text_en": "Wang Yun soothes Lü Bu and promises to arrange Diaochan's dowry."
+ },
+ {
+  "id": "007132e0cc664f3095581cb3c0920de2",
+  "text": "【第八回 王司徒巧使连环计 董太师大闹凤仪亭】貂蝉解释因见王允愁苦，故感伤叹息。",
+  "owners": [
+   "diao_chan"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:54:55.765582+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 7040,
+   "story_time": "东汉末年三国初期"
+  },
+  "text_en": "Diaochan explains that she sighed with sorrow because she saw Wang Yun in distress."
+ },
+ {
+  "id": "32ce4ef8a1a14902860c4e3367b887e7",
+  "text": "【第八回 王司徒巧使连环计 董太师大闹凤仪亭】貂蝉对王允表忠，愿为家国所用。",
+  "owners": [
+   "diao_chan"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:54:56.046341+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 7041,
+   "story_time": "东汉末年三国初期"
+  },
+  "text_en": "Diaochan pledges loyalty to Wang Yun, willing to serve the family and the state."
+ },
+ {
+  "id": "70566d65a3244bd39c556f47388e8212",
+  "text": "【第八回 王司徒巧使连环计 董太师大闹凤仪亭】貂蝉答应王允愿为国家大义，万死不辞。",
+  "owners": [
+   "diao_chan"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:54:57.181814+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 7043,
+   "story_time": "东汉末年三国初期"
+  },
+  "text_en": "Diaochan agrees to Wang Yun's plan, vowing a thousand deaths without regret for the nation's great cause."
+ },
+ {
+  "id": "a52d0c815a784fa38272289b52309b6c",
+  "text": "【第八回 王司徒巧使连环计 董太师大闹凤仪亭】貂蝉与吕布眉目传情，以试探吕布。",
+  "owners": [
+   "diao_chan"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:54:58.894320+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 7046,
+   "story_time": "东汉末年三国初期"
+  },
+  "text_en": "Diaochan makes eyes at Lü Bu to test his feelings."
+ },
+ {
+  "id": "edcde98e868948fb890f8218e646e4a0",
+  "text": "【第八回 王司徒巧使连环计 董太师大闹凤仪亭】董卓见貂蝉舞蹈，问其姓名，并欣赏其歌声。",
+  "owners": [
+   "diao_chan"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:54:59.912886+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 7048,
+   "story_time": "东汉末年三国初期"
+  },
+  "text_en": "Dong Zhuo sees Diaochan dancing, asks her name, and admires her singing."
+ },
+ {
+  "id": "e903e3d05f5a40a9b4825041ec5cdfc1",
+  "text": "【第八回 王司徒巧使连环计 董太师大闹凤仪亭】貂蝉入董卓府，被董卓纳为侍妾。",
+  "owners": [
+   "diao_chan"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:55:00.919096+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 7050,
+   "story_time": "东汉末年三国初期"
+  },
+  "text_en": "Diaochan enters Dong Zhuo's residence and is taken as a concubine."
+ },
+ {
+  "id": "be44e1828dd042208f538b9966d50228",
+  "text": "【第八回 王司徒巧使连环计 董太师大闹凤仪亭】貂蝉在亭中向吕布哭诉不幸遭遇，表心愿。",
+  "owners": [
+   "diao_chan"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:55:01.629730+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 7051,
+   "story_time": "东汉末年三国初期"
+  },
+  "text_en": "Diaochan tearfully tells Lü Bu of her misfortune in the pavilion and expresses her feelings."
+ },
+ {
+  "id": "a6e70d72533f4c9a830a9d57130ca61b",
+  "text": "【第八回 王司徒巧使连环计 董太师大闹凤仪亭】貂蝉与吕布表露内心，表示愿意等待解救。",
+  "owners": [
+   "diao_chan"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:55:01.917543+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 7052,
+   "story_time": "东汉末年三国初期"
+  },
+  "text_en": "Diaochan reveals her heart to Lü Bu and says she is willing to wait for rescue."
+ },
+ {
+  "id": "07186a4614af4bdd9a98c6e31f52f270",
+  "text": "【第九回】李儒劝慰吾，欲将貂蝉赐吕布以笼络之。",
+  "owners": [
+   "dongzhuo"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:55:17.783362+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 8000,
+   "story_time": "东汉末年"
+  },
+  "text_en": "Li Ru tries to placate me, planning to give Diaochan to Lü Bu to win his loyalty."
+ },
+ {
+  "id": "f61acbeed585450f84ebbd44a9fe3345",
+  "text": "【第九回】怀疑貂蝉私通吕布，未料其欲自尽。",
+  "owners": [
+   "dongzhuo"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:55:18.070245+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 8001,
+   "story_time": "东汉末年"
+  },
+  "text_en": "I suspected Diaochan of having an affair with Lü Bu, never expecting she would try to take her own life."
+ },
+ {
+  "id": "cb8807b303e249ae9f79396f6bb0e5b4",
+  "text": "【第九回】被吕布刺杀于朝堂，尸体被将士凌辱。",
+  "owners": [
+   "dongzhuo"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:55:18.398866+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 8002,
+   "story_time": "东汉末年"
+  },
+  "text_en": "I was assassinated by Lü Bu in the court, my corpse humiliated by soldiers."
+ },
+ {
+  "id": "a2aa6244ff3c4e8a897567411f1df17b",
+  "text": "【第九回】被迫与貂蝉在凤仪亭相遇。",
+  "owners": [
+   "lvbu"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:55:18.655401+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 8003,
+   "story_time": "东汉末年"
+  },
+  "text_en": "I was forced to meet Diaochan at Fengyi Pavilion."
+ },
+ {
+  "id": "8ae8bb045e0f4a4e8992ccecac6ee4d2",
+  "text": "【第九回】与王允密谋诛董卓，为汉室除害。",
+  "owners": [
+   "lvbu"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:55:18.956195+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 8004,
+   "story_time": "东汉末年"
+  },
+  "text_en": "I plotted with Wang Yun to kill Dong Zhuo and rid the Han dynasty of a scourge."
+ },
+ {
+  "id": "4f8e375a38334d3da1a570c20edfb1a6",
+  "text": "【第九回】推翻董卓，誓杀之以雪羞辱。",
+  "owners": [
+   "lvbu"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:55:19.226538+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 8005,
+   "story_time": "东汉末年"
+  },
+  "text_en": "I overthrew Dong Zhuo, vowing to kill him to avenge my humiliation."
+ },
+ {
+  "id": "99e16a75d692458ba6469aadc1b884c4",
+  "text": "【第九回】随王允计划，在朝刺杀董卓成功。",
+  "owners": [
+   "lvbu"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:55:19.439450+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 8006,
+   "story_time": "东汉末年"
+  },
+  "text_en": "Following Wang Yun's plan, I succeeded in assassinating Dong Zhuo at court."
+ },
+ {
+  "id": "fede60027f944ce3a8bc55c626356abf",
+  "text": "【第九回】劝董卓以貂蝉笼络吕布，未果。",
+  "owners": [
+   "li_ru"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:55:19.700636+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 8007,
+   "story_time": "东汉末年"
+  },
+  "text_en": "I urged Dong Zhuo to use Diaochan to win over Lü Bu, but failed."
+ },
+ {
+  "id": "c445ed18a6fe473b911cfb68894d7248",
+  "text": "【第九回】未出迎董卓返京，病重不治。",
+  "owners": [
+   "li_ru"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:55:20.714378+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 8008,
+   "story_time": "东汉末年"
+  },
+  "text_en": "I did not go out to greet Dong Zhuo on his return to the capital; I was gravely ill and dying."
+ },
+ {
+  "id": "2b472edab86746eeabad79678e2a60c1",
+  "text": "【第九回】被吕布斩于市，尸首羞辱。",
+  "owners": [
+   "li_ru"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:55:20.965624+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 8009,
+   "story_time": "东汉末年"
+  },
+  "text_en": "I was beheaded by Lü Bu in the marketplace, my corpse dishonored."
+ },
+ {
+  "id": "badfd9bb101240b7bae98cbda886ff6a",
+  "text": "【第九回】在后园欲自尽被董卓所救。",
+  "owners": [
+   "diao_chan"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:55:21.274844+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 8010,
+   "story_time": "东汉末年"
+  },
+  "text_en": "I tried to hang myself in the rear garden but was saved by Dong Zhuo."
+ },
+ {
+  "id": "d49c165e56774699b40709b176a9bbbc",
+  "text": "【第九回】以自尽威胁拒绝被赐与吕布。",
+  "owners": [
+   "diao_chan"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:55:21.578806+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 8011,
+   "story_time": "东汉末年"
+  },
+  "text_en": "I threatened suicide to refuse being given to Lü Bu."
+ },
+ {
+  "id": "4a6fd4fc13f142ada9cdeb736f294624",
+  "text": "【第九回】假作欢喜，随董卓车队返京。",
+  "owners": [
+   "diao_chan"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:55:21.900786+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 8012,
+   "story_time": "东汉末年"
+  },
+  "text_en": "I feigned joy and accompanied Dong Zhuo's retinue back to the capital."
+ },
+ {
+  "id": "390324bed0dc478aa0712bb098e7aefc",
+  "text": "【第九回】与吕布商议诛董，策划周密加以行动。",
+  "owners": [
+   "wang_yun"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:55:22.147697+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 8013,
+   "story_time": "东汉末年"
+  },
+  "text_en": "I plotted with Lü Bu to kill Dong Zhuo, devising a meticulous plan and putting it into action."
+ },
+ {
+  "id": "c5b7bb7db9c04ab1bcd46db7dc60a64d",
+  "text": "【第九回】劝吕布杀董卓，以光复汉室正统。",
+  "owners": [
+   "wang_yun"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:55:22.422647+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 8014,
+   "story_time": "东汉末年"
+  },
+  "text_en": "I urged Lü Bu to slay Dong Zhuo to restore the legitimate Han ruling line."
+ },
+ {
+  "id": "1cea034518e4472d850092588c85a901",
+  "text": "【第九回】拒绝随吕布出逃，誓死以报国。",
+  "owners": [
+   "wang_yun"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:55:22.681275+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 8015,
+   "story_time": "东汉末年"
+  },
+  "text_en": "I refused to flee with Lü Bu, vowing to die for the state."
+ },
+ {
+  "id": "2b9426c85bf34376adfaa74d8160d76f",
+  "text": "【第十回 勤王室马腾举义 报父雠曹操兴师】董卓被追封，李儒作为其谋士参与其中。",
+  "owners": [
+   "li_ru"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:55:53.722247+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 9000,
+   "story_time": "东汉末年群雄逐鹿时期，董卓死后"
+  },
+  "text_en": "Chapter 10: Ma Teng Rises in Loyalty to the Royal House; Cao Cao Raises an Army to Avenge His Father – Dong Zhuo is posthumously honored, and Li Ru participates as his strategist."
+ },
+ {
+  "id": "33be7e341b744b5f9d10eb02427cf4e0",
+  "text": "【第十回 勤王室马腾举义 报父雠曹操兴师】王允被废后，李傕、郭汜未退兵，献帝被挟持。",
+  "owners": [
+   "wang_yun"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:55:53.949806+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 9001,
+   "story_time": "东汉末年群雄逐鹿时期，董卓死后"
+  },
+  "text_en": "Chapter 10: Ma Teng Rises in Loyalty to the Royal House; Cao Cao Raises an Army to Avenge His Father – After Wang Yun is deposed, Li Jue and Guo Si do not withdraw their troops, and Emperor Xian is held hostage."
+ },
+ {
+  "id": "097b032a3b534c4ea8068e32a1bcc625",
+  "text": "【第十回 勤王室马腾举义 报父雠曹操兴师】郭汜与李傕共谋朝政，挟持献帝。",
+  "owners": [
+   "guo_shi"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:55:54.267738+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 9002,
+   "story_time": "东汉末年群雄逐鹿时期，董卓死后"
+  },
+  "text_en": "Chapter 10: Ma Teng Rises in Loyalty to the Royal House; Cao Cao Raises an Army to Avenge His Father – Guo Si and Li Jue conspire to control the court and hold Emperor Xian hostage."
+ },
+ {
+  "id": "74ca8515b6924838b43bbf86e66b3a48",
+  "text": "【第十回 勤王室马腾举义 报父雠曹操兴师】王方因贸然出战被马超所杀。",
+  "owners": [
+   "wang_fang"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:55:54.548975+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 9003,
+   "story_time": "东汉末年群雄逐鹿时期，董卓死后"
+  },
+  "text_en": "Chapter 10: Ma Teng Rises in Loyalty to the Royal House; Cao Cao Raises an Army to Avenge His Father – Wang Fang is killed by Ma Chao for recklessly charging into battle."
+ },
+ {
+  "id": "17e66612a76d44bc8a362cec3438693c",
+  "text": "【第十回 勤王室马腾举义 报父雠曹操兴师】目前无重大行动或事件记载。",
+  "owners": [
+   "dingyuan",
+   "guanyu",
+   "liubei",
+   "luzhi",
+   "zhangbao",
+   "zhangfei",
+   "zhangjiao",
+   "zhaoyun"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:55:54.861303+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 9004,
+   "story_time": "东汉末年群雄逐鹿时期，董卓死后"
+  },
+  "text_en": "Chapter 10: Ma Teng Rises in Loyalty to the Royal House; Cao Cao Raises an Army to Avenge His Father – No significant actions or events are recorded at this time."
+ },
+ {
+  "id": "b69ebb04a94b4a5398649b2288e909af",
+  "text": "【第十回 勤王室马腾举义 报父雠曹操兴师】吕布无显著活动，董卓尸骨遭雷击。",
+  "owners": [
+   "lvbu"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:55:56.597684+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 9007,
+   "story_time": "东汉末年群雄逐鹿时期，董卓死后"
+  },
+  "text_en": "Chapter 10: Ma Teng Rises in Loyalty to the Royal House; Cao Cao Raises an Army to Avenge His Father – Lü Bu has no notable activity; Dong Zhuo's corpse is struck by lightning."
+ },
+ {
+  "id": "018d8759975a478c8afa381913fac5b1",
+  "text": "【第十回 勤王室马腾举义 报父雠曹操兴师】黄巾军再度兴起，成为朝廷的隐患。",
+  "owners": [
+   "zhanglei"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:55:56.833323+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 9008,
+   "story_time": "东汉末年群雄逐鹿时期，董卓死后"
+  },
+  "text_en": "Chapter 10: Ma Teng Rises in Loyalty to the Royal House; Cao Cao Raises an Army to Avenge His Father – The Yellow Turban rebels rise again, becoming a hidden threat to the court."
+ },
+ {
+  "id": "9a60e8df08f44045ad76486fb589f14c",
+  "text": "【第十回 勤王室马腾举义 报父雠曹操兴师】应劭保举曹操为可破群贼者。",
+  "owners": [
+   "cao_cao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:55:58.482538+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 9011,
+   "story_time": "东汉末年群雄逐鹿时期，董卓死后"
+  },
+  "text_en": "Chapter 10: Ma Teng Rises in Loyalty to the Royal House; Cao Cao Raises an Army to Avenge His Father – Ying Shao recommends Cao Cao as the one who can defeat the rebels."
+ },
+ {
+  "id": "cf649447db1846c59c5dabfc25f10c68",
+  "text": "【第十回 勤王室马腾举义 报父雠曹操兴师】曹操被任命为攻击黄巾贼的将领。",
+  "owners": [
+   "cao_cao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:55:58.725839+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 9012,
+   "story_time": "东汉末年群雄逐鹿时期，董卓死后"
+  },
+  "text_en": "Chapter 10: Ma Teng Rises in Loyalty to the Royal House; Cao Cao Raises an Army to Avenge His Father – Cao Cao is appointed as a commander to attack the Yellow Turban rebels."
+ },
+ {
+  "id": "ab5c6fe09fc24d18b606480c5be08900",
+  "text": "【第十回 勤王室马腾举义 报父雠曹操兴师】曹操会合鲍信，共同进攻寿阳的贼军。",
+  "owners": [
+   "cao_cao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:55:58.981514+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 9013,
+   "story_time": "东汉末年群雄逐鹿时期，董卓死后"
+  },
+  "text_en": "Chapter 10: Ma Teng Rises in Loyalty to the Royal House; Cao Cao Raises an Army to Avenge His Father – Cao Cao joins forces with Bao Xin and together they attack the rebel army at Shouyang."
+ },
+ {
+  "id": "2995c1d22b694a91877f56a08e4dc7cd",
+  "text": "【第十回 勤王室马腾举义 报父雠曹操兴师】鲍信在战斗中被黄巾贼所杀。",
+  "owners": [
+   "cao_cao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:55:59.239582+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 9014,
+   "story_time": "东汉末年群雄逐鹿时期，董卓死后"
+  },
+  "text_en": "Chapter 10: Ma Teng Rises in Loyalty to the Royal House; Cao Cao Raises an Army to Avenge His Father – Bao Xin is killed in battle by the Yellow Turban rebels."
+ },
+ {
+  "id": "d3c017d262b44f1381964ce681d48dcd",
+  "text": "【第十回 勤王室马腾举义 报父雠曹操兴师】曹操追击贼兵，直到济北，降者数万。",
+  "owners": [
+   "cao_cao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:55:59.544576+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 9015,
+   "story_time": "东汉末年群雄逐鹿时期，董卓死后"
+  },
+  "text_en": "Chapter 10: Ma Teng Rises in Loyalty to the Royal House; Cao Cao Raises an Army to Avenge His Father – Cao Cao pursues the rebels all the way to Jibei, where tens of thousands surrender."
+ },
+ {
+  "id": "93d903c37d3748a5bf434ef58b109487",
+  "text": "【第十回 勤王室马腾举义 报父雠曹操兴师】曹操编入降贼作为前锋，取得成功。",
+  "owners": [
+   "cao_cao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:55:59.839912+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 9016,
+   "story_time": "东汉末年群雄逐鹿时期，董卓死后"
+  },
+  "text_en": "Chapter 10: Ma Teng Rises in Loyalty to the Royal House; Cao Cao Raises an Army to Avenge His Father – Cao Cao incorporates the surrendered rebels into his vanguard and achieves success."
+ },
+ {
+  "id": "2ae6e2ee781d44e0891b541b2de79166",
+  "text": "【第十回 勤王室马腾举义 报父雠曹操兴师】曹操在百日内招安降兵三十余万，男女百余万。",
+  "owners": [
+   "cao_cao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:56:00.114046+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 9017,
+   "story_time": "东汉末年群雄逐鹿时期，董卓死后"
+  },
+  "text_en": "Chapter 10: Ma Teng Rises in Loyalty to the Royal House; Cao Cao Raises an Army to Avenge His Father – Within a hundred days, Cao Cao recruits over three hundred thousand surrendered soldiers and over a million civilians of both sexes."
+ },
+ {
+  "id": "2b8e42cdbc8d441fa0baccdfd8e192b0",
+  "text": "【第十回 勤王室马腾举义 报父雠曹操兴师】曹操被加封为镇东将军。",
+  "owners": [
+   "cao_cao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:56:00.434158+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 9018,
+   "story_time": "东汉末年群雄逐鹿时期，董卓死后"
+  },
+  "text_en": "Chapter 10: Ma Teng Rises in Loyalty to the Royal House; Cao Cao Raises an Army to Avenge His Father – Cao Cao is promoted to General Who Guards the East."
+ },
+ {
+  "id": "cd37f18af46047cf9d73eea51888b5c3",
+  "text": "【第十回 勤王室马腾举义 报父雠曹操兴师】曹操在兖州招贤纳士，其中有荀彧、荀攸等人。",
+  "owners": [
+   "cao_cao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:56:00.712104+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 9019,
+   "story_time": "东汉末年群雄逐鹿时期，董卓死后"
+  },
+  "text_en": "Chapter 10: Ma Teng Rises in Loyalty to the Royal House; Cao Cao Raises an Army to Avenge His Father – In Yanzhou, Cao Cao recruits talented advisors, including Xun Yu and Xun You."
+ },
+ {
+  "id": "fa76d0c42fc040ceba7f5c4e7fb39dc9",
+  "text": "【第十回 勤王室马腾举义 报父雠曹操兴师】程昱、郭嘉、刘晔等人被荐并加入曹操阵营。",
+  "owners": [
+   "cao_cao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:56:00.967456+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 9020,
+   "story_time": "东汉末年群雄逐鹿时期，董卓死后"
+  },
+  "text_en": "Chapter 10: Ma Teng Rises in Loyalty to the Royal House; Cao Cao Raises an Army to Avenge His Father – Cheng Yu, Guo Jia, Liu Ye, and others are recommended and join Cao Cao's faction."
+ },
+ {
+  "id": "b8abcd79dd2449db9ace351e38dffbc2",
+  "text": "【第十回 勤王室马腾举义 报父雠曹操兴师】曹操命应劭迎接父亲曹嵩至兖州。",
+  "owners": [
+   "cao_cao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:56:01.217718+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 9021,
+   "story_time": "东汉末年群雄逐鹿时期，董卓死后"
+  },
+  "text_en": "Chapter 10: Ma Teng Rises in Loyalty to the Royal House; Cao Cao Raises an Army to Avenge His Father – Cao Cao orders Ying Shao to escort his father, Cao Song, to Yanzhou."
+ },
+ {
+  "id": "4ac36e609b66419aa720289c85d0c159",
+  "text": "【第十回 勤王室马腾举义 报父雠曹操兴师】曹操闻父亲曹嵩被张闿所杀，悲痛不已。",
+  "owners": [
+   "cao_cao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:56:01.505430+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 9022,
+   "story_time": "东汉末年群雄逐鹿时期，董卓死后"
+  },
+  "text_en": "Chapter 10: Ma Teng Rises in Loyalty to the Royal House; Cao Cao Raises an Army to Avenge His Father – Upon hearing that his father Cao Song has been killed by Zhang Kai, Cao Cao is overcome with grief."
+ },
+ {
+  "id": "d64ada5a981d408cb386759c46765552",
+  "text": "【第十回 勤王室马腾举义 报父雠曹操兴师】曹操决定起兵攻打徐州报父仇。",
+  "owners": [
+   "cao_cao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:56:01.758750+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 9023,
+   "story_time": "东汉末年群雄逐鹿时期，董卓死后"
+  },
+  "text_en": "Chapter 10: Ma Teng Rises in Loyalty to the Royal House; Cao Cao Raises an Army to Avenge His Father – Cao Cao decides to raise an army and attack Xuzhou to avenge his father."
+ },
+ {
+  "id": "6320675e615e422dbd0ba00cc220710a",
+  "text": "【第十回 勤王室马腾举义 报父雠曹操兴师】曹操的军队所到之处屠戮百姓，掘坟灭族。",
+  "owners": [
+   "cao_cao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:56:02.849468+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 9025,
+   "story_time": "东汉末年群雄逐鹿时期，董卓死后"
+  },
+  "text_en": "Chapter 10: Ma Teng Rises in Loyalty to the Royal House; Cao Cao Raises an Army to Avenge His Father – Wherever Cao Cao's army passes, they slaughter the common people, desecrate graves, and exterminate entire clans."
+ },
+ {
+  "id": "f81b5bf082674ca3931c262ce386897b",
+  "text": "【第十回 勤王室马腾举义 报父雠曹操兴师】曹操与陶谦对峙，要求生擒陶谦以报父仇。",
+  "owners": [
+   "cao_cao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:56:03.137765+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 9026,
+   "story_time": "东汉末年群雄逐鹿时期，董卓死后"
+  },
+  "text_en": "Chapter 10: Ma Teng Rises in Loyalty to the Royal House; Cao Cao Raises an Army to Avenge His Father – Cao Cao confronts Tao Qian, demanding to capture Tao Qian alive to avenge his father."
+ },
+ {
+  "id": "8e29d38936f74ef8929cc9c2d0e5f397",
+  "text": "【第十回 勤王室马腾举义 报父雠曹操兴师】袁绍的势力对长安局势未有直接干预。",
+  "owners": [
+   "yuanshao"
+  ],
+  "meta": {
+   "created_at": "2026-07-12T02:56:03.427237+00:00",
+   "source": "history",
+   "tick": 0,
+   "story_order": 9027,
+   "story_time": "东汉末年群雄逐鹿时期，董卓死后"
+  },
+  "text_en": "Chapter 10: Ma Teng Rises in Loyalty to the Royal House; Cao Cao Raises an Army to Avenge His Father – Yuan Shao's forces do not directly intervene in the situation in Chang'an."
+ }
+]

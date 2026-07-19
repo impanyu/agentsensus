@@ -1,3 +1,4 @@
+import os
 import json
 import subprocess
 import sys
@@ -96,7 +97,7 @@ def test_cli_help_works():
         [sys.executable, "-m", "society.translate", "--help"],
         capture_output=True,
         text=True,
-        cwd="/Users/ypan12/git_repo/bookworld_paper/agent_society",
+        cwd=os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
     )
     assert result.returncode == 0
     assert "--ltm" in result.stdout
