@@ -90,7 +90,7 @@ async def sediment_one(spec: dict) -> dict:
     t0 = time.time()
     try:
         cfg = await extract_history(
-            text, llm, out_yaml, embed_fn=embed_fn, language=spec["lang"], detail="exhaustive"
+            text, llm, out_yaml, embed_fn=embed_fn, language=spec["lang"], detail="atomic"
         )
         dt = time.time() - t0
         ltm = json.load(open(out_yaml + ".ltm.json"))
