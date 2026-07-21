@@ -96,10 +96,12 @@ async def restore_society(ckpt: dict, *, llm, embed_fn, event_log, out_dir=None)
     cfg = ckpt["scenario"]
     agents, worldmap, defaults, _seed_specs = build_agents_and_map(cfg, llm=llm)
 
-    memory_max_chars = defaults.get("memory_max_chars", 80)
+    memory_max_tokens = defaults.get(
+        "memory_max_tokens", defaults.get("memory_max_chars", 50)
+    )
     stats_interval = defaults.get("stats_interval", 10)
 
-    shared = SharedMemory(embed_fn, llm, max_chars=memory_max_chars)
+    shared = SharedMemory(embed_fn, llm, max_tokens=memory_max_tokens)
     metrics = Metrics(agents, shared, out_dir, interval=stats_interval)
 
     kernel = Kernel(

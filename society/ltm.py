@@ -5,6 +5,8 @@ from datetime import datetime, timezone
 
 import chromadb
 
+from society.textlen import count_tokens, truncate_to_tokens
+
 _TERMINATORS = "。！？；.;"
 _CONNECTIVES = ("然后", "并且", "而且", "同时", "接着", " and ", " then ")
 
@@ -21,7 +23,8 @@ class SharedMemory:
         embed_fn,
         llm=None,
         *,
-        max_chars: int = 80,
+        max_chars: int | None = None,
+        max_tokens: int = 50,
         sim_threshold: float = 0.86,
         top_k: int = 5,
         collection_name: str | None = None,
@@ -32,7 +35,13 @@ class SharedMemory:
         Args:
             embed_fn: async callable(list[str]) -> list[vector].
             llm: object with async .chat(prompt, system=None, bucket=...) -> str, or None.
-            max_chars: max length of an atomic memory entry before hard truncation.
+            max_chars: DEPRECATED, ignored. Kept only so existing call sites
+                passing `max_chars=` don't crash. Length is now measured in
+                tokens (see `max_tokens`) since char counts are not uniform
+                across languages (e.g. Chinese runs ~1 token/char while
+                English runs several chars/token).
+            max_tokens: max length of an atomic memory entry, in o200k_base
+                tokens, before hard truncation.
             sim_threshold: cosine similarity (1 - distance) required to consider two
                 entries candidates for consensus merge.
             top_k: default number of nearest neighbors to consider/return.
@@ -43,7 +52,8 @@ class SharedMemory:
         """
         self._embed_fn = embed_fn
         self._llm = llm
-        self.max_chars = max_chars
+        self.max_chars = max_chars  # deprecated, unused; retained for compatibility
+        self.max_tokens = max_tokens
         self.sim_threshold = sim_threshold
         self.top_k = top_k
         if collection_name is None:
@@ -58,7 +68,7 @@ class SharedMemory:
     # ------------------------------------------------------------------
 
     def _needs_normalize(self, text: str) -> bool:
-        if len(text) > self.max_chars:
+        if count_tokens(text) > self.max_tokens:
             return True
         terminator_count = sum(text.count(ch) for ch in _TERMINATORS)
         if terminator_count > 1:
@@ -70,7 +80,7 @@ class SharedMemory:
     def _fallback_split(self, text: str) -> list[str]:
         parts = re.split(f"[{re.escape(_TERMINATORS)}!]", text)
         entries = [p.strip() for p in parts if p.strip()]
-        return [e[: self.max_chars] for e in entries]
+        return [truncate_to_tokens(e, self.max_tokens) for e in entries]
 
     async def _normalize(self, text: str) -> list[str]:
         """Split text into atomic memory strings, calling the LLM only when needed."""
@@ -82,7 +92,9 @@ class SharedMemory:
 
         prompt = (
             "Split the following memory into a JSON array of short, atomic, "
-            "independent memory statements. Reply with ONLY the JSON array.\n\n"
+            "independent memory statements. Reply with ONLY the JSON array. "
+            f"Each atomic statement should be at most ~{self.max_tokens} tokens "
+            "(one complete event).\n\n"
             f"Memory: {text}"
         )
         reply = await self._llm.chat(prompt, system=None, bucket="normalize")
@@ -93,7 +105,7 @@ class SharedMemory:
                 parsed = json.loads(match.group(0))
                 entries = [str(e).strip() for e in parsed if str(e).strip()]
                 if entries:
-                    return [e[: self.max_chars] for e in entries]
+                    return [truncate_to_tokens(e, self.max_tokens) for e in entries]
             except (ValueError, TypeError):
                 pass
 

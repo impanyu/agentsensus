@@ -72,3 +72,56 @@ async def test_revise_is_forget_plus_consensus_insert():
     out = await m.revise("alice", stored[0]["id"], "新记忆")
     entries = m.all_entries()
     assert len(entries) == 1 and entries[0]["text"] == "新记忆"
+
+
+# ----------------------------------------------------------------------
+# token-based length cap (max_tokens replaces max_chars for length logic)
+# ----------------------------------------------------------------------
+
+from society.textlen import count_tokens
+
+
+async def test_default_max_tokens_is_50():
+    m = mem(None)
+    assert m.max_tokens == 50
+
+
+async def test_short_single_clause_input_not_normalized_even_if_long_in_chars():
+    # A single short clause under the token cap, with no terminators/connectives,
+    # must be stored as-is even though max_chars (deprecated) would have split it.
+    m = mem(None, max_tokens=50)
+    text = "黛玉葬花"
+    assert m._needs_normalize(text) is False
+    out = await m.remember("alice", text)
+    assert len(out) == 1
+    assert out[0]["text"] == text
+
+
+async def test_over_50_token_input_triggers_normalize():
+    m = mem(None, max_tokens=50)
+    long_en = "the quick brown fox jumps over the lazy dog and keeps running " * 5
+    assert count_tokens(long_en) > 50
+    assert m._needs_normalize(long_en) is True
+
+
+async def test_deposited_memory_capped_at_max_tokens_english():
+    m = mem(None, max_tokens=50)
+    long_en = "the quick brown fox jumps over the lazy dog and keeps running " * 5
+    out = await m.remember("alice", long_en)
+    for entry in out:
+        assert count_tokens(entry["text"]) <= 50
+
+
+async def test_deposited_memory_capped_at_max_tokens_chinese():
+    m = mem(None, max_tokens=50)
+    long_zh = "宝玉挨打了" * 30
+    out = await m.remember("alice", long_zh)
+    for entry in out:
+        assert count_tokens(entry["text"]) <= 50
+
+
+async def test_max_chars_kwarg_accepted_but_ignored():
+    # Deprecated kwarg must not crash and must not affect the token-based gate.
+    m = mem(None, max_chars=5, max_tokens=50)
+    text = "黛玉葬花"  # far more than 5 chars, well under 50 tokens
+    assert m._needs_normalize(text) is False

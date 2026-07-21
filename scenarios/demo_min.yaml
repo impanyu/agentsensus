@@ -1,6 +1,6 @@
 scenario: demo_min
 language: zh
-defaults: {fifo_size: 20, memory_max_chars: 80, distance: 5, stats_interval: 10}
+defaults: {fifo_size: 20, memory_max_tokens: 50, distance: 5, stats_interval: 10}
 agents:
   - {id: hall, kind: environment, brain: rule, profile: "大厅"}
   - {id: garden, kind: environment, brain: rule, profile: "花园"}
