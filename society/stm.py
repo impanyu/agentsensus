@@ -12,7 +12,7 @@ def _pair_text(action: dict, result: dict) -> str:
 
 
 def _cosine(a, b) -> float:
-    """Cosine similarity of two vectors, clamped to [0.0, 1.0].
+    """Cosine similarity of two vectors, clamped at a 0.0 lower bound.
 
     Embeddings from the same model are typically non-negative cosine, so
     clamping negative values to 0.0 (rather than remapping via (cos+1)/2)
@@ -140,7 +140,14 @@ class FifoCache:
         """Sync, non-evicting: set the window contents directly from a
         list of (action, result) pairs (e.g. from a checkpoint). Skips
         eviction and embedding entirely -- embeddings are left None and
-        computed lazily on the next relevance/hybrid append."""
+        computed lazily on the next relevance/hybrid append.
+
+        If `items` is longer than `maxlen`, only the most-recent `maxlen`
+        pairs are kept -- the same self-truncation the old deque(maxlen)
+        gave for free."""
+        items = list(items)
+        if len(items) > self._maxlen:
+            items = items[-self._maxlen:]
         self._items = [{"action": a, "result": r, "embedding": None} for a, r in items]
 
     def __len__(self):

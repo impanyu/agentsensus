@@ -1,4 +1,5 @@
 import json
+import math
 import os
 import uuid
 
@@ -10,6 +11,7 @@ from society.persistence import load_checkpoint, restore_society, save_checkpoin
 from society.run import resume_scenario, run_scenario
 from society.scenario import build_society
 from tests.helpers import FakeLLM, afake_embed
+from tests.test_stm import make_fake_embed
 
 
 # ----------------------------------------------------------------------
@@ -56,6 +58,102 @@ async def test_ltm_export_restore_holographic():
 
     got = await m2.recall("bob", "国王死于春天", top_k=5)
     assert got and got[0]["text"] == "国王死于春天"
+
+
+# ----------------------------------------------------------------------
+# 1b. defaults.cache_strategy/cache_alpha wired through the real
+#     build_society config-reading path (not just STM(strategy=...)
+#     constructed directly), then survives a save/restore round-trip.
+# ----------------------------------------------------------------------
+
+def _cache_strategy_cfg(strategy: str) -> dict:
+    return {
+        "scenario": f"cache_strategy_{strategy}",
+        "language": "zh",
+        "defaults": {
+            "stats_interval": 100,
+            "distance": 3,
+            "fifo_size": 3,
+            "cache_strategy": strategy,
+            "cache_alpha": 0.5,
+        },
+        "agents": [
+            {"id": "hall", "kind": "environment", "brain": "rule", "profile": "hall"},
+            {"id": "amy", "kind": "character", "brain": "rule", "profile": "amy",
+             "status": {"location": "hall"}},
+        ],
+        "map": {"default_distance": 3},
+    }
+
+
+async def _assert_cache_strategy_wired_and_survives_restore(strategy: str, vectors: dict, tmp_path):
+    embed_fn = make_fake_embed(vectors)
+
+    cfg = _cache_strategy_cfg(strategy)
+    kernel = await build_society(cfg, llm=FakeLLM(), embed_fn=embed_fn, event_log=EventLog(None))
+    agent = kernel.agents["amy"]
+
+    # The config-reading path (build_agents_and_map, via build_society)
+    # actually wired defaults.cache_strategy/cache_alpha and the embed_fn
+    # into this agent's real FifoCache -- not just STM(strategy=...)
+    # constructed directly in a unit test.
+    assert agent.stm.fifo._strategy == strategy
+    assert agent.stm.fifo._embed_fn is embed_fn
+
+    await agent.stm.fifo.append({"name": "p1"}, {})
+    await agent.stm.fifo.append({"name": "p2"}, {})
+    await agent.stm.fifo.append({"name": "p3"}, {})
+    await agent.stm.fifo.append({"name": "new"}, {})  # fifo_size=3 -> forces eviction
+    names = [a["name"] for a, _ in agent.stm.fifo.items()]
+    assert len(agent.stm.fifo) == 3
+    assert "p2" not in names  # evicted by strategy, not fifo's oldest-first (which drops p1)
+    assert names == ["p1", "p3", "new"]
+
+    ckpt_path = str(tmp_path / f"ckpt_{strategy}.json")
+    save_checkpoint(kernel, ckpt_path)
+    ckpt = load_checkpoint(ckpt_path)
+
+    # Restore must not raise -- guards the fix that threads embed_fn into
+    # restore_society's build_agents_and_map call, which relevance/hybrid
+    # need for the lazy embed of restore_items-loaded pairs on next append.
+    restored = await restore_society(
+        ckpt, llm=FakeLLM(), embed_fn=embed_fn,
+        event_log=EventLog(None, start_seq=ckpt["event_seq"]),
+    )
+    r_agent = restored.agents["amy"]
+    assert r_agent.stm.fifo._strategy == strategy
+    assert [a["name"] for a, _ in r_agent.stm.fifo.items()] == names
+
+    # Exercise the restored cache's embed_fn wiring: a relevance/hybrid
+    # append that forces eviction must lazily embed the restore_items-
+    # loaded (embedding=None) pairs rather than crashing.
+    await r_agent.stm.fifo.append({"name": "p2"}, {})
+    assert len(r_agent.stm.fifo) == 3
+
+
+async def test_cache_strategy_relevance_wired_and_survives_restore(tmp_path):
+    # Mirrors test_stm.py's test_relevance_evicts_least_similar_pair
+    # vectors: new=(1,0); p2 is orthogonal (cos=0.0) -> least relevant.
+    vectors = {
+        "p1": (0.9, math.sqrt(0.19)),
+        "p2": (0.0, 1.0),
+        "p3": (0.1, math.sqrt(0.99)),
+        "new": (1.0, 0.0),
+    }
+    await _assert_cache_strategy_wired_and_survives_restore("relevance", vectors, tmp_path)
+
+
+async def test_cache_strategy_hybrid_wired_and_survives_restore(tmp_path):
+    # Mirrors test_stm.py's test_hybrid_disagrees_with_fifo_and_pure_relevance
+    # vectors: hybrid(alpha=0.5) picks p2 as victim -- a distinct choice from
+    # both fifo (would drop oldest p1) and pure relevance (would drop p3).
+    vectors = {
+        "p1": (0.9, math.sqrt(0.19)),
+        "p2": (0.1, math.sqrt(0.99)),
+        "p3": (0.0, 1.0),
+        "new": (1.0, 0.0),
+    }
+    await _assert_cache_strategy_wired_and_survives_restore("hybrid", vectors, tmp_path)
 
 
 # ----------------------------------------------------------------------

@@ -136,11 +136,29 @@ async def test_restore_items_sets_contents_without_eviction_then_lazy_embeds():
     assert [a["name"] for a, _ in f.items()] == ["p1", "p2"]
 
     # A subsequent relevance append must not crash -- it lazily embeds the
-    # restored (embedding=None) items before choosing a victim.
+    # restored (embedding=None) items before choosing a victim. new=(1,0)
+    # is cos=1.0 similar to p1=(1,0) and cos=0.0 (orthogonal) to p2=(0,1),
+    # so p2 is the least-relevant pair and must be the one evicted.
     await f.append({"name": "new"}, {})
     assert len(f) == 2
     names = [a["name"] for a, _ in f.items()]
-    assert "new" in names
+    assert "p2" not in names   # least relevant -> evicted
+    assert "p1" in names       # most relevant -> survives
+    assert "new" in names      # new pair always kept
+
+
+def test_restore_items_clamps_to_maxlen():
+    # Old deque(maxlen) behavior self-truncated to the most-recent maxlen
+    # items; restore_items must preserve that invariant even though the
+    # window is now a plain list.
+    f = FifoCache(maxlen=2)
+    f.restore_items([
+        ({"name": "p1"}, {}),
+        ({"name": "p2"}, {}),
+        ({"name": "p3"}, {}),
+    ])
+    assert len(f) == 2
+    assert [a["name"] for a, _ in f.items()] == ["p2", "p3"]
 
 
 def test_goal_stack_bottom_is_fundamental():
