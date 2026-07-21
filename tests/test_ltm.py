@@ -154,6 +154,11 @@ async def test_remember_atomic_merge_unions_owners():
     assert out["merged"] is True
     (entry,) = m.all_entries()
     assert set(entry["owners"]) == {"a", "b", "c", "d"}
+    # The merge must PRESERVE the pre-existing owners' recall flags (not just the
+    # "owners" list): every owner, old and new, must still recall the merged entry.
+    for owner in ("a", "b", "c", "d"):
+        hits = await m.recall(owner, "国王死于春天", top_k=5)
+        assert any(h["text"] == entry["text"] for h in hits), f"owner {owner} lost recall after merge"
 
 
 async def test_remember_atomic_applies_token_cap():
