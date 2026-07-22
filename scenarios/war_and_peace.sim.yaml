@@ -428,72 +428,22 @@ agents:
   brain: rule
   profile: 俄法交战村庄
   name: Schön Grabern
-- id: grunth
-  kind: environment
-  brain: rule
-  profile: 巴格拉季翁的阵地所在
-  name: Grunth
 - id: brunn
   kind: environment
   brain: rule
   profile: 奥地利城市，外交场所
   name: Brünn
-- id: vienna
-  kind: environment
-  brain: rule
-  profile: 奥地利首都
-  name: Vienna
-- id: danube
-  kind: environment
-  brain: rule
-  profile: 河流，战区
-  name: Danube River
-- id: ulm
-  kind: environment
-  brain: rule
-  profile: 奥地利要塞，马克投降地
-  name: Ulm
-- id: hollabrunn
-  kind: environment
-  brain: rule
-  profile: 巴格拉季翁阻击地
-  name: Hollabrünn
-- id: zaim
-  kind: environment
-  brain: rule
-  profile: 俄军撤退目标
-  name: Znaim
 - id: salzeneck
   kind: environment
   brain: rule
   profile: 俄军驻扎的村庄
   name: Salzeneck
-- id: thabor_bridge
-  kind: environment
-  brain: rule
-  profile: 维也纳附近，法军夺取的桥梁
-  name: Thabor Bridge
-- id: schonbrunn
-  kind: environment
-  brain: rule
-  profile: 奥地利皇宫
-  name: Schönbrunn
 - id: narrator
   kind: environment
   brain: rule
   profile: Reserved catch-all owner for scene-setting/narration fragments with no
     clear character or location owner.
   name: Narrator/旁白
-- id: road_to_brunn
-  kind: environment
-  brain: rule
-  profile: 通往布吕恩的道路
-  name: Road to Brünn
-- id: road_brunn_to_krems
-  kind: environment
-  brain: rule
-  profile: 从布吕恩到克雷姆斯的途中
-  name: Road from Brünn to Krems
 - id: julie_letter
   kind: info_carrier
   brain: retrieval

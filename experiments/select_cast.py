@@ -17,12 +17,21 @@ import yaml
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SC = os.path.join(BASE, "scenarios")
 
-# per-scenario thresholds (character kept iff memory_count > T), locked with user
+# per-scenario CHARACTER thresholds (character kept iff memory_count > T)
 THRESHOLDS = {
     "three_kingdoms": 50,
     "red_chamber": 100,
     "war_and_peace": 20,
     "russia_ukraine": 3,
+}
+# per-scenario ENVIRONMENT memory bar (env kept iff it's an active char's location
+# OR owns > E memories). Novels: E=0 (>=1 mem) trims well. 俄乌: every timeline
+# place has >=1 event memory, so E=5 keeps the real theaters and drops the tail.
+ENV_THRESHOLDS = {
+    "three_kingdoms": 0,
+    "red_chamber": 0,
+    "war_and_peace": 0,
+    "russia_ukraine": 5,
 }
 
 
@@ -46,10 +55,37 @@ def curate(name, T):
     keep_char = {cid for cid in char_ids if cnt.get(cid, 0) > T}
     dropped = char_ids - keep_char
 
-    kept_agents = [
-        a for a in agents
-        if a.get("kind") != "character" or a["id"] in keep_char
-    ]
+    # Trim environments: keep an env iff it is an active character's location OR
+    # it owns >=1 memory. Drops one-off place names that no active agent uses.
+    env_ids = {a["id"] for a in agents if a.get("kind") == "environment"}
+    env_mem = char_mem_counts(ltm, env_ids)  # reuse: counts memories owned by each env id
+    active_locations = {
+        a.get("status", {}).get("location")
+        for a in agents
+        if a.get("kind") == "character" and a["id"] in keep_char
+    }
+    E = ENV_THRESHOLDS.get(name, 0)
+    keep_env = {
+        eid for eid in env_ids
+        if eid in active_locations or env_mem.get(eid, 0) > E
+    }
+
+    def keep_agent(a):
+        k = a.get("kind")
+        if k == "character":
+            return a["id"] in keep_char
+        if k == "environment":
+            return a["id"] in keep_env
+        return True  # info_carriers kept
+
+    kept_agents = [a for a in agents if keep_agent(a)]
+    # defensive: filter map edges to kept environments (edges usually empty)
+    mp = d.get("map") or {}
+    if isinstance(mp, dict) and mp.get("edges"):
+        mp["edges"] = [
+            e for e in mp["edges"]
+            if all(x in keep_env for x in (e[:2] if isinstance(e, (list, tuple)) else []))
+        ]
     # clean kickoff: strip dropped ids from `to`, drop now-empty messages
     kickoff = d.get("kickoff") or []
     new_kickoff = []

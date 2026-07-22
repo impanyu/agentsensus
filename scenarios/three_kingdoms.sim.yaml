@@ -476,16 +476,6 @@ agents:
   brain: rule
   profile: 汉献帝迁都于此，曹操挟天子令诸侯之地。
   name: 许昌
-- id: yecheng
-  kind: environment
-  brain: rule
-  profile: 冀州治所，袁绍、曹操先后据为基业。
-  name: 邺城
-- id: longzhong
-  kind: environment
-  brain: rule
-  profile: 诸葛亮隐居躬耕之地。
-  name: 隆中
 - id: wancheng
   kind: environment
   brain: rule
@@ -501,16 +491,6 @@ agents:
   brain: rule
   profile: 徐州要地，吕布困守并处决之地。
   name: 下邳
-- id: xiaopei
-  kind: environment
-  brain: rule
-  profile: 刘备曾屯驻的小城，屡为前沿。
-  name: 小沛
-- id: pingyuan
-  kind: environment
-  brain: rule
-  profile: 刘备曾任县令之地。
-  name: 平原
 - id: jizhou
   kind: environment
   brain: rule
@@ -521,16 +501,6 @@ agents:
   brain: rule
   profile: 山东大州，曹操收青州兵之处。
   name: 青州
-- id: jingzhou
-  kind: environment
-  brain: rule
-  profile: 汉末大州，刘表长期割据。
-  name: 荆州
-- id: jiangxia
-  kind: environment
-  brain: rule
-  profile: 荆州东部要郡，黄祖、刘琦驻守。
-  name: 江夏
 - id: xiangyang
   kind: environment
   brain: rule
@@ -551,561 +521,56 @@ agents:
   brain: rule
   profile: 袁绍家族故地，刘备短暂栖身。
   name: 汝南
-- id: guandu
-  kind: environment
-  brain: rule
-  profile: 曹操与袁绍决战之地。
-  name: 官渡
-- id: baima
-  kind: environment
-  brain: rule
-  profile: 袁绍攻曹前沿，关羽斩颜良处。
-  name: 白马
-- id: yanjin
-  kind: environment
-  brain: rule
-  profile: 黄河渡口，文丑被斩处。
-  name: 延津
-- id: wuchao
-  kind: environment
-  brain: rule
-  profile: 袁绍屯粮之地，被曹操烧毁。
-  name: 乌巢
-- id: liyang
-  kind: environment
-  brain: rule
-  profile: 袁曹相持的战场。
-  name: 黎阳
-- id: cangting
-  kind: environment
-  brain: rule
-  profile: 曹操十面埋伏大破袁绍处。
-  name: 仓亭
-- id: bailangshan
-  kind: environment
-  brain: rule
-  profile: 曹操远征乌桓决战地。
-  name: 白狼山
-- id: liucheng
-  kind: environment
-  brain: rule
-  profile: 乌桓巢穴。
-  name: 柳城
 - id: liaodong
   kind: environment
   brain: rule
   profile: 公孙康割据地。
   name: 辽东
-- id: xiangping
-  kind: environment
-  brain: rule
-  profile: 辽东郡治。
-  name: 襄平
 - id: yizhou
   kind: environment
   brain: rule
   profile: 河北州郡，曹操班师驻马处。
   name: 易州
-- id: bingzhou
-  kind: environment
-  brain: rule
-  profile: 高干割据之地。
-  name: 并州
-- id: youzhou
-  kind: environment
-  brain: rule
-  profile: 汉末北方大州，刘虞、公孙瓒相争。
-  name: 幽州
 - id: meiwu
   kind: environment
   brain: rule
   profile: 董卓所筑坞堡，屯粮草金银。
   name: 郿坞
-- id: fengyiting
-  kind: environment
-  brain: rule
-  profile: 董卓相府内亭，吕布貂蝉私会处。
-  name: 凤仪亭
-- id: xiangfu_luoyang
-  kind: environment
-  brain: rule
-  profile: 董卓在洛阳的府邸，曹操刺董之处。
-  name: 洛阳相府
 - id: xiangfu_changan
   kind: environment
   brain: rule
   profile: 董卓在长安的府邸，连环计核心场所。
   name: 长安相府
-- id: sishuiguan
-  kind: environment
-  brain: rule
-  profile: 洛阳东面险关，温酒斩华雄处。
-  name: 汜水关
 - id: hulaoguan
   kind: environment
   brain: rule
   profile: 洛阳东方雄关，三英战吕布处。
   name: 虎牢关
-- id: bowangpo
-  kind: environment
-  brain: rule
-  profile: 诸葛亮初用兵火烧夏侯惇处。
-  name: 博望坡
-- id: tanxi
-  kind: environment
-  brain: rule
-  profile: 襄阳城外溪水，的卢跃马处。
-  name: 檀溪
-- id: huanghedukou
-  kind: environment
-  brain: rule
-  profile: 关羽千里走单骑过五关斩六将之末。
-  name: 黄河渡口
-- id: beihai
-  kind: environment
-  brain: rule
-  profile: 孔融为太守，黄巾围城处。
-  name: 北海
-- id: puyang
-  kind: environment
-  brain: rule
-  profile: 曹操与吕布反复争夺之地。
-  name: 濮阳
 - id: shouchun
   kind: environment
   brain: rule
   profile: 袁术称帝的都城。
   name: 寿春
-- id: julu
-  kind: environment
-  brain: rule
-  profile: 黄巾起义发源地。
-  name: 巨鹿郡
-- id: zhuoxian
-  kind: environment
-  brain: rule
-  profile: 刘备、关羽、张飞的故乡。
-  name: 涿县
-- id: taoyuan
-  kind: environment
-  brain: rule
-  profile: 刘关张结义的地方。
-  name: 桃园
-- id: guangzong
-  kind: environment
-  brain: rule
-  profile: 卢植讨张角战场。
-  name: 广宗
-- id: yingchuan
-  kind: environment
-  brain: rule
-  profile: 黄巾战场，曹操家乡所在。
-  name: 颍川
-- id: dayangshan
-  kind: environment
-  brain: rule
-  profile: 刘备初战黄巾处。
-  name: 大兴山
-- id: changshe
-  kind: environment
-  brain: rule
-  profile: 皇甫嵩朱儁破黄巾处。
-  name: 长社
-- id: wujunfuchun
-  kind: environment
-  brain: rule
-  profile: 孙坚的家乡。
-  name: 吴郡富春
-- id: shayang
-  kind: environment
-  brain: rule
-  profile: 曹操迎击吕布的地区。
-  name: 山阳
-- id: yingyang
-  kind: environment
-  brain: rule
-  profile: 曹操追击董卓遇伏兵败处。
-  name: 荥阳
-- id: mangdangshan
-  kind: environment
-  brain: rule
-  profile: 张飞败后落草处。
-  name: 芒砀山
-- id: tushan
-  kind: environment
-  brain: rule
-  profile: 关羽兵败被围，约三事处。
-  name: 土山
-- id: gucheng
-  kind: environment
-  brain: rule
-  profile: 刘关张失散重聚处。
-  name: 古城
-- id: donglingguan
-  kind: environment
-  brain: rule
-  profile: 关羽千里走单骑第一关。
-  name: 东岭关
-- id: zhenguosi
-  kind: environment
-  brain: rule
-  profile: 关羽过关斩卞喜处。
-  name: 镇国寺
-- id: hua_zhou
-  kind: environment
-  brain: rule
-  profile: 关羽渡过黄河前最后一站。
-  name: 滑州
-- id: beimanyshan
-  kind: environment
-  brain: rule
-  profile: 洛阳北面山，少帝陈留王逃难处。
-  name: 北邙山
-- id: yangwu
-  kind: environment
-  brain: rule
-  profile: 官渡前线。
-  name: 阳武
-- id: suoyang
-  kind: environment
-  brain: rule
-  profile: 讨董诸侯会盟处。
-  name: 酸枣
-- id: hanguo
-  kind: environment
-  brain: rule
-  profile: 刘备兵败投刘表途经。
-  name: 汉江
-- id: raoshan
-  kind: environment
-  brain: rule
-  profile: 刘备被曹操击败处。
-  name: 穰山
-- id: luoshenkou
-  kind: environment
-  brain: rule
-  profile: 东吴水寨。
-  name: 罗川口
 - id: chaishu
   kind: environment
   brain: rule
   profile: 孙权屯兵处。
   name: 柴桑
-- id: ouxhu
-  kind: environment
-  brain: rule
-  profile: 东吴水军基地。
-  name: 鄱阳湖
 - id: wuhui
   kind: environment
   brain: rule
   profile: 吴郡与会稽，江东腹地。
   name: 吴会
-- id: langya
-  kind: environment
-  brain: rule
-  profile: 徐州地区。
-  name: 瑯琊
-- id: xiliang
-  kind: environment
-  brain: rule
-  profile: 马腾、韩遂割据地。
-  name: 西凉
-- id: yuzhou
-  kind: environment
-  brain: rule
-  profile: 中原大州。
-  name: 豫州
-- id: yanzhou
-  kind: environment
-  brain: rule
-  profile: 曹操早期根据地。
-  name: 兖州
-- id: hedong
-  kind: environment
-  brain: rule
-  profile: 董卓家乡。
-  name: 河东
-- id: jibei
-  kind: environment
-  brain: rule
-  profile: 鲍信辖区。
-  name: 济北
-- id: changsha
-  kind: environment
-  brain: rule
-  profile: 孙坚曾任太守之地。
-  name: 长沙
-- id: wutaiyuan
-  kind: environment
-  brain: rule
-  profile: 诸葛亮病逝之处。(未直接出场但提及)
-  name: 五丈原
-- id: xuanwumen
-  kind: environment
-  brain: rule
-  profile: 长安城门。
-  name: 宣平门
-- id: beiyemen
-  kind: environment
-  brain: rule
-  profile: 长安宫门，董卓被杀处。
-  name: 北掖门
-- id: weiyangdian
-  kind: environment
-  brain: rule
-  profile: 长安皇宫正殿。
-  name: 未央殿
-- id: jiadedian
-  kind: environment
-  brain: rule
-  profile: 洛阳皇宫大殿。
-  name: 嘉德殿
 - id: yongangong
   kind: environment
   brain: rule
   profile: 少帝被囚禁处。
   name: 永安宫
-- id: qingxuanmen
-  kind: environment
-  brain: rule
-  profile: 洛阳宫门，何进被杀处。
-  name: 青琐门
-- id: changlegong
-  kind: environment
-  brain: rule
-  profile: 洛阳皇宫。
-  name: 长乐宫
-- id: cuihuafang
-  kind: environment
-  brain: rule
-  profile: 洛阳宫中楼台。
-  name: 翠花楼
-- id: beigong
-  kind: environment
-  brain: rule
-  profile: 洛阳皇宫北部。
-  name: 北宫
-- id: wangyunfu
-  kind: environment
-  brain: rule
-  profile: 王允宅邸，连环计策划处。
-  name: 王允府
-- id: dongjun
-  kind: environment
-  brain: rule
-  profile: 曹操曾任太守之地。
-  name: 东郡
-- id: chenliu
-  kind: environment
-  brain: rule
-  profile: 曹操起兵之地。
-  name: 陈留
-- id: shuijingzhuang
-  kind: environment
-  brain: rule
-  profile: 司马徽隐居处。
-  name: 水镜庄
-- id: xuanwuchi
-  kind: environment
-  brain: rule
-  profile: 曹操训练水军处。
-  name: 玄武池
-- id: miankou
-  kind: environment
-  brain: rule
-  profile: 汉水入江处，夏口附近。
-  name: 沔口
-- id: dankang
-  kind: environment
-  brain: rule
-  profile: 孙策借兵之地。
-  name: 丹阳
-- id: yuzhang
-  kind: environment
-  brain: rule
-  profile: 江东郡县。
-  name: 豫章
-- id: huainan
-  kind: environment
-  brain: rule
-  profile: 袁术称帝的势力范围。
-  name: 淮南
 - id: jiangdong
   kind: environment
   brain: rule
   profile: 孙氏基业所在。
   name: 江东
-- id: jianye
-  kind: environment
-  brain: rule
-  profile: 东吴都城（后期）。未直接出现但背景。
-  name: 建业
-- id: wujun
-  kind: environment
-  brain: rule
-  profile: 江东重镇。
-  name: 吴郡
-- id: kuaiji
-  kind: environment
-  brain: rule
-  profile: 王朗为太守，后被孙策攻取。
-  name: 会稽
-- id: loc_1
-  kind: environment
-  brain: rule
-  profile: 刘繇驻地，孙策攻之。
-  name: 曲阿
-- id: shentingling
-  kind: environment
-  brain: rule
-  profile: 孙策与太史慈酣斗处。
-  name: 神亭岭
-- id: niuzhu
-  kind: environment
-  brain: rule
-  profile: 长江要津。
-  name: 牛渚
-- id: moling
-  kind: environment
-  brain: rule
-  profile: 后改称建业。
-  name: 秣陵
-- id: bahe
-  kind: environment
-  brain: rule
-  profile: 博陵渡口附近，设伏水淹曹军处。
-  name: 白河
-- id: bolingdukou
-  kind: environment
-  brain: rule
-  profile: 诸葛亮火烧新野后伏兵处。
-  name: 博陵渡口
-- id: queweipo
-  kind: environment
-  brain: rule
-  profile: 刘备携民渡江途经处。
-  name: 鹊尾坡
-- id: shanhou
-  kind: environment
-  brain: rule
-  profile: 张宝屯兵处。
-  name: 山后
-- id: yangcheng
-  kind: environment
-  brain: rule
-  profile: 孙坚攻董卓屯兵处。
-  name: 阳城
-- id: qiantang
-  kind: environment
-  brain: rule
-  profile: 吴郡县名。
-  name: 钱塘
-- id: yandu
-  kind: environment
-  brain: rule
-  profile: 孙坚曾任县丞处。
-  name: 盐渎
-- id: xuyi
-  kind: environment
-  brain: rule
-  profile: 徐州要地。
-  name: 盱眙
-- id: anzhixian
-  kind: environment
-  brain: rule
-  profile: 刘备任县尉处。
-  name: 定州中山府安喜县
-- id: guan_yi
-  kind: environment
-  brain: rule
-  profile: 安喜县馆驿，张飞鞭督邮处。
-  name: 馆驿
-- id: daizhou
-  kind: environment
-  brain: rule
-  profile: 刘恢收留刘备处。
-  name: 代州
-- id: yuyang
-  kind: environment
-  brain: rule
-  profile: 张举张纯叛乱地。
-  name: 渔阳
-- id: hejian
-  kind: environment
-  brain: rule
-  profile: 郡名。
-  name: 河间
-- id: wenling
-  kind: environment
-  brain: rule
-  profile: 汉灵帝陵墓。
-  name: 文陵
-- id: mianchi
-  kind: environment
-  brain: rule
-  profile: 董卓驻军处。
-  name: 渑池
-- id: cuimanzhuang
-  kind: environment
-  brain: rule
-  profile: 少帝与陈留王逃难借住处。
-  name: 崔毅庄
-- id: wenmingyuan
-  kind: environment
-  brain: rule
-  profile: 董卓宴请大臣议废立处。
-  name: 温明园
-- id: bohai
-  kind: environment
-  brain: rule
-  profile: 袁绍出走任太守处。
-  name: 渤海
-- id: zhongmou
-  kind: environment
-  brain: rule
-  profile: 陈宫捉放曹操处。
-  name: 中牟县
-- id: chenggao
-  kind: environment
-  brain: rule
-  profile: 曹操杀吕伯奢处。
-  name: 成皋
-- id: yi_cheng
-  kind: environment
-  brain: rule
-  profile: 袁术攻吕布经过处。
-  name: 沂都
-- id: jieshi
-  kind: environment
-  brain: rule
-  profile: 渤海边地。
-  name: 碣石
-- id: junshan
-  kind: environment
-  brain: rule
-  profile: 袁术军屯驻处。
-  name: 浚山
-- id: loc_2
-  kind: environment
-  brain: rule
-  profile: 曹操早期据点。
-  name: 东阿
-- id: juanzhou
-  kind: environment
-  brain: rule
-  profile: 曹操谋士保住的城池。
-  name: 鄄城
-- id: fanzian
-  kind: environment
-  brain: rule
-  profile: 同上。
-  name: 范县
-- id: tea_house
-  kind: environment
-  brain: rule
-  profile: 隐约出现地点。
-  name: 茶馆
 - id: narrator
   kind: environment
   brain: rule
@@ -1117,31 +582,11 @@ agents:
   brain: rule
   profile: 渤海郡治所，袁绍败后病逝于此。
   name: 南皮
-- id: xiakou
-  kind: environment
-  brain: rule
-  profile: 江夏郡长江要塞，赤壁之战后刘备屯驻地。
-  name: 夏口
-- id: dingtao
-  kind: environment
-  brain: rule
-  profile: 兖州济阴郡治，曹操与吕布反复争夺之地。
-  name: 定陶
 - id: liangdong
   kind: environment
   brain: rule
   profile: 梁县东部地区，孙坚与董卓军交战处。
   name: 梁东
-- id: haiyu
-  kind: environment
-  brain: rule
-  profile: 滨海偏远之地，人物逃亡或出兵途经处。
-  name: 海隅
-- id: jishan
-  kind: environment
-  brain: rule
-  profile: 颍川名山，许由隐居地，亦为汉末隐逸象征。
-  name: 箕山
 - id: yidaizhao
   kind: info_carrier
   brain: retrieval

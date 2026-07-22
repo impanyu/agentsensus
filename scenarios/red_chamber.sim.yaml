@@ -227,11 +227,6 @@ agents:
     location: jiamuyuan
   goals: []
   name: 周瑞家的
-- id: dahuangshan
-  kind: environment
-  brain: rule
-  profile: 女娲补天遗留顽石之所在，天地鸿蒙旧地。
-  name: 大荒山无稽崖青埂峰
 - id: taixuhuanjing
   kind: environment
   brain: rule
@@ -242,36 +237,11 @@ agents:
   brain: rule
   profile: 姑苏城内寺庙，甄士隐家旁，贾雨村曾寄居于此。
   name: 葫芦庙
-- id: zhenshufang
-  kind: environment
-  brain: rule
-  profile: 甄士隐日常安歇的书房。
-  name: 甄家书房
-- id: daruzhoufengsujia
-  kind: environment
-  brain: rule
-  profile: 甄士隐岳父封肃在大如州的家。
-  name: 大如州封肃家
-- id: yangzhou
-  kind: environment
-  brain: rule
-  profile: 林如海任巡盐御史之所，黛玉故里。
-  name: 扬州
 - id: zhitongsi
   kind: environment
   brain: rule
   profile: 扬州附近荒寺，有龙钟老僧暗示慧境。
   name: 智通寺
-- id: cunsi
-  kind: environment
-  brain: rule
-  profile: 扬州郊外小酒馆，贾雨村与冷子兴相遇论兴衰。
-  name: 村肆
-- id: jinling
-  kind: environment
-  brain: rule
-  profile: 贾家原籍，石头城所在，应天府衙门治所。
-  name: 金陵
 - id: ningguofu
   kind: environment
   brain: rule
@@ -282,16 +252,6 @@ agents:
   brain: rule
   profile: 贾家二房荣国公的府邸，贾母及宝玉黛玉等居此。
   name: 荣国府
-- id: jingdu
-  kind: environment
-  brain: rule
-  profile: 小说中王朝的都城，宁荣二府所在。
-  name: 京都
-- id: rongxitang
-  kind: environment
-  brain: rule
-  profile: 荣国府正堂，悬有皇帝御笔匾额。
-  name: 荣禧堂
 - id: bishachu
   kind: environment
   brain: rule
@@ -307,26 +267,11 @@ agents:
   brain: rule
   profile: 王夫人在荣国府的起居所。
   name: 王夫人处
-- id: jiasheyuan
-  kind: environment
-  brain: rule
-  profile: 贾赦在荣国府东院的住所。
-  name: 贾赦院
-- id: liwanfangzhong
-  kind: environment
-  brain: rule
-  profile: 李纨在荣国府的寡居之室。
-  name: 李纨房中
 - id: yingtianfuyamen
   kind: environment
   brain: rule
   profile: 贾雨村审断薛蟠命案的衙门。
   name: 应天府衙门
-- id: mishi
-  kind: environment
-  brain: rule
-  profile: 应天府衙门内，门子向雨村献护官符之处。
-  name: 密室
 - id: lixiangyuan
   kind: environment
   brain: rule
@@ -352,36 +297,11 @@ agents:
   brain: rule
   profile: 太虚幻境中藏金陵十二钗判词的殿宇。
   name: 薄命司
-- id: mijin
-  kind: environment
-  brain: rule
-  profile: 太虚幻境边缘深水，警幻止步之处。
-  name: 迷津
-- id: ningrongjie
-  kind: environment
-  brain: rule
-  profile: 宁国府与荣国府之间的街道。
-  name: 宁荣街
-- id: zhouruijia
-  kind: environment
-  brain: rule
-  profile: 周瑞夫妇在荣国府后街的住处。
-  name: 周瑞家
 - id: fenglianzhuzhai
   kind: environment
   brain: rule
   profile: 贾琏与凤姐在荣国府的独门小院。
   name: 贾琏住宅
-- id: baoxia
-  kind: environment
-  brain: rule
-  profile: 荣国府中连接建筑的廊厦，常用于办事。
-  name: 抱厦
-- id: majuan
-  kind: environment
-  brain: rule
-  profile: 宁国府养马之处，焦大在此醉骂。
-  name: 马圈
 - id: xuejia
   kind: environment
   brain: rule
@@ -397,106 +317,21 @@ agents:
   brain: rule
   profile: 大观园中阁楼，贾母曾在阁下听戏。
   name: 缀锦阁
-- id: qinfangting
-  kind: environment
-  brain: rule
-  profile: 大观园内临水亭子，宝玉题名。
-  name: 沁芳亭
-- id: xiaoxiangguan
-  kind: environment
-  brain: rule
-  profile: 大观园中竹林清幽处，林黛玉的居所。
-  name: 潇湘馆
-- id: qiushuangzhai
-  kind: environment
-  brain: rule
-  profile: 大观园中探春住所，阔朗有法，诗社起于此。
-  name: 秋爽斋
-- id: hengwuyuan
-  kind: environment
-  brain: rule
-  profile: 大观园中薛宝钗住所，奇草仙藤，清冷淡雅。
-  name: 蘅芜苑
-- id: zhengdian
-  kind: environment
-  brain: rule
-  profile: 大观园省亲别墅的主殿。
-  name: 正殿
 - id: yihongyuan
   kind: environment
   brain: rule
   profile: 大观园中贾宝玉的居所，富丽堂皇。
   name: 怡红院
-- id: daoxiangcun
-  kind: environment
-  brain: rule
-  profile: 大观园中李纨住所，田舍风光，别名浣葛山庄。
-  name: 稻香村
-- id: zilingzhou
-  kind: environment
-  brain: rule
-  profile: 大观园中迎春住所，靠近荇叶渚。
-  name: 紫菱洲
-- id: liaofengxuan
-  kind: environment
-  brain: rule
-  profile: 大观园中惜春住所。
-  name: 蓼风轩
-- id: liaotinghuaxu
-  kind: environment
-  brain: rule
-  profile: 大观园中之观景处，有长草芦花。
-  name: 蓼汀花溆
-- id: shengqinbieshu
-  kind: environment
-  brain: rule
-  profile: 大观园内为元妃省亲所建的行宫别院。
-  name: 省亲别墅
 - id: ouxiangxie
   kind: environment
   brain: rule
   profile: 大观园池中水阁，赏桂设宴之所，惜春亦在此居住。
   name: 藕香榭
-- id: qinfangzha
-  kind: environment
-  brain: rule
-  profile: 大观园中水闸桥畔，宝玉读《西厢》之处。
-  name: 沁芳闸
-- id: mouniyuan
-  kind: environment
-  brain: rule
-  profile: 妙玉初入京时寄居的寺庙。
-  name: 牟尼院
-- id: xiangyunting
-  kind: environment
-  brain: rule
-  profile: 藕香榭附近设宴吃蟹之处。
-  name: 螃蟹宴亭子
-- id: xingyezhu
-  kind: environment
-  brain: rule
-  profile: 大观园中水中小洲。
-  name: 荇叶渚
-- id: huaxuluogang
-  kind: environment
-  brain: rule
-  profile: 大观园中曲折的水道与藤萝景致。
-  name: 花溆萝港
 - id: jiayujiaxue
   kind: environment
   brain: rule
   profile: 贾家私塾，族中子弟读书之所。
   name: 贾府家学
-- id: jiamuqianmen
-  kind: environment
-  brain: rule
-  profile: 荣国府贾母院门外。
-  name: 贾母门前
-- id: shufang
-  kind: environment
-  brain: rule
-  profile: 贾政的内书房，宝玉在此挨训。
-  name: 贾政书房
 - id: tiesiansi
   kind: environment
   brain: rule
@@ -507,197 +342,32 @@ agents:
   brain: rule
   profile: 离铁槛寺不远的尼姑庵，净虚住持。
   name: 水月庵
-- id: suzhou
-  kind: environment
-  brain: rule
-  profile: 林如海原籍，黛玉扶柩归葬之地。
-  name: 苏州
 - id: cunshe
   kind: environment
   brain: rule
   profile: 秦可卿送殡途中经停的村庄。
   name: 村舍
-- id: fengzaogong
-  kind: environment
-  brain: rule
-  profile: 皇宫中元妃所住宫院。
-  name: 凤藻宫
-- id: linjingdian
-  kind: environment
-  brain: rule
-  profile: 皇宫中元妃省亲前陛见之所。
-  name: 临敬殿
-- id: qinjia
-  kind: environment
-  brain: rule
-  profile: 秦可卿与秦钟在都中的家。
-  name: 秦家
-- id: xirentanwang
-  kind: environment
-  brain: rule
-  profile: 袭人兄花自芳之家，在都中外城。
-  name: 袭人家
-- id: xishufang
-  kind: environment
-  brain: rule
-  profile: 宝玉在府外的书房，亦为会客之所。
-  name: 绮散斋书房
-- id: xuetiantang
-  kind: environment
-  brain: rule
-  profile: 荣国府西边的过道，凤姐设局贾瑞之处。
-  name: 西边穿堂
-- id: kongwuzi
-  kind: environment
-  brain: rule
-  profile: 凤姐院后一处空房，贾瑞冻饿等凤姐之处。
-  name: 凤姐房后小过道空屋子
 - id: jiaruijia
   kind: environment
   brain: rule
   profile: 贾代儒与贾瑞祖孙之家。
   name: 贾瑞家
-- id: tianxianglou
-  kind: environment
-  brain: rule
-  profile: 宁国府内楼阁，系秦可卿停灵之所。
-  name: 天香楼
-- id: dengxiange
-  kind: environment
-  brain: rule
-  profile: 宁国府存放秦可卿灵柩的楼阁。
-  name: 登仙阁
-- id: doufengxuan
-  kind: environment
-  brain: rule
-  profile: 宁国府中贾珍与戴权商议捐官之处。
-  name: 逗蜂轩
-- id: bushirenjia
-  kind: environment
-  brain: rule
-  profile: 贾芸舅舅卜世仁的香料铺兼住所。
-  name: 卜世仁家
-- id: jiayunjia
-  kind: environment
-  brain: rule
-  profile: 贾芸母亲的住处。
-  name: 贾芸家
-- id: yinku
-  kind: environment
-  brain: rule
-  profile: 荣国府的库房，凤姐处领银子之地。
-  name: 银库
-- id: ximen
-  kind: environment
-  brain: rule
-  profile: 荣国府西门，贾芸出入等候凤姐处。
-  name: 西门
-- id: cuiyanqiao
-  kind: environment
-  brain: rule
-  profile: 大观园中的一座桥。
-  name: 翠烟桥
-- id: fengyaoqiao
-  kind: environment
-  brain: rule
-  profile: 大观园中桥，小红与贾芸遇合之地。
-  name: 蜂腰桥
-- id: qinfangxi
-  kind: environment
-  brain: rule
-  profile: 大观园中主要溪流。
-  name: 沁芳溪
-- id: dicuitting
-  kind: environment
-  brain: rule
-  profile: 大观园池畔亭子，宝钗追蝴蝶至此。
-  name: 滴翠亭
-- id: huazhong
-  kind: environment
-  brain: rule
-  profile: 大观园中宝玉黛玉葬花之地。
-  name: 花冢
-- id: fengziyingjia
-  kind: environment
-  brain: rule
-  profile: 冯紫英招宝玉、薛蟠等宴饮之处。
-  name: 冯紫英家
-- id: jinxiangyuan
-  kind: environment
-  brain: rule
-  profile: 京都妓院，云儿所在。
-  name: 锦香院
-- id: qingxuguan
-  kind: environment
-  brain: rule
-  profile: 贾母携众人打平安醮的道观。
-  name: 清虚观
-- id: qiangweijia
-  kind: environment
-  brain: rule
-  profile: 大观园中蔷薇花架，龄官画蔷与湘云拾麒麟处。
-  name: 蔷薇架
-- id: pingmen
-  kind: environment
-  brain: rule
-  profile: 荣国府厅堂前后可通的内屏门。
-  name: 屏门
-- id: tinglshang
-  kind: environment
-  brain: rule
-  profile: 荣国府接待外客的大厅。
-  name: 厅上
-- id: nanmayuan
-  kind: environment
-  brain: rule
-  profile: 贾母院南边马棚，因刘姥姥讲故事而走火。
-  name: 南院子马棚
-- id: erment
-  kind: environment
-  brain: rule
-  profile: 内宅与外界的分界之门。
-  name: 荣国府二门
-- id: langxia
-  kind: environment
-  brain: rule
-  profile: 荣国府二门内的廊檐，宝玉送湘云处。
-  name: 廊簷下
-- id: jiaomen
-  kind: environment
-  brain: rule
-  profile: 府内偏僻可通行的小门。
-  name: 角门
 - id: narrator
   kind: environment
   brain: rule
   profile: Reserved catch-all owner for scene-setting/narration fragments with no
     clear character or location owner.
   name: Narrator/旁白
-- id: yihongyuanmenwai
-  kind: environment
-  brain: rule
-  profile: 大观园怡红院正门之外的区域，宝玉居所入口处。
-  name: 怡红院门外
 - id: huanggong
   kind: environment
   brain: rule
   profile: 当朝皇帝居所，内含凤藻宫、临敬殿等宫院。
   name: 皇宫
-- id: dongbeiyoujingfangshe
-  kind: environment
-  brain: rule
-  profile: 荣国府东北角上梨香院的别称，清静幽僻之所。
-  name: 东北上一所幽静房舍
 - id: xuecharenshang
   kind: environment
   brain: rule
   profile: 贾政外放学政时的任所，具体省份未详。
   name: 学差任上
-- id: xuepanshufang
-  kind: environment
-  brain: rule
-  profile: 薛蟠在府中的私人书房。
-  name: 薛蟠书房
 - id: jiafu
   kind: environment
   brain: rule
