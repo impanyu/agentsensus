@@ -30,21 +30,29 @@ Two passes:
       rounds (marker 补漏) that catch missed facts. This mode tends to
       over-produce per-character micro-memories and, because its prompts
       are Chinese, can push English-source memories toward Chinese too.
-    - "atomic" (the DEFAULT, Task B2, reworked in Task F2): per chunk, a
-      roster call (state only) -> one atomize call breaking the chunk into
-      EVENT GROUPS of complete, self-contained, source-language fragments
-      (each capped at ~64 tokens; no pronouns, no chapter-heading/marker
-      prefixes, no authorial framing) -> one or more assign calls (batched
-      at <=20 fragments per call for accuracy) attributing each fragment
-      to EVERY role id that would plausibly know/be aware of it --
-      participants, witnesses, the location(s) it happens in, and any
-      carrier involved -- over-inclusion preferred over under-inclusion.
-      There is no reserved `narrator` catch-all: a fragment with no
-      resolvable owner falls back to the chunk's location id(s); if even
-      that fails to resolve, the fragment is dropped with a warning
-      instead of ever being deposited ownerless. Each fragment is
-      deposited exactly once via `SharedMemory.remember_atomic`, however
-      many owners it has, instead of once per owning character, and every
+    - "atomic" (the DEFAULT, Task B2, reworked in Task F2, group-ref/
+      per-event/background-drop fixes in Task F2.1): per chunk, a roster
+      call (state only) -> one atomize call breaking the chunk into EVENT
+      GROUPS of complete, self-contained, source-language fragments (each
+      capped at ~64 tokens; no pronouns, no unresolved collective/group
+      references like "三人"/"they", no chapter-heading/marker prefixes,
+      no authorial framing, no dynastic-history/background exposition) ->
+      one assign call PER EVENT (an event larger than ~20 fragments is
+      split into <=20-fragment sub-batches that still share the full
+      event as context) attributing each fragment to EVERY role id that
+      would plausibly know/be aware of it -- participants, witnesses, the
+      location(s) it happens in, and any carrier involved -- over-
+      inclusion preferred over under-inclusion; assigning per event (not
+      one flat batched fragment list for the whole chunk) gives the model
+      the whole scene so it can resolve group references left over from
+      atomize. There is no reserved `narrator` catch-all: a fragment with
+      no resolvable owner falls back first to the location(s) OTHER
+      fragments in the SAME EVENT resolved to, then to the chunk's
+      roster-derived location id(s); if even that fails to resolve, the
+      fragment is dropped with a warning instead of ever being deposited
+      ownerless. Each fragment is deposited exactly once via
+      `SharedMemory.remember_atomic`, however many owners it has, instead
+      of once per owning character, and every
       event's fragments are linked together afterwards via
       `SharedMemory.link_group` so they're mutually affiliated. The
       read-only roster/atomize/assign LLM calls run concurrently across
@@ -274,25 +282,65 @@ def _atomize_prompt(chunk_text: str, chapter_title: str | None, hints: str) -> s
         "entirely. Fragments MUST be written in the SAME LANGUAGE as the passage -- "
         "do not translate them into any other language, whatever that language is. "
         "Keep each fragment short: roughly one sentence, at most ~64 tokens.\n\n"
+        "CRITICAL -- resolve every COLLECTIVE/GROUP reference to the explicit names "
+        "of its members: no fragment may contain an unresolved group reference such "
+        "as \"三人\"/\"我们三人\"/\"二人\"/\"众人\"/\"他们\"/\"the three (of them)\"/"
+        "\"they\"/\"the group\" -- name the individuals instead (e.g. write "
+        "\"刘备、关羽、张飞三人结为兄弟\", not \"三人结为兄弟\"; write \"Tom and Jerry "
+        "agreed\", not \"they agreed\"). If a scene's participants were named earlier "
+        "in the same passage, carry those names into every later fragment about "
+        "them -- a fragment must be understandable completely on its own, without "
+        "needing an earlier fragment to know who \"they\" refers to.\n\n"
         "Do NOT emit a chapter title or section heading as its own fragment, and do "
         "NOT prefix any fragment with a chapter marker (e.g. \"Chapter 1\"/\"第X回\") "
         "or a bracketed time marker (e.g. \"[Chapter 1]\"/\"【...】\"). Also DROP pure "
         "authorial framing that no character would personally remember or witness "
         "-- opening poems/verses, thematic authorial commentary or asides, and "
-        "restatements of the chapter title -- these are not in-world facts/events "
-        "and must never become fragments.\n\n"
+        "restatements of the chapter title. DROP, too, any AUTHORIAL/HISTORICAL "
+        "BACKGROUND exposition that is not a concrete in-world event tied to "
+        "identifiable characters and/or a specific place -- dynastic-history recaps "
+        "(e.g. a sentence summarizing centuries of dynastic rise-and-fall), sweeping "
+        "historical generalizations (\"the realm, long divided, must unite\"-style "
+        "aphorisms), and other scene-setting narrator commentary that spans eras "
+        "rather than describing something a character did or witnessed. KEEP only "
+        "concrete events/facts that have identifiable participant(s) and/or a "
+        "specific place -- a fragment that merely mentions a dynasty or era while "
+        "describing a real character's concrete action (e.g. where/when they were "
+        "born) is NOT background exposition and must be kept. None of this -- poems, "
+        "chapter-title restatements, or background exposition -- may ever become a "
+        "fragment.\n\n"
         f"{title_line}{hints_line}Passage:\n{chunk_text}"
     )
 
 
-def _assign_prompt(fragments: list[str], registry: dict, hints: str) -> str:
+def _assign_prompt(
+    fragments: list[str], registry: dict, hints: str, *, scene_context: list[str] | None = None
+) -> str:
+    """`fragments` is the list actually being assigned owners for in THIS
+    call (either a whole event, or -- for an unusually large event -- one
+    <=`_ASSIGN_BATCH_SIZE`-fragment sub-batch of it). `scene_context`, when
+    given, is the FULL event's fragment list (Task F2.1 change #2): passed
+    only when `fragments` is a sub-batch smaller than its event, so the
+    model still sees the whole scene and can resolve a residual group
+    reference ("they"/"the three of them") using sibling fragments it isn't
+    itself assigning owners for in this call."""
     alias_table = _alias_table(registry)
     numbered = "\n".join(f"{i}: {f}" for i, f in enumerate(fragments))
+    context_block = ""
+    if scene_context:
+        context_numbered = "\n".join(f"- {f}" for f in scene_context)
+        context_block = (
+            "The fragments below are only PART of one larger event/scene. For full "
+            "scene context (to resolve any group reference like \"they\"/\"the three "
+            "of them\" using sibling fragments from the same scene), here is the "
+            f"COMPLETE list of that event's fragments:\n{context_numbered}\n\n"
+        )
     return (
         "[assign] Below is a table of role ids (characters, locations, and "
         "information carriers) with their names/aliases, followed by a numbered "
-        "list of self-contained memory fragments. For EACH fragment, list the "
-        "id(s) of EVERY role that would plausibly know about, remember, or be "
+        "list of self-contained memory fragments -- all from the SAME event/scene, "
+        "so use them together as context for each other. For EACH fragment, list "
+        "the id(s) of EVERY role that would plausibly know about, remember, or be "
         "aware of it -- every named participant/actor, everyone present or "
         "directly affected, the location(s) it happens in, and any information "
         "carrier (letter/diary/poem/etc.) involved. A fragment usually has "
@@ -312,6 +360,7 @@ def _assign_prompt(fragments: list[str], registry: dict, hints: str) -> str:
         "list below), e.g. [[\"id1\"], [\"id1\", \"id2\", \"loc1\"], []]. Do not "
         "output any explanation or extra text.\n\n"
         f"Role table:\n{alias_table}\n\n"
+        f"{context_block}"
         f"Hints: {hints or ''}\n\nFragments:\n{numbered}"
     )
 
@@ -933,10 +982,12 @@ async def _run_sediment_pass_exhaustive(
 
 NARRATOR_ID = "narrator"
 
-# Batch size for assign calls (Task F2 change #3): smaller batches keep each
-# assign call's role table + fragment list short, which measurably improves
-# owner-assignment accuracy versus asking for the whole chunk's fragments in
-# one shot.
+# Max fragments per assign call (Task F2 change #3, restructured to be
+# per-EVENT rather than a flat chunk-wide batch in Task F2.1 fix #2): each
+# event's fragments are assigned together in one call so the model has the
+# whole scene as context; only an unusually large event (more fragments than
+# this) is split into sub-batches, each still sharing the full event as
+# context, to keep any single call's role table + fragment list short.
 _ASSIGN_BATCH_SIZE = 20
 
 # Matches an old-style "第X回..." chapter-heading restatement (reusing
@@ -955,6 +1006,29 @@ def _is_heading_or_marker_fragment(fragment: str) -> bool:
     restatement or a bare old-style time-marker rather than a real
     self-contained fact -- see the module-level regexes above."""
     return bool(_HEADING_PREFIX_RE.match(fragment) or _PURE_MARKER_RE.match(fragment))
+
+
+# Defensive code-side filter (Task F2.1 fix #1) for authorial/historical
+# BACKGROUND exposition -- dynastic-history recaps and sweeping historical
+# generalizations -- that the atomize prompt tells the model to drop, but
+# which (like the heading/marker case above) shouldn't be trusted to prompt
+# discipline alone. Deliberately a small, narrow set of telltale
+# sweeping-generalization phrases (drawn from the real validation failure:
+# "周末七国分争最终秦统一天下"/"汉朝自高祖刘邦斩白蛇起义一统天下"-style openings)
+# rather than anything keyed on a bare dynasty/era name, so a fragment that
+# merely MENTIONS a dynasty while describing a real character's concrete
+# action (e.g. where/when they were born) is never caught by this and stays.
+_BACKGROUND_EXPOSITION_RE = re.compile(
+    r"分久必合|合久必分|一统天下|统一天下|七国分争|六国分争|斩白蛇起义"
+)
+
+
+def _is_background_exposition_fragment(fragment: str) -> bool:
+    """True if `fragment` (already stripped) reads as authorial/historical
+    background exposition (a dynastic recap or sweeping historical
+    generalization) rather than a concrete in-world event -- see
+    `_BACKGROUND_EXPOSITION_RE` above."""
+    return bool(_BACKGROUND_EXPOSITION_RE.search(fragment))
 
 
 def _ensure_narrator_role(registry: dict) -> bool:
@@ -985,10 +1059,14 @@ def _ensure_narrator_role(registry: dict) -> bool:
 
 def _chunk_location_ids(state_updates: list[dict], resolvers: _RegistryResolvers) -> list[str]:
     """Distinct canonical location ids referenced by this chunk's roster
-    state_updates, in first-seen order. Used as the no-owner fallback for
-    assign (Task F2 change #3): a fragment with no resolvable character/
-    carrier/location owner falls back to wherever the chunk's own state
-    updates say the action was happening, never to a reserved catch-all id.
+    state_updates, in first-seen order. This is the SECOND-priority
+    no-owner fallback for assign (Task F2.1 fix #3, tightened from Task F2
+    change #3's only fallback): a fragment with no resolvable character/
+    carrier/location owner AND no sibling-fragment location within its own
+    event falls back to wherever the chunk's own state updates say the
+    action was happening, never to a reserved catch-all id. See
+    `_process_chunk_atomic` for the event-local fallback that's tried
+    first.
     """
     ids: list[str] = []
     for update in state_updates:
@@ -1001,6 +1079,102 @@ def _chunk_location_ids(state_updates: list[dict], resolvers: _RegistryResolvers
     return ids
 
 
+async def _assign_one_batch(
+    llm,
+    batch: list[str],
+    registry: dict,
+    hints: str,
+    warnings: list[str],
+    *,
+    flat_idx: int,
+    event_idx: int,
+    scene_context: list[str] | None,
+) -> list[list]:
+    """Issues ONE assign call for `batch` -- a whole event's fragments, or
+    (only for an event larger than `_ASSIGN_BATCH_SIZE`) one sub-batch of
+    it, in which case `scene_context` carries the FULL event's fragment
+    list so the model still sees the whole scene. Returns a list of raw
+    (unresolved) owner-ref lists, always the same length as `batch`
+    (padded/truncated defensively on a length mismatch -- never drifting
+    into a sibling batch/event)."""
+    assign_prompt = _assign_prompt(batch, registry, hints, scene_context=scene_context)
+    raw = await llm.chat(assign_prompt, bucket="extract")
+    try:
+        owners_raw = _extract_json_block(raw)
+        if not isinstance(owners_raw, list):
+            raise ValueError("assign pass did not return a JSON array")
+    except (ValueError, json.JSONDecodeError) as exc:
+        warnings.append(
+            f"history assign pass failed for chunk {flat_idx} event {event_idx}: {exc}; "
+            "fragments in this batch have no LLM-assigned owner (event/chunk-location "
+            "fallback applies)"
+        )
+        return [[] for _ in batch]
+
+    if len(owners_raw) != len(batch):
+        warnings.append(
+            f"history assign pass: chunk {flat_idx} event {event_idx} returned "
+            f"{len(owners_raw)} owner list(s) for {len(batch)} fragment(s) in this batch; "
+            "padding/truncating defensively"
+        )
+        if len(owners_raw) < len(batch):
+            owners_raw = list(owners_raw) + [[] for _ in range(len(batch) - len(owners_raw))]
+        else:
+            owners_raw = owners_raw[: len(batch)]
+
+    return owners_raw
+
+
+async def _assign_event(
+    llm,
+    event_fragments: list[str],
+    registry: dict,
+    hints: str,
+    warnings: list[str],
+    *,
+    flat_idx: int,
+    event_idx: int,
+) -> list[list]:
+    """Assigns owners for ONE event's fragments (Task F2.1 fix #2): a
+    single assign call sees the event's ENTIRE fragment list together so
+    the model has the whole scene as context and can resolve a residual
+    collective/group reference ("they"/"the three of them") using sibling
+    fragments in the same scene -- unless the event is unusually large
+    (> `_ASSIGN_BATCH_SIZE` fragments), in which case it's split into
+    <=`_ASSIGN_BATCH_SIZE`-fragment sub-batches issued sequentially (rare;
+    each sub-batch still carries the full event as `scene_context`).
+    Different EVENTS are gathered concurrently by the caller
+    (`_process_chunk_atomic`), not here. Returns owners aligned index-for-
+    index to `event_fragments`."""
+    if len(event_fragments) <= _ASSIGN_BATCH_SIZE:
+        return await _assign_one_batch(
+            llm,
+            event_fragments,
+            registry,
+            hints,
+            warnings,
+            flat_idx=flat_idx,
+            event_idx=event_idx,
+            scene_context=None,
+        )
+
+    owners: list[list] = []
+    for start in range(0, len(event_fragments), _ASSIGN_BATCH_SIZE):
+        batch = event_fragments[start : start + _ASSIGN_BATCH_SIZE]
+        batch_owners = await _assign_one_batch(
+            llm,
+            batch,
+            registry,
+            hints,
+            warnings,
+            flat_idx=flat_idx,
+            event_idx=event_idx,
+            scene_context=event_fragments,
+        )
+        owners.extend(batch_owners)
+    return owners
+
+
 async def _process_chunk_atomic(
     llm,
     chunk: dict,
@@ -1010,18 +1184,20 @@ async def _process_chunk_atomic(
     warnings: list[str],
 ) -> dict:
     """Read-only LLM phase for one chunk in atomic mode: roster (state only)
-    -> atomize (event groups) -> assign (batched, thorough owners).
-    Deliberately does NOT touch `shared` -- callers run this concurrently
-    across chunks (asyncio.gather) and then deposit the returned fragments
-    sequentially in story order (consensus insert is stateful, so deposit
-    order must be preserved even though this read-only phase need not be).
+    -> atomize (event groups) -> assign, one call PER EVENT (thorough
+    owners, whole-scene context; Task F2.1 fix #2 -- events within a chunk
+    are gathered concurrently, see below). Deliberately does NOT touch
+    `shared` -- callers run this concurrently across chunks (asyncio.gather)
+    and then deposit the returned fragments sequentially in story order
+    (consensus insert is stateful, so deposit order must be preserved even
+    though this read-only phase need not be).
 
     Returns {"flat_idx": int, "state_updates": [raw update dicts, as from
     `_roster_prompt`], "events": [[(fragment_text, [owner_id, ...]), ...],
     ...]} -- one inner list per EVENT, in atomize's original event order, so
     callers can `remember_atomic` each fragment and then `link_group` the
     ids returned for that event. Fragments that end up with no owner at all
-    (no LLM-assigned owner AND no chunk-location fallback) are dropped
+    (no LLM-assigned owner AND no event/chunk-location fallback) are dropped
     (with a warning) and never appear in "events". story_time is no longer
     threaded through here (Task F2 change #5) -- it's not stored on atomic
     deposits any more, so there's nothing downstream that needs it.
@@ -1086,6 +1262,12 @@ async def _process_chunk_atomic(
                     f"{frag!r}"
                 )
                 continue
+            if _is_background_exposition_fragment(frag):
+                warnings.append(
+                    f"history atomize: chunk {flat_idx} dropped a background-exposition "
+                    f"fragment {frag!r}"
+                )
+                continue
             frags.append(frag)
         if frags:
             events.append(frags)
@@ -1093,85 +1275,104 @@ async def _process_chunk_atomic(
     if not events:
         return empty_result
 
-    flat_fragments = [f for event in events for f in event]
+    # 3. Assign call(s): owner id(s) per fragment, issued PER EVENT (Task
+    # F2.1 change #2) -- one assign call sees ONE event's fragments
+    # together (or, for an unusually large event, <=`_ASSIGN_BATCH_SIZE`-
+    # fragment sub-batches sharing the same full-event scene context) --
+    # instead of the old flat batched fragment list across the whole
+    # chunk, which lost event boundaries entirely and made it impossible
+    # to resolve a group reference like "三人" from its sibling fragments
+    # in the same scene. Different EVENTS' assign calls are independent
+    # reads -> gather them concurrently; a `CancelledError` from any event
+    # is re-raised (an external timeout/cancel scope must still see it)
+    # while any other exception degrades just that event to an
+    # all-fragments-ownerless result (event/chunk-location fallback then
+    # applies) without aborting the rest. `asyncio.gather` preserves input
+    # order in its results list regardless of completion order, so
+    # zipping against `events` keeps index alignment correct per event.
+    async def _assign_for_event(event_idx: int, event_fragments: list[str]) -> list[list]:
+        return await _assign_event(
+            llm, event_fragments, registry, hints, warnings, flat_idx=flat_idx, event_idx=event_idx
+        )
 
-    # 3. Assign call(s): owner id(s) per fragment, batched at
-    # `_ASSIGN_BATCH_SIZE` fragments per call for accuracy (Task F2 change
-    # #3) instead of the whole chunk's fragments in one shot.
-    owners_flat: list[list] = []
-    for start in range(0, len(flat_fragments), _ASSIGN_BATCH_SIZE):
-        batch = flat_fragments[start : start + _ASSIGN_BATCH_SIZE]
-        assign_prompt = _assign_prompt(batch, registry, hints)
-        raw = await llm.chat(assign_prompt, bucket="extract")
-        try:
-            owners_raw = _extract_json_block(raw)
-            if not isinstance(owners_raw, list):
-                raise ValueError("assign pass did not return a JSON array")
-        except (ValueError, json.JSONDecodeError) as exc:
+    owners_raw_results = await asyncio.gather(
+        *(_assign_for_event(i, event) for i, event in enumerate(events)), return_exceptions=True
+    )
+
+    owners_per_event_raw: list[list[list]] = []
+    for event_idx, (event, result) in enumerate(zip(events, owners_raw_results)):
+        if isinstance(result, asyncio.CancelledError):
+            raise result
+        if isinstance(result, Exception):
             warnings.append(
-                f"history assign pass failed for chunk {flat_idx}: {exc}; fragments in this "
-                "batch have no LLM-assigned owner (chunk-location fallback applies)"
+                f"history assign pass failed for chunk {flat_idx} event {event_idx}: "
+                f"{result}; fragments in this event have no LLM-assigned owner "
+                "(event/chunk-location fallback applies)"
             )
-            owners_raw = [[] for _ in batch]
+            owners_per_event_raw.append([[] for _ in event])
+            continue
+        owners_per_event_raw.append(result)
 
-        if len(owners_raw) != len(batch):
-            warnings.append(
-                f"history assign pass: chunk {flat_idx} returned {len(owners_raw)} owner "
-                f"list(s) for {len(batch)} fragment(s) in this batch; padding/truncating "
-                "defensively"
-            )
-            if len(owners_raw) < len(batch):
-                owners_raw = list(owners_raw) + [[] for _ in range(len(batch) - len(owners_raw))]
-            else:
-                owners_raw = owners_raw[: len(batch)]
-
-        owners_flat.extend(owners_raw)
-
-    # No reserved catch-all any more (Task F2 change #1): a fragment with no
-    # resolvable owner falls back to this chunk's roster-derived location
-    # id(s); if that's empty too, the fragment is dropped rather than ever
+    # No reserved catch-all any more (Task F2 change #1). Fallback for a
+    # fragment with no resolvable owner is now EVENT-LOCAL (Task F2.1 fix
+    # #3): prefer the location(s) that OTHER fragments IN THE SAME EVENT
+    # resolved to (that event's own place) over every location referenced
+    # anywhere in the chunk; only fall through to this chunk's
+    # roster-derived location(s) if the event itself named no location at
+    # all; if even that's empty, the fragment is dropped rather than ever
     # deposited ownerless.
     chunk_location_ids = _chunk_location_ids(state_updates, resolvers)
 
-    resolved_owners: list[list[str]] = []
-    for fragment, raw_owner_list in zip(flat_fragments, owners_flat):
-        owners: list[str] = []
-        if isinstance(raw_owner_list, list):
-            for ref in raw_owner_list:
-                classified = resolvers.classify(ref)
-                if classified is None:
-                    warnings.append(
-                        f"history assign: chunk {flat_idx} assigned a fragment to unknown "
-                        f"id {ref!r}; dropped"
-                    )
-                    continue
-                cid, _kind = classified
-                if cid not in owners:
-                    owners.append(cid)
-        if not owners:
-            if chunk_location_ids:
-                owners = list(chunk_location_ids)
-                warnings.append(
-                    f"history assign: chunk {flat_idx} fragment {fragment!r} had no owner; "
-                    f"falling back to chunk location(s) {chunk_location_ids!r}"
-                )
-            else:
-                warnings.append(
-                    f"history assign: chunk {flat_idx} fragment {fragment!r} had no owner and "
-                    "no chunk location to fall back to; dropped"
-                )
-        resolved_owners.append(owners)
-
-    # Regroup back into events (dropping any fragment that ended up with no
-    # owner at all) so callers can link_group each event's deposited ids.
     result_events: list[list[tuple[str, list[str]]]] = []
-    idx = 0
-    for event in events:
+    for event_idx, (event, owners_raw) in enumerate(zip(events, owners_per_event_raw)):
+        resolved_owners: list[list[str]] = []
+        for raw_owner_list in owners_raw:
+            owners: list[str] = []
+            if isinstance(raw_owner_list, list):
+                for ref in raw_owner_list:
+                    classified = resolvers.classify(ref)
+                    if classified is None:
+                        warnings.append(
+                            f"history assign: chunk {flat_idx} event {event_idx} assigned a "
+                            f"fragment to unknown id {ref!r}; dropped"
+                        )
+                        continue
+                    cid, _kind = classified
+                    if cid not in owners:
+                        owners.append(cid)
+            resolved_owners.append(owners)
+
+        # This event's own location(s): every distinct location-kind id any
+        # of ITS fragments actually resolved to, in first-seen order -- the
+        # preferred (first) source for this event's no-owner fallback.
+        event_location_ids: list[str] = []
+        for owners in resolved_owners:
+            for oid in owners:
+                classified = resolvers.classify(oid)
+                if classified is not None and classified[1] == "location" and oid not in event_location_ids:
+                    event_location_ids.append(oid)
+
         event_out: list[tuple[str, list[str]]] = []
-        for _ in event:
-            fragment = flat_fragments[idx]
-            owners = resolved_owners[idx]
-            idx += 1
+        for fragment, owners in zip(event, resolved_owners):
+            if not owners:
+                if event_location_ids:
+                    owners = list(event_location_ids)
+                    warnings.append(
+                        f"history assign: chunk {flat_idx} event {event_idx} fragment "
+                        f"{fragment!r} had no owner; falling back to this event's own "
+                        f"location(s) {event_location_ids!r}"
+                    )
+                elif chunk_location_ids:
+                    owners = list(chunk_location_ids)
+                    warnings.append(
+                        f"history assign: chunk {flat_idx} fragment {fragment!r} had no owner; "
+                        f"falling back to chunk location(s) {chunk_location_ids!r}"
+                    )
+                else:
+                    warnings.append(
+                        f"history assign: chunk {flat_idx} fragment {fragment!r} had no owner and "
+                        "no chunk location to fall back to; dropped"
+                    )
             if owners:
                 event_out.append((fragment, owners))
         if event_out:
@@ -1188,14 +1389,15 @@ async def _run_sediment_pass_atomic(
     hints: str,
     warnings: list[str],
 ) -> dict:
-    """Atomic-mode Pass 2 (Task B2, reworked in Task F2, default): `chunks`
-    a list of chunk dicts as produced by `_chunk_history_text` (chapter-
-    aware). Per chunk: one roster call (state only) -> one atomize call
-    (event groups) -> one or more assign calls (batched) -- no per-character
-    extraction, and no reserved `narrator` role (removed -- Task F2 change
-    #1). The read-only roster/atomize/assign LLM calls for ALL chunks run
-    concurrently (`asyncio.gather`, `return_exceptions=True`); a
-    `CancelledError` from any chunk is re-raised rather than swallowed (an
+    """Atomic-mode Pass 2 (Task B2, reworked in Task F2, per-event assign in
+    Task F2.1): `chunks` a list of chunk dicts as produced by
+    `_chunk_history_text` (chapter-aware). Per chunk: one roster call (state
+    only) -> one atomize call (event groups) -> one assign call PER EVENT
+    (see `_process_chunk_atomic`) -- no per-character extraction, and no
+    reserved `narrator` role (removed -- Task F2 change #1). The read-only
+    roster/atomize/assign LLM calls for ALL chunks run concurrently
+    (`asyncio.gather`, `return_exceptions=True`); a `CancelledError` from
+    any chunk is re-raised rather than swallowed (an
     external timeout/cancel scope must still see it), while any other
     exception degrades that one chunk to a skip+warning without aborting the
     rest. Once every chunk's read-only phase has resolved, deposits
@@ -1731,10 +1933,11 @@ async def extract_history(
     returns the assembled cfg dict (always has a `_warnings` list).
 
     `detail` selects the Pass 2 strategy: "atomic" (DEFAULT, Task B2,
-    reworked in Task F2) runs a roster call (state only) + one atomize call
-    (event groups) + one or more (batched) assign calls per chunk --
-    atomic, source-language, self-contained fragments each deposited once
-    via `SharedMemory.remember_atomic` under however many owner role ids
+    reworked in Task F2, per-event assign in Task F2.1) runs a roster call
+    (state only) + one atomize call (event groups) + one assign call PER
+    EVENT per chunk -- atomic, source-language, self-contained fragments
+    each deposited once via `SharedMemory.remember_atomic` under however
+    many owner role ids
     (character/location/carrier -- no reserved `narrator` id any more)
     they're assigned to, with each event's fragments linked together via
     `SharedMemory.link_group`; "exhaustive" runs a roster call + one 沉淀

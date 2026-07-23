@@ -30,6 +30,7 @@ import pytest
 from society.history_extract import (
     NARRATOR_ID,
     _chunk_location_ids,
+    _is_background_exposition_fragment,
     _is_heading_or_marker_fragment,
     _RegistryResolvers,
     _ensure_narrator_role,
@@ -104,7 +105,10 @@ async def test_process_chunk_atomic_events_multi_owner_and_location_fallback():
 
     # One event with two fragments (alice alone, then alice+bob), a second
     # event with one fragment that gets NO owner from assign -> falls back
-    # to the chunk's roster location (loc1), never to narrator.
+    # to the chunk's roster location (loc1), never to narrator. Per-event
+    # assign (Task F2.1) means these two events get TWO separate assign
+    # calls, each seeing only its own fragment(s) -- route the fake by
+    # content rather than a single flat response.
     atomize_response = json.dumps(
         [
             ["alice went to the market", "alice and bob met at the market"],
@@ -112,8 +116,19 @@ async def test_process_chunk_atomic_events_multi_owner_and_location_fallback():
         ],
         ensure_ascii=False,
     )
-    assign_response = json.dumps([["alice"], ["alice", "bob"], []], ensure_ascii=False)
-    llm = FakeLLM(fn=_routed_fake(atomize_response, assign_response))
+
+    def fake(prompt, system=None):
+        if "[atomize]" in prompt:
+            return atomize_response
+        if "[assign]" in prompt:
+            if "alice went to the market" in prompt:
+                return json.dumps([["alice"], ["alice", "bob"]], ensure_ascii=False)
+            return json.dumps([[]], ensure_ascii=False)
+        if "出场" in prompt:
+            return ROSTER_RESPONSE
+        return "[]"
+
+    llm = FakeLLM(fn=fake)
 
     result = await _process_chunk_atomic(llm, _chunk("正文"), registry, resolvers, "", warnings)
 
@@ -214,8 +229,21 @@ async def test_event_affiliation_links_same_event_not_cross_event():
         [["event A fragment one", "event A fragment two"], ["event B fragment one"]],
         ensure_ascii=False,
     )
-    assign_response = json.dumps([["alice"], ["bob"], ["alice"]], ensure_ascii=False)
-    llm = FakeLLM(fn=_routed_fake(atomize_response, assign_response))
+
+    # Per-event assign (Task F2.1): two events -> two separate assign calls,
+    # each seeing only its own fragment(s) -- route the fake by content.
+    def fake(prompt, system=None):
+        if "[atomize]" in prompt:
+            return atomize_response
+        if "[assign]" in prompt:
+            if "event A fragment one" in prompt:
+                return json.dumps([["alice"], ["bob"]], ensure_ascii=False)
+            return json.dumps([["alice"]], ensure_ascii=False)
+        if "出场" in prompt:
+            return ROSTER_RESPONSE
+        return "[]"
+
+    llm = FakeLLM(fn=fake)
     shared = _new_shared(llm)
     warnings: list[str] = []
 
@@ -549,6 +577,239 @@ async def test_assign_call_invalid_json_falls_back_to_location_for_whole_chunk()
     assert len(entries) == 2
     assert all(e["owners"] == ["loc1"] for e in entries)
     assert any("assign pass failed" in w for w in warnings)
+
+
+# ----------------------------------------------------------------------
+# 12b. Task F2.1 fix #2 -- PER-EVENT assign: group-ref resolution needs
+# whole-scene context, and two events issue two separate assign calls each
+# seeing only their own fragments.
+# ----------------------------------------------------------------------
+
+SANGUO_REGISTRY = {
+    "characters": [
+        {"id": "liubei", "name": "刘备", "aliases": [], "profile": ""},
+        {"id": "guanyu", "name": "关羽", "aliases": [], "profile": ""},
+        {"id": "zhangfei", "name": "张飞", "aliases": [], "profile": ""},
+    ],
+    "locations": [{"id": "taoyuan", "name": "桃园", "aliases": [], "profile": ""}],
+    "carriers": [],
+}
+
+
+async def test_group_ref_fragment_resolved_via_whole_event_context():
+    """The real 桃园结义 failure this task fixes: a fragment that still says
+    "三人结为兄弟" (an unresolved group reference) must be assignable to
+    liubei/guanyu/zhangfei because the assign call for its event receives
+    ALL of that event's fragments together (Task F2.1 fix #2) -- including
+    the sibling fragment that actually names the three. The fake assign
+    function below only returns the correct owners if BOTH fragments are
+    present in the same call's Fragments list, proving per-event context is
+    actually passed rather than each fragment being assigned in isolation."""
+    registry = copy.deepcopy(SANGUO_REGISTRY)
+    resolvers = _RegistryResolvers(registry)
+    warnings: list[str] = []
+
+    atomize_response = json.dumps(
+        [["刘备、关羽、张飞在桃园相遇", "三人结为兄弟"]], ensure_ascii=False
+    )
+    assign_calls: list[str] = []
+
+    def fake(prompt, system=None):
+        if "[atomize]" in prompt:
+            return atomize_response
+        if "[assign]" in prompt:
+            assign_calls.append(prompt)
+            # Only resolvable if the call sees BOTH sibling fragments.
+            if "刘备、关羽、张飞在桃园相遇" in prompt and "三人结为兄弟" in prompt:
+                return json.dumps(
+                    [["liubei", "guanyu", "zhangfei"], ["liubei", "guanyu", "zhangfei"]],
+                    ensure_ascii=False,
+                )
+            return json.dumps([[], []], ensure_ascii=False)
+        if "出场" in prompt:
+            return ROSTER_RESPONSE_NO_LOCATION
+        return "[]"
+
+    llm = FakeLLM(fn=fake)
+    result = await _process_chunk_atomic(llm, _chunk("正文"), registry, resolvers, "", warnings)
+
+    assert len(assign_calls) == 1  # one event -> one assign call
+    events = result["events"]
+    assert len(events) == 1
+    owners_by_text = {f: o for f, o in events[0]}
+    assert sorted(owners_by_text["三人结为兄弟"]) == ["guanyu", "liubei", "zhangfei"]
+    assert sorted(owners_by_text["刘备、关羽、张飞在桃园相遇"]) == ["guanyu", "liubei", "zhangfei"]
+
+
+async def test_two_events_issue_two_separate_assign_calls_each_own_fragments():
+    """Per-event assign restructure: TWO events -> TWO assign calls, and
+    each call's Fragments section contains ONLY that event's own
+    fragments (never a sibling event's)."""
+    registry = _registry()
+    resolvers = _RegistryResolvers(registry)
+    warnings: list[str] = []
+
+    atomize_response = json.dumps(
+        [["alpha event fragment"], ["beta event fragment one", "beta event fragment two"]],
+        ensure_ascii=False,
+    )
+    assign_calls: list[str] = []
+
+    def fake(prompt, system=None):
+        if "[atomize]" in prompt:
+            return atomize_response
+        if "[assign]" in prompt:
+            assign_calls.append(prompt)
+            if "alpha event fragment" in prompt:
+                return json.dumps([["alice"]], ensure_ascii=False)
+            return json.dumps([["alice"], ["bob"]], ensure_ascii=False)
+        if "出场" in prompt:
+            return ROSTER_RESPONSE
+        return "[]"
+
+    llm = FakeLLM(fn=fake)
+    result = await _process_chunk_atomic(llm, _chunk("正文"), registry, resolvers, "", warnings)
+
+    assert len(assign_calls) == 2
+    alpha_call = next(c for c in assign_calls if "alpha event fragment" in c)
+    beta_call = next(c for c in assign_calls if "beta event fragment one" in c)
+    # Each call's Fragments list is scoped to its own event only.
+    assert "beta event fragment" not in alpha_call.split("Fragments:\n", 1)[1]
+    assert "alpha event fragment" not in beta_call.split("Fragments:\n", 1)[1]
+
+    events = result["events"]
+    assert len(events) == 2
+    assert events[0] == [("alpha event fragment", ["alice"])]
+    assert dict(events[1]) == {"beta event fragment one": ["alice"], "beta event fragment two": ["bob"]}
+
+
+# ----------------------------------------------------------------------
+# 12c. Task F2.1 fix #1 (code-side heuristic half) -- background/authorial
+# exposition is dropped like a heading/marker, without over-dropping a
+# concrete event that merely mentions a dynasty.
+# ----------------------------------------------------------------------
+
+
+def test_is_background_exposition_fragment_detects_recap_not_concrete_mention():
+    assert _is_background_exposition_fragment("周末七国分争,至於秦并六国,一统天下")
+    assert _is_background_exposition_fragment("汉朝自高祖刘邦斩白蛇起义一统天下")
+    assert _is_background_exposition_fragment("话说天下大势,分久必合,合久必分")
+    # A concrete event that merely mentions a dynasty/era must NOT be dropped.
+    assert not _is_background_exposition_fragment("刘备,西汉中山靖王刘胜之后,生于涿郡")
+    assert not _is_background_exposition_fragment("关羽在桃园与刘备张飞结拜")
+
+
+async def test_background_exposition_fragment_dropped_concrete_event_kept():
+    registry = _registry()
+    resolvers = _RegistryResolvers(registry)
+    warnings: list[str] = []
+
+    atomize_response = json.dumps(
+        [["汉朝自高祖刘邦斩白蛇起义一统天下", "alice met bob at the market"]],
+        ensure_ascii=False,
+    )
+    assign_response = json.dumps([["alice", "bob"]], ensure_ascii=False)
+    llm = FakeLLM(fn=_routed_fake(atomize_response, assign_response))
+
+    result = await _process_chunk_atomic(llm, _chunk("正文"), registry, resolvers, "", warnings)
+
+    events = result["events"]
+    assert len(events) == 1
+    all_texts = [f for ev in events for f, _ in ev]
+    assert "汉朝自高祖刘邦斩白蛇起义一统天下" not in all_texts
+    assert "alice met bob at the market" in all_texts
+    assert any("background-exposition fragment" in w for w in warnings)
+
+
+# ----------------------------------------------------------------------
+# 12d. Task F2.1 fix #3 -- EVENT-LOCAL fallback: an ownerless fragment
+# prefers its OWN event's sibling-resolved location over the chunk's
+# roster location (or any other chunk location), and only falls through to
+# the chunk-wide location when its own event named none.
+# ----------------------------------------------------------------------
+
+MULTI_LOC_REGISTRY = {
+    "characters": [{"id": "alice", "name": "甲", "aliases": [], "profile": ""}],
+    "locations": [
+        {"id": "loc1", "name": "集市", "aliases": [], "profile": ""},
+        {"id": "loc2", "name": "皇宫", "aliases": [], "profile": ""},
+        {"id": "loc3", "name": "校场", "aliases": [], "profile": ""},
+        {"id": "loc4", "name": "驿站", "aliases": [], "profile": ""},
+        {"id": "loc5", "name": "桃园", "aliases": [], "profile": ""},
+    ],
+    "carriers": [],
+}
+
+
+async def test_ownerless_fragment_prefers_own_event_location_over_chunk_locations():
+    """Mirrors the real 桃园结义 failure: the chunk's roster references
+    SEVERAL locations (loc1..loc4, like the real daxingshan/guangzong/
+    luoyang/yingchuan bug), but this fragment's own EVENT resolved a
+    sibling fragment to loc5 -- the ownerless fragment must get loc5 only,
+    never the unrelated chunk-wide locations."""
+    registry = copy.deepcopy(MULTI_LOC_REGISTRY)
+    resolvers = _RegistryResolvers(registry)
+    warnings: list[str] = []
+
+    roster_response = json.dumps(
+        {
+            "characters": [],
+            "state_updates": [
+                {"id": "alice", "location": "loc1", "alive": True},
+                {"id": "alice", "location": "loc2", "alive": True},
+                {"id": "alice", "location": "loc3", "alive": True},
+                {"id": "alice", "location": "loc4", "alive": True},
+            ],
+            "story_time": "t1",
+        },
+        ensure_ascii=False,
+    )
+    atomize_response = json.dumps(
+        [["something happened at loc5", "a related but unowned happening at loc5"]],
+        ensure_ascii=False,
+    )
+    assign_response = json.dumps([["loc5"], []], ensure_ascii=False)
+    llm = FakeLLM(fn=_routed_fake(atomize_response, assign_response, roster_response=roster_response))
+
+    result = await _process_chunk_atomic(llm, _chunk("正文"), registry, resolvers, "", warnings)
+
+    events = result["events"]
+    assert len(events) == 1
+    owners_by_text = dict(events[0])
+    assert owners_by_text["a related but unowned happening at loc5"] == ["loc5"]
+    assert any("falling back to this event's own location" in w for w in warnings)
+    assert not any("falling back to chunk location" in w for w in warnings)
+
+
+async def test_ownerless_fragment_falls_through_to_chunk_location_when_event_has_none():
+    """When the fragment's own event named NO location at all, fallback
+    goes to the chunk's roster-derived location(s) -- the second-priority
+    source, unchanged from Task F2."""
+    registry = copy.deepcopy(MULTI_LOC_REGISTRY)
+    resolvers = _RegistryResolvers(registry)
+    warnings: list[str] = []
+
+    roster_response = json.dumps(
+        {
+            "characters": [],
+            "state_updates": [{"id": "alice", "location": "loc1", "alive": True}],
+            "story_time": "t1",
+        },
+        ensure_ascii=False,
+    )
+    # Neither fragment in this event resolves to any location.
+    atomize_response = json.dumps(
+        [["alice did something", "something else happened with no owner"]], ensure_ascii=False
+    )
+    assign_response = json.dumps([["alice"], []], ensure_ascii=False)
+    llm = FakeLLM(fn=_routed_fake(atomize_response, assign_response, roster_response=roster_response))
+
+    result = await _process_chunk_atomic(llm, _chunk("正文"), registry, resolvers, "", warnings)
+
+    events = result["events"]
+    owners_by_text = dict(events[0])
+    assert owners_by_text["something else happened with no owner"] == ["loc1"]
+    assert any("falling back to chunk location" in w for w in warnings)
 
 
 # ----------------------------------------------------------------------
