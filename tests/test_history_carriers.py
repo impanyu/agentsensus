@@ -4,7 +4,7 @@
 sentence memory-entries: one extraction LLM call per carrier returns its
 content as a JSON array of sentence strings, each deposited via
 `SharedMemory.remember_atomic([carrier_id], sentence, source="document",
-readable=True, story_order=...)`, then chained i -> i+1 via
+story_order=...)`, then chained i -> i+1 via
 `SharedMemory.add_affiliations` (directional, NOT the symmetric
 `link_group`). This is purely ADDITIVE to the LTM -- it must never touch
 `_assemble_history_scenario` or `_write_corpora`.
@@ -57,11 +57,11 @@ def _routed_extract(by_carrier: dict[str, str], default: str = "[]"):
 
 # ----------------------------------------------------------------------
 # 1. Basic case: one carrier, 3-sentence JSON array -> 3 entries, each
-#    owned by the carrier, each readable=True.
+#    owned by the carrier.
 # ----------------------------------------------------------------------
 
 
-async def test_sediment_carriers_deposits_three_entries_owned_and_readable():
+async def test_sediment_carriers_deposits_three_entries_owned():
     registry = _registry()
     sentences = ["一封信的第一句", "一封信的第二句", "一封信的第三句"]
     llm = FakeLLM(fn=_routed_extract({"一封信": json.dumps(sentences, ensure_ascii=False)}))
@@ -78,7 +78,6 @@ async def test_sediment_carriers_deposits_three_entries_owned_and_readable():
     assert texts == set(sentences)
     for e in entries:
         assert e["owners"] == ["letter1"]
-        assert e["readable"] is True
         assert e["meta"]["source"] == "document"
     assert warnings == []
 
@@ -332,8 +331,6 @@ async def test_extract_history_end_to_end_includes_carrier_chain_in_ltm_export(t
     assert len(letter_entries) == 2
     texts = {e["text"] for e in letter_entries}
     assert texts == set(carrier_sentences)
-    for e in letter_entries:
-        assert e["readable"] is True
 
     by_text = {e["text"]: e for e in letter_entries}
     s0, s1 = by_text["信中第一句"], by_text["信中第二句"]

@@ -124,7 +124,6 @@ class SharedMemory:
         story_order: int | None = None,
         story_time: str | None = None,
         affiliated: list[str] | None = None,
-        readable: bool = False,
     ) -> dict:
         embedding = (await self._embed_fn([text]))[0]
 
@@ -172,7 +171,6 @@ class SharedMemory:
                 "created_at": _now_iso(),
                 "source": source,
                 "tick": tick,
-                "readable": bool(readable),
             }
             for o in new_owners:
                 metadata[f"owner_{o}"] = True
@@ -192,7 +190,6 @@ class SharedMemory:
                 "merged": False,
                 "owners": new_owners,
                 "affiliated": new_affiliated,
-                "readable": bool(readable),
             }
 
         candidate = candidates[match_idx]
@@ -206,11 +203,6 @@ class SharedMemory:
             (existing_affiliated | set(affiliated or [])) - {cid}
         )
 
-        # readable is a union/logical-OR, same spirit as owners: once an entry
-        # becomes readable (via any contributing deposit), it stays readable.
-        existing_readable = bool(meta.get("readable", False))
-        merged_readable = existing_readable or bool(readable)
-
         keep_text = candidate["text"]
         update_kwargs = {}
         if len(text) < len(candidate["text"]):
@@ -222,7 +214,6 @@ class SharedMemory:
             "owners": json.dumps(merged_owners),
             "affiliated": json.dumps(merged_affiliated),
             "tick": tick,
-            "readable": merged_readable,
         }
         for o in new_owners:
             update_metadata[f"owner_{o}"] = True
@@ -254,7 +245,6 @@ class SharedMemory:
             "merged": True,
             "owners": merged_owners,
             "affiliated": merged_affiliated,
-            "readable": merged_readable,
         }
 
     # ------------------------------------------------------------------
@@ -300,7 +290,6 @@ class SharedMemory:
         story_order: int | None = None,
         story_time: str | None = None,
         affiliated: list[str] | None = None,
-        readable: bool = False,
     ) -> dict | None:
         """Deposit a PRE-ATOMIZED fragment (already one complete event) owned by
         `owners` (list[str], >=1). Skips the normalize/split gate (the caller has
@@ -311,14 +300,7 @@ class SharedMemory:
         `affiliated` (list[str] or None) seeds the entry's related-memory set
         (ids of other memory entries). On a fresh insert it's stored as-is
         (deduped, self-id excluded once known); on a consensus merge it's
-        UNIONed with the matched entry's existing affiliated set.
-
-        `readable` (bool, default False) is a visibility flag separate from
-        ownership: it does NOT affect `recall` (which stays owner-private and
-        unchanged). It's storage for a future `read` action that lets other
-        agents read (not recall) an entry. On a consensus merge it is
-        logical-OR'd with the matched entry's existing readable flag (once
-        True, stays True -- same spirit as the owners union)."""
+        UNIONed with the matched entry's existing affiliated set."""
         text = text.strip()
         if not text:
             return None
@@ -334,7 +316,6 @@ class SharedMemory:
             story_order=story_order,
             story_time=story_time,
             affiliated=affiliated,
-            readable=readable,
         )
 
     async def recall(self, agent_id: str, query: str, top_k: int = 5) -> list[dict]:
@@ -376,30 +357,6 @@ class SharedMemory:
                 ],
             )
         return True
-
-    def set_readable(self, memory_id: str, value: bool) -> bool:
-        """Set an entry's `readable` flag directly (partial metadata update,
-        same pattern as owners/affiliated mutators). Lets a cheap post-sediment
-        pass flip visibility without re-extraction. Returns False if
-        memory_id doesn't exist. Does NOT affect `recall` (owner-private,
-        unchanged)."""
-        got = self._collection.get(ids=[memory_id], include=["metadatas"])
-        if not got["ids"]:
-            return False
-        self._collection.update(
-            ids=[memory_id], metadatas=[{"readable": bool(value)}]
-        )
-        return True
-
-    def readable_entries_of(self, owner_id: str) -> list[dict]:
-        """Return owner_id's entries where readable is True, as
-        [{"id", "text"}]. Building block for a future `read` action that lets
-        other agents read (not recall) an owner's readable memories."""
-        return [
-            {"id": e["id"], "text": e["text"]}
-            for e in self.all_entries()
-            if owner_id in e["owners"] and e["readable"]
-        ]
 
     # ------------------------------------------------------------------
     # affiliated-memory graph (related-memory CRUD)
@@ -476,7 +433,7 @@ class SharedMemory:
 
     def all_entries(self) -> list[dict]:
         """Return every stored entry as
-        {"id", "text", "owners", "affiliated", "readable", "meta"}."""
+        {"id", "text", "owners", "affiliated", "meta"}."""
         if self._collection.count() == 0:
             return []
         got = self._collection.get(include=["documents", "metadatas"])
@@ -484,14 +441,12 @@ class SharedMemory:
         for eid, doc, meta in zip(got["ids"], got["documents"], got["metadatas"]):
             owners = sorted(json.loads(meta.get("owners", "[]")))
             affiliated = sorted(json.loads(meta.get("affiliated", "[]") or "[]"))
-            readable = bool(meta.get("readable", False))
             entries.append(
                 {
                     "id": eid,
                     "text": doc,
                     "owners": owners,
                     "affiliated": affiliated,
-                    "readable": readable,
                     "meta": meta,
                 }
             )
@@ -500,9 +455,9 @@ class SharedMemory:
     def export(self) -> list[dict]:
         """Holographic export: every entry with its embedding, for checkpointing.
 
-        Returns a list of {"id", "text", "owners", "affiliated", "readable",
-        "meta", "embedding"}, where "meta" is {"created_at", "source", "tick"}
-        (plus "story_order" / "story_time" when the entry carries them) and
+        Returns a list of {"id", "text", "owners", "affiliated", "meta",
+        "embedding"}, where "meta" is {"created_at", "source", "tick"} (plus
+        "story_order" / "story_time" when the entry carries them) and
         "embedding" is the raw vector (list[float]) fetched straight from the
         collection.
         """
@@ -516,7 +471,6 @@ class SharedMemory:
         ):
             owners = sorted(json.loads(meta.get("owners", "[]")))
             affiliated = sorted(json.loads(meta.get("affiliated", "[]") or "[]"))
-            readable = bool(meta.get("readable", False))
             embedding = None
             if embeddings is not None:
                 vec = embeddings[i]
@@ -537,7 +491,6 @@ class SharedMemory:
                     "text": doc,
                     "owners": owners,
                     "affiliated": affiliated,
-                    "readable": readable,
                     "meta": meta_out,
                     "embedding": embedding,
                 }
@@ -568,12 +521,10 @@ class SharedMemory:
         for i, entry in enumerate(entries):
             owners = entry.get("owners", [])
             affiliated = entry.get("affiliated", []) or []
-            readable = bool(entry.get("readable", False))
             meta = entry.get("meta", {}) or {}
             metadata = {
                 "owners": json.dumps(list(owners)),
                 "affiliated": json.dumps(list(affiliated)),
-                "readable": readable,
             }
             for key in ("created_at", "source", "tick", "story_order", "story_time"):
                 value = meta.get(key)

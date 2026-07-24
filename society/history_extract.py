@@ -1539,9 +1539,9 @@ async def _sediment_carriers(
          SEQUENTIALLY (consensus insert + chaining are stateful, exactly why
          the event-deposit loop above is sequential too): each sentence is
          deposited via `shared.remember_atomic([carrier_id], sentence,
-         source="document", readable=True, story_order=<monotonic>)` in
-         array order, skipping any that come back None (empty after
-         stripping). `story_order` is a single counter shared across every
+         source="document", story_order=<monotonic>)` in array order,
+         skipping any that come back None (empty after stripping).
+         `story_order` is a single counter shared across every
          carrier's sentences, starting at `story_order_base` (callers pass
          something that sorts AFTER every event memory's story_order, e.g.
          `(num_chunks + 1) * 1000`) and incrementing by 1 per DEPOSITED
@@ -1610,7 +1610,6 @@ async def _sediment_carriers(
                 [cid],
                 sentence,
                 source="document",
-                readable=True,
                 story_order=story_order,
             )
             story_order += 1
@@ -2230,7 +2229,7 @@ async def extract_history(
     _write_corpora(carriers, corpora_dir)
 
     # Task F4: sediment each info_carrier's own content as a chained
-    # (i -> i+1) run of readable document entries, ADDITIVE to the LTM --
+    # (i -> i+1) run of document entries, ADDITIVE to the LTM --
     # AFTER the Pass-2 event sediment above has deposited into `shared` and
     # BEFORE the holographic export below so the chains are included in it.
     # Does not touch `registry`, the info_carrier agent build above, or
