@@ -1,0 +1,11 @@
+{
+ "name": "red_chamber",
+ "ok": true,
+ "wall_clock_s": 7728.1,
+ "memories": 6506,
+ "usage": {
+  "calls": 848,
+  "tokens": 8517933
+ },
+ "warnings": 222
+}
