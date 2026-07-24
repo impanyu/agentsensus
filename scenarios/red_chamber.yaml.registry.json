@@ -1550,12 +1550,6 @@
       "profile": "府内偏僻可通行的小门。"
     },
     {
-      "id": "narrator",
-      "name": "Narrator/旁白",
-      "aliases": [],
-      "profile": "Reserved catch-all owner for scene-setting/narration fragments with no clear character or location owner."
-    },
-    {
       "id": "yihongyuanmenwai",
       "name": "怡红院门外",
       "aliases": [],

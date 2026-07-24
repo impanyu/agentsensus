@@ -730,12 +730,6 @@
       "profile": "奥地利皇宫"
     },
     {
-      "id": "narrator",
-      "name": "Narrator/旁白",
-      "aliases": [],
-      "profile": "Reserved catch-all owner for scene-setting/narration fragments with no clear character or location owner."
-    },
-    {
       "id": "road_to_brunn",
       "name": "Road to Brünn",
       "aliases": [

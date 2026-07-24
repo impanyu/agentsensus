@@ -115,7 +115,11 @@ def curate(name, T):
 
 
 def main():
+    import sys
+    only = set(sys.argv[1].split(",")) if len(sys.argv) > 1 else None
     for name, T in THRESHOLDS.items():
+        if only is not None and name not in only:
+            continue
         r = curate(name, T)
         print(json.dumps(r, ensure_ascii=False))
 

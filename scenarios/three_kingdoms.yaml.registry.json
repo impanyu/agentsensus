@@ -3262,12 +3262,6 @@
       "profile": "隐约出现地点。"
     },
     {
-      "id": "narrator",
-      "name": "Narrator/旁白",
-      "aliases": [],
-      "profile": "Reserved catch-all owner for scene-setting/narration fragments with no clear character or location owner."
-    },
-    {
       "id": "nanpi",
       "name": "南皮",
       "aliases": [],
@@ -3302,6 +3296,30 @@
       "name": "箕山",
       "aliases": [],
       "profile": "颍川名山，许由隐居地，亦为汉末隐逸象征。"
+    },
+    {
+      "id": "xiangli",
+      "name": "乡里",
+      "aliases": [],
+      "profile": "泛指人物的故乡或原籍地，如刘备的涿县乡里、关羽的解良乡里等。"
+    },
+    {
+      "id": "shanzhong",
+      "name": "山中",
+      "aliases": [],
+      "profile": "泛指深山之地，常为隐士藏身或军队伏兵之处。"
+    },
+    {
+      "id": "hongnong",
+      "name": "弘农",
+      "aliases": [],
+      "profile": "司隶弘农郡，汉末京畿要地，杨彪等出身之处。"
+    },
+    {
+      "id": "yewang",
+      "name": "野王",
+      "aliases": [],
+      "profile": "河内郡野王县，张杨曾屯驻于此。"
     }
   ],
   "carriers": [

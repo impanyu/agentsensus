@@ -3348,12 +3348,6 @@
       "name": "Nestryha Island",
       "aliases": [],
       "profile": "乌克兰第聂伯河三角洲岛屿"
-    },
-    {
-      "id": "narrator",
-      "name": "Narrator/旁白",
-      "aliases": [],
-      "profile": "Reserved catch-all owner for scene-setting/narration fragments with no clear character or location owner."
     }
   ],
   "carriers": []
