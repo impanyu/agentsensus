@@ -81,14 +81,6 @@ agents:
     location: olenivka
   goals: []
   name: Serhiy Haidai
-- id: malyar
-  kind: character
-  brain: llm
-  profile: 乌克兰国防部副部长
-  status:
-    location: olenivka
-  goals: []
-  name: Hanna Malyar
 - id: zaluzhnyi
   kind: character
   brain: llm
@@ -137,14 +129,6 @@ agents:
     location: olenivka
   goals: []
   name: Andriy Yermak
-- id: vereshchuk
-  kind: character
-  brain: llm
-  profile: 乌克兰副总理
-  status:
-    location: olenivka
-  goals: []
-  name: Iryna Vereshchuk
 - id: kuleba
   kind: character
   brain: llm
@@ -161,14 +145,6 @@ agents:
     location: olenivka
   goals: []
   name: Pavlo Kyrylenko
-- id: kozytskyy
-  kind: character
-  brain: llm
-  profile: 乌克兰利沃夫州州长
-  status:
-    location: lviv
-  goals: []
-  name: Maksym Kozytskyy
 - id: zhyvytskyi
   kind: character
   brain: llm
@@ -185,14 +161,6 @@ agents:
     location: lviv
   goals: []
   name: Recep Tayyip Erdoğan
-- id: dvornikov
-  kind: character
-  brain: llm
-  profile: 俄罗斯军队指挥官
-  status:
-    location: olenivka
-  goals: []
-  name: Aleksandr Dvornikov
 - id: reznich
   kind: character
   brain: llm
@@ -257,6 +225,14 @@ agents:
     location: olenivka
   goals: []
   name: Igor Konashenkov
+- id: wallace
+  kind: character
+  brain: llm
+  profile: 英国国防大臣
+  status:
+    location: olenivka
+  goals: []
+  name: Ben Wallace
 - id: grossi
   kind: character
   brain: llm
@@ -289,22 +265,6 @@ agents:
     location: bucharest
   goals: []
   name: Jens Stoltenberg
-- id: surovikin
-  kind: character
-  brain: llm
-  profile: 俄罗斯军队将领，曾任对乌特别军事行动总指挥
-  status:
-    location: olenivka
-  goals: []
-  name: Sergey Surovikin
-- id: von_der_leyen
-  kind: character
-  brain: llm
-  profile: 欧盟委员会主席
-  status:
-    location: olenivka
-  goals: []
-  name: Ursula von der Leyen
 - id: kirby_john
   kind: character
   brain: llm
@@ -313,6 +273,14 @@ agents:
     location: olenivka
   goals: []
   name: John Kirby
+- id: patriarch_kirill
+  kind: character
+  brain: llm
+  profile: 俄罗斯东正教大牧首
+  status:
+    location: olenivka
+  goals: []
+  name: Patriarch Kirill
 - id: gerasimov
   kind: character
   brain: llm
@@ -329,14 +297,14 @@ agents:
     location: olenivka
   goals: []
   name: Boris Pistorius
-- id: medvedev
+- id: sunak
   kind: character
   brain: llm
-  profile: 俄罗斯联邦安全会议副主席
+  profile: 英国首相
   status:
     location: olenivka
   goals: []
-  name: Dmitry Medvedev
+  name: Rishi Sunak
 - id: aksyonov
   kind: character
   brain: llm
@@ -353,22 +321,6 @@ agents:
     location: olenivka
   goals: []
   name: Oleksandr Prokudin
-- id: prigozhin
-  kind: character
-  brain: llm
-  profile: 瓦格纳集团创始人
-  status:
-    location: olenivka
-  goals: []
-  name: Yevgeny Prigozhin
-- id: zakharova
-  kind: character
-  brain: llm
-  profile: 俄罗斯外交部发言人
-  status:
-    location: olenivka
-  goals: []
-  name: Maria Zakharova
 - id: razvozhayev
   kind: character
   brain: llm
@@ -385,22 +337,6 @@ agents:
     location: olenivka
   goals: []
   name: Oleh Syniehubov
-- id: fedorov
-  kind: character
-  brain: llm
-  profile: 乌克兰梅利托波尔市长
-  status:
-    location: olenivka
-  goals: []
-  name: Ivan Fedorov
-- id: macron
-  kind: character
-  brain: llm
-  profile: 法国总统
-  status:
-    location: olenivka
-  goals: []
-  name: Emmanuel Macron
 - id: klymenko
   kind: character
   brain: llm
@@ -417,14 +353,6 @@ agents:
     location: olenivka
   goals: []
   name: Kyrylo Budanov
-- id: tarnavskyi
-  kind: character
-  brain: llm
-  profile: 乌克兰塔夫里亚作战集团指挥官
-  status:
-    location: olenivka
-  goals: []
-  name: Oleksandr Tarnavskyi
 - id: oleshchuk
   kind: character
   brain: llm
@@ -593,11 +521,6 @@ agents:
   brain: rule
   profile: 乌克兰扎波罗热州港口城市
   name: Berdiansk
-- id: bucha
-  kind: environment
-  brain: rule
-  profile: 乌克兰基辅州城市
-  name: Bucha
 - id: kremenchuk
   kind: environment
   brain: rule
@@ -648,11 +571,6 @@ agents:
   brain: rule
   profile: 乌克兰顿涅茨克州
   name: Donetsk Oblast
-- id: lysychansk
-  kind: environment
-  brain: rule
-  profile: 乌克兰卢甘斯克州城市
-  name: Lysychansk
 - id: odesa_oblast
   kind: environment
   brain: rule
@@ -668,11 +586,11 @@ agents:
   brain: rule
   profile: 乌克兰顿涅茨克州城市
   name: Bakhmut
-- id: kupiansk
+- id: eastern_ukraine
   kind: environment
   brain: rule
-  profile: 乌克兰哈尔科夫州城市
-  name: Kupiansk
+  profile: 乌克兰东部地区
+  name: eastern Ukraine
 - id: vovchansk
   kind: environment
   brain: rule
@@ -723,11 +641,6 @@ agents:
   brain: rule
   profile: 匈牙利
   name: Hungary
-- id: nizhniy_novgorod_oblast
-  kind: environment
-  brain: rule
-  profile: 俄罗斯下诺夫哥罗德州
-  name: Nizhniy Novgorod Oblast
 - id: pokrovsk
   kind: environment
   brain: rule
@@ -763,11 +676,21 @@ agents:
   brain: rule
   profile: 莫斯科谢列梅捷沃机场
   name: Sheremetyevo
+- id: zhunovsky_airport
+  kind: environment
+  brain: rule
+  profile: 莫斯科茹科夫斯基机场
+  name: Zhunovsky airports
 - id: olenivka
   kind: environment
   brain: rule
   profile: 乌克兰顿涅茨克州城市
   name: Olenivka
+- id: mykolaiv_oblast
+  kind: environment
+  brain: rule
+  profile: 乌克兰尼古拉耶夫州
+  name: Mykolaiv Oblast
 - id: kyiv_oblast
   kind: environment
   brain: rule
@@ -778,6 +701,154 @@ agents:
   brain: rule
   profile: 俄罗斯莫斯科州
   name: Moscow Oblast
+- id: krasnodar_krai
+  kind: environment
+  brain: rule
+  profile: 俄罗斯克拉斯诺达尔边疆区
+  name: Krasnodar Krai
+- id: brussels
+  kind: environment
+  brain: rule
+  name: Brussels
+  profile: 比利时首都,北约与欧盟总部所在地
+- id: new_york
+  kind: environment
+  brain: rule
+  name: New York
+  profile: 联合国总部所在地
+- id: vienna
+  kind: environment
+  brain: rule
+  name: Vienna
+  profile: 奥地利首都,国际原子能机构总部所在地
+- id: russian_forces
+  kind: character
+  brain: llm
+  name: Russian Armed Forces
+  profile: 俄罗斯武装力量:俄军(陆海空天)整体,执行入侵作战、导弹与无人机打击
+  goals: []
+  status:
+    location: russia
+- id: russian_mod
+  kind: character
+  brain: llm
+  name: Russian Ministry of Defence
+  profile: 俄罗斯国防部:战况通报与军事决策
+  goals: []
+  status:
+    location: moscow
+- id: kremlin
+  kind: character
+  brain: llm
+  name: Kremlin
+  profile: 克里姆林宫/俄联邦政府:政治决策中枢(动员令、并吞、谈判立场)
+  goals: []
+  status:
+    location: moscow
+- id: black_sea_fleet
+  kind: character
+  brain: llm
+  name: Russian Black Sea Fleet
+  profile: 俄黑海舰队:黑海作战与封锁(莫斯科号、塞瓦斯托波尔)
+  goals: []
+  status:
+    location: crimea
+- id: wagner_group
+  kind: character
+  brain: llm
+  name: Wagner Group
+  profile: 瓦格纳雇佣兵集团:巴赫穆特攻坚、2023-06 兵变
+  goals: []
+  status:
+    location: russia
+- id: fsb
+  kind: character
+  brain: llm
+  name: FSB
+  profile: 俄联邦安全局:情报与国内安全(克里米亚大桥调查、抓捕)
+  goals: []
+  status:
+    location: moscow
+- id: ukrainian_forces
+  kind: character
+  brain: llm
+  name: Armed Forces of Ukraine
+  profile: 乌克兰武装部队:防御反攻、防空拦截、战报主体
+  goals: []
+  status:
+    location: ukraine
+- id: ukrainian_mod
+  kind: character
+  brain: llm
+  name: Ministry of Defence of Ukraine
+  profile: 乌克兰国防部:军事政策与战况通报
+  goals: []
+  status:
+    location: kyiv
+- id: ukrainian_government
+  kind: character
+  brain: llm
+  name: Government of Ukraine
+  profile: 乌克兰政府:民事决策(戒严、外交、重建、求援)
+  goals: []
+  status:
+    location: kyiv
+- id: gur
+  kind: character
+  brain: llm
+  name: Defence Intelligence of Ukraine (GUR)
+  profile: 乌国防情报总局:军事情报与特种行动
+  goals: []
+  status:
+    location: kyiv
+- id: sbu
+  kind: character
+  brain: llm
+  name: Security Service of Ukraine (SBU)
+  profile: 乌克兰安全局:反谍与安全行动
+  goals: []
+  status:
+    location: kyiv
+- id: azov_regiment
+  kind: character
+  brain: llm
+  name: Azov Regiment
+  profile: 亚速团:马里乌波尔/亚速钢铁厂防御战当事部队
+  goals: []
+  status:
+    location: mariupol
+- id: nato
+  kind: character
+  brain: llm
+  name: NATO
+  profile: 北约:军援协调、东翼增兵、瑞典芬兰入盟进程
+  goals: []
+  status:
+    location: brussels
+- id: eu
+  kind: character
+  brain: llm
+  name: European Union
+  profile: 欧盟:制裁方案、财政援助、候选国地位
+  goals: []
+  status:
+    location: brussels
+- id: un
+  kind: character
+  brain: llm
+  name: United Nations
+  profile: 联合国:决议、黑海粮食协议斡旋、人道通道
+  goals: []
+  status:
+    location: new_york
+- id: iaea
+  kind: character
+  brain: llm
+  name: IAEA
+  profile: 国际原子能机构:扎波罗热核电站安全危机核心机构
+  goals: []
+  status:
+    location: vienna
 map:
   default_distance: 20
   edges: []

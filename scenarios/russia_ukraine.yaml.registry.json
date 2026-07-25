@@ -943,6 +943,160 @@
       "name": "Anton Yakimenko",
       "aliases": [],
       "profile": "乌克兰官员"
+    },
+    {
+      "id": "russian_forces",
+      "name": "Russian Armed Forces",
+      "aliases": [
+        "Russian forces",
+        "Russian troops",
+        "Russian military",
+        "Russian army",
+        "俄军"
+      ],
+      "profile": "俄罗斯武装力量:俄军(陆海空天)整体,执行入侵作战、导弹与无人机打击"
+    },
+    {
+      "id": "russian_mod",
+      "name": "Russian Ministry of Defence",
+      "aliases": [
+        "Russian Defense Ministry",
+        "Russian Defence Ministry",
+        "Russia's Ministry of Defence"
+      ],
+      "profile": "俄罗斯国防部:战况通报与军事决策"
+    },
+    {
+      "id": "kremlin",
+      "name": "Kremlin",
+      "aliases": [
+        "Russian government",
+        "Moscow government",
+        "Russian presidential administration"
+      ],
+      "profile": "克里姆林宫/俄联邦政府:政治决策中枢(动员令、并吞、谈判立场)"
+    },
+    {
+      "id": "black_sea_fleet",
+      "name": "Russian Black Sea Fleet",
+      "aliases": [
+        "Black Sea Fleet"
+      ],
+      "profile": "俄黑海舰队:黑海作战与封锁(莫斯科号、塞瓦斯托波尔)"
+    },
+    {
+      "id": "wagner_group",
+      "name": "Wagner Group",
+      "aliases": [
+        "Wagner",
+        "Wagner PMC",
+        "Wagner mercenaries"
+      ],
+      "profile": "瓦格纳雇佣兵集团:巴赫穆特攻坚、2023-06 兵变"
+    },
+    {
+      "id": "fsb",
+      "name": "FSB",
+      "aliases": [
+        "Federal Security Service"
+      ],
+      "profile": "俄联邦安全局:情报与国内安全(克里米亚大桥调查、抓捕)"
+    },
+    {
+      "id": "ukrainian_forces",
+      "name": "Armed Forces of Ukraine",
+      "aliases": [
+        "Ukrainian forces",
+        "Ukrainian troops",
+        "Ukrainian military",
+        "Ukrainian army",
+        "AFU",
+        "ZSU",
+        "乌军"
+      ],
+      "profile": "乌克兰武装部队:防御反攻、防空拦截、战报主体"
+    },
+    {
+      "id": "ukrainian_mod",
+      "name": "Ministry of Defence of Ukraine",
+      "aliases": [
+        "Ukrainian Defense Ministry",
+        "Ukraine's Ministry of Defence"
+      ],
+      "profile": "乌克兰国防部:军事政策与战况通报"
+    },
+    {
+      "id": "ukrainian_government",
+      "name": "Government of Ukraine",
+      "aliases": [
+        "Ukrainian government",
+        "Kyiv government",
+        "Zelenskyy administration"
+      ],
+      "profile": "乌克兰政府:民事决策(戒严、外交、重建、求援)"
+    },
+    {
+      "id": "gur",
+      "name": "Defence Intelligence of Ukraine (GUR)",
+      "aliases": [
+        "GUR",
+        "HUR",
+        "Ukrainian military intelligence"
+      ],
+      "profile": "乌国防情报总局:军事情报与特种行动"
+    },
+    {
+      "id": "sbu",
+      "name": "Security Service of Ukraine (SBU)",
+      "aliases": [
+        "SBU"
+      ],
+      "profile": "乌克兰安全局:反谍与安全行动"
+    },
+    {
+      "id": "azov_regiment",
+      "name": "Azov Regiment",
+      "aliases": [
+        "Azov",
+        "Azov Battalion",
+        "Azov Brigade"
+      ],
+      "profile": "亚速团:马里乌波尔/亚速钢铁厂防御战当事部队"
+    },
+    {
+      "id": "nato",
+      "name": "NATO",
+      "aliases": [
+        "North Atlantic Treaty Organization"
+      ],
+      "profile": "北约:军援协调、东翼增兵、瑞典芬兰入盟进程"
+    },
+    {
+      "id": "eu",
+      "name": "European Union",
+      "aliases": [
+        "EU",
+        "European Commission"
+      ],
+      "profile": "欧盟:制裁方案、财政援助、候选国地位"
+    },
+    {
+      "id": "un",
+      "name": "United Nations",
+      "aliases": [
+        "UN",
+        "United Nations Security Council",
+        "UNSC"
+      ],
+      "profile": "联合国:决议、黑海粮食协议斡旋、人道通道"
+    },
+    {
+      "id": "iaea",
+      "name": "IAEA",
+      "aliases": [
+        "International Atomic Energy Agency"
+      ],
+      "profile": "国际原子能机构:扎波罗热核电站安全危机核心机构"
     }
   ],
   "locations": [
@@ -3348,6 +3502,24 @@
       "name": "Nestryha Island",
       "aliases": [],
       "profile": "乌克兰第聂伯河三角洲岛屿"
+    },
+    {
+      "id": "brussels",
+      "name": "Brussels",
+      "aliases": [],
+      "profile": "比利时首都,北约与欧盟总部所在地"
+    },
+    {
+      "id": "new_york",
+      "name": "New York",
+      "aliases": [],
+      "profile": "联合国总部所在地"
+    },
+    {
+      "id": "vienna",
+      "name": "Vienna",
+      "aliases": [],
+      "profile": "奥地利首都,国际原子能机构总部所在地"
     }
   ],
   "carriers": []

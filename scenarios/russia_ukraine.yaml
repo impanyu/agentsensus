@@ -3214,6 +3214,149 @@ agents:
   brain: rule
   profile: 乌克兰第聂伯河三角洲岛屿
   name: Nestryha Island
+- id: brussels
+  kind: environment
+  brain: rule
+  name: Brussels
+  profile: 比利时首都,北约与欧盟总部所在地
+- id: new_york
+  kind: environment
+  brain: rule
+  name: New York
+  profile: 联合国总部所在地
+- id: vienna
+  kind: environment
+  brain: rule
+  name: Vienna
+  profile: 奥地利首都,国际原子能机构总部所在地
+- id: russian_forces
+  kind: character
+  brain: llm
+  name: Russian Armed Forces
+  profile: 俄罗斯武装力量:俄军(陆海空天)整体,执行入侵作战、导弹与无人机打击
+  goals: []
+  status:
+    location: russia
+- id: russian_mod
+  kind: character
+  brain: llm
+  name: Russian Ministry of Defence
+  profile: 俄罗斯国防部:战况通报与军事决策
+  goals: []
+  status:
+    location: moscow
+- id: kremlin
+  kind: character
+  brain: llm
+  name: Kremlin
+  profile: 克里姆林宫/俄联邦政府:政治决策中枢(动员令、并吞、谈判立场)
+  goals: []
+  status:
+    location: moscow
+- id: black_sea_fleet
+  kind: character
+  brain: llm
+  name: Russian Black Sea Fleet
+  profile: 俄黑海舰队:黑海作战与封锁(莫斯科号、塞瓦斯托波尔)
+  goals: []
+  status:
+    location: crimea
+- id: wagner_group
+  kind: character
+  brain: llm
+  name: Wagner Group
+  profile: 瓦格纳雇佣兵集团:巴赫穆特攻坚、2023-06 兵变
+  goals: []
+  status:
+    location: russia
+- id: fsb
+  kind: character
+  brain: llm
+  name: FSB
+  profile: 俄联邦安全局:情报与国内安全(克里米亚大桥调查、抓捕)
+  goals: []
+  status:
+    location: moscow
+- id: ukrainian_forces
+  kind: character
+  brain: llm
+  name: Armed Forces of Ukraine
+  profile: 乌克兰武装部队:防御反攻、防空拦截、战报主体
+  goals: []
+  status:
+    location: ukraine
+- id: ukrainian_mod
+  kind: character
+  brain: llm
+  name: Ministry of Defence of Ukraine
+  profile: 乌克兰国防部:军事政策与战况通报
+  goals: []
+  status:
+    location: kyiv
+- id: ukrainian_government
+  kind: character
+  brain: llm
+  name: Government of Ukraine
+  profile: 乌克兰政府:民事决策(戒严、外交、重建、求援)
+  goals: []
+  status:
+    location: kyiv
+- id: gur
+  kind: character
+  brain: llm
+  name: Defence Intelligence of Ukraine (GUR)
+  profile: 乌国防情报总局:军事情报与特种行动
+  goals: []
+  status:
+    location: kyiv
+- id: sbu
+  kind: character
+  brain: llm
+  name: Security Service of Ukraine (SBU)
+  profile: 乌克兰安全局:反谍与安全行动
+  goals: []
+  status:
+    location: kyiv
+- id: azov_regiment
+  kind: character
+  brain: llm
+  name: Azov Regiment
+  profile: 亚速团:马里乌波尔/亚速钢铁厂防御战当事部队
+  goals: []
+  status:
+    location: mariupol
+- id: nato
+  kind: character
+  brain: llm
+  name: NATO
+  profile: 北约:军援协调、东翼增兵、瑞典芬兰入盟进程
+  goals: []
+  status:
+    location: brussels
+- id: eu
+  kind: character
+  brain: llm
+  name: European Union
+  profile: 欧盟:制裁方案、财政援助、候选国地位
+  goals: []
+  status:
+    location: brussels
+- id: un
+  kind: character
+  brain: llm
+  name: United Nations
+  profile: 联合国:决议、黑海粮食协议斡旋、人道通道
+  goals: []
+  status:
+    location: new_york
+- id: iaea
+  kind: character
+  brain: llm
+  name: IAEA
+  profile: 国际原子能机构:扎波罗热核电站安全危机核心机构
+  goals: []
+  status:
+    location: vienna
 map:
   default_distance: 20
   edges: []
