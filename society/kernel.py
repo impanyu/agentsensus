@@ -375,7 +375,16 @@ class Kernel:
         params = action.params
         targets = params["targets"]
         content = params["content"]
-        wake = bool(params.get("wake", False)) if action.name == "broadcast" else True
+        if action.name == "broadcast":
+            wake = params.get("wake", False)
+            # LLM brains emit JSON and sometimes stringify booleans; a lax
+            # bool("false")==True would silently invert the sleep economy.
+            if isinstance(wake, str):
+                wake = wake.strip().lower() == "true"
+            elif not isinstance(wake, bool):
+                return ActionResult(False, error="wake must be a boolean")
+        else:
+            wake = True
 
         sender_loc = agent.location()
         offenders = []
@@ -476,13 +485,21 @@ class Kernel:
         params = action.params
         memory_id = params["memory_id"]
 
+        name = action.name
+        if name != "get_affiliated":
+            affiliated = params.get("affiliated")
+            # A bare string would be iterated character-by-character and
+            # silently corrupt the persistent affiliation set.
+            if not isinstance(affiliated, list) or not all(
+                isinstance(x, str) for x in affiliated
+            ):
+                return ActionResult(False, error="affiliated must be a list of memory ids")
+
         entry = self._get_owned_entry(memory_id)
         if entry is None:
             return ActionResult(False, error=f"no such memory: {memory_id}")
         if agent.id not in entry["owners"]:
             return ActionResult(False, error=f"not an owner of {memory_id}")
-
-        name = action.name
 
         if name == "add_affiliated":
             self.shared_memory.add_affiliations(memory_id, params["affiliated"])

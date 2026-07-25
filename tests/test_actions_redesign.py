@@ -261,3 +261,37 @@ async def test_affiliated_crud_unknown_memory_id_errors():
 
     r = await k.execute(a, Action("get_affiliated", {"memory_id": "does-not-exist"}))
     assert r.ok is False
+
+
+# ----------------------------------------------------------------------
+# Review regressions: input-validation hardening (S1 review)
+# ----------------------------------------------------------------------
+
+async def test_broadcast_stringified_wake_false_stays_false():
+    # LLM brains sometimes stringify booleans; bool("false") is True, which
+    # would silently invert the sleep economy. "false" must mean False.
+    a, b = char("alice", "hall"), char("bob", "hall")
+    k = build([a, b, env("hall")])
+    r = await k.execute(a, Action("broadcast", {"targets": ["bob"], "content": "hi", "wake": "false"}))
+    assert r.ok
+    k.deliver_pending()
+    (msg,) = b.stm.inbox_items()
+    assert msg.wake is False
+
+
+async def test_broadcast_non_bool_wake_rejected():
+    a, b = char("alice", "hall"), char("bob", "hall")
+    k = build([a, b, env("hall")])
+    r = await k.execute(a, Action("broadcast", {"targets": ["bob"], "content": "hi", "wake": 123}))
+    assert not r.ok and "boolean" in r.error
+
+
+async def test_affiliated_bare_string_rejected_no_corruption():
+    # A bare string would be iterated char-by-char into the affiliation set.
+    shared = fresh_shared()
+    a = char("alice", "hall")
+    k = build([a, env("hall")], shared=shared)
+    m = await shared.remember_atomic(["alice"], "国王驾崩")
+    r = await k.execute(a, Action("add_affiliated", {"memory_id": m["id"], "affiliated": "xyz123"}))
+    assert not r.ok and "list" in r.error
+    assert shared.get_affiliations(m["id"]) == []
