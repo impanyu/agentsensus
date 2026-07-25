@@ -50,16 +50,13 @@ def red_chamber_sediment() -> str:
     return _first_n_chapters(t, 40)
 
 
-def war_peace_sediment() -> str:
-    # Fetched file is Volume I (Books ONE/TWO/THREE, all 1805). Sediment span =
-    # Books 1-2 ONLY; Book 3 is the held-out reference (kept in the file for
-    # event extraction). Slice from "BOOK ONE:" up to (not including) "BOOK THREE:".
-    import re
-    lines = open(os.path.join(SRC, "war_and_peace_vol1-3.txt"), encoding="utf-8").read().splitlines()
-    starts = [i for i, l in enumerate(lines) if re.match(r"^BOOK (ONE|THREE):", l)]
-    if len(starts) < 2:
-        raise ValueError("war_peace_sediment: could not locate BOOK ONE / BOOK THREE markers")
-    return "\n".join(lines[starts[0]:starts[1]])
+def hamlet_sediment() -> str:
+    # Sediment span = Acts 1-3 (through the Mousetrap + Polonius's death);
+    # Acts 4-5 are the held-out reference. Includes the Dramatis Personae
+    # preamble (helps Pass-1 registry). Slice up to (not including) "ACT IV".
+    lines = open(os.path.join(SRC, "hamlet.txt"), encoding="utf-8").read().splitlines()
+    cut = next(i for i, l in enumerate(lines) if l.strip() == "ACT IV")
+    return "\n".join(lines[:cut])
 
 
 def russia_ukraine_sediment() -> str:
@@ -74,7 +71,7 @@ def russia_ukraine_sediment() -> str:
 SCENARIOS = [
     {"name": "three_kingdoms", "lang": "zh", "slice": three_kingdoms_sediment},
     {"name": "red_chamber", "lang": "zh", "slice": red_chamber_sediment},
-    {"name": "war_and_peace", "lang": "en", "slice": war_peace_sediment},
+    {"name": "hamlet", "lang": "en", "slice": hamlet_sediment},
     {"name": "russia_ukraine", "lang": "en", "slice": russia_ukraine_sediment},
 ]
 
