@@ -6,9 +6,9 @@ import yaml
 
 from society.actions import Message
 from society.agent import Agent
+from society.baselines import make_memory
 from society.brains import LLMBrain, RetrievalBrain, RuleBrain
 from society.kernel import Kernel
-from society.ltm import SharedMemory
 from society.metrics import Metrics
 from society.stm import STM
 from society.worldmap import WorldMap
@@ -278,22 +278,34 @@ async def build_society(
     event_log,
     out_dir=None,
     metrics_interval=None,
+    memory_kind: str = "consensus",
 ) -> Kernel:
     """Build a fully-wired Kernel from a loaded scenario dict.
 
     Creates all agents (brain selected per agent's "brain" field), a
-    WorldMap from cfg["map"], a SharedMemory, and a Metrics instance.
-    Kickoff messages are queued with tick_sent=-1 before the kernel is
-    returned so they are already pending on kernel.send() (visible to
-    recipients once the caller calls kernel.run(), per the tick-0 delivery
-    semantics in Kernel.run()).
+    WorldMap from cfg["map"], a shared-memory backend, and a Metrics
+    instance. Kickoff messages are queued with tick_sent=-1 before the
+    kernel is returned so they are already pending on kernel.send()
+    (visible to recipients once the caller calls kernel.run(), per the
+    tick-0 delivery semantics in Kernel.run()).
+
+    `memory_kind` (Task S3) selects the shared-memory backend via
+    `society.baselines.make_memory` -- one of "consensus" (default;
+    `society.ltm.SharedMemory`, today's behavior, unchanged),
+    "generative_agents", "g_memory", "collaborative". This is the ONLY
+    thing that changes across a Task-S3 experiment run; everything else
+    (agents, brains, map, kernel scheduling) is identical regardless of
+    backend.
 
     If cfg has a top-level "ltm_file" (path relative to the scenario
-    file's directory, validated to exist by load_scenario), the
-    SharedMemory is populated via `shared.restore()` from that holographic
+    file's directory, validated to exist by load_scenario), the memory
+    backend is populated via `shared.restore()` from that holographic
     dump instead -- seed_memories are NOT replayed in that case, since the
     ltm_file already reflects (a superset of) their effect. Otherwise each
-    agent's seed_memories are seeded as before.
+    agent's seed_memories are seeded as before. All 4 backends implement
+    `restore()`, including on a dump that carries multi-owner ("consensus")
+    entries -- see `society.baselines.GenerativeAgentsMemory.restore` for
+    the one backend whose restore needed a fix for this (per-owner rows).
     """
     agents, worldmap, defaults, seed_specs = build_agents_and_map(cfg, llm=llm, embed_fn=embed_fn)
 
@@ -302,7 +314,7 @@ async def build_society(
     )
     stats_interval = defaults.get("stats_interval", 10)
 
-    shared = SharedMemory(embed_fn, llm, max_tokens=memory_max_tokens)
+    shared = make_memory(memory_kind, embed_fn, llm=llm, max_tokens=memory_max_tokens)
 
     interval = metrics_interval if metrics_interval is not None else stats_interval
     metrics = Metrics(agents, shared, out_dir, interval=interval)

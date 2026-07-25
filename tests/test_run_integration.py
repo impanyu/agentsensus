@@ -1,13 +1,39 @@
 import json
 import os
 
+import pytest
 import yaml
 
 from society.actions import Action
 from society.events import EventLog
-from society.run import run_scenario
+from society.run import build_arg_parser, run_scenario
 from society.scenario import build_society
 from tests.helpers import FakeLLM, afake_embed
+
+
+def test_memory_cli_arg_defaults_to_consensus():
+    parser = build_arg_parser()
+    args = parser.parse_args(["--scenario", "s.yaml", "--ticks", "5", "--out", "o"])
+    assert args.memory == "consensus"
+
+
+@pytest.mark.parametrize(
+    "memory_kind", ["consensus", "generative_agents", "g_memory", "collaborative"]
+)
+def test_memory_cli_arg_parses_each_backend(memory_kind):
+    parser = build_arg_parser()
+    args = parser.parse_args(
+        ["--scenario", "s.yaml", "--ticks", "5", "--out", "o", "--memory", memory_kind]
+    )
+    assert args.memory == memory_kind
+
+
+def test_memory_cli_arg_rejects_unknown_backend():
+    parser = build_arg_parser()
+    with pytest.raises(SystemExit):
+        parser.parse_args(
+            ["--scenario", "s.yaml", "--ticks", "5", "--out", "o", "--memory", "nonexistent"]
+        )
 
 SCEN = {
     "scenario": "smoke", "language": "zh",

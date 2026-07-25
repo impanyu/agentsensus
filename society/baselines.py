@@ -226,18 +226,31 @@ class GenerativeAgentsMemory:
         )
 
         for i, entry in enumerate(entries):
-            owners = entry.get("owners", [])
-            owner = owners[0] if owners else None
-            meta = dict(entry.get("meta", {}) or {})
-            meta.setdefault("importance", _DEFAULT_IMPORTANCE)
-            meta.setdefault("last_access", self._clock)
-            self._rows[entry["id"]] = {
-                "id": entry["id"],
-                "text": entry["text"],
-                "owner": owner,
-                "embedding": entry.get("embedding") or computed[i],
-                "meta": meta,
-            }
+            owners = entry.get("owners") or [None]
+            embedding = entry.get("embedding") or computed[i]
+            base_meta = dict(entry.get("meta", {}) or {})
+            base_meta.setdefault("importance", _DEFAULT_IMPORTANCE)
+            base_meta.setdefault("last_access", self._clock)
+
+            # A multi-owner entry (e.g. a consensus-merged dump from
+            # `society.ltm.SharedMemory`) restored into this PER-OWNER
+            # backend must become one owned row per owner -- that
+            # duplication (each owner keeps its own private copy) is
+            # exactly the fidelity difference this baseline is meant to
+            # exhibit, not something to collapse away. The first owner
+            # keeps the entry's original id (so the common single-owner
+            # case round-trips id-for-id, as before); any additional
+            # owners get a fresh row id since two rows can never share one
+            # id in this store.
+            for idx, owner in enumerate(owners):
+                row_id = entry["id"] if idx == 0 else uuid.uuid4().hex
+                self._rows[row_id] = {
+                    "id": row_id,
+                    "text": entry["text"],
+                    "owner": owner,
+                    "embedding": list(embedding),
+                    "meta": dict(base_meta),
+                }
 
     def stats(self) -> dict:
         entries = self.all_entries()

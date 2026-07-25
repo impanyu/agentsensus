@@ -1,6 +1,7 @@
 import pytest, yaml
 from society.events import EventLog
 from society.scenario import load_scenario, build_society
+from society.baselines import make_memory
 from tests.helpers import FakeLLM, afake_embed
 
 
@@ -20,6 +21,71 @@ async def test_load_and_build_demo():
 
 def test_demo_red_chamber_loads():
     load_scenario("scenarios/demo_red_chamber.yaml")
+
+async def _write_consensus_multi_owner_dump(tmp_path):
+    """Build a consensus (SharedMemory) store with ONE multi-owner entry
+    (both "amy" and "ben" remembered the same text, forced to merge via an
+    LLM that always claims a match), export it, and write it to
+    tmp_path/ltm.json. Returns nothing; the file is what callers need."""
+    llm = FakeLLM(fn=lambda p, s=None: "0")  # always match candidate 0 -> forces a merge
+    consensus = make_memory("consensus", afake_embed, llm=llm)
+    await consensus.remember("amy", "宝黛初见,泪光点点")
+    await consensus.remember("ben", "宝黛初见,泪光点点")
+    dump = consensus.export()
+    assert len(dump) == 1
+    assert sorted(dump[0]["owners"]) == ["amy", "ben"]
+
+    import json
+    (tmp_path / "ltm.json").write_text(json.dumps(dump), encoding="utf-8")
+
+
+@pytest.mark.parametrize(
+    "memory_kind", ["consensus", "generative_agents", "g_memory", "collaborative"]
+)
+async def test_build_society_all_backends_restore_and_recall(tmp_path, memory_kind):
+    """Task S3: build_society must be backend-swappable via memory_kind, and
+    ALL FOUR backends must restore() a holographic dump carrying a
+    multi-owner ("consensus") entry without error, with recall working
+    post-restore for every original owner. For a per-owner backend
+    (generative_agents), the multi-owner entry restores as one owned row
+    PER owner -- see society.baselines.GenerativeAgentsMemory.restore."""
+    await _write_consensus_multi_owner_dump(tmp_path)
+    cfg = {
+        "scenario": "backend_swap_test",
+        "language": "zh",
+        "_dir": str(tmp_path),
+        "ltm_file": "ltm.json",
+        "defaults": {"stats_interval": 1000},
+        "agents": [
+            {"id": "amy", "kind": "character", "brain": "rule", "goals": ["chat"]},
+            {"id": "ben", "kind": "character", "brain": "rule", "goals": ["chat"]},
+        ],
+    }
+    kernel = await build_society(
+        cfg,
+        llm=None,
+        embed_fn=afake_embed,
+        event_log=EventLog(None),
+        memory_kind=memory_kind,
+    )
+
+    entries = kernel.shared_memory.all_entries()
+    assert entries, f"{memory_kind}: restore produced no entries"
+
+    amy_hits = await kernel.shared_memory.recall("amy", "宝黛初见", top_k=5)
+    ben_hits = await kernel.shared_memory.recall("ben", "宝黛初见", top_k=5)
+    assert amy_hits, f"{memory_kind}: amy recall empty post-restore"
+    assert ben_hits, f"{memory_kind}: ben recall empty post-restore"
+
+
+def test_default_memory_kind_is_consensus_shared_memory():
+    """"consensus" must yield exactly today's SharedMemory instance (no
+    behavior change for existing scenarios that don't pass memory_kind)."""
+    from society.ltm import SharedMemory
+
+    m = make_memory("consensus", afake_embed)
+    assert isinstance(m, SharedMemory)
+
 
 def test_load_validation_errors(tmp_path):
     bad = {"scenario": "x", "agents": [{"id": "a", "kind": "character", "brain": "llm",

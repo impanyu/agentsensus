@@ -115,7 +115,14 @@ def write_outputs(
 
 
 async def run_scenario(
-    scenario_path, ticks, out_dir, *, llm, embed_fn, checkpoint: bool = False
+    scenario_path,
+    ticks,
+    out_dir,
+    *,
+    llm,
+    embed_fn,
+    checkpoint: bool = False,
+    memory_kind: str = "consensus",
 ) -> dict:
     """Load, build, and run a scenario, then write all outputs.
 
@@ -124,6 +131,10 @@ async def run_scenario(
     a final metrics snapshot (so stats/ always has at least one file, even
     if the run quiesces before the first periodic interval) -> write_outputs.
     Returns the summary dict from kernel.run().
+
+    `memory_kind` (Task S3) selects the shared-memory backend -- see
+    `society.scenario.build_society` / `society.baselines.make_memory`.
+    Defaults to "consensus" (today's SharedMemory behavior, unchanged).
 
     If `checkpoint` is True, `{out_dir}/checkpoint.json` is written on each
     periodic metrics snapshot and once more when the run stops, via
@@ -135,7 +146,12 @@ async def run_scenario(
     event_log = EventLog(os.path.join(out_dir, "events.jsonl"))
 
     kernel = await build_society(
-        cfg, llm=llm, embed_fn=embed_fn, event_log=event_log, out_dir=out_dir
+        cfg,
+        llm=llm,
+        embed_fn=embed_fn,
+        event_log=event_log,
+        out_dir=out_dir,
+        memory_kind=memory_kind,
     )
     if checkpoint:
         kernel.checkpoint_path = os.path.join(out_dir, "checkpoint.json")
@@ -224,7 +240,10 @@ def _build_llm_and_embed(config_path: str | None):
     return llm, embed_client.embed
 
 
-def main(argv=None):
+def build_arg_parser() -> argparse.ArgumentParser:
+    """Build the CLI parser (factored out of `main` so tests can exercise
+    argparse-level behavior, e.g. `--memory`'s choices/default, without
+    running an actual scenario)."""
     parser = argparse.ArgumentParser(description="Run an AgentSociety scenario")
     parser.add_argument(
         "--scenario", help="path to scenario yaml (required unless --resume)"
@@ -255,6 +274,18 @@ def main(argv=None):
         help="resume from {out}/checkpoint.json instead of starting a fresh run "
         "(--ticks additional ticks; --scenario is ignored)",
     )
+    parser.add_argument(
+        "--memory",
+        choices=["consensus", "generative_agents", "g_memory", "collaborative"],
+        default="consensus",
+        help="shared-memory backend (Task S3); ignored with --resume, which "
+        "always resumes the checkpoint's own (consensus) backend",
+    )
+    return parser
+
+
+def main(argv=None):
+    parser = build_arg_parser()
     args = parser.parse_args(argv)
 
     if not args.resume and not args.scenario:
@@ -275,6 +306,7 @@ def main(argv=None):
                 llm=llm,
                 embed_fn=embed_fn,
                 checkpoint=args.checkpoint,
+                memory_kind=args.memory,
             )
         )
 
