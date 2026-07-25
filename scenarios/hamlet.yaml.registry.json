@@ -1,0 +1,304 @@
+{
+  "characters": [
+    {
+      "id": "hamlet",
+      "name": "哈姆雷特",
+      "aliases": [
+        "哈姆莱特",
+        "Hamlet"
+      ],
+      "profile": "丹麦王子，前国王之子，因父死母嫁而陷入复仇与疯狂。"
+    },
+    {
+      "id": "claudius",
+      "name": "克劳狄斯",
+      "aliases": [
+        "国王",
+        "King",
+        "Claudius"
+      ],
+      "profile": "现任丹麦国王，哈姆雷特的叔父，弑兄篡位者。"
+    },
+    {
+      "id": "gertrude",
+      "name": "格特鲁德",
+      "aliases": [
+        "王后",
+        "Queen"
+      ],
+      "profile": "丹麦王后，哈姆雷特之母，改嫁克劳狄斯。"
+    },
+    {
+      "id": "polonius",
+      "name": "波洛涅斯",
+      "aliases": [
+        "波洛尼厄斯",
+        "Polonius",
+        "波洛纽斯"
+      ],
+      "profile": "御前大臣，奥菲莉亚与雷欧提斯之父，多管闲事。"
+    },
+    {
+      "id": "ophelia",
+      "name": "奥菲莉亚",
+      "aliases": [
+        "奥菲莉娅",
+        "Ophelia"
+      ],
+      "profile": "波洛涅斯之女，哈姆雷特的恋人。"
+    },
+    {
+      "id": "laertes",
+      "name": "雷欧提斯",
+      "aliases": [
+        "Laertes"
+      ],
+      "profile": "波洛涅斯之子，热衷法国的贵族青年。"
+    },
+    {
+      "id": "horatio",
+      "name": "霍拉旭",
+      "aliases": [
+        "Horatio"
+      ],
+      "profile": "哈姆雷特的挚友与谋臣。"
+    },
+    {
+      "id": "marcellus",
+      "name": "马塞勒斯",
+      "aliases": [
+        "Marcellus"
+      ],
+      "profile": "守夜军官，目击鬼魂。"
+    },
+    {
+      "id": "barnardo",
+      "name": "巴纳多",
+      "aliases": [
+        "Barnardo"
+      ],
+      "profile": "守夜哨兵，最先看见鬼魂。"
+    },
+    {
+      "id": "francisco",
+      "name": "弗朗西斯科",
+      "aliases": [
+        "Francisco"
+      ],
+      "profile": "守夜哨兵，交岗换班。"
+    },
+    {
+      "id": "ghost",
+      "name": "鬼魂",
+      "aliases": [
+        "老哈姆雷特鬼魂",
+        "Ghost"
+      ],
+      "profile": "哈姆雷特之父的亡灵，揭露谋杀真相。"
+    },
+    {
+      "id": "rosencrantz",
+      "name": "罗森克兰茨",
+      "aliases": [
+        "罗森克兰兹",
+        "罗森格兰兹",
+        "Rosencrantz"
+      ],
+      "profile": "哈姆雷特的同学，受命刺探王子。"
+    },
+    {
+      "id": "guildenstern",
+      "name": "吉尔登斯特恩",
+      "aliases": [
+        "吉尔登斯吞",
+        "Guildenstern"
+      ],
+      "profile": "哈姆雷特的同学，与罗森克兰茨同谋。"
+    },
+    {
+      "id": "voltemand",
+      "name": "伏提曼德",
+      "aliases": [
+        "Voltemand"
+      ],
+      "profile": "丹麦使臣，出使挪威。"
+    },
+    {
+      "id": "cornelius",
+      "name": "考尼律斯",
+      "aliases": [
+        "Cornelius"
+      ],
+      "profile": "丹麦使臣，与伏提曼德同行。"
+    },
+    {
+      "id": "reynaldo",
+      "name": "雷纳尔多",
+      "aliases": [
+        "Reynaldo"
+      ],
+      "profile": "波洛涅斯的仆人，被派往巴黎监视雷欧提斯。"
+    },
+    {
+      "id": "first_player",
+      "name": "第一伶人",
+      "aliases": [
+        "伶人甲",
+        "First Player"
+      ],
+      "profile": "戏班的首席演员，朗诵慷慨悲歌。"
+    },
+    {
+      "id": "player_king",
+      "name": "伶王",
+      "aliases": [
+        "Player King"
+      ],
+      "profile": "戏中戏的国王角色。"
+    },
+    {
+      "id": "player_queen",
+      "name": "伶后",
+      "aliases": [
+        "Player Queen"
+      ],
+      "profile": "戏中戏的王后角色。"
+    },
+    {
+      "id": "lucianus",
+      "name": "卢西安纳斯",
+      "aliases": [
+        "Lucianus"
+      ],
+      "profile": "戏中戏里用毒药杀死伶王的侄儿。"
+    },
+    {
+      "id": "prologue",
+      "name": "致辞者",
+      "aliases": [
+        "Prologue"
+      ],
+      "profile": "戏中戏开幕致辞的演员。"
+    },
+    {
+      "id": "fortinbras",
+      "name": "福丁布拉斯",
+      "aliases": [
+        "Fortinbras",
+        "小福丁布拉斯"
+      ],
+      "profile": "挪威王子,为父复仇整军备战,借道丹麦征波兰,最终接管丹麦王位。"
+    }
+  ],
+  "locations": [
+    {
+      "id": "elsinore",
+      "name": "厄耳锡诺城堡",
+      "aliases": [
+        "埃尔西诺城堡",
+        "艾尔西诺",
+        "Elsinore Castle",
+        "Elsinore"
+      ],
+      "profile": "丹麦王室城堡，全部剧情发生地。"
+    },
+    {
+      "id": "battlements",
+      "name": "城堡露台",
+      "aliases": [
+        "platform",
+        "the platform",
+        "battlements"
+      ],
+      "profile": "厄耳锡诺城堡的瞭望露台,守夜与鬼魂现身之处。"
+    },
+    {
+      "id": "great_hall",
+      "name": "城堡大厅",
+      "aliases": [
+        "hall",
+        "great hall"
+      ],
+      "profile": "王室聚会与戏中戏演出的大厅。"
+    },
+    {
+      "id": "queen_closet",
+      "name": "王后寝宫",
+      "aliases": [
+        "queen's closet",
+        "closet"
+      ],
+      "profile": "格特鲁德的私室,哈姆雷特质问母亲、误杀波洛涅斯之处。"
+    },
+    {
+      "id": "polonius_chambers",
+      "name": "波洛涅斯居所",
+      "aliases": [
+        "Polonius's chambers"
+      ],
+      "profile": "波洛涅斯一家在城堡中的居所。"
+    },
+    {
+      "id": "norway",
+      "name": "挪威",
+      "aliases": [
+        "Norway"
+      ],
+      "profile": "邻国,福丁布拉斯整军之地。"
+    },
+    {
+      "id": "england",
+      "name": "英格兰",
+      "aliases": [
+        "England"
+      ],
+      "profile": "丹麦属国,克劳狄斯欲借刀杀人之地。"
+    },
+    {
+      "id": "france",
+      "name": "法国",
+      "aliases": [
+        "France",
+        "Paris",
+        "巴黎"
+      ],
+      "profile": "雷欧提斯求学游历之地。"
+    },
+    {
+      "id": "wittenberg",
+      "name": "威登堡",
+      "aliases": [
+        "Wittenberg"
+      ],
+      "profile": "哈姆雷特与霍拉旭就读的大学城。"
+    }
+  ],
+  "carriers": [
+    {
+      "id": "love_letter",
+      "name": "哈姆雷特致奥菲莉亚的情书",
+      "aliases": [
+        "情书"
+      ],
+      "profile": "哈姆雷特向奥菲莉亚表达爱慕的信件，被波洛涅斯呈给国王。"
+    },
+    {
+      "id": "sealed_commission",
+      "name": "克劳狄斯的密信",
+      "aliases": [
+        "致英格兰王的文书"
+      ],
+      "profile": "密封国书，命令英格兰王处死哈姆雷特。"
+    },
+    {
+      "id": "gonzago_script",
+      "name": "《贡扎古之死》戏文",
+      "aliases": [
+        "The Murder of Gonzago",
+        "The Mousetrap",
+        "捕鼠器"
+      ],
+      "profile": "戏班演出的旧剧本,哈姆雷特插入十余行新台词,用以试探克劳狄斯。"
+    }
+  ]
+}
