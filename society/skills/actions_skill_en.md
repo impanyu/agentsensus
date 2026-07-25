@@ -57,7 +57,11 @@ The view you receive typically contains:
 - Sync.
 - Writes a provisional conclusion into the short-term FIFO as an
   `(action, result)` pair. It does **not** write to long-term memory. Use
-  it to let an idea settle before deciding whether to `remember` it.
+  it to privately work out an idea that isn't settled yet.
+- **Note**: conclude stays only in your private short-term memory — others
+  can't read it and it never enters the shared history. Once something has
+  actually happened and is worth sharing, `remember` it into long-term
+  memory — don't stop at conclude.
 
 ### push_goal
 - Signature: `{"action": "push_goal", "params": {"text": "..."}}`
@@ -97,8 +101,21 @@ The view you receive typically contains:
 - Writes an atomic fact into the shared long-term memory (LTM). The system
   normalizes the text (splitting overlong/multi-clause text, compressing
   verbose text) and runs consensus merging against similar existing
-  memories. **Call `recall` first to check for duplicates** before
-  remembering the same fact twice.
+  memories.
+- **This is the ONLY way to lay down "what happened" into the shared
+  history** — only what you `remember` can later be `recall`ed by you or
+  others; `conclude`/`think` stay in your private short-term memory,
+  invisible to others and soon evicted. So **whenever the story reaches a
+  point worth remembering, `remember` it.**
+- **Typical moments to remember (story beats, not every trivial action)**:
+  a decision made or a plan set; the outcome of a battle/clash (who won,
+  who died or was wounded); news or intelligence learned; a promise made or
+  accepted, an alliance formed or betrayed; someone arriving at or leaving a
+  place in a way that changes the situation. Write it as a **self-contained**
+  atomic fact (name the people, place, and what happened — no pronouns).
+- **Do NOT remember**: purely internal deliberation (use `conclude`), facts
+  you just `recall`ed (already stored), or trivial actions.
+- **Call `recall` first** to avoid recording the same fact twice.
 
 ### recall
 - Signature: `{"action": "recall", "params": {"query": "..."}}`
