@@ -104,13 +104,91 @@ def load_scenario(path: str) -> dict:
     return cfg
 
 
+# Task S2 (unified-agent architecture): kind-specific system-prompt
+# preamble prepended to an environment/info_carrier agent's profile
+# whenever it ends up with an LLMBrain, so the LLM understands its role is
+# different from a character's even though the brain/STM machinery is now
+# identical across all three kinds. Picked by the scenario's "language".
+_ENV_PREAMBLE = {
+    "zh": (
+        "你是一个地点/环境 agent,代表模拟世界中的一处场所本身,而不是一个角色。"
+        "回应到访者对你发起的询问与动作(act_on),用 update_status 维护自身状态"
+        "(例如天气、门是否开着、桌上有什么),用 recall 查询发生在你这里的记忆。"
+    ),
+    "en": (
+        "You are a location/environment agent -- you represent a place in "
+        "the simulated world itself, not a character. Respond to visitors' "
+        "act_on requests directed at you, use update_status to maintain "
+        "your own state (e.g. weather, whether a door is open, what's on a "
+        "table), and use recall to search memories that happened here."
+    ),
+}
+_CARRIER_PREAMBLE = {
+    "zh": (
+        "你是一份文书/信息载体(信件、日记、公告等),代表这份文档本身,而不是一个角色。"
+        "如实根据你的记忆(即文书内容)回答别人对你发起的 read 询问,不得虚构内容。"
+    ),
+    "en": (
+        "You are a document/information carrier (a letter, diary, notice, "
+        "etc.) -- you represent the document itself, not a character. "
+        "Truthfully answer read queries directed at you based on your own "
+        "memory (i.e. the document's content); never fabricate content."
+    ),
+}
+
+
+def _with_preamble(preamble_map: dict, language: str, profile: str) -> str:
+    preamble = preamble_map.get(language, preamble_map["en"])
+    return f"{preamble}\n\n{profile}" if profile else preamble
+
+
 def _make_brain(a: dict, *, llm, language: str, scenario_dir: str):
+    """Builds the brain for one scenario agent entry.
+
+    Task S2 (unified-agent architecture): environment/info_carrier agents
+    now get an LLMBrain in the sim path, exactly like characters. The
+    legacy `brain: rule` (environments) / `brain: retrieval` (info
+    carriers) yaml values from before this design -- still present in
+    existing scenario files -- are mapped to LLMBrain whenever the agent
+    kind is environment/info_carrier AND a real llm client is configured
+    (llm is not None): there's no longer a meaningful distinction between
+    "rule" and "llm" for these kinds going forward, so the legacy value is
+    just read as "give this agent an LLM brain". `brain: retrieval`'s
+    `corpus:` field is ignored in this path -- a carrier's LLMBrain answers
+    `read` queries by recalling its own LTM (the document chains deposited
+    by history sedimentation), not by keyword-matching a fixed corpus file.
+
+    `brain: rule` stays available as an explicit opt-in, still producing a
+    RuleBrain, for any agent kind when either (a) the agent kind is
+    "character" (character scripting is untouched by this task), or (b) no
+    real llm is configured (llm is None) -- e.g. a scenario built without
+    an LLM client, where an env/carrier LLMBrain could never safely
+    decide(). Likewise `brain: retrieval` without a real llm still falls
+    back to the legacy RetrievalBrain(corpus_text), reading `corpus:` as
+    before. `brain: llm` is unconditional, for every agent kind, exactly
+    as before.
+    """
     kind_name = a["brain"]
+    agent_kind = a["kind"]
+
+    use_llm = kind_name == "llm" or (
+        kind_name in ("rule", "retrieval")
+        and agent_kind in ("environment", "info_carrier")
+        and llm is not None
+    )
+    if use_llm:
+        profile = a.get("profile", "")
+        if agent_kind == "environment":
+            profile = _with_preamble(_ENV_PREAMBLE, language, profile)
+        elif agent_kind == "info_carrier":
+            profile = _with_preamble(_CARRIER_PREAMBLE, language, profile)
+        return LLMBrain(llm, profile=profile, language=language)
+
     if kind_name == "rule":
         return RuleBrain()
-    if kind_name == "llm":
-        return LLMBrain(llm, profile=a.get("profile", ""), language=language)
-    # retrieval
+
+    # retrieval, falling back to the legacy corpus-backed RetrievalBrain
+    # (agent kind not environment/info_carrier, or no real llm configured).
     corpus_text = ""
     corpus_path = a.get("corpus")
     if corpus_path:

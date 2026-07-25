@@ -63,7 +63,7 @@ async def test_gesture_executes_and_delivers_with_default_wake():
 
 async def test_act_on_requires_exactly_one_colocated_environment_target():
     a = char("a", "hall")
-    hall = env("hall", act_on_fn=lambda actor, desc, view: f"ok:{desc}")
+    hall = env("hall")
     k = build([a, hall])
 
     r_empty = await k.execute(a, Action("act_on", {"targets": [], "content": "push"}))
@@ -75,8 +75,13 @@ async def test_act_on_requires_exactly_one_colocated_environment_target():
     r_ok = await k.execute(a, Action("act_on", {"targets": ["hall"], "content": "push"}))
     assert r_ok.ok
     k.deliver_pending()
-    msg = a.stm.inbox.get_nowait()
-    assert msg.kind == "env_result" and "push" in msg.content
+    # Task S2: act_on is async-only -- the message goes into the target
+    # environment's OWN inbox (like say/gesture to any other agent), not
+    # synchronously back to the actor. See test_unified_agents.py for the
+    # full round trip (the environment's own brain replying via `say`).
+    assert a.stm.inbox.qsize() == 0
+    msg = hall.stm.inbox.get_nowait()
+    assert msg.kind == "act_on" and msg.content == "push" and msg.sender == "a"
 
 
 # ----------------------------------------------------------------------

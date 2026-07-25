@@ -1514,11 +1514,16 @@ async def _sediment_carriers(
     """Turns each `registry["carriers"]` entry into a CHAIN of sentence
     memory-entries, run AFTER the Pass-2 event sediment has deposited into
     `shared` and BEFORE `shared.export()` (see `extract_history`) so the
-    chains are included in the holographic ltm export. Purely additive: this
-    never touches `registry`, `_assemble_history_scenario`'s info_carrier
-    agent build, or `_write_corpora` -- the corpus/RetrievalBrain wiring for
-    info_carrier agents stays exactly as it was; only step 4 (the sim-side
-    switch to reading these chains) will retire it, and that's a later task.
+    chains are included in the holographic ltm export. Purely additive to
+    `registry`/`shared` -- this never mutates either. Task S2 (unified-agent
+    architecture) is the "later task" this docstring used to refer to: it
+    switched `_assemble_history_scenario`'s info_carrier agents to
+    `brain: "llm"` and retired RetrievalBrain/the `corpus:` field from the
+    sim path, so a carrier's `read` replies are now answered by its LLMBrain
+    recalling exactly the chain deposited here. `_write_corpora` still runs
+    (kept for backward compatibility / offline inspection of a carrier's
+    extracted content), but nothing in the sim path reads its output any
+    more.
 
     For EACH carrier {id, name, profile}:
 
@@ -2005,7 +2010,9 @@ def _assemble_history_scenario(
         loc_agent = {
             "id": loc["id"],
             "kind": "environment",
-            "brain": "rule",
+            # Task S2 (unified-agent architecture): environments get an
+            # LLMBrain in the sim path now, just like characters.
+            "brain": "llm",
             "profile": loc.get("profile", ""),
         }
         name = loc.get("name") or _id_as_name(loc["id"]).get("name")
@@ -2020,7 +2027,15 @@ def _assemble_history_scenario(
         carrier_agent = {
             "id": cid,
             "kind": "info_carrier",
-            "brain": "retrieval",
+            # Task S2 (unified-agent architecture): info_carriers get an
+            # LLMBrain in the sim path now, answering `read` queries by
+            # recalling their own LTM document chain (see
+            # `_sediment_carriers`) instead of keyword-matching a fixed
+            # corpus file. The corpus file is still written (below, via
+            # `_write_corpora`) and referenced here for backward
+            # compatibility / offline inspection, but scenario.py's
+            # LLMBrain path ignores the `corpus:` field.
+            "brain": "llm",
             "profile": car.get("profile", ""),
             "status": {},
             "corpus": f"corpora/{cid}.txt",
@@ -2232,9 +2247,10 @@ async def extract_history(
     # (i -> i+1) run of document entries, ADDITIVE to the LTM --
     # AFTER the Pass-2 event sediment above has deposited into `shared` and
     # BEFORE the holographic export below so the chains are included in it.
-    # Does not touch `registry`, the info_carrier agent build above, or
-    # `_write_corpora` -- corpus/RetrievalBrain wiring is untouched (a later
-    # task switches the sim side to read these chains instead).
+    # This is exactly the chain a carrier's LLMBrain recalls to answer a
+    # `read` query in the sim path (Task S2 retired RetrievalBrain/`corpus:`
+    # from that path; `_write_corpora`/the "corpus" field above are kept
+    # only for backward compatibility / offline inspection).
     await _sediment_carriers(
         llm,
         shared,

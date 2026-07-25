@@ -158,9 +158,14 @@ async def test_private_status_keys_respected():
     ben = kernel.agents["ben"]
     result = await kernel.execute(ben, Action("observe", {"target": "amy"}))
     assert result.ok
-    assert "secret" not in result.data
-    assert "mood" not in result.data
-    assert result.data == {"location": "hall", "appearance": "tall"}
+    # Task S2: observe returns a uniform {kind, status, occupants?} shape
+    # across all agent kinds now, so the status dict lives under "status".
+    assert "secret" not in result.data["status"]
+    assert "mood" not in result.data["status"]
+    assert result.data == {
+        "kind": "character",
+        "status": {"location": "hall", "appearance": "tall"},
+    }
 
 
 async def test_ltm_final_exported_without_checkpoint(tmp_path):

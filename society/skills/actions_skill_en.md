@@ -145,16 +145,28 @@ The view you receive typically contains:
 ### observe
 - Signature: `{"action": "observe", "params": {"target": "..."}}`
 - Sync.
-- Observes a target (usually the environment agent you are currently in);
-  returns that environment's public status and the set of agents currently
-  present.
+- Directly returns the target agent's public status. The shape is uniform
+  across all three agent kinds -- character/environment/info_carrier --:
+  `{"kind": "...", "status": {...}, "occupants": [...]}`, where
+  `occupants` is present only when the target is an environment.
+  **No memory content is ever included.** Visibility rules are unchanged: a
+  character target must be co-located with you (and not archived); an
+  info_carrier target must be readable (co-located, or portable and
+  currently held by you); an environment target is always observable per
+  today's rules. To learn what a target *knows*/*remembers*, ask it via
+  `say` (character) or `read` (info_carrier) instead of `observe`.
 
 ### read
 - Signature: `{"action": "read", "params": {"target": "...", "query": "..."}}`
-- Sync.
-- Issues a query-driven read against an info_carrier (book/website/note);
-  the result is the relevant excerpt(s) matched by keyword/similarity, not
-  the whole document.
+- Async.
+- Issues a query-driven read against an info_carrier (a book, letter,
+  diary, etc.). This is asynchronous: your `read` just delivers the query
+  into that carrier's own inbox -- the carrier (itself an agent with an LLM
+  brain) answers on its own turn, based on its own memory (the document's
+  content, deposited into its long-term memory by sedimentation/
+  `remember`), and `say`s the answer back to you. It does not return a
+  result synchronously. Valid only for info_carrier targets, which must be
+  co-located with you, or portable and currently held by you.
 
 ### move
 - Signature: `{"action": "move", "params": {"destination": "..."}}`
@@ -207,11 +219,14 @@ The view you receive typically contains:
   shape as `say`/`gesture` — no special case).
 - Async.
 - Applies an action to an `environment` agent (e.g. pushing a door,
-  lighting a fire, rummaging through a drawer). Handled by the target
-  environment's passive interface: if it's a RuleBrain, the default result
-  is `"{your_id} did to the environment: {content}"` (scenario
-  overridable); if it's an LLMBrain, it goes through one round of
-  asynchronous message handling before returning a result.
+  lighting a fire, rummaging through a drawer). The act_on message is
+  delivered into the target environment's own inbox, exactly like
+  `say`/`gesture` sent to any other agent — an environment agent has its
+  own LLM brain and full short-term memory too, and reacts to the message
+  on its own turn (e.g. calling `update_status` to update its own state,
+  then `say`ing the result back to you). This is fully asynchronous: the
+  `act_on` call itself does not return a synchronous result — the reply
+  comes from the environment.
 
 ### broadcast
 - Signature: `{"action": "broadcast", "params": {"targets": ["..."], "content": "...", "wake": false}}`

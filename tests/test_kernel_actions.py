@@ -36,7 +36,8 @@ async def test_observe_environment_lists_occupants():
     a, b = char("a", "hall"), char("b", "hall")
     k = build([a, b, Agent("hall", "environment", RuleBrain(), STM(status={"desc": "大厅"}))])
     r = await k.execute(a, Action("observe", {"target": "hall"}))
-    assert r.ok and [o["id"] for o in r.data["occupants"]] == ["b"]
+    assert r.ok and r.data["kind"] == "environment"
+    assert [o["id"] for o in r.data["occupants"]] == ["b"]
 
 
 async def test_observe_character_requires_colocation():
@@ -46,12 +47,35 @@ async def test_observe_character_requires_colocation():
     assert (await k.execute(a, Action("observe", {"target": "b"}))).ok is False
 
 
-async def test_read_info_carrier():
+async def test_read_info_carrier_queues_message_async():
+    """Task S2: read is async-only -- the kernel no longer calls
+    brain.retrieve() synchronously. It queues a Message(kind="read",
+    content=query, wake=True) into the carrier's own inbox; the carrier
+    answers on its own next tick (see test_unified_agents.py for the full
+    2-3 tick round trip)."""
     a = char("a", "hall")
     book = Agent("book", "info_carrier", RetrievalBrain("宝玉衔玉而生。"), STM(status={"location": "hall"}))
     k = build([a, book, Agent("hall", "environment", RuleBrain(), STM())])
     r = await k.execute(a, Action("read", {"target": "book", "query": "宝玉"}))
-    assert r.ok and "宝玉衔玉而生" in r.data
+    assert r.ok
+    assert book.stm.inbox.qsize() == 0    # not delivered yet this tick
+    k.deliver_pending()
+    assert book.stm.inbox.qsize() == 1
+    msg = book.stm.inbox.get_nowait()
+    assert msg.kind == "read" and msg.content == "宝玉" and msg.sender == "a" and msg.wake is True
+
+
+async def test_read_rejects_non_carrier_and_non_readable():
+    a, b = char("a", "hall"), char("b", "garden")
+    book = Agent("book", "info_carrier", RetrievalBrain("宝玉衔玉而生。"), STM(status={"location": "garden"}))
+    k = build([a, b, book, Agent("hall", "environment", RuleBrain(), STM()),
+               Agent("garden", "environment", RuleBrain(), STM())])
+    # not an info_carrier at all
+    r1 = await k.execute(a, Action("read", {"target": "b", "query": "宝玉"}))
+    assert r1.ok is False
+    # info_carrier exists but isn't co-located with (or held by) the reader
+    r2 = await k.execute(a, Action("read", {"target": "book", "query": "宝玉"}))
+    assert r2.ok is False
 
 
 async def test_move_sets_transit_and_arrival():
@@ -104,15 +128,22 @@ async def test_think_uses_llm_bucket():
     assert r.ok and "结论" in r.data and llm.calls[0][0] == "think"
 
 
-async def test_act_on_rule_env_pushes_env_result():
+async def test_act_on_queues_message_to_env_inbox_async():
+    """Task S2: act_on is async-only -- the kernel no longer synchronously
+    calls a RuleBrain's handle_act_on. It always queues an act_on
+    Message(wake=True) into the target environment's own inbox, exactly
+    like say/gesture to any other agent; the environment's own brain reacts
+    on its own next tick (see test_unified_agents.py for the full 2-3 tick
+    round trip, including a RuleBrain env scripted with `fn` to reply via
+    `say`)."""
     a = char("a", "hall")
-    env = Agent("hall", "environment",
-                RuleBrain(act_on_fn=lambda actor, desc, view: f"{actor}打开了{desc},门开了"),
-                STM())
+    env = Agent("hall", "environment", RuleBrain(), STM())
     k = build([a, env])
     r = await k.execute(a, Action("act_on", {"targets": ["hall"], "content": "大门"}))
     assert r.ok
-    k.deliver_pending()      # public delivery step
-    assert a.stm.inbox.qsize() == 1
-    msg = a.stm.inbox.get_nowait()
-    assert msg.kind == "env_result" and "门开了" in msg.content
+    assert env.stm.inbox.qsize() == 0    # not delivered yet this tick
+    k.deliver_pending()                  # public delivery step
+    assert a.stm.inbox.qsize() == 0      # the actor gets nothing synchronously
+    assert env.stm.inbox.qsize() == 1
+    msg = env.stm.inbox.get_nowait()
+    assert msg.kind == "act_on" and msg.content == "大门" and msg.sender == "a" and msg.wake is True

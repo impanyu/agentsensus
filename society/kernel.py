@@ -386,7 +386,11 @@ class Kernel:
         else:
             wake = True
 
-        sender_loc = agent.location()
+        # An environment agent IS its own location (it has no
+        # status.location -- see _colocated_view), so its say/gesture must
+        # be validated against its own id, not agent.location() (which
+        # would be None for an environment and always fail co-location).
+        sender_loc = agent.id if agent.kind == "environment" else agent.location()
         offenders = []
         for tid in targets:
             target = self.agents.get(tid)
@@ -417,9 +421,13 @@ class Kernel:
     def _execute_act_on(self, agent, action: Action) -> ActionResult:
         """act_on(targets, content): targets must be a list containing
         EXACTLY ONE environment id, and the actor must be co-located with
-        it. RuleBrain envs answer synchronously (wrapped as an env_result
-        Message queued to the actor); LLM-brain envs instead receive an
-        act_on Message in their own inbox."""
+        it. Async-only (Task S2, unified-agent architecture): an act_on
+        Message (wake=True) is always queued into the target environment's
+        own inbox, exactly like a `say`/`gesture` targeting any other
+        agent -- there is no synchronous handle_act_on branch any more.
+        The environment's own brain (LLMBrain in the sim path; a RuleBrain
+        with a scripted `fn` in tests) reacts to it on its own next tick
+        (e.g. `update_status`, or `say` a reply back to the actor)."""
         params = action.params
         targets = params["targets"]
         content = params["content"]
@@ -436,29 +444,16 @@ class Kernel:
         if agent.location() != target_id:
             return ActionResult(False, error=f"not at {target_id}")
 
-        handle_act_on = getattr(target.brain, "handle_act_on", None)
-        if handle_act_on is not None:
-            view = self._build_agent_view(target)
-            reply = handle_act_on(agent.id, content, view)
-            msg = Message(
-                id=str(uuid.uuid4()),
-                sender=target_id,
-                recipients=[agent.id],
-                kind="env_result",
-                content=reply,
-                tick_sent=self.tick,
-            )
-            self.send(msg)
-        else:
-            msg = Message(
-                id=str(uuid.uuid4()),
-                sender=agent.id,
-                recipients=[target_id],
-                kind="act_on",
-                content=content,
-                tick_sent=self.tick,
-            )
-            self.send(msg)
+        msg = Message(
+            id=str(uuid.uuid4()),
+            sender=agent.id,
+            recipients=[target_id],
+            kind="act_on",
+            content=content,
+            tick_sent=self.tick,
+            wake=True,
+        )
+        self.send(msg)
         return ActionResult(True, data="acted")
 
     # ------------------------------------------------------------------
@@ -604,6 +599,15 @@ class Kernel:
         return False
 
     def _execute_observe(self, agent, action: Action) -> ActionResult:
+        """observe(target): uniform across all three agent kinds (Task S2)
+        -- returns {"kind": ..., "status": <public status view>,
+        "occupants": [...]} where "occupants" is present only for an
+        environment target. Visibility rules are unchanged: a character
+        target must be co-located (and not archived); an info_carrier
+        target must be readable (co-located or portable+held); an
+        environment target follows today's rules (always observable, its
+        occupants list excludes archived/absent agents). No memory content
+        is ever included here -- that's what `say`/`read` are for."""
         target_id = action.params["target"]
         target = self.agents.get(target_id)
         if target is None:
@@ -622,7 +626,11 @@ class Kernel:
                 )
             return ActionResult(
                 True,
-                data={"status": target.stm.status.public_view(), "occupants": occupants},
+                data={
+                    "kind": target.kind,
+                    "status": target.stm.status.public_view(),
+                    "occupants": occupants,
+                },
             )
 
         if target.kind == "character":
@@ -632,22 +640,30 @@ class Kernel:
                 )
             if target.location() != agent.location():
                 return ActionResult(False, error=f"{target_id} not co-located")
-            return ActionResult(True, data=target.stm.status.public_view())
+            return ActionResult(
+                True, data={"kind": target.kind, "status": target.stm.status.public_view()}
+            )
 
         if target.kind == "info_carrier":
             if not self._is_readable(agent, target):
                 return ActionResult(False, error=f"{target_id} not observable here")
             return ActionResult(
-                True,
-                data={
-                    "meta": {"kind": target.kind, "portable": target.portable},
-                    "status": target.stm.status.public_view(),
-                },
+                True, data={"kind": target.kind, "status": target.stm.status.public_view()}
             )
 
         return ActionResult(False, error=f"cannot observe kind {target.kind}")
 
     def _execute_read(self, agent, action: Action) -> ActionResult:
+        """read(target, query): async-only (Task S2, unified-agent
+        architecture) -- target must be an info_carrier co-located with (or
+        portable and held by) the reader, exactly as before, but instead of
+        synchronously calling `brain.retrieve()` this now queues a
+        Message(kind="read", content=query, wake=True) into the carrier's
+        own inbox. The carrier's LLM brain answers on its own next tick,
+        recalling its own LTM (the document chains deposited by
+        sedimentation) and `say`-ing the answer back to the asker -- same
+        mechanism as any other inbox-driven agent, nothing carrier-specific
+        in the kernel any more."""
         params = action.params
         target_id = params["target"]
         query = params["query"]
@@ -658,11 +674,17 @@ class Kernel:
         if not self._is_readable(agent, target):
             return ActionResult(False, error=f"{target_id} not readable here")
 
-        retrieve = getattr(target.brain, "retrieve", None)
-        if retrieve is None:
-            return ActionResult(False, error=f"{target_id} brain cannot retrieve")
-        data = retrieve(query)
-        return ActionResult(True, data=data)
+        msg = Message(
+            id=str(uuid.uuid4()),
+            sender=agent.id,
+            recipients=[target_id],
+            kind="read",
+            content=query,
+            tick_sent=self.tick,
+            wake=True,
+        )
+        self.send(msg)
+        return ActionResult(True, data="queued")
 
     def _execute_move(self, agent, action: Action) -> ActionResult:
         destination = action.params["destination"]

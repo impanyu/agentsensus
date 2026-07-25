@@ -121,14 +121,23 @@
 ### observe
 - 签名: `{"action": "observe", "params": {"target": "..."}}`
 - 同步。
-- 作用: 观察一个目标(通常是你当前所在的 environment agent),结果返回该环境的
-  公开状态与当前在场者集合等信息。
+- 作用: 直接返回目标 agent 的公开 status(character/environment/info_carrier
+  三种 agent 通用同一种返回形状:`{"kind": "...", "status": {...},
+  "occupants": [...]}`,`occupants` 只在目标是 environment 时出现),**不包含
+  任何记忆内容**。可见性规则与之前一致:character 目标必须与你同处一地(且未
+  archived);info_carrier 目标必须可读(同处一地,或 portable 且被你持有);
+  environment 目标按现有规则始终可观察。想了解目标"知道什么"/"记得什么",要用
+  `say`(character)或 `read`(info_carrier)去问,而不是 `observe`。
 
 ### read
 - 签名: `{"action": "read", "params": {"target": "...", "query": "..."}}`
-- 同步。
-- 作用: 向一个 info_carrier(书籍/网站/笔记等)发起带 query 的检索式阅读,结果
-  是该载体基于关键词/相似度匹配返回的相关片段,而不是整份文本。
+- 异步。
+- 作用: 向一份可读文书(info_carrier,如书籍/信件/日记)发起带 query 的询问。
+  这是异步的:你的 `read` 只是把这条询问投递进该文书自己的收件箱,文书本身
+  (也是一个有 LLM brain 的 agent)会在它自己的回合里,根据自己的记忆(即文书
+  内容,由沉淀/`remember`写入其长期记忆)作答,再用 `say` 把答案发回给你——不
+  是本次 action 立即返回结果。只对 info_carrier 类型的目标有效;目标必须与你
+  同处一地,或者是可携带(portable)且正被你持有。
 
 ### move
 - 签名: `{"action": "move", "params": {"destination": "..."}}`
@@ -176,9 +185,11 @@
   形状,没有特例)。
 - 异步。
 - 作用: 对一个 environment 类 agent 施加一个动作(例如推门、点火、翻找抽屉)。
-  这个动作由目标环境的被动接口处理:如果目标环境是 RuleBrain,默认结果是
-  `"{你的id} 对环境做了: {content}"`(场景可自定义);如果目标环境是
-  LLMBrain,则会走一次异步消息处理再给出结果。
+  这条 act_on 消息会被投递进目标环境自己的收件箱,和 `say`/`gesture` 发给任何
+  其他 agent 完全一样——环境 agent 自己也有 LLM brain 和完整短期记忆,会在它
+  自己的回合里对这条消息作出反应(例如用 `update_status` 更新自身状态,再
+  `say` 把结果回复给你)。这是纯异步的:发起 `act_on` 的这次 action 不会同步
+  拿到结果,结果要等环境自己回复。
 
 ### broadcast
 - 签名: `{"action": "broadcast", "params": {"targets": ["..."], "content": "...", "wake": false}}`
