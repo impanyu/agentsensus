@@ -326,7 +326,10 @@ async def build_society(
         shared_memory=shared,
         llm=llm,
         metrics=metrics,
-        config={"language": cfg.get("language", "zh")},
+        config={
+            "language": cfg.get("language", "zh"),
+            "wake_all_characters": defaults.get("wake_all_characters", False),
+        },
     )
     kernel.scenario_cfg = cfg
 

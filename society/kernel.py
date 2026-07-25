@@ -202,6 +202,17 @@ class Kernel:
             return False
         if a.transit is not None:
             return False
+        if self.config.get("wake_all_characters") and a.kind == "character":
+            # Task S4 ablation arm: every non-archived, non-transit
+            # character is scheduled every tick, bypassing the
+            # goal/inbox/timeout checks below entirely (this is the
+            # "no event-driven sleep" arm for the sleep-economy ablation).
+            # environments/info_carriers are NOT covered by this flag --
+            # they fall through to the existing event-driven logic below
+            # and stay REACTIVE (a location/document has no proactive
+            # agenda, and there are many more envs+carriers than
+            # characters, so their cost must stay ~0).
+            return True
         if any(m.wake for m in a.stm.inbox_items()):
             return True
         if a.waiting_until is None:
@@ -558,15 +569,21 @@ class Kernel:
     # its surroundings, conclude a judgment, then push a fundamental goal
     # and a current goal.
     _GOAL_HINT_ZH = (
-        "你的目标栈为空。建议先 recall 回忆自己的过去,observe 观察当前环境,"
-        "conclude 得出处境判断,然后 push_goal 设立一个根本目标,"
-        "再 push_goal 设立当前的小目标。"
+        "你的目标栈为空。请**先 push_goal** 自举一个你此刻最想推进的目标(根据你的"
+        "记忆 recall 和当前处境),**然后**围绕它持续行动(say/observe/act_on/"
+        "remember…)。不要只做一个 pop_message 或 recall 就停;没有目标你下一刻就会"
+        "休眠。若收件箱里有消息,可以先 push_goal(如“回应 X 的消息”)再处理——消息"
+        "在你 pop 之前会一直留着。"
     )
     _GOAL_HINT_EN = (
-        "Your goal stack is empty. Recommended: recall your own past, "
-        "observe your current surroundings, conclude a judgment about your "
-        "situation, then push_goal a fundamental goal, and push_goal a "
-        "current goal."
+        "Your goal stack is empty. **First push_goal** to bootstrap a goal "
+        "you most want to pursue right now (based on recall of your memory "
+        "and your current situation), **then** act on it continuously "
+        "(say/observe/act_on/remember...). Don't just do a single "
+        "pop_message or recall and stop; with no goal you'll go back to "
+        "sleep next tick. If there's a message in your inbox, you can "
+        "push_goal first (e.g. \"respond to X's message\") and handle it "
+        "afterward -- the message stays put until you pop it."
     )
 
     def _build_agent_view(self, agent) -> dict:

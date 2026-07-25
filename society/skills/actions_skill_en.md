@@ -245,16 +245,29 @@ The view you receive typically contains:
 
 ## Six typical pipelines
 
-### 1. Message handling (peek → pop → push a small goal → act → pop)
-1. `peek_inbox` to check queue depth and preview the head message, and
-   decide whether it's worth handling now;
-2. `pop_message` to take the actual message off the queue;
-3. `push_goal` a corresponding small goal based on the message content
-   (e.g. "reply to alice's question");
+### 1. Message handling (push_goal FIRST → pop → act → pop_goal)
+**Critical order: `push_goal` before `pop_message`.** The view's
+`inbox_head` already gives you a preview of the head-of-queue message
+(sender, kind) -- you can decide "what kind of message is this, is it
+worth handling now" from that alone, without popping. If you `pop_message`
+first while your goal stack happens to be empty, there is a window --
+before you get around to `push_goal` -- where you're judged goalless and
+stop being scheduled starting next tick; the message is already gone from
+the inbox (you popped it) and you never get a chance to push that goal
+afterward. The correct order is:
+1. Look at `inbox_head` (and/or `peek_inbox` first) to preview the head
+   message's sender and kind, and decide whether it's worth handling now;
+2. **`push_goal` first**, based on that preview, pushing a corresponding
+   small goal (e.g. "reply to alice's message") -- the message is still
+   sitting in the inbox at this point (nothing is lost), and you stay
+   awake because you now have a goal;
+3. Only then `pop_message` to actually take the body off the queue --
+   the content `peek_inbox` couldn't show you is visible now;
 4. Repeatedly perform the appropriate actions (`observe`/`think`/`say`/
-   `recall`, etc.) around that small goal until it is achieved;
-5. Once achieved, `pop_goal` to remove it and return to a higher-level goal
-   or `wait`.
+   `recall`, etc.) around the goal pushed in step 2 until it is achieved;
+5. Only once it is achieved, `pop_goal` to remove it and return to a
+   higher-level goal or `wait` -- don't pop it early, before it's actually
+   done.
 
 ### 2. Socializing (observe environment → pick targets → say/gesture → wait)
 1. `observe` your current environment to get the set of present agents and
@@ -304,13 +317,50 @@ next themselves).
    keep going with the other pipelines (message handling / socializing /
    moving / etc.).
 
-### 6. Goal management (fundamental goal at the bottom; pop once achieved)
+### 6. Goal lifecycle (empty stack → push_goal → keep pursuing → sub-goal/replace_goal → pop only once achieved)
 1. The fundamental goal sits at the **bottom** of the goal stack, injected
    by the scenario at initialization; you generally should not `pop_goal`
    it yourself;
 2. The specific goal you're currently working on sits at the **top**; use
    `push_goal` to add finer-grained sub-goals;
-3. As soon as a sub-goal is achieved, `pop_goal` it immediately to avoid an
-   ever-growing, unfocused goal stack;
+3. Only `pop_goal` a sub-goal once it is truly achieved (or you have
+   genuinely decided to abandon it because it can't/needn't be pursued
+   further) -- this avoids an ever-growing, unfocused goal stack, but don't
+   pop early just to "clear the stack" while things are still unfinished;
 4. If a goal's wording needs adjusting but its level shouldn't change, use
-   `replace_goal` instead of a `pop_goal` + `push_goal` pair.
+   `replace_goal` instead of a `pop_goal` + `push_goal` pair;
+5. **Keep at least one goal on the stack as long as you have unfinished
+   business** -- continuing a story always has unfinished business (an
+   unsaid next line, a reply you're waiting on, a decision not yet made),
+   so there is almost never a moment where a goal is so completely done
+   that the stack can be left empty; rewrite the goal to be more specific
+   rather than popping it away.
+
+**Worked example (starting from an empty stack, spanning several ticks)**:
+- Tick 0 (goal stack empty, view shows `goal_hint`): `recall("my own
+  history")` to remember your background → `observe` the current
+  environment → `conclude("I just came back from..., I'm now at..., I
+  don't yet know...")` → `push_goal("figure out what happened")`
+  (fundamental goal) → `push_goal("find alice and ask her")` (current
+  goal).
+- Tick 1: `observe` the environment, find alice present → `say(targets=
+  ["alice"], "do you know what happened with...?")` → `wait` (waiting for
+  alice's reply -- the goal stack stays non-empty, so you'll be woken next
+  by her reply message arriving, not left to sleep forever).
+- Tick 2: alice's reply arrives and wakes you → **first** `push_goal("respond
+  to alice's message")` (based on the `inbox_head` preview, following
+  pipeline 1's order above) → `pop_message` to read the body → it turns out
+  to be more complicated than expected, so `replace_goal("verify what alice
+  said is actually true")` (a wording change, same stack depth) →
+  `remember("alice said...")` to store the key fact in long-term memory.
+- Ticks 3-4: keep pursuing the "verify" goal with several more rounds of
+  `observe`/`recall`/`say`, each time confirming the goal stack is
+  non-empty (so you stay awake), until you reach a solid conclusion.
+- Tick 5: once confirmed, `conclude` it into short-term memory, `pop_goal`
+  the "verify..." sub-goal (achieved), back down to the fundamental "figure
+  out what happened" goal at the bottom -- if that fundamental goal has now
+  also been satisfied by the verification result, keep going with a new
+  `push_goal` for a current goal (e.g. "tell someone the result") instead of
+  letting the stack bottom out; only consider popping the fundamental goal
+  too once it is genuinely settled and there is truly nothing left to do
+  next.
