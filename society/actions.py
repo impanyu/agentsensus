@@ -26,7 +26,15 @@ class ActionResult:
 
 @dataclass
 class Message:
-    """Message sent between agents."""
+    """Message sent between agents.
+
+    `wake` controls whether this message, by itself, is allowed to make a
+    sleeping recipient eligible (Kernel.is_eligible) and to clear a
+    recipient's `waiting_until` on delivery (Kernel.deliver_pending).
+    Defaults to True so say/gesture/system/arrival messages behave exactly
+    as before wake was introduced. `broadcast` is the only action that
+    lets the sender set this to False.
+    """
     id: str
     sender: str
     recipients: list
@@ -34,6 +42,7 @@ class Message:
     content: str
     tick_sent: int
     correlation_id: str | None = None
+    wake: bool = True
 
     def to_dict(self) -> dict:
         """Convert Message to dictionary."""
@@ -44,7 +53,8 @@ class Message:
             "kind": self.kind,
             "content": self.content,
             "tick_sent": self.tick_sent,
-            "correlation_id": self.correlation_id
+            "correlation_id": self.correlation_id,
+            "wake": self.wake
         }
 
 
@@ -67,14 +77,19 @@ SYNC_ACTIONS: set[str] = {
     "read",
     "move",
     "wait",
-    "noop"
+    "noop",
+    "add_affiliated",
+    "remove_affiliated",
+    "set_affiliated",
+    "get_affiliated"
 }
 
 # Asynchronous actions (may take multiple ticks)
 ASYNC_ACTIONS: set[str] = {
     "say",
     "gesture",
-    "act_on"
+    "act_on",
+    "broadcast"
 }
 
 # Required parameters for each action
@@ -97,9 +112,18 @@ REQUIRED_PARAMS: dict[str, list[str]] = {
     "move": ["destination"],
     "wait": [],
     "noop": [],
+    # {targets, content} is the uniform shape for every message-like
+    # action (say/gesture/broadcast/act_on): exactly the same two keys,
+    # no special cases. act_on's `targets` must contain exactly one
+    # co-located environment id (enforced by the kernel, not here).
     "say": ["targets", "content"],
-    "gesture": ["targets", "description"],
-    "act_on": ["target", "description"]
+    "gesture": ["targets", "content"],
+    "act_on": ["targets", "content"],
+    "broadcast": ["targets", "content"],
+    "add_affiliated": ["memory_id", "affiliated"],
+    "remove_affiliated": ["memory_id", "affiliated"],
+    "set_affiliated": ["memory_id", "affiliated"],
+    "get_affiliated": ["memory_id"]
 }
 
 

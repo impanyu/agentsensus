@@ -5,7 +5,9 @@ from society.actions import (Action, ActionResult, Message, SYNC_ACTIONS, ASYNC_
 def test_action_sets_are_disjoint_and_complete():
     assert SYNC_ACTIONS & ASYNC_ACTIONS == set()
     assert "move" in SYNC_ACTIONS and "say" in ASYNC_ACTIONS
-    assert len(SYNC_ACTIONS | ASYNC_ACTIONS) == 21
+    assert "broadcast" in ASYNC_ACTIONS
+    assert {"add_affiliated", "remove_affiliated", "set_affiliated", "get_affiliated"} <= SYNC_ACTIONS
+    assert len(SYNC_ACTIONS | ASYNC_ACTIONS) == 26
 
 def test_validate_ok_and_missing_param():
     assert validate_action(Action("say", {"targets": ["b"], "content": "hi"})) is None
@@ -31,3 +33,8 @@ def test_result_and_message_serialization():
     m = Message(id="1", sender="a", recipients=["b"], kind="say", content="hi", tick_sent=3)
     d = m.to_dict()
     assert d["recipients"] == ["b"] and d["tick_sent"] == 3 and d["correlation_id"] is None
+    assert d["wake"] is True   # default wake=True (say behaves exactly as before wake existed)
+
+    quiet = Message(id="2", sender="a", recipients=["b"], kind="broadcast",
+                     content="fyi", tick_sent=3, wake=False)
+    assert quiet.to_dict()["wake"] is False

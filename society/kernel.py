@@ -136,8 +136,12 @@ class Kernel:
     def deliver_pending(self) -> bool:
         """Deliver all messages queued via send() this tick into inboxes.
 
-        Delivery clears the recipient's waiting state (a message always
-        wakes a sleeping agent). Returns True if anything was delivered.
+        Delivery clears the recipient's waiting state only for messages
+        with wake=True -- a wake=False message (e.g. a `broadcast` sent
+        with wake=False) is still placed in the inbox (readable via
+        pop_message/peek_inbox once the agent is awake for any other
+        reason) but must not by itself interrupt a `wait`. Returns True if
+        anything was delivered.
         """
         pending, self._pending = self._pending, []
         delivered_any = False
@@ -153,7 +157,8 @@ class Kernel:
                     )
                     continue
                 recipient.stm.inbox.put_nowait(msg)
-                recipient.waiting_until = None
+                if msg.wake:
+                    recipient.waiting_until = None
                 delivered_any = True
                 self.event_log.append(
                     self.tick,
@@ -181,7 +186,15 @@ class Kernel:
         )
 
     def is_eligible(self, a) -> bool:
-        """Whether agent `a` should get a decide/execute cycle this tick."""
+        """Whether agent `a` should get a decide/execute cycle this tick.
+
+        The inbox check wakes `a` only if it contains at least one
+        wake=True message (checked non-destructively via
+        `stm.inbox_items()`) -- a wake=False message (e.g. from
+        `broadcast(wake=False)`) never makes a goalless/waiting agent
+        eligible by itself, though it is still poppable/peekable once `a`
+        is awake for any other reason.
+        """
         if getattr(a, "archived", False):
             # History-sedimentation mode (design spec §4.1): archived
             # (already-dead) agents never participate in the simulation,
@@ -189,7 +202,7 @@ class Kernel:
             return False
         if a.transit is not None:
             return False
-        if a.stm.inbox.qsize() > 0:
+        if any(m.wake for m in a.stm.inbox_items()):
             return True
         if a.waiting_until is None:
             return not a.stm.goals.empty()
@@ -323,11 +336,14 @@ class Kernel:
             agent.stm.status.remove(params["key"])
             return ActionResult(True, data="removed")
 
-        if name in ("say", "gesture"):
+        if name in ("say", "gesture", "broadcast"):
             return self._execute_say_or_gesture(agent, action)
 
         if name == "act_on":
             return self._execute_act_on(agent, action)
+
+        if name in ("add_affiliated", "remove_affiliated", "set_affiliated", "get_affiliated"):
+            return self._execute_affiliated_crud(agent, action)
 
         if name == "observe":
             return self._execute_observe(agent, action)
@@ -347,11 +363,19 @@ class Kernel:
         return ActionResult(False, error=f"not implemented: {name}")
 
     def _execute_say_or_gesture(self, agent, action: Action) -> ActionResult:
-        """say/gesture: every target must exist and share sender's location,
-        else no message is sent and the offenders are named in the error."""
+        """say/gesture/broadcast: uniform {targets, content} shape. Every
+        target must exist and share sender's location, else no message is
+        sent and the offenders are named in the error.
+
+        wake defaults to True (say/gesture behave exactly as before wake
+        existed); `broadcast` accepts an optional `wake` param (default
+        False) that becomes Message.wake -- broadcast is a wide, un-targeted
+        announcement that by default sits quietly in the inbox instead of
+        interrupting a `wait`."""
         params = action.params
         targets = params["targets"]
-        content = params["content"] if action.name == "say" else params["description"]
+        content = params["content"]
+        wake = bool(params.get("wake", False)) if action.name == "broadcast" else True
 
         sender_loc = agent.location()
         offenders = []
@@ -376,18 +400,26 @@ class Kernel:
             kind=action.name,
             content=content,
             tick_sent=self.tick,
+            wake=wake,
         )
         self.send(msg)
         return ActionResult(True, data="sent")
 
     def _execute_act_on(self, agent, action: Action) -> ActionResult:
-        """act_on(target, description): target must be an environment agent
-        the actor is currently at. RuleBrain envs answer synchronously
-        (wrapped as an env_result Message queued to the actor); LLM-brain
-        envs instead receive an act_on Message in their own inbox."""
+        """act_on(targets, content): targets must be a list containing
+        EXACTLY ONE environment id, and the actor must be co-located with
+        it. RuleBrain envs answer synchronously (wrapped as an env_result
+        Message queued to the actor); LLM-brain envs instead receive an
+        act_on Message in their own inbox."""
         params = action.params
-        target_id = params["target"]
-        description = params["description"]
+        targets = params["targets"]
+        content = params["content"]
+
+        if len(targets) != 1:
+            return ActionResult(
+                False, error="act_on targets must contain exactly one environment id"
+            )
+        target_id = targets[0]
 
         target = self.agents.get(target_id)
         if target is None or target.kind != "environment":
@@ -398,7 +430,7 @@ class Kernel:
         handle_act_on = getattr(target.brain, "handle_act_on", None)
         if handle_act_on is not None:
             view = self._build_agent_view(target)
-            reply = handle_act_on(agent.id, description, view)
+            reply = handle_act_on(agent.id, content, view)
             msg = Message(
                 id=str(uuid.uuid4()),
                 sender=target_id,
@@ -414,11 +446,65 @@ class Kernel:
                 sender=agent.id,
                 recipients=[target_id],
                 kind="act_on",
-                content=description,
+                content=content,
                 tick_sent=self.tick,
             )
             self.send(msg)
         return ActionResult(True, data="acted")
+
+    # ------------------------------------------------------------------
+    # Affiliated-memory CRUD (sync; no LLM calls; delegates to SharedMemory)
+    # ------------------------------------------------------------------
+    def _get_owned_entry(self, memory_id: str):
+        """Look up a shared-memory entry by id via the public
+        `all_entries()` API. Returns None if the id doesn't exist."""
+        for entry in self.shared_memory.all_entries():
+            if entry["id"] == memory_id:
+                return entry
+        return None
+
+    def _execute_affiliated_crud(self, agent, action: Action) -> ActionResult:
+        """add_affiliated/remove_affiliated/set_affiliated/get_affiliated:
+        all four operate only on memories `agent` owns. `set_affiliated`
+        replaces the whole affiliated array (implemented here as
+        remove-all-then-add; ltm.py itself is not modified).
+        `get_affiliated` resolves each affiliated id to its text, skipping
+        dangling ids (ones with no matching entry) silently."""
+        if self.shared_memory is None:
+            return ActionResult(False, error="no shared memory")
+
+        params = action.params
+        memory_id = params["memory_id"]
+
+        entry = self._get_owned_entry(memory_id)
+        if entry is None:
+            return ActionResult(False, error=f"no such memory: {memory_id}")
+        if agent.id not in entry["owners"]:
+            return ActionResult(False, error=f"not an owner of {memory_id}")
+
+        name = action.name
+
+        if name == "add_affiliated":
+            self.shared_memory.add_affiliations(memory_id, params["affiliated"])
+            return ActionResult(True, data="added")
+
+        if name == "remove_affiliated":
+            self.shared_memory.remove_affiliations(memory_id, params["affiliated"])
+            return ActionResult(True, data="removed")
+
+        if name == "set_affiliated":
+            current = self.shared_memory.get_affiliations(memory_id)
+            if current:
+                self.shared_memory.remove_affiliations(memory_id, current)
+            if params["affiliated"]:
+                self.shared_memory.add_affiliations(memory_id, params["affiliated"])
+            return ActionResult(True, data="set")
+
+        # get_affiliated
+        ids = self.shared_memory.get_affiliations(memory_id)
+        id_to_text = {e["id"]: e["text"] for e in self.shared_memory.all_entries()}
+        data = [{"id": i, "text": id_to_text[i]} for i in ids if i in id_to_text]
+        return ActionResult(True, data=data)
 
     # ------------------------------------------------------------------
     # View construction (Fix 1b: discoverability of ids for say/observe/

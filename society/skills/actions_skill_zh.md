@@ -102,6 +102,22 @@
   规范化与共识插入流程"。用它来更正错误或过时的记忆,而不要自己手动拆成
   forget + remember 两步。
 
+### add_affiliated / remove_affiliated / set_affiliated / get_affiliated
+- 签名(四个动作参数形状一致,`get_affiliated` 只需要 `memory_id`):
+  - `{"action": "add_affiliated", "params": {"memory_id": "...", "affiliated": ["..."]}}`
+  - `{"action": "remove_affiliated", "params": {"memory_id": "...", "affiliated": ["..."]}}`
+  - `{"action": "set_affiliated", "params": {"memory_id": "...", "affiliated": ["..."]}}`
+  - `{"action": "get_affiliated", "params": {"memory_id": "..."}}`
+- 同步。不调用 LLM。
+- 作用: 每条长期记忆都有一个"关联记忆"数组(`affiliated`),用来把同一事件/同一
+  话题下相关的多条记忆链接起来,方便日后一并回忆。这四个动作分别是对这个数组的
+  增(`add_affiliated`)、删(`remove_affiliated`)、整体替换(`set_affiliated`,
+  用新数组整体覆盖旧数组)、查(`get_affiliated`,返回
+  `[{"id": "...", "text": "..."}, ...]`,把每个关联 id 解析成对应记忆的正文;
+  如果某个关联 id 指向的记忆已经不存在,会被静默跳过,不报错)。
+  **只能操作你自己拥有(owners 包含你)的记忆**——`memory_id` 不属于你时,四个动作
+  都会失败并返回"not an owner of ..."错误。
+
 ### observe
 - 签名: `{"action": "observe", "params": {"target": "..."}}`
 - 同步。
@@ -123,9 +139,13 @@
   "已到达"系统消息把你唤醒,同时 `status.location` 会自动更新为新环境。
 
 ### wait
-- 签名: `{"action": "wait", "params": {}}`
-- 同步。
-- 作用: 本 tick 什么也不做,通常用于等待他人回复,或等待消息/事件到来。
+- 签名: `{"action": "wait", "params": {"timeout_ticks": N}}`(`timeout_ticks` 可选)
+- 同步发起,但会产生"休眠"效果。
+- 作用: 带 `timeout_ticks=N` 时,你会休眠 N 个 tick 后自动醒来(即使没有任何消息);
+  不带这个参数时,等价于**永久休眠**,直到收到一条 `wake=true` 的消息才会被唤醒
+  ——**唤醒消息总能打断等待**,不论是定时等待还是永久等待。注意:`wake=false` 的
+  消息(见 `broadcast`)不会打断 `wait`,它会安静地留在你的收件箱里,等你因为其他
+  原因醒来后再去看。
 
 ### noop
 - 签名: `{"action": "noop", "params": {}}`
@@ -144,18 +164,31 @@
   tick,对方通过自己的消息队列收到这条消息,并可能因此被唤醒。
 
 ### gesture
-- 签名: `{"action": "gesture", "params": {"targets": ["..."], "description": "..."}}`
+- 签名: `{"action": "gesture", "params": {"targets": ["..."], "content": "..."}}`
 - 异步。
 - 作用: 向 `targets` 展示一个非语言的动作/表情/姿态,机制与 `say` 完全相同,只是
   内容语义是动作而非言语。
 
 ### act_on
-- 签名: `{"action": "act_on", "params": {"target": "...", "description": "..."}}`
+- 签名: `{"action": "act_on", "params": {"targets": ["..."], "content": "..."}}`
+  ——`targets` 必须是**恰好包含一个**元素的列表,元素是你当前所在的那个
+  environment 类 agent 的 id(和 `say`/`gesture` 用同一套 `{targets, content}`
+  形状,没有特例)。
 - 异步。
 - 作用: 对一个 environment 类 agent 施加一个动作(例如推门、点火、翻找抽屉)。
   这个动作由目标环境的被动接口处理:如果目标环境是 RuleBrain,默认结果是
-  `"{你的id} 对环境做了: {description}"`(场景可自定义);如果目标环境是
+  `"{你的id} 对环境做了: {content}"`(场景可自定义);如果目标环境是
   LLMBrain,则会走一次异步消息处理再给出结果。
+
+### broadcast
+- 签名: `{"action": "broadcast", "params": {"targets": ["..."], "content": "...", "wake": false}}`
+  ——`wake` 可选,默认 `false`。
+- 异步。
+- 作用: 向 `targets` 广而告之——受众可以很多,机制上和 `say` 一样(每个目标下一
+  tick 收到一条消息),但语义不同:`say` 是定向交谈(默认 `wake=true`,会主动
+  唤醒对方);`broadcast` 是大范围周知,默认 `wake=false`——**不会**吵醒对方,
+  消息只是安静地躺进对方的收件箱,等对方下次因为别的原因醒来时自然会看到。如果
+  确实需要广播也能唤醒对方,显式传 `"wake": true`。
 
 ---
 

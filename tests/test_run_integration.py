@@ -43,7 +43,7 @@ async def test_smoke_run_produces_all_outputs(tmp_path):
            "ben": ['{"action": "pop_message", "params": {}}',
                    '{"action": "say", "params": {"targets": ["amy"], "content": "你好"}}'],
            "cid": ['{"action": "pop_message", "params": {}}',
-                   '{"action": "gesture", "params": {"targets": ["amy"], "description": "挥手"}}']}
+                   '{"action": "gesture", "params": {"targets": ["amy"], "content": "挥手"}}']}
 
     def fn(prompt, system=None):
         # Route by matching the agent id against the system prompt (each

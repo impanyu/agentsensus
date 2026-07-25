@@ -110,7 +110,7 @@ async def test_act_on_rule_env_pushes_env_result():
                 RuleBrain(act_on_fn=lambda actor, desc, view: f"{actor}打开了{desc},门开了"),
                 STM())
     k = build([a, env])
-    r = await k.execute(a, Action("act_on", {"target": "hall", "description": "大门"}))
+    r = await k.execute(a, Action("act_on", {"targets": ["hall"], "content": "大门"}))
     assert r.ok
     k.deliver_pending()      # public delivery step
     assert a.stm.inbox.qsize() == 1

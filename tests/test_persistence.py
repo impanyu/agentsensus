@@ -5,6 +5,7 @@ import uuid
 
 import yaml
 
+from society.actions import Message
 from society.events import EventLog
 from society.ltm import SharedMemory
 from society.persistence import load_checkpoint, restore_society, save_checkpoint
@@ -233,6 +234,60 @@ async def test_checkpoint_roundtrip_state(tmp_path):
         (e["id"], tuple(e["owners"])) for e in restored.shared_memory.all_entries()
     )
     assert orig_ltm == restored_ltm
+
+
+# ----------------------------------------------------------------------
+# 2b. Message.wake survives a checkpoint save/restore round-trip, for both
+#     already-delivered inbox messages and still-pending (queued) ones.
+# ----------------------------------------------------------------------
+
+WAKE_CKPT_SCEN = {
+    "scenario": "wake_ckpt_test", "language": "zh",
+    "defaults": {"stats_interval": 100, "distance": 3},
+    "agents": [
+        {"id": "hall", "kind": "environment", "brain": "rule"},
+        {"id": "amy", "kind": "character", "brain": "rule",
+         "status": {"location": "hall"}},
+    ],
+    "map": {"default_distance": 3},
+}
+
+
+async def test_message_wake_survives_checkpoint_roundtrip(tmp_path):
+    kernel = await build_society(
+        WAKE_CKPT_SCEN, llm=FakeLLM(), embed_fn=afake_embed, event_log=EventLog(None)
+    )
+    amy = kernel.agents["amy"]
+    amy.stm.inbox.put_nowait(
+        Message(id="quiet", sender="ghost", recipients=["amy"], kind="broadcast",
+                content="fyi", tick_sent=0, wake=False)
+    )
+    amy.stm.inbox.put_nowait(
+        Message(id="loud", sender="ghost", recipients=["amy"], kind="say",
+                content="hi", tick_sent=0)
+    )
+    kernel._pending.append(
+        Message(id="pending_quiet", sender="ghost", recipients=["amy"], kind="broadcast",
+                content="later", tick_sent=0, wake=False)
+    )
+
+    ckpt_path = str(tmp_path / "wake_ckpt.json")
+    save_checkpoint(kernel, ckpt_path)
+    ckpt = load_checkpoint(ckpt_path)
+
+    inbox_wake = {m["id"]: m["wake"] for m in ckpt["agents"]["amy"]["inbox"]}
+    assert inbox_wake == {"quiet": False, "loud": True}
+    pending_wake = {m["id"]: m["wake"] for m in ckpt["pending"]}
+    assert pending_wake == {"pending_quiet": False}
+
+    restored = await restore_society(
+        ckpt, llm=FakeLLM(), embed_fn=afake_embed, event_log=EventLog(None)
+    )
+    r_amy = restored.agents["amy"]
+    restored_inbox_wake = {m.id: m.wake for m in r_amy.stm.inbox_items()}
+    assert restored_inbox_wake == {"quiet": False, "loud": True}
+    restored_pending_wake = {m.id: m.wake for m in restored._pending}
+    assert restored_pending_wake == {"pending_quiet": False}
 
 
 # ----------------------------------------------------------------------

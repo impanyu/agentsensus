@@ -122,6 +122,26 @@ The view you receive typically contains:
   insertion." Use this to correct or update a memory instead of manually
   doing forget + remember yourself.
 
+### add_affiliated / remove_affiliated / set_affiliated / get_affiliated
+- Signatures (all four share the same param shape; `get_affiliated` only needs `memory_id`):
+  - `{"action": "add_affiliated", "params": {"memory_id": "...", "affiliated": ["..."]}}`
+  - `{"action": "remove_affiliated", "params": {"memory_id": "...", "affiliated": ["..."]}}`
+  - `{"action": "set_affiliated", "params": {"memory_id": "...", "affiliated": ["..."]}}`
+  - `{"action": "get_affiliated", "params": {"memory_id": "..."}}`
+- Sync. No LLM calls.
+- Every long-term memory entry has an "affiliated" array — a set of related
+  memory ids (e.g. other memories from the same event or topic) that you can
+  link together for easier joint recall later. These four actions are,
+  respectively, add to that array (`add_affiliated`), remove from it
+  (`remove_affiliated`), wholesale replace it (`set_affiliated` — the new
+  array replaces the old one entirely), and read it (`get_affiliated`,
+  returning `[{"id": "...", "text": "..."}, ...]` — each affiliated id
+  resolved to that memory's text; if an affiliated id no longer resolves to
+  an existing memory it is skipped silently, no error). **You may only
+  operate on memories you own** (i.e. you're in that entry's owners) — if
+  `memory_id` isn't yours, all four actions fail with a "not an owner of
+  ..." error.
+
 ### observe
 - Signature: `{"action": "observe", "params": {"target": "..."}}`
 - Sync.
@@ -147,10 +167,14 @@ The view you receive typically contains:
   updated automatically to the new environment.
 
 ### wait
-- Signature: `{"action": "wait", "params": {}}`
-- Sync.
-- Do nothing this tick. Typically used while waiting for a reply, or for a
-  message/event to arrive.
+- Signature: `{"action": "wait", "params": {"timeout_ticks": N}}` (`timeout_ticks` is optional)
+- Sync to issue, but has a "sleeping" effect.
+- With `timeout_ticks=N`, you sleep for N ticks and then wake up automatically
+  (even with no message). Without it, this is a **sleep forever** — you only
+  wake up once a `wake=true` message arrives. **A waking message always
+  interrupts a wait**, whether it's a timed wait or a forever wait. Note: a
+  `wake=false` message (see `broadcast`) does NOT interrupt `wait` — it sits
+  quietly in your inbox until you wake up for some other reason and check it.
 
 ### noop
 - Signature: `{"action": "noop", "params": {}}`
@@ -171,20 +195,36 @@ The view you receive typically contains:
   up by it.
 
 ### gesture
-- Signature: `{"action": "gesture", "params": {"targets": ["..."], "description": "..."}}`
+- Signature: `{"action": "gesture", "params": {"targets": ["..."], "content": "..."}}`
 - Async.
 - Shows a non-verbal action/expression/gesture to `targets`. Mechanically
   identical to `say`, just with non-verbal content instead of speech.
 
 ### act_on
-- Signature: `{"action": "act_on", "params": {"target": "...", "description": "..."}}`
+- Signature: `{"action": "act_on", "params": {"targets": ["..."], "content": "..."}}`
+  — `targets` must be a list containing **exactly one** element: the id of
+  the `environment` agent you are currently at (the same `{targets, content}`
+  shape as `say`/`gesture` — no special case).
 - Async.
 - Applies an action to an `environment` agent (e.g. pushing a door,
   lighting a fire, rummaging through a drawer). Handled by the target
   environment's passive interface: if it's a RuleBrain, the default result
-  is `"{your_id} did to the environment: {description}"` (scenario
+  is `"{your_id} did to the environment: {content}"` (scenario
   overridable); if it's an LLMBrain, it goes through one round of
   asynchronous message handling before returning a result.
+
+### broadcast
+- Signature: `{"action": "broadcast", "params": {"targets": ["..."], "content": "...", "wake": false}}`
+  — `wake` is optional, defaults to `false`.
+- Async.
+- Announces something to `targets` — the audience can be large. Mechanically
+  it works just like `say` (each target receives one message on the next
+  tick), but the intent differs: `say` is a directed conversation (defaults
+  to `wake=true`, actively waking the recipient); `broadcast` is a wide
+  announcement, defaulting to `wake=false` — it does **not** wake the
+  recipient, the message just sits quietly in their inbox until they wake up
+  for some other reason and see it. Pass `"wake": true` explicitly if you do
+  want the broadcast to wake its recipients.
 
 ---
 
