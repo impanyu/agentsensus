@@ -538,9 +538,17 @@ class SharedMemory:
             embeddings.append(entry.get("embedding") or computed[i])
             metadatas.append(metadata)
 
-        self._collection.add(
-            ids=ids, documents=docs, embeddings=embeddings, metadatas=metadatas
-        )
+        # ChromaDB caps a single add() (its max batch is ~5461); real
+        # sedimented scenarios have thousands of entries, so chunk the add.
+        _BATCH = 2000
+        for s in range(0, len(ids), _BATCH):
+            e = s + _BATCH
+            self._collection.add(
+                ids=ids[s:e],
+                documents=docs[s:e],
+                embeddings=embeddings[s:e],
+                metadatas=metadatas[s:e],
+            )
 
     def stats(self) -> dict:
         """Return {"total", "shared", "ratio"} where shared = entries with >=2 owners."""
