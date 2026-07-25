@@ -126,3 +126,85 @@ async def test_build_society_kernel_config_has_no_wake_all_characters_key():
     llm = FakeLLM(fn=lambda p, s=None: '{"action": "noop", "params": {}}')
     kernel = await build_society(cfg, llm=llm, embed_fn=afake_embed, event_log=EventLog(None))
     assert "wake_all_characters" not in kernel.config
+
+
+# ----------------------------------------------------------------------
+# remember_hint: a decision-time cue that fires once an agent has piled up
+# `_remember_hint_threshold` remember-worthy events (its own say/act_on/
+# broadcast + received dialogue) since its last `remember`. Empirical fix
+# for agents never choosing the discretionary `remember` action on their
+# own (the static skill-doc guidance alone never fired it in live sims).
+# ----------------------------------------------------------------------
+
+class _FakeSharedMem:
+    def __init__(self):
+        self.calls = []
+
+    async def remember(self, owner, text, tick):
+        self.calls.append((owner, text, tick))
+        return {"id": "m1"}
+
+
+def _build_with_mem(agents, mem, config=None):
+    envs = [a.id for a in agents if a.kind == "environment"]
+    return Kernel({a.id: a for a in agents}, WorldMap(envs, default_distance=4),
+                  EventLog(None), shared_memory=mem, config=config)
+
+
+def test_remember_hint_strings_mention_remember_and_cue():
+    for s in (Kernel._REMEMBER_HINT_ZH, Kernel._REMEMBER_HINT_EN):
+        assert "remember" in s
+    assert "记忆提示" in Kernel._REMEMBER_HINT_ZH
+    assert "Memory cue" in Kernel._REMEMBER_HINT_EN
+
+
+def test_remember_hint_absent_below_threshold_present_at_threshold():
+    a = char("a", "hall")
+    k = build([a, env("hall")])  # default threshold == 2
+    assert "remember_hint" not in k._build_agent_view(a)
+    k._unremembered[a.id] = 1
+    assert "remember_hint" not in k._build_agent_view(a)
+    k._unremembered[a.id] = 2
+    assert "remember_hint" in k._build_agent_view(a)
+
+
+def test_remember_hint_respects_config_threshold_and_language():
+    a = char("a", "hall")
+    k = build([a, env("hall")], config={"remember_hint_threshold": 3, "language": "en"})
+    k._unremembered[a.id] = 2
+    assert "remember_hint" not in k._build_agent_view(a)
+    k._unremembered[a.id] = 3
+    view = k._build_agent_view(a)
+    assert view["remember_hint"] == Kernel._REMEMBER_HINT_EN
+
+
+async def test_say_increments_counter_for_speaker_and_receiver():
+    a = char("a", "hall")
+    b = char("b", "hall")
+    k = build([a, b, env("hall")])
+    await k._apply(a, Action("say", {"targets": ["b"], "content": "曹操十万大军将至"}), None)
+    # speaker's own say counts immediately
+    assert k._unremembered.get("a") == 1
+    # receiver only counts once the message is actually delivered
+    assert k._unremembered.get("b", 0) == 0
+    k.deliver_pending()
+    assert k._unremembered.get("b") == 1
+
+
+async def test_remember_resets_counter():
+    mem = _FakeSharedMem()
+    a = char("a", "hall")
+    k = _build_with_mem([a, env("hall")], mem)
+    k._unremembered[a.id] = 5
+    await k._apply(a, Action("remember", {"text": "刘备决意南撤江陵"}), None)
+    assert mem.calls  # remember actually executed
+    assert k._unremembered[a.id] == 0
+
+
+async def test_failed_say_does_not_increment_counter():
+    # target not co-located -> say is rejected -> not a real event
+    a = char("a", "hall")
+    b = char("b", "garden")
+    k = build([a, b, env("hall"), env("garden")])
+    await k._apply(a, Action("say", {"targets": ["b"], "content": "x"}), None)
+    assert k._unremembered.get("a", 0) == 0

@@ -107,15 +107,23 @@ The view you receive typically contains:
   others; `conclude`/`think` stay in your private short-term memory,
   invisible to others and soon evicted. So **whenever the story reaches a
   point worth remembering, `remember` it.**
-- **Typical moments to remember (story beats, not every trivial action)**:
-  a decision made or a plan set; the outcome of a battle/clash (who won,
-  who died or was wounded); news or intelligence learned; a promise made or
-  accepted, an alliance formed or betrayed; someone arriving at or leaving a
-  place in a way that changes the situation. Write it as a **self-contained**
-  atomic fact (name the people, place, and what happened — no pronouns).
-- **Do NOT remember**: purely internal deliberation (use `conclude`), facts
-  you just `recall`ed (already stored), or trivial actions.
-- **Call `recall` first** to avoid recording the same fact twice.
+- **Typical moments to remember (story beats)**: a decision made or a plan
+  set; the outcome of a battle/clash (who won, who died or was wounded);
+  news or intelligence learned; a promise made or accepted, an alliance
+  formed or betrayed; someone arriving at or leaving a place in a way that
+  changes the situation. Write it as a **self-contained** atomic fact (name
+  the people, place, and what happened — no pronouns). For example:
+  - `remember("At Xinye, Liu Bei learns that Cao Cao is leading a great army south and will arrive soon.")`
+  - `remember("After conferring with Liu Bei, Zhuge Liang sets the plan: abandon Fancheng, fall back to Xiangyang, and cross the river south with the people.")`
+  - `remember("At Changban, Zhao Yun rode alone through Cao's army and rescued the infant Ah-Dou; Cao's troops failed to cut off Liu Bei's main force.")`
+- **No need to `recall` first**: on write the system runs consensus merging
+  — a memory equivalent to an existing one is folded onto the same row
+  (shared owners), so duplicates never pollute the store. **Just record what
+  happened** and leave dedup to the system; never skip recording out of fear
+  of duplicates.
+- The ONLY thing you should NOT `remember` is pure internal deliberation
+  that hasn't actually happened yet (use `conclude` for that). If it really
+  happened and is worth others knowing, record it.
 
 ### recall
 - Signature: `{"action": "recall", "params": {"query": "..."}}`
@@ -311,16 +319,39 @@ afterward. The correct order is:
 4. On arrival, `observe` the new environment to learn its status and who
    is present.
 
-### 4. Memory hygiene (recall before remember; conclude before remember)
-1. Before `remember`, always `recall(query)` first to check long-term
-   memory for duplicates;
-2. If a judgment is only provisional and not yet a settled fact, write it
-   to short-term memory with `conclude` first instead of rushing to
-   `remember`;
-3. Once that conclusion has been repeatedly confirmed/validated, then
-   `remember` it into shared long-term memory;
+### 4. Memory sedimentation (remember plot beats **on the spot**; don't hoard, don't dedup)
+1. **Whenever a real plot beat happens, `remember` it on the very tick it
+   happens** — a decision or plan made, the outcome of a clash, news heard,
+   a promise given, a death or departure. **Do not** defer it to "wait until
+   it's validated": defer it and no one can ever recall it. The system puts a
+   `remember_hint` field in your view when you've just taken part in
+   memorable developments — when you see it, seriously consider `remember`.
+2. **No need to `recall` first to check for duplicates**: the system
+   consensus-merges duplicates on write. Skipping a record out of fear of
+   duplication is the most common and most harmful mistake — over-record if
+   in doubt; the system will dedup for you.
+3. `conclude`/`think` are only for your own scratch reasoning; they stay in
+   private short-term memory that nobody else sees, and they **cannot
+   substitute** for `remember`. Anything you want shared must be `remember`ed.
 4. If an existing memory is wrong or outdated, use `revise_memory` in one
    step rather than manually doing `forget` + `remember`.
+
+**Worked example — a typical `remember` trajectory across one storyline**
+(one action per tick; a single matter moving from "learned" to "decided" to
+"acted" to "consequence" is the most common `remember` trajectory):
+- **Learned**: `pop_message` / `say` / `read` brings you a new piece of news
+  → record on the spot: `remember("<who> learns that <what>.")`
+- **Decided**: after conferring or deciding alone, you settle on a plan
+  → `remember("<who> (after conferring with <whom>) decides to <do what>.")`
+- **Acted**: `say` / `act_on` / `move` / `broadcast` carries it out and
+  changes the situation → `remember("<who> did <what>, causing <direct result>.")`
+- **Consequence**: a clash resolves, or someone arrives / leaves / dies
+  → `remember("Outcome of <clash or event>: <who won/lost, who left, who died>.")`
+
+When you see `remember_hint`, you are usually standing on one of these beats:
+look back over your last few `say`s and the messages you received, pick out
+**the one thing that actually happened**, record it as a self-contained fact
+(name people and place, no pronouns), then get on with your goal.
 
 ### 5. Bootstrap reflection (recall → observe → conclude → push_goal fundamental → push_goal current)
 Applies when your goal stack is empty (you'll see a `goal_hint` field in your

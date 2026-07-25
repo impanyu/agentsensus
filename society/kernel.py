@@ -48,6 +48,20 @@ class Kernel:
         self._pending: list[Message] = []
         self._budget_hit = False
 
+        # Per-agent count of remember-worthy events accumulated since the
+        # agent last called `remember` (a plot beat it took part in but has
+        # not yet deposited to shared LTM): its own say/gesture/broadcast/
+        # act_on, plus every say/gesture it *receives*. When this reaches
+        # `_remember_hint_threshold`, `_build_agent_view` injects a
+        # `remember_hint` into the agent's decision view (the empirical fix
+        # for agents never picking the discretionary `remember` action on
+        # their own -- the static skill-doc guidance alone never fired it).
+        # Reset to 0 on a successful `remember`.
+        self._unremembered: dict[str, int] = {}
+        self._remember_hint_threshold: int = int(
+            self.config.get("remember_hint_threshold", 2)
+        )
+
         self.presence: dict[str, set] = {}
         self._build_presence()
 
@@ -166,10 +180,15 @@ class Kernel:
                     msg.sender,
                     {"message": msg.to_dict(), "recipient": rid},
                 )
-                if self.metrics is not None and msg.kind in ("say", "gesture"):
-                    on_message = getattr(self.metrics, "on_message", None)
-                    if on_message is not None:
-                        on_message(msg.sender, rid, msg.kind)
+                if msg.kind in ("say", "gesture"):
+                    # Receiving a line of dialogue is itself a remember-worthy
+                    # event for the recipient (news/decisions reach them this
+                    # way), so it feeds their remember-hint backlog too.
+                    self._unremembered[rid] = self._unremembered.get(rid, 0) + 1
+                    if self.metrics is not None:
+                        on_message = getattr(self.metrics, "on_message", None)
+                        if on_message is not None:
+                            on_message(msg.sender, rid, msg.kind)
         return delivered_any
 
     # ------------------------------------------------------------------
@@ -597,6 +616,33 @@ class Kernel:
         "yourself to sleep until a message wakes you -- don't spin."
     )
 
+    # Remember-cue (empirical fix): shown at decision time once an agent has
+    # accumulated `_remember_hint_threshold` remember-worthy events (its own
+    # say/act_on/broadcast + received dialogue) since its last `remember`.
+    # The static skill-doc guidance never fired `remember` on its own; this
+    # puts the cue *in the moment*, right when a plot beat has just happened.
+    _REMEMBER_HINT_ZH = (
+        "【记忆提示】自你上次 `remember` 以来,你已经参与了若干值得记住的进展"
+        "(你的发言/行动,以及收到的对话)。如果其中有**真正发生、值得让大家共享"
+        "的剧情节点**——一个决定或计策、一场交锋的结果、一条消息或情报、一个承诺、"
+        "一次生死或去留——**现在就用 `remember` 把它写成一条完整的原子事实存入共享"
+        "长期记忆**。不要等“反复验证”或攒着:只有 remember 写入的东西日后你和别人才"
+        "recall 得到,过后就再也找不回来了。若这些进展确实都琐碎、不值得共享,可以"
+        "跳过。"
+    )
+    _REMEMBER_HINT_EN = (
+        "[Memory cue] Since your last `remember`, you've taken part in "
+        "several potentially memorable developments (your own lines/actions "
+        "and dialogue you received). If any of them is a **real plot beat "
+        "worth sharing with everyone** -- a decision or plan, the outcome of "
+        "a clash, a piece of news or intelligence, a promise, a death or "
+        "departure -- **use `remember` now to write it as one complete "
+        "atomic fact into shared long-term memory**. Don't wait to "
+        "\"verify\" or let it pile up: only what `remember` writes can be "
+        "recalled later by you or anyone else; otherwise it's lost. If these "
+        "developments really are all trivial, you may skip it."
+    )
+
     def _build_agent_view(self, agent) -> dict:
         """Build `agent`'s STM view, enriched with `colocated` and
         `known_locations` so brains can discover the exact ids to use as
@@ -610,10 +656,16 @@ class Kernel:
         view = agent.build_view(self.tick)
         view["colocated"] = self._colocated_view(agent)
         view["known_locations"] = self._known_locations_view()
+        language = self.config.get("language", "zh")
         if agent.stm.goals.empty():
-            language = self.config.get("language", "zh")
             view["goal_hint"] = (
                 self._GOAL_HINT_ZH if language == "zh" else self._GOAL_HINT_EN
+            )
+        if self._unremembered.get(agent.id, 0) >= self._remember_hint_threshold:
+            view["remember_hint"] = (
+                self._REMEMBER_HINT_ZH
+                if language == "zh"
+                else self._REMEMBER_HINT_EN
             )
         return view
 
@@ -839,6 +891,18 @@ class Kernel:
                 "location": agent.location(),
             },
         )
+
+        # Maintain the remember-hint counter (see __init__): a successful
+        # `remember` clears the agent's backlog; a successful outbound plot
+        # action (say/gesture/broadcast/act_on) adds to it. Only successful
+        # actions count -- a rejected say never happened.
+        if result.ok:
+            if action.name == "remember":
+                self._unremembered[agent.id] = 0
+            elif action.name in ("say", "gesture", "broadcast", "act_on"):
+                self._unremembered[agent.id] = (
+                    self._unremembered.get(agent.id, 0) + 1
+                )
 
     # ------------------------------------------------------------------
     # Budget circuit-breaker
