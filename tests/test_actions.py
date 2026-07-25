@@ -6,6 +6,10 @@ def test_action_sets_are_disjoint_and_complete():
     assert SYNC_ACTIONS & ASYNC_ACTIONS == set()
     assert "move" in SYNC_ACTIONS and "say" in ASYNC_ACTIONS
     assert "broadcast" in ASYNC_ACTIONS
+    # read now queues a Message into the target info_carrier's inbox
+    # (Kernel._execute_read) instead of synchronously calling
+    # brain.retrieve(), so it's async like say/gesture/act_on/broadcast.
+    assert "read" in ASYNC_ACTIONS and "read" not in SYNC_ACTIONS
     assert {"add_affiliated", "remove_affiliated", "set_affiliated", "get_affiliated"} <= SYNC_ACTIONS
     assert len(SYNC_ACTIONS | ASYNC_ACTIONS) == 26
 

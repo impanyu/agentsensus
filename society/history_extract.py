@@ -408,6 +408,41 @@ def _carrier_extract_prompt(source_text: str, carrier: dict, language: str, hint
     )
 
 
+def _carrier_placement_prompt(carriers: list[dict], locations: list[dict], characters: list[dict]) -> str:
+    """Prompt for the Task S2.1 carrier-placement call: given the closed
+    list of info_carriers (id/name/profile) plus the closed lists of
+    environments and characters (id/name) available in the scenario, asks
+    for a placement per carrier -- which environment it is currently in,
+    and whether it is portable and currently held by a character.
+
+    Kernel `_is_readable` (society/kernel.py) requires a `read`er to be
+    co-located with the carrier OR for the carrier to be portable and held
+    by them; without SOME placement, an info_carrier can never be read.
+    The response must be a JSON array, same length and order as
+    `carriers`, so the caller can zip it back up positionally."""
+    carrier_brief = [
+        {"id": c.get("id"), "name": c.get("name") or c.get("id"), "profile": c.get("profile", "")}
+        for c in carriers
+    ]
+    location_brief = [{"id": loc.get("id"), "name": loc.get("name") or loc.get("id")} for loc in locations]
+    character_brief = [{"id": ch.get("id"), "name": ch.get("name") or ch.get("id")} for ch in characters]
+    return (
+        "[carrier-placement] Below is a closed list of INFORMATION CARRIERS (letters/edicts/"
+        "scripts/proclamations/etc.) from a story, followed by the closed lists of "
+        "ENVIRONMENTS and CHARACTERS available in the scenario. For each carrier, IN THE SAME "
+        "ORDER as given, decide its current placement: which environment it is physically in, "
+        "and whether it is portable (can be carried around) and, if so, currently held by one "
+        "of the listed characters (or by no one).\n"
+        "Output ONLY a JSON array, the SAME LENGTH AND ORDER as the carrier list, one object "
+        'per carrier: {"location": "<environment id or name>", "portable": true|false, '
+        '"holder": "<character id or name>"} (omit "holder", or set it to null, if the carrier '
+        "is not currently held by anyone). Do not output any explanation or extra text.\n\n"
+        f"Carriers: {json.dumps(carrier_brief, ensure_ascii=False)}\n\n"
+        f"Environments: {json.dumps(location_brief, ensure_ascii=False)}\n\n"
+        f"Characters: {json.dumps(character_brief, ensure_ascii=False)}"
+    )
+
+
 def _kickoff_prompt(state_summary: str, alive_ids: list[str], hints: str) -> str:
     if hints:
         instruction = f"用户提供的后传前提:{hints}。请据此设计【起始】事件。"
@@ -1915,6 +1950,110 @@ def _dedupe_env_aliases(registry: dict, warnings: list[str]) -> None:
     )
 
 
+# ----------------------------------------------------------------------
+# Task S2.1: carrier placement (fixes info_carriers being permanently
+# unreadable -- see `_assign_carrier_placements` docstring)
+# ----------------------------------------------------------------------
+
+
+async def _assign_carrier_placements(llm, registry: dict, warnings: list[str]) -> dict[str, dict]:
+    """Runs ONE LLM call assigning every `registry["carriers"]` entry a
+    placement, returned as `{carrier_id: {"location": <env id>, "portable":
+    bool, "holder": <char id or None>}}`.
+
+    Bug this fixes (Task S2.1): `_assemble_history_scenario` used to emit
+    every info_carrier agent with `"status": {}` -- no location, no
+    portable/holder -- but Kernel `_is_readable` requires the reader to
+    either share the carrier's location or have it portable-and-held.
+    With an empty status neither is ever true, so `read` was unreachable
+    for every carrier in every real scenario. This call (and its wiring
+    into `_assemble_history_scenario` via the `carrier_placements`
+    parameter) gives every carrier that reaches assembly SOME placement.
+
+    Env/character refs in the LLM's reply are resolved against the
+    registry's id/name/alias tables (`_RegistryResolvers`), exactly like
+    every other resolution step in this module. On any failure -- the
+    reply isn't valid JSON, isn't a JSON array, a per-carrier entry is
+    missing/malformed, or its `location` doesn't resolve to a registered
+    environment -- that carrier (or, for a whole-reply parse failure, ALL
+    carriers) falls back to the FIRST environment id with
+    `portable=False`, and a warning is appended; this function never
+    raises. An unresolvable `holder` ref is dropped (warned) but does not
+    itself trigger the location fallback -- `portable` is kept as given.
+
+    Returns `{}` if there are no carriers to place (no LLM call made), or
+    if the registry has zero environments (nothing to place them IN --
+    carriers keep their current empty `status`, and a warning is
+    appended so this is visible in scenario-quality review).
+    """
+    carriers = [c for c in (registry.get("carriers") or []) if c.get("id") is not None]
+    if not carriers:
+        return {}
+
+    locations = registry.get("locations") or []
+    if not locations:
+        carrier_ids = [c["id"] for c in carriers]
+        warnings.append(
+            "history carrier placement: registry has zero environments; carrier(s) "
+            f"{carrier_ids!r} left with no location (read will be unreachable for them)"
+        )
+        return {}
+
+    characters = registry.get("characters") or []
+    resolvers = _RegistryResolvers(registry)
+    fallback_location = locations[0]["id"]
+
+    def _fallback_placement(cid: str, reason: str) -> dict:
+        warnings.append(
+            f"history carrier placement: {reason} for carrier {cid!r}; falling back to "
+            f"location {fallback_location!r}, portable=False"
+        )
+        return {"location": fallback_location, "portable": False, "holder": None}
+
+    prompt = _carrier_placement_prompt(carriers, locations, characters)
+    raw = await llm.chat(prompt, bucket="extract")
+    try:
+        parsed = _extract_json_block(raw)
+        if not isinstance(parsed, list):
+            raise ValueError("carrier placement response is not a JSON array")
+    except (ValueError, json.JSONDecodeError) as exc:
+        warnings.append(
+            f"history carrier placement call failed to produce a valid JSON array: {exc}; "
+            f"all {len(carriers)} carrier(s) fall back to location {fallback_location!r}, "
+            "portable=False"
+        )
+        return {c["id"]: dict(location=fallback_location, portable=False, holder=None) for c in carriers}
+
+    placements: dict[str, dict] = {}
+    for i, car in enumerate(carriers):
+        cid = car["id"]
+        item = parsed[i] if i < len(parsed) else None
+        if not isinstance(item, dict):
+            placements[cid] = _fallback_placement(cid, "missing or malformed placement entry")
+            continue
+
+        loc_raw = item.get("location")
+        loc = resolvers.resolve_location(loc_raw) if loc_raw is not None else None
+        if loc is None:
+            placements[cid] = _fallback_placement(cid, f"unresolvable location {loc_raw!r}")
+            continue
+
+        portable = bool(item.get("portable", False))
+        holder_raw = item.get("holder")
+        holder = None
+        if holder_raw:
+            holder = resolvers.resolve_character(holder_raw)
+            if holder is None:
+                warnings.append(
+                    f"history carrier placement: carrier {cid!r} holder ref {holder_raw!r} "
+                    "did not resolve to a known character; holder dropped"
+                )
+
+        placements[cid] = {"location": loc, "portable": portable, "holder": holder}
+
+    return placements
+
+
 def _assemble_history_scenario(
     *,
     registry: dict,
@@ -1922,6 +2061,7 @@ def _assemble_history_scenario(
     scenario_name: str,
     language: str,
     warnings: list[str],
+    carrier_placements: dict[str, dict] | None = None,
 ) -> tuple[dict, list[dict]]:
     """Returns (cfg-without-kickoff-or-ltm_file, carriers) so the caller can
     run the kickoff LLM call (which needs the assembled alive-id list) and
@@ -1938,7 +2078,17 @@ def _assemble_history_scenario(
     cases -- these are defense-in-depth for registry noise (e.g. a
     hand-edited or reused `registry=`) that slips past those. I2 remains a
     hard invariant (see below) since it should only ever fire for a
-    genuinely malformed state table, not a registry data-quality issue."""
+    genuinely malformed state table, not a registry data-quality issue.
+
+    `carrier_placements` (Task S2.1) is the `{carrier_id: {"location":...,
+    "portable":..., "holder":...}}` map produced by
+    `_assign_carrier_placements` (an LLM call run by `extract_history`
+    BEFORE this function, since it's the only stage with an LLM handle --
+    this function itself stays synchronous so its many direct call sites,
+    e.g. in tests/test_history_locations.py, don't need to become async).
+    Defaults to `None` (treated as `{}`), which reproduces the old
+    `"status": {}` / no portable-or-holder behavior for callers that don't
+    pass it."""
     raw_locations = [dict(loc) for loc in (registry.get("locations") or []) if "id" in loc]
 
     locations, merge_remap = _merge_duplicate_locations(raw_locations, warnings)
@@ -2024,6 +2174,17 @@ def _assemble_history_scenario(
     carrier_agents = []
     for car in carriers:
         cid = car["id"]
+        # Task S2.1: `_assign_carrier_placements` resolved a location (and,
+        # optionally, portable/holder) for this carrier BEFORE this
+        # function ran (see the `carrier_placements` docstring above).
+        # Without a location here, Kernel `_is_readable` can never be
+        # satisfied for this carrier -- co-location requires SOME location,
+        # and portable+held requires `portable`/`holder` to be set -- so
+        # `read` would be permanently unreachable for it.
+        placement = (carrier_placements or {}).get(cid) or {}
+        loc = placement.get("location")
+        portable = bool(placement.get("portable", False))
+        holder = placement.get("holder")
         carrier_agent = {
             "id": cid,
             "kind": "info_carrier",
@@ -2037,9 +2198,13 @@ def _assemble_history_scenario(
             # LLMBrain path ignores the `corpus:` field.
             "brain": "llm",
             "profile": car.get("profile", ""),
-            "status": {},
+            "status": {"location": loc} if loc is not None else {},
             "corpus": f"corpora/{cid}.txt",
         }
+        if portable:
+            carrier_agent["portable"] = True
+        if holder is not None:
+            carrier_agent["holder"] = holder
         name = car.get("name") or _id_as_name(cid).get("name")
         if name:
             carrier_agent["name"] = name
@@ -2199,9 +2364,21 @@ async def extract_history(
         with open(registry_path, "w", encoding="utf-8") as f:
             json.dump(registry, f, ensure_ascii=False, indent=2)
 
+    # Task S2.1: place every carrier (location + optional portable/holder)
+    # BEFORE assembly, so `read` is reachable for it in the sim path -- see
+    # `_assign_carrier_placements`/`_assemble_history_scenario`'s
+    # `carrier_placements` docstrings. A no-op (no LLM call) when the
+    # registry has no carriers.
+    carrier_placements = await _assign_carrier_placements(llm, registry, warnings)
+
     scenario_name = os.path.splitext(os.path.basename(out_yaml))[0] or "extracted"
     cfg, carriers = _assemble_history_scenario(
-        registry=registry, state=state, scenario_name=scenario_name, language=language, warnings=warnings
+        registry=registry,
+        state=state,
+        scenario_name=scenario_name,
+        language=language,
+        warnings=warnings,
+        carrier_placements=carrier_placements,
     )
 
     alive_ids = [a["id"] for a in cfg["agents"] if a["kind"] == "character" and not a.get("archived")]

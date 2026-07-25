@@ -74,7 +74,6 @@ SYNC_ACTIONS: set[str] = {
     "forget",
     "revise_memory",
     "observe",
-    "read",
     "move",
     "wait",
     "noop",
@@ -89,7 +88,12 @@ ASYNC_ACTIONS: set[str] = {
     "say",
     "gesture",
     "act_on",
-    "broadcast"
+    "broadcast",
+    # Task S2 (unified-agent architecture): `read` no longer synchronously
+    # calls brain.retrieve() -- it queues a Message into the target
+    # info_carrier's own inbox (Kernel._execute_read), answered on the
+    # carrier's own next tick, exactly like say/gesture/act_on.
+    "read"
 }
 
 # Required parameters for each action

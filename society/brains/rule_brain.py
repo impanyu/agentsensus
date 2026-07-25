@@ -5,9 +5,10 @@ from society.brains.base import Brain
 class RuleBrain(Brain):
     """A brain driven by plain Python callables instead of an LLM.
 
-    Used for scenario scripting, tests, and as the default brain for
-    `environment` agents (which mostly just react to observe/act_on rather
-    than take their own turn).
+    Used for scenario scripting and tests. Environment agents in the sim
+    path get an LLMBrain by default (Task S2, unified-agent architecture);
+    RuleBrain is kept for direct construction convenience (e.g. a scripted
+    environment brain in tests) rather than being the kernel's default.
     """
 
     def __init__(self, fn=None, act_on_fn=None):
@@ -15,9 +16,10 @@ class RuleBrain(Brain):
         Args:
             fn: Optional callable(view: dict) -> Action used by decide().
                 If omitted, decide() always returns Action("wait").
-            act_on_fn: Optional callable(actor_id, description, view) -> str
-                used by handle_act_on(). If omitted, a default Chinese
-                description string is produced.
+            act_on_fn: Optional callable(actor_id, description, view) -> str.
+                Not called by the kernel (see `handle_act_on` below) --
+                kept only so callers constructing a RuleBrain directly
+                (e.g. tests) can still invoke `handle_act_on` themselves.
         """
         self._fn = fn
         self._act_on_fn = act_on_fn
@@ -29,8 +31,11 @@ class RuleBrain(Brain):
         return Action("wait")
 
     def handle_act_on(self, actor_id: str, description: str, view: dict) -> str:
-        """Handle the passive act_on interface (called by the kernel when
-        another agent targets this agent with an `act_on` action).
+        """Passive act_on handler -- kept for direct-construction
+        convenience only. The kernel no longer calls this (Task S2,
+        unified-agent architecture): `act_on` now always queues a Message
+        into the target's own inbox, handled on its next `decide()` tick,
+        exactly like `say`/`gesture` (see Kernel._execute_act_on).
 
         Args:
             actor_id: id of the agent performing the act_on.
