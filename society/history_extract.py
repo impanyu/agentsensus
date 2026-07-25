@@ -2160,9 +2160,12 @@ def _assemble_history_scenario(
         loc_agent = {
             "id": loc["id"],
             "kind": "environment",
-            # Task S2 (unified-agent architecture): environments get an
-            # LLMBrain in the sim path now, just like characters.
-            "brain": "llm",
+            # Task R (revert of S2): environments are passive,
+            # function-driven agents -- scenario.py's `_make_brain` gives
+            # them a RuleBrain unconditionally regardless of this field, so
+            # "rule" here is just the accurate/documented value, not a
+            # meaningful choice.
+            "brain": "rule",
             "profile": loc.get("profile", ""),
         }
         name = loc.get("name") or _id_as_name(loc["id"]).get("name")
@@ -2188,15 +2191,17 @@ def _assemble_history_scenario(
         carrier_agent = {
             "id": cid,
             "kind": "info_carrier",
-            # Task S2 (unified-agent architecture): info_carriers get an
-            # LLMBrain in the sim path now, answering `read` queries by
-            # recalling their own LTM document chain (see
-            # `_sediment_carriers`) instead of keyword-matching a fixed
-            # corpus file. The corpus file is still written (below, via
+            # Task R (revert of S2): info_carriers are passive,
+            # function-driven agents -- scenario.py's `_make_brain` gives
+            # them a RuleBrain unconditionally regardless of this field.
+            # `read` queries are answered synchronously by the kernel,
+            # recalling the carrier's own LTM document chain (see
+            # `_sediment_carriers`), not by keyword-matching a fixed corpus
+            # file. The corpus file is still written (below, via
             # `_write_corpora`) and referenced here for backward
-            # compatibility / offline inspection, but scenario.py's
-            # LLMBrain path ignores the `corpus:` field.
-            "brain": "llm",
+            # compatibility / offline inspection, but is otherwise unused
+            # in the sim path.
+            "brain": "retrieval",
             "profile": car.get("profile", ""),
             "status": {"location": loc} if loc is not None else {},
             "corpus": f"corpora/{cid}.txt",
@@ -2424,10 +2429,10 @@ async def extract_history(
     # (i -> i+1) run of document entries, ADDITIVE to the LTM --
     # AFTER the Pass-2 event sediment above has deposited into `shared` and
     # BEFORE the holographic export below so the chains are included in it.
-    # This is exactly the chain a carrier's LLMBrain recalls to answer a
-    # `read` query in the sim path (Task S2 retired RetrievalBrain/`corpus:`
-    # from that path; `_write_corpora`/the "corpus" field above are kept
-    # only for backward compatibility / offline inspection).
+    # This is exactly the chain the kernel's synchronous `read` handler
+    # recalls (via SharedMemory.recall_of, Task R) to answer a `read` query
+    # in the sim path; `_write_corpora`/the "corpus" field above are kept
+    # only for backward compatibility / offline inspection.
     await _sediment_carriers(
         llm,
         shared,

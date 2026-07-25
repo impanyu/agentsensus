@@ -320,13 +320,23 @@ class SharedMemory:
 
     async def recall(self, agent_id: str, query: str, top_k: int = 5) -> list[dict]:
         """Return the top_k entries owned by agent_id, ranked by similarity to query."""
+        return await self.recall_of(agent_id, query, top_k)
+
+    async def recall_of(self, owner_id: str, query: str, top_k: int = 5) -> list[dict]:
+        """Return the top_k entries owned by owner_id, ranked by similarity to
+        query -- same body as `recall`, but named/parameterized so a caller can
+        retrieve memories owned by an agent OTHER than the one asking (Task R:
+        the kernel's synchronous `read` handler uses this to fetch a passive
+        info_carrier's/environment's OWN memories on behalf of the character
+        doing the reading). `recall` itself is just `recall_of` under the
+        agent's own id."""
         if self._collection.count() == 0:
             return []
         embedding = (await self._embed_fn([query]))[0]
         results = self._collection.query(
             query_embeddings=[embedding],
             n_results=min(top_k, self._collection.count()),
-            where={f"owner_{agent_id}": True},
+            where={f"owner_{owner_id}": True},
             include=["documents", "metadatas"],
         )
         docs = results["documents"][0]

@@ -1,17 +1,20 @@
-"""Task S4 -- simulation liveness: goal-lifecycle guidance (goal_hint +
-skill docs) and the `wake_all_characters` config-gated mode. See
-scratchpad/taskS4-liveness-brief.md."""
+"""Task S4 -- simulation liveness: goal-lifecycle guidance (goal_hint).
 
-import json
+Task R (revert of part of S4/S2): the `wake_all_characters` config-gated
+ablation flag added here is REMOVED -- Task R's awake-based eligibility
+model (see society/kernel.py::is_eligible) supersedes it outright: a
+character is eligible whenever it is awake (`waiting_until is None` or a
+real timeout has elapsed), full stop, with no goal-emptiness requirement
+and no separate "wake everyone" arm to bypass it. See
+scratchpad/taskR-simmodel-brief.md.
+"""
 
-import pytest
-import yaml
-
+from society.actions import Action
 from society.agent import Agent
 from society.brains.rule_brain import RuleBrain
 from society.events import EventLog
 from society.kernel import Kernel
-from society.scenario import build_society, load_scenario
+from society.scenario import build_society
 from society.stm import STM
 from society.worldmap import WorldMap
 from tests.helpers import FakeLLM, afake_embed
@@ -26,10 +29,6 @@ def env(aid):
     return Agent(aid, "environment", RuleBrain(), STM())
 
 
-def carrier(aid, loc):
-    return Agent(aid, "info_carrier", RuleBrain(), STM(status={"location": loc}))
-
-
 def build(agents, config=None):
     envs = [a.id for a in agents if a.kind == "environment"]
     return Kernel({a.id: a for a in agents}, WorldMap(envs, default_distance=4),
@@ -37,7 +36,8 @@ def build(agents, config=None):
 
 
 # ----------------------------------------------------------------------
-# Fix 1: goal_hint text pushes goal-first
+# Fix 1: goal_hint text pushes goal-first, and (Task R) tells an idle
+# agent to wait rather than spin.
 # ----------------------------------------------------------------------
 
 def test_goal_hint_zh_mentions_push_goal_first():
@@ -54,59 +54,64 @@ def test_goal_hint_en_mentions_push_goal_first():
     assert "pop" in Kernel._GOAL_HINT_EN.lower()
 
 
+def test_goal_hint_zh_tells_idle_agent_to_wait():
+    assert "wait" in Kernel._GOAL_HINT_ZH
+    assert "休眠" in Kernel._GOAL_HINT_ZH
+
+
+def test_goal_hint_en_tells_idle_agent_to_wait():
+    assert "wait" in Kernel._GOAL_HINT_EN
+    assert "sleep" in Kernel._GOAL_HINT_EN.lower()
+
+
 # ----------------------------------------------------------------------
-# Fix 2: wake_all_characters
+# Task R: awake-based eligibility for characters -- no goal requirement,
+# no wake_all_characters ablation arm (removed).
 # ----------------------------------------------------------------------
 
-async def test_wake_all_makes_idle_character_eligible():
-    a = char("a", "hall")   # empty goals, empty inbox, not waiting
-    k = build([a, env("hall")], config={"wake_all_characters": True})
+async def test_awake_goalless_character_is_eligible():
+    # Empty goals, empty inbox, never waited -- under the awake model this
+    # is eligible every tick (the S4 goal-emptiness requirement is gone).
+    a = char("a", "hall")
+    k = build([a, env("hall")])
     assert k.is_eligible(a) is True
 
 
-async def test_wake_all_does_not_make_idle_environment_eligible():
-    hall = env("hall")
-    k = build([char("a", "hall"), hall], config={"wake_all_characters": True})
-    assert k.is_eligible(hall) is False
+async def test_character_after_wait_is_not_eligible():
+    a = char("a", "hall", goals=["g"])
+    k = build([a, env("hall")])
+    await k.execute(a, Action("wait", {}))
+    assert k.is_eligible(a) is False
 
 
-async def test_wake_all_does_not_make_idle_carrier_eligible():
-    book = carrier("book", "hall")
-    k = build([char("a", "hall"), env("hall"), book], config={"wake_all_characters": True})
-    assert k.is_eligible(book) is False
+async def test_archived_character_still_ineligible_even_though_awake():
+    a = char("a", "hall", archived=True)
+    k = build([a, env("hall")])
+    assert k.is_eligible(a) is False
 
 
-async def test_wake_all_archived_character_still_ineligible():
+async def test_transit_character_still_ineligible_even_though_awake():
+    a = char("a", "hall")
+    a.transit = {"dest": "garden", "arrive_at": 5}
+    k = build([a, env("hall")])
+    assert k.is_eligible(a) is False
+
+
+async def test_wake_all_characters_config_key_no_longer_has_any_effect():
+    # The flag is gone -- passing it in config must not resurrect the old
+    # ablation-arm behavior (nothing reads this key any more).
     a = char("a", "hall", archived=True)
     k = build([a, env("hall")], config={"wake_all_characters": True})
     assert k.is_eligible(a) is False
 
 
-async def test_wake_all_transit_character_still_ineligible():
-    a = char("a", "hall")
-    a.transit = {"dest": "garden", "arrive_at": 5}
-    k = build([a, env("hall")], config={"wake_all_characters": True})
-    assert k.is_eligible(a) is False
-
-
-async def test_wake_all_false_idle_character_still_ineligible():
-    a = char("a", "hall")
-    k = build([a, env("hall")], config={"wake_all_characters": False})
-    assert k.is_eligible(a) is False
-
-
-async def test_wake_all_absent_from_config_idle_character_still_ineligible():
-    a = char("a", "hall")
-    k = build([a, env("hall")], config={})
-    assert k.is_eligible(a) is False
-
-
 # ----------------------------------------------------------------------
-# Plumbing: build_society -> kernel.config, run_sim override
+# Plumbing: build_society no longer threads any wake_all_characters key
+# into kernel.config (the flag was removed, not defaulted).
 # ----------------------------------------------------------------------
 
-def _scen(wake_all=None):
-    cfg = {
+def _scen():
+    return {
         "scenario": "s4_plumbing",
         "language": "zh",
         "defaults": {"stats_interval": 1000},
@@ -114,85 +119,10 @@ def _scen(wake_all=None):
             {"id": "worker", "kind": "character", "brain": "rule", "goals": ["work"]},
         ],
     }
-    if wake_all is not None:
-        cfg["defaults"]["wake_all_characters"] = wake_all
-    return cfg
 
 
-async def test_build_society_threads_wake_all_characters_true_into_kernel_config():
-    cfg = _scen(wake_all=True)
+async def test_build_society_kernel_config_has_no_wake_all_characters_key():
+    cfg = _scen()
     llm = FakeLLM(fn=lambda p, s=None: '{"action": "noop", "params": {}}')
     kernel = await build_society(cfg, llm=llm, embed_fn=afake_embed, event_log=EventLog(None))
-    assert kernel.config.get("wake_all_characters") is True
-
-
-async def test_build_society_defaults_wake_all_characters_false():
-    cfg = _scen(wake_all=None)
-    llm = FakeLLM(fn=lambda p, s=None: '{"action": "noop", "params": {}}')
-    kernel = await build_society(cfg, llm=llm, embed_fn=afake_embed, event_log=EventLog(None))
-    assert kernel.config.get("wake_all_characters", False) is False
-
-
-async def test_run_sim_override_wins_over_scenario_default(tmp_path, monkeypatch):
-    from society.actions import Action
-    from experiments.run_sim import run_sim
-
-    async def scripted_decide(self, view):
-        return Action("noop", {})
-    monkeypatch.setattr(RuleBrain, "decide", scripted_decide)
-
-    cfg = _scen(wake_all=False)   # scenario default False
-    spath = tmp_path / "scen.yaml"
-    spath.write_text(yaml.safe_dump(cfg, allow_unicode=True), encoding="utf-8")
-
-    captured = {}
-    orig_build_society = build_society
-
-    async def spy_build_society(*args, **kwargs):
-        kernel = await orig_build_society(*args, **kwargs)
-        captured["kernel"] = kernel
-        return kernel
-
-    monkeypatch.setattr("experiments.run_sim.build_society", spy_build_society)
-
-    llm = FakeLLM(fn=lambda p, s=None: '{"action": "wait", "params": {}}')
-    await run_sim(
-        str(spath), "consensus", str(tmp_path / "out"),
-        max_ticks=1, llm=llm, embed_fn=afake_embed,
-        wake_all_characters=True,
-    )
-    # kernel.config is checked AFTER run_sim finishes (not inside the spy,
-    # which fires before run_sim applies the override) so this asserts the
-    # override actually took effect, not just the scenario default.
-    assert captured["kernel"].config.get("wake_all_characters") is True
-
-
-async def test_run_sim_none_override_uses_scenario_default(tmp_path, monkeypatch):
-    from society.actions import Action
-    from experiments.run_sim import run_sim
-
-    async def scripted_decide(self, view):
-        return Action("noop", {})
-    monkeypatch.setattr(RuleBrain, "decide", scripted_decide)
-
-    cfg = _scen(wake_all=True)   # scenario default True
-    spath = tmp_path / "scen.yaml"
-    spath.write_text(yaml.safe_dump(cfg, allow_unicode=True), encoding="utf-8")
-
-    captured = {}
-    orig_build_society = build_society
-
-    async def spy_build_society(*args, **kwargs):
-        kernel = await orig_build_society(*args, **kwargs)
-        captured["kernel"] = kernel
-        return kernel
-
-    monkeypatch.setattr("experiments.run_sim.build_society", spy_build_society)
-
-    llm = FakeLLM(fn=lambda p, s=None: '{"action": "wait", "params": {}}')
-    await run_sim(
-        str(spath), "consensus", str(tmp_path / "out"),
-        max_ticks=1, llm=llm, embed_fn=afake_embed,
-        wake_all_characters=None,
-    )
-    assert captured["kernel"].config.get("wake_all_characters") is True
+    assert "wake_all_characters" not in kernel.config

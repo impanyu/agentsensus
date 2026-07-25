@@ -1,27 +1,31 @@
-"""Task S2 -- unified agent architecture: all three agent kinds
-(character/environment/info_carrier) become structurally identical (LLM
-brain + full STM) and all cross-agent interaction (act_on, read) becomes
-uniformly async through the inbox. See
-scratchpad/taskS2-unified-agents-brief.md.
+"""Task R -- sim model v2: passive, function-driven environments/
+info_carriers + awake-based character eligibility. This partially REVERTS
+Task S2 (which gave environment/info_carrier agents an LLMBrain and
+answered their act_on/read interfaces asynchronously through the inbox,
+one tick later). See scratchpad/taskR-simmodel-brief.md.
 
 Covers:
-  1. Legacy `brain: rule`/`brain: retrieval` yaml values mapping to
-     LLMBrain for environment/info_carrier agents when a real llm is
-     configured (and staying RuleBrain/RetrievalBrain otherwise, or for
-     character agents, unconditionally) -- `society.scenario._make_brain`.
-  2. Kind-specific system-prompt preambles for env/carrier LLMBrains.
-  3. act_on answered by an environment, end-to-end across 2-3 ticks.
-  4. read answered by an info_carrier, end-to-end across 2-3 ticks.
-  5. observe's uniform {kind, status, occupants?} shape.
-  6. Sleep economy: an idle LLM-brained environment stays ineligible.
-  7. An environment updating its own status via update_status.
-  8. Persistence round-trips legacy brain: rule/retrieval fields.
+  1. `_make_brain` (scenario.py): environment/info_carrier agents ALWAYS
+     get a RuleBrain now, regardless of the yaml `brain:` field or whether
+     a real llm is configured; characters are unaffected by this task.
+  2. Environments/info_carriers are NEVER eligible (Kernel.is_eligible),
+     even with a pending wake=True message or at tick 0 -- they are
+     passive and never get a proactive decide/execute turn.
+  3. act_on(env) is SYNCHRONOUS: deposits an env-owned memory and returns
+     ok in the SAME tick, end-to-end via build_society.
+  4. read(carrier|env, query) is SYNCHRONOUS: returns the target's own
+     memories (SharedMemory.recall_of) in the SAME tick, end-to-end via
+     build_society.
+  5. observe's uniform {kind, status, occupants?} shape (unaffected by
+     this task, kept as a regression check).
+  6. An environment updating its own status via update_status (unaffected
+     by this task, kept as a regression check).
+  7. Persistence round-trips legacy brain: rule/retrieval fields, and the
+     restored env/carrier agents are still RuleBrain.
 """
 
-import json
-
 from society.actions import Action
-from society.brains import LLMBrain, RetrievalBrain, RuleBrain
+from society.brains import LLMBrain, RuleBrain
 from society.events import EventLog
 from society.persistence import load_checkpoint, restore_society, save_checkpoint
 from society.scenario import _make_brain, build_society
@@ -29,74 +33,49 @@ from tests.helpers import FakeLLM, afake_embed
 
 
 # ----------------------------------------------------------------------
-# 1. Legacy brain-field mapping (_make_brain)
+# 1. _make_brain: env/carrier always RuleBrain
 # ----------------------------------------------------------------------
 
 
-def test_legacy_rule_env_maps_to_llmbrain_when_llm_configured():
-    a = {"id": "hall", "kind": "environment", "brain": "rule", "profile": "大厅"}
-    brain = _make_brain(a, llm=FakeLLM(), language="zh", scenario_dir=".")
-    assert isinstance(brain, LLMBrain)
-    assert "大厅" in brain.profile
-    assert "地点/环境" in brain.profile  # kind-specific preamble present
+def test_env_gets_rulebrain_regardless_of_brain_field_and_llm_presence():
+    for brain_field in ("rule", "retrieval", "llm"):
+        for llm in (None, FakeLLM()):
+            a = {"id": "hall", "kind": "environment", "brain": brain_field, "profile": "大厅"}
+            brain = _make_brain(a, llm=llm, language="zh", scenario_dir=".")
+            assert isinstance(brain, RuleBrain), (brain_field, llm)
 
 
-def test_legacy_rule_env_stays_rulebrain_without_real_llm():
-    a = {"id": "hall", "kind": "environment", "brain": "rule", "profile": "大厅"}
-    brain = _make_brain(a, llm=None, language="zh", scenario_dir=".")
-    assert isinstance(brain, RuleBrain)
+def test_carrier_gets_rulebrain_regardless_of_brain_field_and_llm_presence():
+    for brain_field in ("rule", "retrieval", "llm"):
+        for llm in (None, FakeLLM()):
+            a = {"id": "book", "kind": "info_carrier", "brain": brain_field, "profile": "一本书"}
+            brain = _make_brain(a, llm=llm, language="zh", scenario_dir=".")
+            assert isinstance(brain, RuleBrain), (brain_field, llm)
 
 
-def test_legacy_retrieval_carrier_maps_to_llmbrain_and_ignores_corpus():
+def test_carrier_corpus_field_ignored_and_never_opened(tmp_path):
     # corpus points at a file that doesn't exist -- must not be opened at
-    # all once the carrier is upgraded to an LLMBrain (Task S2: corpus is
-    # retired from the sim path).
+    # all now that info_carriers always get a plain RuleBrain (corpus was
+    # only ever read by the legacy RetrievalBrain path).
     a = {
         "id": "book", "kind": "info_carrier", "brain": "retrieval", "profile": "一本古书",
         "corpus": "corpora/does_not_exist.txt",
     }
-    brain = _make_brain(a, llm=FakeLLM(), language="zh", scenario_dir="/no/such/dir")
-    assert isinstance(brain, LLMBrain)
-    assert "一本古书" in brain.profile
-    assert "文书/信息载体" in brain.profile  # kind-specific preamble present
+    brain = _make_brain(a, llm=FakeLLM(), language="zh", scenario_dir=str(tmp_path))
+    assert isinstance(brain, RuleBrain)
 
 
-def test_legacy_retrieval_carrier_stays_retrievalbrain_without_real_llm(tmp_path):
-    corpora_dir = tmp_path / "corpora"
-    corpora_dir.mkdir()
-    (corpora_dir / "book.txt").write_text("宝玉衔玉而生。", encoding="utf-8")
-    a = {
-        "id": "book", "kind": "info_carrier", "brain": "retrieval",
-        "corpus": "corpora/book.txt",
-    }
-    brain = _make_brain(a, llm=None, language="zh", scenario_dir=str(tmp_path))
-    assert isinstance(brain, RetrievalBrain)
-    assert brain.corpus_text == "宝玉衔玉而生。"
+def test_character_brain_field_unaffected_by_this_task():
+    a_rule = {"id": "amy", "kind": "character", "brain": "rule", "profile": "amy"}
+    a_llm = {"id": "amy", "kind": "character", "brain": "llm", "profile": "amy"}
+    assert isinstance(_make_brain(a_rule, llm=FakeLLM(), language="zh", scenario_dir="."), RuleBrain)
+    assert isinstance(_make_brain(a_rule, llm=None, language="zh", scenario_dir="."), RuleBrain)
+    assert isinstance(_make_brain(a_llm, llm=FakeLLM(), language="zh", scenario_dir="."), LLMBrain)
 
 
-def test_character_rule_brain_unaffected_by_llm_presence():
-    a = {"id": "amy", "kind": "character", "brain": "rule", "profile": "amy"}
-    assert isinstance(_make_brain(a, llm=FakeLLM(), language="zh", scenario_dir="."), RuleBrain)
-    assert isinstance(_make_brain(a, llm=None, language="zh", scenario_dir="."), RuleBrain)
-
-
-def test_explicit_llm_env_also_gets_kind_preamble():
-    a = {"id": "hall", "kind": "environment", "brain": "llm", "profile": "大厅"}
-    brain = _make_brain(a, llm=FakeLLM(), language="zh", scenario_dir=".")
-    assert isinstance(brain, LLMBrain)
-    assert "地点/环境" in brain.profile and "大厅" in brain.profile
-
-
-def test_carrier_preamble_picks_english_wording_for_en_scenario():
-    a = {"id": "book", "kind": "info_carrier", "brain": "retrieval", "profile": "an old book"}
-    brain = _make_brain(a, llm=FakeLLM(), language="en", scenario_dir=".")
-    assert isinstance(brain, LLMBrain)
-    assert "information carrier" in brain.profile and "an old book" in brain.profile
-
-
-async def test_env_and_carrier_get_llmbrain_and_full_stm_via_build_society():
+async def test_env_and_carrier_get_rulebrain_via_build_society_even_with_llm():
     cfg = {
-        "scenario": "s2_demo", "language": "zh",
+        "scenario": "r_demo", "language": "zh",
         "defaults": {"stats_interval": 100, "distance": 3},
         "agents": [
             {"id": "hall", "kind": "environment", "brain": "rule", "profile": "大厅"},
@@ -108,165 +87,190 @@ async def test_env_and_carrier_get_llmbrain_and_full_stm_via_build_society():
         "map": {"default_distance": 3},
     }
     k = await build_society(cfg, llm=FakeLLM(), embed_fn=afake_embed, event_log=EventLog(None))
-    hall, book = k.agents["hall"], k.agents["book"]
+    hall, book, amy = k.agents["hall"], k.agents["book"], k.agents["amy"]
 
-    assert isinstance(hall.brain, LLMBrain)
-    assert isinstance(book.brain, LLMBrain)
-
-    # Full STM (fifo/goals/status/inbox), structurally identical to a
-    # character's -- an environment simply has no "location" status key
-    # (it IS a location), a carrier keeps its own status/holder semantics.
-    for agent in (hall, book):
-        assert agent.stm.goals.empty()
-        assert agent.stm.inbox.qsize() == 0
-        assert agent.stm.status.all() is not None
-    assert hall.stm.status.get("location") is None
-    assert book.stm.status.get("location") == "hall"
+    assert isinstance(hall.brain, RuleBrain)
+    assert isinstance(book.brain, RuleBrain)
+    assert isinstance(amy.brain, LLMBrain)
 
 
 # ----------------------------------------------------------------------
-# 2. act_on answered by an environment, end-to-end across ticks
-#    (message queued+delivered tick 0, env replies tick 1, reply visible
-#    to the actor tick 2 -- see the brief's watch-out item).
+# 2. Environments/info_carriers are NEVER eligible -- passive by design,
+#    regardless of pending messages or tick.
 # ----------------------------------------------------------------------
 
-ACT_ON_E2E_CFG = {
-    "scenario": "act_on_e2e", "language": "zh",
+NEVER_ELIGIBLE_CFG = {
+    "scenario": "never_eligible", "language": "zh",
     "defaults": {"stats_interval": 100, "distance": 3},
     "agents": [
-        {"id": "hall", "kind": "environment", "brain": "llm", "profile": "一间空荡荡的大厅"},
-        {"id": "amy", "kind": "character", "brain": "llm", "profile": "艾米",
-         "status": {"location": "hall"}, "goals": ["推门"]},
+        {"id": "hall", "kind": "environment", "brain": "rule", "profile": "大厅"},
+        {"id": "book", "kind": "info_carrier", "brain": "retrieval", "profile": "一本书",
+         "status": {"location": "hall"}},
+        {"id": "amy", "kind": "character", "brain": "rule", "profile": "amy",
+         "status": {"location": "hall"}},
     ],
     "map": {"default_distance": 3},
 }
 
 
-async def test_act_on_answered_by_env_end_to_end_across_ticks():
-    hall_calls = {"n": 0}
-    amy_calls = {"n": 0}
+async def test_env_and_carrier_never_eligible_at_tick_zero():
+    k = await build_society(NEVER_ELIGIBLE_CFG, llm=FakeLLM(), embed_fn=afake_embed,
+                             event_log=EventLog(None))
+    assert k.is_eligible(k.agents["hall"]) is False
+    assert k.is_eligible(k.agents["book"]) is False
+    # a goalless, never-waited character IS eligible under the awake model
+    # (Part B) -- the contrast confirms env/carrier ineligibility isn't
+    # just an artifact of "nobody is eligible yet".
+    assert k.is_eligible(k.agents["amy"]) is True
 
-    def fn(prompt, system=None):
-        if system and "大厅" in system:
-            n = hall_calls["n"]
-            hall_calls["n"] += 1
-            if n == 0:
-                # First time hall wakes up (act_on message pending in its
-                # own inbox), it replies to the actor via `say`.
-                assert '"kind": "act_on"' in prompt
-                return json.dumps(
-                    {"action": "say", "params": {"targets": ["amy"], "content": "门开了"}}
-                )
-            # Consume the act_on message so hall goes back to sleep
-            # (goal-less, message-less) instead of re-triggering forever.
-            return json.dumps({"action": "pop_message", "params": {}})
-        if system and "艾米" in system:
-            n = amy_calls["n"]
-            amy_calls["n"] += 1
-            if n == 0:
-                return json.dumps(
-                    {"action": "act_on", "params": {"targets": ["hall"], "content": "推门"}}
-                )
-            if n == 1:
-                return json.dumps({"action": "wait", "params": {}})
-            return json.dumps({"action": "pop_message", "params": {}})
-        return json.dumps({"action": "wait", "params": {}})
 
-    llm = FakeLLM(fn=fn)
-    event_log = EventLog(None)
-    k = await build_society(ACT_ON_E2E_CFG, llm=llm, embed_fn=afake_embed, event_log=event_log)
+async def test_env_and_carrier_never_eligible_even_with_pending_wake_message():
+    k = await build_society(NEVER_ELIGIBLE_CFG, llm=FakeLLM(), embed_fn=afake_embed,
+                             event_log=EventLog(None))
+    hall, book = k.agents["hall"], k.agents["book"]
 
-    hall = k.agents["hall"]
-    assert isinstance(hall.brain, LLMBrain)
-    assert k.is_eligible(hall) is False  # idle until act_on arrives
+    from society.actions import Message
+    k.send(Message(id="m1", sender="amy", recipients=["hall"], kind="act_on",
+                    content="推门", tick_sent=0, wake=True))
+    k.send(Message(id="m2", sender="amy", recipients=["book"], kind="read",
+                    content="宝玉", tick_sent=0, wake=True))
+    k.deliver_pending()
 
-    await k.run(max_ticks=3)
+    assert hall.stm.inbox.qsize() == 1
+    assert book.stm.inbox.qsize() == 1
+    assert k.is_eligible(hall) is False
+    assert k.is_eligible(book) is False
 
-    assert hall_calls["n"] >= 2
-    assert amy_calls["n"] >= 3
 
-    events = event_log.all()
-    amy_pops = [
-        e for e in events
-        if e["kind"] == "action" and e["agent"] == "amy"
-        and e["action"]["name"] == "pop_message"
-    ]
-    assert amy_pops, "amy never popped a reply message"
-    popped = amy_pops[0]["result"]["data"]
-    assert popped["kind"] == "say" and popped["sender"] == "hall" and popped["content"] == "门开了"
+async def test_env_and_carrier_never_scheduled_across_a_full_run():
+    k = await build_society(NEVER_ELIGIBLE_CFG, llm=FakeLLM(fn=lambda p, s=None:
+                             '{"action": "wait", "params": {}}'),
+                             embed_fn=afake_embed, event_log=EventLog(None))
+    await k.run(max_ticks=5)
+
+    for aid in ("hall", "book"):
+        actions = [
+            e for e in k.event_log.all() if e["kind"] == "action" and e["agent"] == aid
+        ]
+        assert actions == [], f"{aid} was scheduled but is supposed to be passive"
 
 
 # ----------------------------------------------------------------------
-# 3. read answered by an info_carrier, end-to-end across ticks
+# 3. act_on(env): synchronous env-owned memory deposit, same tick
 # ----------------------------------------------------------------------
 
-READ_E2E_CFG = {
-    "scenario": "read_e2e", "language": "zh",
+ACT_ON_CFG = {
+    "scenario": "act_on_sync", "language": "zh",
+    "defaults": {"stats_interval": 100, "distance": 3},
+    "agents": [
+        {"id": "hall", "kind": "environment", "brain": "rule", "profile": "一间空荡荡的大厅"},
+        {"id": "amy", "kind": "character", "brain": "rule", "profile": "艾米",
+         "status": {"location": "hall"}},
+    ],
+    "map": {"default_distance": 3},
+}
+
+
+async def test_act_on_deposits_env_owned_memory_and_returns_ok_same_tick():
+    k = await build_society(ACT_ON_CFG, llm=FakeLLM(), embed_fn=afake_embed,
+                             event_log=EventLog(None))
+    amy = k.agents["amy"]
+
+    r = await k.execute(amy, Action("act_on", {"targets": ["hall"], "content": "推开了大门"}))
+    assert r.ok
+    assert r.data == {"env": "hall", "recorded": "推开了大门"}
+
+    # No message was ever sent -- hall's inbox stays empty even after a
+    # delivery pass, and hall is never scheduled to "reply".
+    k.deliver_pending()
+    assert k.agents["hall"].stm.inbox.qsize() == 0
+
+    hits = await k.shared_memory.recall_of("hall", "大门", top_k=5)
+    assert hits and "推开了大门" in hits[0]["text"]
+
+
+async def test_act_on_without_shared_memory_still_succeeds():
+    from society.agent import Agent
+    from society.stm import STM
+    from society.worldmap import WorldMap
+    from society.kernel import Kernel
+    from society.events import EventLog as EL
+
+    amy = Agent("amy", "character", RuleBrain(), STM(status={"location": "hall"}))
+    hall = Agent("hall", "environment", RuleBrain(), STM())
+    k = Kernel({"amy": amy, "hall": hall}, WorldMap(["hall"], default_distance=3), EL(None))
+
+    r = await k.execute(amy, Action("act_on", {"targets": ["hall"], "content": "推门"}))
+    assert r.ok
+    assert r.data["env"] == "hall" and r.data["recorded"] == "推门"
+
+
+# ----------------------------------------------------------------------
+# 4. read(carrier|env): synchronous target-owner recall, same tick
+# ----------------------------------------------------------------------
+
+READ_CFG = {
+    "scenario": "read_sync", "language": "zh",
     "defaults": {"stats_interval": 100, "distance": 3},
     "agents": [
         {"id": "hall", "kind": "environment", "brain": "rule", "profile": "书房"},
-        {"id": "book", "kind": "info_carrier", "brain": "llm", "profile": "一本古书",
+        {"id": "book", "kind": "info_carrier", "brain": "retrieval", "profile": "一本古书",
          "status": {"location": "hall"}},
-        {"id": "amy", "kind": "character", "brain": "llm", "profile": "艾米",
-         "status": {"location": "hall"}, "goals": ["查阅古书"]},
+        {"id": "amy", "kind": "character", "brain": "rule", "profile": "艾米",
+         "status": {"location": "hall"}},
     ],
     "map": {"default_distance": 3},
 }
 
 
-async def test_read_answered_by_carrier_end_to_end_across_ticks():
-    book_calls = {"n": 0}
-    amy_calls = {"n": 0}
+async def test_read_carrier_returns_target_owned_memories_same_tick():
+    k = await build_society(READ_CFG, llm=FakeLLM(), embed_fn=afake_embed,
+                             event_log=EventLog(None))
+    amy, book = k.agents["amy"], k.agents["book"]
 
-    def fn(prompt, system=None):
-        if system and "一本古书" in system:
-            n = book_calls["n"]
-            book_calls["n"] += 1
-            if n == 0:
-                assert '"kind": "read"' in prompt
-                return json.dumps(
-                    {"action": "say", "params": {"targets": ["amy"], "content": "宝玉衔玉而生"}}
-                )
-            return json.dumps({"action": "pop_message", "params": {}})
-        if system and "艾米" in system:
-            n = amy_calls["n"]
-            amy_calls["n"] += 1
-            if n == 0:
-                return json.dumps(
-                    {"action": "read", "params": {"target": "book", "query": "宝玉"}}
-                )
-            if n == 1:
-                return json.dumps({"action": "wait", "params": {}})
-            return json.dumps({"action": "pop_message", "params": {}})
-        return json.dumps({"action": "wait", "params": {}})
+    await k.shared_memory.remember_atomic(["book"], "宝玉衔玉而生", source="sediment")
+    # A decoy memory owned by someone else must NOT leak into book's answer.
+    await k.shared_memory.remember_atomic(["amy"], "宝玉衔玉而生的传说", source="sediment")
 
-    llm = FakeLLM(fn=fn)
-    event_log = EventLog(None)
-    k = await build_society(READ_E2E_CFG, llm=llm, embed_fn=afake_embed, event_log=event_log)
+    r = await k.execute(amy, Action("read", {"target": "book", "query": "宝玉"}))
+    assert r.ok
+    assert len(r.data) == 1 and r.data[0]["text"] == "宝玉衔玉而生"
 
-    book = k.agents["book"]
-    assert isinstance(book.brain, LLMBrain)
-    assert k.is_eligible(book) is False  # idle until read arrives
+    k.deliver_pending()
+    assert book.stm.inbox.qsize() == 0    # no Message ever sent
 
-    await k.run(max_ticks=3)
 
-    assert book_calls["n"] >= 2
-    assert amy_calls["n"] >= 3
+async def test_read_environment_target_returns_its_own_memories_same_tick():
+    k = await build_society(READ_CFG, llm=FakeLLM(), embed_fn=afake_embed,
+                             event_log=EventLog(None))
+    amy = k.agents["amy"]
 
-    events = event_log.all()
-    amy_pops = [
-        e for e in events
-        if e["kind"] == "action" and e["agent"] == "amy"
-        and e["action"]["name"] == "pop_message"
-    ]
-    assert amy_pops, "amy never popped the carrier's reply"
-    popped = amy_pops[0]["result"]["data"]
-    assert popped["kind"] == "say" and popped["sender"] == "book"
-    assert popped["content"] == "宝玉衔玉而生"
+    await k.execute(amy, Action("act_on", {"targets": ["hall"], "content": "点亮了灯"}))
+    r = await k.execute(amy, Action("read", {"target": "hall", "query": "灯"}))
+    assert r.ok
+    assert r.data and r.data[0]["text"] == "点亮了灯"
+
+
+async def test_read_without_shared_memory_returns_empty_list():
+    from society.agent import Agent
+    from society.stm import STM
+    from society.worldmap import WorldMap
+    from society.kernel import Kernel
+    from society.events import EventLog as EL
+
+    amy = Agent("amy", "character", RuleBrain(), STM(status={"location": "hall"}))
+    book = Agent("book", "info_carrier", RuleBrain(), STM(status={"location": "hall"}))
+    hall = Agent("hall", "environment", RuleBrain(), STM())
+    k = Kernel({"amy": amy, "book": book, "hall": hall},
+               WorldMap(["hall"], default_distance=3), EL(None))
+
+    r = await k.execute(amy, Action("read", {"target": "book", "query": "宝玉"}))
+    assert r.ok and r.data == []
 
 
 # ----------------------------------------------------------------------
-# 4. observe: uniform {kind, status, occupants?} shape across all kinds
+# 5. observe: uniform {kind, status, occupants?} shape across all kinds
+#    (unaffected by this task -- kept as a regression check)
 # ----------------------------------------------------------------------
 
 OBSERVE_CFG = {
@@ -308,38 +312,9 @@ async def test_observe_uniform_shape_across_kinds():
 
 
 # ----------------------------------------------------------------------
-# 5. Sleep economy: an idle LLM-brained environment stays ineligible
-# ----------------------------------------------------------------------
-
-IDLE_ENV_CFG = {
-    "scenario": "idle_env", "language": "zh",
-    "defaults": {"stats_interval": 100, "distance": 3},
-    "agents": [
-        {"id": "hall", "kind": "environment", "brain": "rule", "profile": "大厅"},
-    ],
-    "map": {"default_distance": 3},
-}
-
-
-async def test_idle_llm_brained_env_stays_ineligible():
-    k = await build_society(IDLE_ENV_CFG, llm=FakeLLM(), embed_fn=afake_embed, event_log=EventLog(None))
-    hall = k.agents["hall"]
-    assert isinstance(hall.brain, LLMBrain)  # legacy 'rule' upgraded (real llm configured)
-
-    assert k.is_eligible(hall) is False  # empty goals, empty inbox -> asleep
-
-    summary = await k.run(max_ticks=5)
-
-    hall_actions = [
-        e for e in k.event_log.all() if e["kind"] == "action" and e["agent"] == "hall"
-    ]
-    assert hall_actions == []  # never scheduled, never decided
-    assert summary["stop_reason"] == "quiescent"
-
-
-# ----------------------------------------------------------------------
 # 6. An environment maintains its own status via update_status; a
-#    co-located character sees the change via observe.
+#    co-located character sees the change via observe. (unaffected by this
+#    task -- kept as a regression check)
 # ----------------------------------------------------------------------
 
 ENV_STATUS_CFG = {
@@ -367,7 +342,8 @@ async def test_env_updates_own_status_and_character_observes_it():
 
 
 # ----------------------------------------------------------------------
-# 7. Persistence round-trips legacy brain: rule/retrieval fields
+# 7. Persistence round-trips legacy brain: rule/retrieval fields; restored
+#    env/carrier agents are still RuleBrain (not LLMBrain).
 # ----------------------------------------------------------------------
 
 LEGACY_CKPT_CFG = {
@@ -384,12 +360,13 @@ LEGACY_CKPT_CFG = {
 }
 
 
-async def test_persistence_restores_legacy_rule_retrieval_fields_as_llmbrain(tmp_path):
+async def test_persistence_restores_legacy_rule_retrieval_fields_as_rulebrain(tmp_path):
     k = await build_society(
         LEGACY_CKPT_CFG, llm=FakeLLM(), embed_fn=afake_embed, event_log=EventLog(None)
     )
-    assert isinstance(k.agents["hall"].brain, LLMBrain)
-    assert isinstance(k.agents["book"].brain, LLMBrain)
+    assert isinstance(k.agents["hall"].brain, RuleBrain)
+    assert isinstance(k.agents["book"].brain, RuleBrain)
+    assert isinstance(k.agents["amy"].brain, LLMBrain)
 
     ckpt_path = str(tmp_path / "ckpt.json")
     save_checkpoint(k, ckpt_path)
@@ -400,5 +377,5 @@ async def test_persistence_restores_legacy_rule_retrieval_fields_as_llmbrain(tmp
     restored = await restore_society(
         ckpt, llm=FakeLLM(), embed_fn=afake_embed, event_log=EventLog(None)
     )
-    assert isinstance(restored.agents["hall"].brain, LLMBrain)
-    assert isinstance(restored.agents["book"].brain, LLMBrain)
+    assert isinstance(restored.agents["hall"].brain, RuleBrain)
+    assert isinstance(restored.agents["book"].brain, RuleBrain)

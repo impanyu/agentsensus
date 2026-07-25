@@ -74,14 +74,15 @@ async def test_act_on_requires_exactly_one_colocated_environment_target():
 
     r_ok = await k.execute(a, Action("act_on", {"targets": ["hall"], "content": "push"}))
     assert r_ok.ok
+    # Task R (revert of S2): act_on is SYNCHRONOUS -- no Message, no next-
+    # tick round trip. hall (a passive, function-driven environment) is
+    # never even scheduled to react; without shared_memory configured the
+    # act_on just succeeds with a note (see test_unified_agents.py for the
+    # shared_memory-backed deposit).
+    assert r_ok.data["env"] == "hall" and r_ok.data["recorded"] == "push"
     k.deliver_pending()
-    # Task S2: act_on is async-only -- the message goes into the target
-    # environment's OWN inbox (like say/gesture to any other agent), not
-    # synchronously back to the actor. See test_unified_agents.py for the
-    # full round trip (the environment's own brain replying via `say`).
     assert a.stm.inbox.qsize() == 0
-    msg = hall.stm.inbox.get_nowait()
-    assert msg.kind == "act_on" and msg.content == "push" and msg.sender == "a"
+    assert hall.stm.inbox.qsize() == 0
 
 
 # ----------------------------------------------------------------------
@@ -110,9 +111,14 @@ async def test_broadcast_delivers_to_all_targets_next_tick_default_wake_false():
     assert mc.kind == "broadcast" and mc.wake is False
 
 
-async def test_broadcast_wake_false_does_not_make_goalless_agent_eligible():
-    a, b = char("a", "hall"), char("b", "hall")   # b: no goals, never waited
+async def test_broadcast_wake_false_does_not_wake_a_sleeping_agent():
+    # Task R (awake-based model): a goalless, never-waited character is
+    # eligible by default (no goal-emptiness requirement any more), so to
+    # exercise "wake=False doesn't wake" we must first put b to sleep via
+    # `wait`, then confirm a wake=False broadcast doesn't rouse it.
+    a, b = char("a", "hall"), char("b", "hall")
     k = build([a, b, env("hall")])
+    await k.execute(b, Action("wait", {}))
     assert k.is_eligible(b) is False
 
     await k.execute(a, Action("broadcast", {"targets": ["b"], "content": "psst"}))
@@ -137,7 +143,7 @@ async def test_broadcast_wake_false_does_not_clear_waiting_until():
 
 async def test_agent_awake_for_other_reason_can_still_pop_wake_false_message():
     a = char("a", "hall")
-    b = char("b", "hall", goals=["g"])   # eligible via goals, not via the message
+    b = char("b", "hall", goals=["g"])   # eligible by default (awake model), not via the message
     k = build([a, b, env("hall")])
 
     await k.execute(a, Action("broadcast", {"targets": ["b"], "content": "psst"}))
@@ -149,8 +155,11 @@ async def test_agent_awake_for_other_reason_can_still_pop_wake_false_message():
 
 
 async def test_broadcast_wake_true_wakes_agent():
+    # Task R: put b to sleep first (awake-by-default means "eligible before
+    # the broadcast" is no longer informative on its own).
     a, b = char("a", "hall"), char("b", "hall")
     k = build([a, b, env("hall")])
+    await k.execute(b, Action("wait", {}))
     assert k.is_eligible(b) is False
 
     await k.execute(a, Action("broadcast", {"targets": ["b"], "content": "fire!", "wake": True}))
@@ -164,6 +173,7 @@ async def test_broadcast_wake_true_wakes_agent():
 async def test_say_still_wakes_by_default_end_to_end():
     a, b = char("a", "hall"), char("b", "hall")
     k = build([a, b, env("hall")])
+    await k.execute(b, Action("wait", {}))
     assert k.is_eligible(b) is False
 
     await k.execute(a, Action("say", {"targets": ["b"], "content": "hi"}))

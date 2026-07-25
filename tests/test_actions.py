@@ -6,10 +6,12 @@ def test_action_sets_are_disjoint_and_complete():
     assert SYNC_ACTIONS & ASYNC_ACTIONS == set()
     assert "move" in SYNC_ACTIONS and "say" in ASYNC_ACTIONS
     assert "broadcast" in ASYNC_ACTIONS
-    # read now queues a Message into the target info_carrier's inbox
-    # (Kernel._execute_read) instead of synchronously calling
-    # brain.retrieve(), so it's async like say/gesture/act_on/broadcast.
-    assert "read" in ASYNC_ACTIONS and "read" not in SYNC_ACTIONS
+    # Task R (revert of S2): act_on/read are answered synchronously by the
+    # kernel during the acting character's own apply step (environments/
+    # info_carriers are passive, function-driven agents with no brain turn
+    # of their own to answer on next tick), so both are SYNC_ACTIONS now.
+    assert "read" in SYNC_ACTIONS and "read" not in ASYNC_ACTIONS
+    assert "act_on" in SYNC_ACTIONS and "act_on" not in ASYNC_ACTIONS
     assert {"add_affiliated", "remove_affiliated", "set_affiliated", "get_affiliated"} <= SYNC_ACTIONS
     assert len(SYNC_ACTIONS | ASYNC_ACTIONS) == 26
 

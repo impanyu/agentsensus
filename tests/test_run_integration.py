@@ -91,7 +91,14 @@ async def test_smoke_run_produces_all_outputs(tmp_path):
     assert os.path.exists(f"{out}/transcripts/amy.md")
     assert os.path.exists(f"{out}/config_snapshot.yaml")
     assert os.path.exists(f"{out}/llm_usage.json")
-    assert summary["ticks_run"] >= 10
+    # Task R (awake-based eligibility): ben/cid no longer need a goal or an
+    # inbox message to get their first turn -- they (and amy) are awake by
+    # default and run through their scripted actions right away, so the
+    # whole exchange (and the eventual quiescence once everyone `wait`s)
+    # now finishes in noticeably fewer ticks than the old goal-gated model
+    # needed. What matters here is that several ticks of real back-and-forth
+    # happened before quiescence, not the exact old (higher) tick count.
+    assert summary["ticks_run"] >= 5
 
     stats = sorted(os.listdir(f"{out}/stats"))
     assert any(s.startswith("tick_") for s in stats)

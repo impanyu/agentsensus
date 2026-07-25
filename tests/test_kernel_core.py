@@ -26,12 +26,17 @@ def society(agents, edges=None):
 
 
 async def test_sleeping_agents_not_scheduled_and_quiescence():
+    # Task R (awake-based eligibility): a character with an empty goal
+    # stack and an empty inbox is still AWAKE by default -- it IS
+    # scheduled (unlike the old goal-gated model). It only stops being
+    # scheduled once it explicitly `wait`s, and the sim only goes
+    # quiescent on the tick after that.
     calls = []
-    a = make_char("a", "hall", fn=lambda v: calls.append(v) or Action("noop"))
+    a = make_char("a", "hall", fn=lambda v: calls.append(v) or Action("wait"))
     k = society([a, make_env("hall")])
     summary = await k.run(max_ticks=5)
-    assert calls == []                        # empty inbox + empty goals → never scheduled
-    assert summary["stop_reason"] == "quiescent" and summary["ticks_run"] == 0
+    assert len(calls) == 1                    # scheduled once, then chooses to sleep
+    assert summary["stop_reason"] == "quiescent" and summary["ticks_run"] == 1
 
 
 async def test_goal_keeps_agent_awake_and_max_ticks():
@@ -44,10 +49,18 @@ async def test_goal_keeps_agent_awake_and_max_ticks():
 
 
 async def test_message_visible_next_tick_and_wakes_sleeper():
+    # Task R (awake-based eligibility): b has no goals, but is still awake
+    # by default at t=0 -- so to exercise "a message wakes a SLEEPING
+    # agent" b must explicitly `wait` first. It sees an empty inbox at t=0
+    # (delivery hasn't happened yet), sleeps, then a's `say` (delivered at
+    # the end of t=0, wake=True by default) wakes it back up for t=1, by
+    # which point the message is visible.
     seen = []
 
     def bfn(v):
         seen.append((v["tick"], v["inbox_size"]))
+        if v["tick"] == 0:
+            return Action("wait")
         return Action("pop_message")
 
     b = make_char("b", "hall", fn=bfn)
@@ -57,8 +70,8 @@ async def test_message_visible_next_tick_and_wakes_sleeper():
 
     a = make_char("a", "hall", fn=afn, goals=["talk"])
     k = society([a, b, make_env("hall")])
-    await k.run(max_ticks=4)
-    assert seen and seen[0][0] == 1 and seen[0][1] == 1    # b first scheduled at t=1 with 1 msg
+    await k.run(max_ticks=2)
+    assert seen == [(0, 0), (1, 1)]             # asleep at t=0, woken by the message for t=1
 
 
 async def test_wait_timeout_wakes_and_fast_forward():

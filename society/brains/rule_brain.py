@@ -5,10 +5,15 @@ from society.brains.base import Brain
 class RuleBrain(Brain):
     """A brain driven by plain Python callables instead of an LLM.
 
-    Used for scenario scripting and tests. Environment agents in the sim
-    path get an LLMBrain by default (Task S2, unified-agent architecture);
-    RuleBrain is kept for direct construction convenience (e.g. a scripted
-    environment brain in tests) rather than being the kernel's default.
+    Used for scenario scripting and tests. Task R (revert of S2):
+    environment/info_carrier agents in the sim path always get a RuleBrain
+    now (see `society.scenario._make_brain`) -- they are passive,
+    function-driven agents whose act_on/read interfaces are answered
+    synchronously by the kernel itself (`Kernel._execute_act_on`/
+    `_execute_read`), never by a `decide()` call, so their RuleBrain never
+    actually runs (`Kernel.is_eligible` always returns False for these
+    kinds). RuleBrain is also used directly for scripted character brains
+    in tests.
     """
 
     def __init__(self, fn=None, act_on_fn=None):
@@ -32,10 +37,9 @@ class RuleBrain(Brain):
 
     def handle_act_on(self, actor_id: str, description: str, view: dict) -> str:
         """Passive act_on handler -- kept for direct-construction
-        convenience only. The kernel no longer calls this (Task S2,
-        unified-agent architecture): `act_on` now always queues a Message
-        into the target's own inbox, handled on its next `decide()` tick,
-        exactly like `say`/`gesture` (see Kernel._execute_act_on).
+        convenience only. The kernel never calls this: `act_on` is
+        answered synchronously by `Kernel._execute_act_on` (depositing an
+        env-owned memory), not by any brain method.
 
         Args:
             actor_id: id of the agent performing the act_on.

@@ -97,7 +97,6 @@ async def run_sim(
     config_path: str = "config.json",
     llm=None,
     embed_fn=None,
-    wake_all_characters: bool | None = None,
 ) -> dict:
     """Run ONE (scenario, memory backend, seed) and write a self-contained
     result to `out_dir`.
@@ -115,13 +114,6 @@ async def run_sim(
     replicate runs of the same (scenario, memory_kind) pair on disk;
     determinism of EVENT ORDER/SCHEDULING (not LLM content) comes from the
     kernel's deterministic tick-barrier scheduler, not from this seed.
-
-    `wake_all_characters` (Task S4): overrides the scenario's
-    `defaults.wake_all_characters` (see `society.scenario.build_society`)
-    on the built kernel's config. `None` (the default) leaves the
-    scenario's own setting in place; `True`/`False` forces the "every
-    character eligible every tick" ablation arm on/off regardless of what
-    the scenario file says.
 
     Adaptive-tick stop (Task S3 criterion): when `adaptive_new_memories`
     (N) is given, the kernel is run in 1-tick increments until
@@ -164,9 +156,6 @@ async def run_sim(
         out_dir=out_dir,
         memory_kind=memory_kind,
     )
-
-    if wake_all_characters is not None:
-        kernel.config["wake_all_characters"] = wake_all_characters
 
     # Starting memory count: the post-restore (or post-seed) sediment size,
     # BEFORE any tick runs.
@@ -236,15 +225,6 @@ def main(argv=None):
     parser.add_argument(
         "--config", default="config.json", help="path to config.json (api_key, base_url, ...)"
     )
-    wake_all_group = parser.add_mutually_exclusive_group()
-    wake_all_group.add_argument(
-        "--wake-all", dest="wake_all_characters", action="store_true", default=None,
-        help="force every character eligible every tick (overrides scenario default)",
-    )
-    wake_all_group.add_argument(
-        "--no-wake-all", dest="wake_all_characters", action="store_false",
-        help="force event-driven scheduling for characters (overrides scenario default)",
-    )
     args = parser.parse_args(argv)
 
     result = asyncio.run(
@@ -256,7 +236,6 @@ def main(argv=None):
             adaptive_new_memories=args.adaptive_new_memories,
             seed=args.seed,
             config_path=args.config,
-            wake_all_characters=args.wake_all_characters,
         )
     )
     print(json.dumps(result, ensure_ascii=False))

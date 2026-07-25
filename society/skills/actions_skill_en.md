@@ -175,15 +175,31 @@ The view you receive typically contains:
 
 ### read
 - Signature: `{"action": "read", "params": {"target": "...", "query": "..."}}`
-- Async.
+- Sync.
 - Issues a query-driven read against an info_carrier (a book, letter,
-  diary, etc.). This is asynchronous: your `read` just delivers the query
-  into that carrier's own inbox -- the carrier (itself an agent with an LLM
-  brain) answers on its own turn, based on its own memory (the document's
-  content, deposited into its long-term memory by sedimentation/
-  `remember`), and `say`s the answer back to you. It does not return a
-  result synchronously. Valid only for info_carrier targets, which must be
-  co-located with you, or portable and currently held by you.
+  diary, etc.) or an environment. environment/info_carrier are both
+  passive, function-driven agents (no brain turn of their own, never
+  scheduled), so this **returns a result immediately, in the same tick**:
+  the kernel directly retrieves the target's own long-term memories
+  (deposited by sedimentation/`remember`/`act_on`) relevant to `query` and
+  returns `[{"id": "...", "text": "..."}, ...]` -- no message delivery, no
+  LLM call involved. Valid for an info_carrier target (must be co-located
+  with you, or portable and currently held by you) or an environment
+  target (must be co-located with you).
+
+### act_on
+- Signature: `{"action": "act_on", "params": {"targets": ["..."], "content": "..."}}`
+  — `targets` must be a list containing **exactly one** element: the id of
+  the `environment` agent you are currently at.
+- Sync.
+- Applies an action to the `environment` you are currently at (e.g.
+  pushing a door, lighting a fire, rummaging through a drawer). An
+  environment is a passive, function-driven agent (no brain turn of its
+  own, never scheduled), so this **takes effect and returns a result
+  immediately, in the same tick**: the kernel deposits `content` as a
+  memory owned by that environment (so the place "remembers" what
+  happened there), retrievable afterward via `read`. No message is ever
+  sent, and no LLM is ever called for this.
 
 ### move
 - Signature: `{"action": "move", "params": {"destination": "..."}}`
@@ -198,12 +214,17 @@ The view you receive typically contains:
 ### wait
 - Signature: `{"action": "wait", "params": {"timeout_ticks": N}}` (`timeout_ticks` is optional)
 - Sync to issue, but has a "sleeping" effect.
-- With `timeout_ticks=N`, you sleep for N ticks and then wake up automatically
+- You are **awake by default** — even with an empty goal stack, you get
+  scheduled every tick; an empty goal stack does not put you to sleep on
+  its own. `wait` is **the only way you choose to sleep**: with
+  `timeout_ticks=N`, you sleep for N ticks and then wake up automatically
   (even with no message). Without it, this is a **sleep forever** — you only
   wake up once a `wake=true` message arrives. **A waking message always
   interrupts a wait**, whether it's a timed wait or a forever wait. Note: a
   `wake=false` message (see `broadcast`) does NOT interrupt `wait` — it sits
-  quietly in your inbox until you wake up for some other reason and check it.
+  quietly in your inbox until you wake up for some other reason and check
+  it. **If you genuinely have nothing to do, `wait`** — otherwise you'll
+  keep spinning, getting rescheduled and re-deciding every tick for nothing.
 
 ### noop
 - Signature: `{"action": "noop", "params": {}}`
@@ -228,22 +249,6 @@ The view you receive typically contains:
 - Async.
 - Shows a non-verbal action/expression/gesture to `targets`. Mechanically
   identical to `say`, just with non-verbal content instead of speech.
-
-### act_on
-- Signature: `{"action": "act_on", "params": {"targets": ["..."], "content": "..."}}`
-  — `targets` must be a list containing **exactly one** element: the id of
-  the `environment` agent you are currently at (the same `{targets, content}`
-  shape as `say`/`gesture` — no special case).
-- Async.
-- Applies an action to an `environment` agent (e.g. pushing a door,
-  lighting a fire, rummaging through a drawer). The act_on message is
-  delivered into the target environment's own inbox, exactly like
-  `say`/`gesture` sent to any other agent — an environment agent has its
-  own LLM brain and full short-term memory too, and reacts to the message
-  on its own turn (e.g. calling `update_status` to update its own state,
-  then `say`ing the result back to you). This is fully asynchronous: the
-  `act_on` call itself does not return a synchronous result — the reply
-  comes from the environment.
 
 ### broadcast
 - Signature: `{"action": "broadcast", "params": {"targets": ["..."], "content": "...", "wake": false}}`

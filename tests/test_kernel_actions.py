@@ -47,22 +47,25 @@ async def test_observe_character_requires_colocation():
     assert (await k.execute(a, Action("observe", {"target": "b"}))).ok is False
 
 
-async def test_read_info_carrier_queues_message_async():
-    """Task S2: read is async-only -- the kernel no longer calls
-    brain.retrieve() synchronously. It queues a Message(kind="read",
-    content=query, wake=True) into the carrier's own inbox; the carrier
-    answers on its own next tick (see test_unified_agents.py for the full
-    2-3 tick round trip)."""
+async def test_read_info_carrier_returns_target_owner_recall_synchronously():
+    """Task R (revert of S2): read is SYNCHRONOUS -- info_carriers are
+    passive, function-driven agents with no brain turn of their own, so the
+    kernel retrieves the carrier's OWN memories (via
+    SharedMemory.recall_of) and returns them in the SAME tick, with no
+    Message/inbox round trip at all."""
+    shared = SharedMemory(afake_embed, llm=None, collection_name=f"t_{uuid.uuid4().hex[:8]}")
     a = char("a", "hall")
     book = Agent("book", "info_carrier", RetrievalBrain("宝玉衔玉而生。"), STM(status={"location": "hall"}))
-    k = build([a, book, Agent("hall", "environment", RuleBrain(), STM())])
+    k = build([a, book, Agent("hall", "environment", RuleBrain(), STM())], shared=shared)
+
+    await shared.remember_atomic(["book"], "宝玉衔玉而生", source="sediment")
+
     r = await k.execute(a, Action("read", {"target": "book", "query": "宝玉"}))
     assert r.ok
-    assert book.stm.inbox.qsize() == 0    # not delivered yet this tick
+    assert r.data and r.data[0]["text"] == "宝玉衔玉而生"
+    assert book.stm.inbox.qsize() == 0    # no Message ever sent
     k.deliver_pending()
-    assert book.stm.inbox.qsize() == 1
-    msg = book.stm.inbox.get_nowait()
-    assert msg.kind == "read" and msg.content == "宝玉" and msg.sender == "a" and msg.wake is True
+    assert book.stm.inbox.qsize() == 0
 
 
 async def test_read_rejects_non_carrier_and_non_readable():
@@ -128,22 +131,22 @@ async def test_think_uses_llm_bucket():
     assert r.ok and "结论" in r.data and llm.calls[0][0] == "think"
 
 
-async def test_act_on_queues_message_to_env_inbox_async():
-    """Task S2: act_on is async-only -- the kernel no longer synchronously
-    calls a RuleBrain's handle_act_on. It always queues an act_on
-    Message(wake=True) into the target environment's own inbox, exactly
-    like say/gesture to any other agent; the environment's own brain reacts
-    on its own next tick (see test_unified_agents.py for the full 2-3 tick
-    round trip, including a RuleBrain env scripted with `fn` to reply via
-    `say`)."""
+async def test_act_on_deposits_env_owned_memory_synchronously():
+    """Task R (revert of S2): act_on is SYNCHRONOUS -- environments are
+    passive, function-driven agents with no brain turn of their own, so the
+    kernel deposits an env-owned memory (source="act_on") and returns
+    immediately, with no Message/inbox round trip at all."""
+    shared = SharedMemory(afake_embed, llm=None, collection_name=f"t_{uuid.uuid4().hex[:8]}")
     a = char("a", "hall")
     env = Agent("hall", "environment", RuleBrain(), STM())
-    k = build([a, env])
+    k = build([a, env], shared=shared)
     r = await k.execute(a, Action("act_on", {"targets": ["hall"], "content": "大门"}))
     assert r.ok
-    assert env.stm.inbox.qsize() == 0    # not delivered yet this tick
-    k.deliver_pending()                  # public delivery step
-    assert a.stm.inbox.qsize() == 0      # the actor gets nothing synchronously
-    assert env.stm.inbox.qsize() == 1
-    msg = env.stm.inbox.get_nowait()
-    assert msg.kind == "act_on" and msg.content == "大门" and msg.sender == "a" and msg.wake is True
+    assert r.data == {"env": "hall", "recorded": "大门"}
+    assert env.stm.inbox.qsize() == 0
+    k.deliver_pending()
+    assert a.stm.inbox.qsize() == 0
+    assert env.stm.inbox.qsize() == 0    # no Message ever sent
+
+    recorded = await shared.recall_of("hall", "大门", top_k=5)
+    assert recorded and recorded[0]["text"] == "大门"

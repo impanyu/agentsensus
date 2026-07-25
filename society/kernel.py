@@ -188,12 +188,28 @@ class Kernel:
     def is_eligible(self, a) -> bool:
         """Whether agent `a` should get a decide/execute cycle this tick.
 
-        The inbox check wakes `a` only if it contains at least one
-        wake=True message (checked non-destructively via
-        `stm.inbox_items()`) -- a wake=False message (e.g. from
-        `broadcast(wake=False)`) never makes a goalless/waiting agent
-        eligible by itself, though it is still poppable/peekable once `a`
-        is awake for any other reason.
+        Task R (awake-based model for characters; supersedes both the
+        goal-based sleep economy AND the S4 `wake_all_characters` ablation
+        flag, which is removed): a character is eligible whenever it is
+        AWAKE, full stop -- an awake character with an empty goal stack and
+        an empty inbox still runs every tick (it is expected to `wait` on
+        its own if it truly has nothing to do; see `_GOAL_HINT_*` /
+        actions_skill's `wait` section). "Awake" == `waiting_until is None`
+        (never slept, or a wake=True message already cleared it in
+        `deliver_pending`) OR a real (non-forever) timeout has elapsed.
+        There is no more inbox-peeking or goal-emptiness check here: by the
+        time this runs (top of the next tick), `deliver_pending` has
+        already cleared `waiting_until` for any wake=True message delivered
+        last tick, so a pending wake message is always already reflected in
+        `waiting_until`.
+
+        Environments and info_carriers (Task R, Part A -- revert of S2's
+        unified-agent architecture) are passive, function-driven agents:
+        their act_on/read responses are computed SYNCHRONOUSLY by the
+        kernel during the acting character's own apply step (see
+        `_execute_act_on`/`_execute_read`), so they never take a proactive
+        turn of their own and are NEVER eligible, regardless of pending
+        messages or (for a directly-constructed test Agent) goals.
         """
         if getattr(a, "archived", False):
             # History-sedimentation mode (design spec §4.1): archived
@@ -202,21 +218,10 @@ class Kernel:
             return False
         if a.transit is not None:
             return False
-        if self.config.get("wake_all_characters") and a.kind == "character":
-            # Task S4 ablation arm: every non-archived, non-transit
-            # character is scheduled every tick, bypassing the
-            # goal/inbox/timeout checks below entirely (this is the
-            # "no event-driven sleep" arm for the sleep-economy ablation).
-            # environments/info_carriers are NOT covered by this flag --
-            # they fall through to the existing event-driven logic below
-            # and stay REACTIVE (a location/document has no proactive
-            # agenda, and there are many more envs+carriers than
-            # characters, so their cost must stay ~0).
-            return True
-        if any(m.wake for m in a.stm.inbox_items()):
-            return True
+        if a.kind != "character":
+            return False
         if a.waiting_until is None:
-            return not a.stm.goals.empty()
+            return True
         # a is waiting: only a real (non-forever) timeout that has elapsed
         # makes it eligible.
         return self._timeout_elapsed(a)
@@ -351,7 +356,7 @@ class Kernel:
             return self._execute_say_or_gesture(agent, action)
 
         if name == "act_on":
-            return self._execute_act_on(agent, action)
+            return await self._execute_act_on(agent, action)
 
         if name in ("add_affiliated", "remove_affiliated", "set_affiliated", "get_affiliated"):
             return self._execute_affiliated_crud(agent, action)
@@ -360,7 +365,7 @@ class Kernel:
             return self._execute_observe(agent, action)
 
         if name == "read":
-            return self._execute_read(agent, action)
+            return await self._execute_read(agent, action)
 
         if name == "move":
             return self._execute_move(agent, action)
@@ -429,16 +434,19 @@ class Kernel:
         self.send(msg)
         return ActionResult(True, data="sent")
 
-    def _execute_act_on(self, agent, action: Action) -> ActionResult:
+    async def _execute_act_on(self, agent, action: Action) -> ActionResult:
         """act_on(targets, content): targets must be a list containing
         EXACTLY ONE environment id, and the actor must be co-located with
-        it. Async-only (Task S2, unified-agent architecture): an act_on
-        Message (wake=True) is always queued into the target environment's
-        own inbox, exactly like a `say`/`gesture` targeting any other
-        agent -- there is no synchronous handle_act_on branch any more.
-        The environment's own brain (LLMBrain in the sim path; a RuleBrain
-        with a scripted `fn` in tests) reacts to it on its own next tick
-        (e.g. `update_status`, or `say` a reply back to the actor)."""
+        it (kept from S1). SYNCHRONOUS (Task R -- reverts S2's async
+        message-to-inbox approach): environments are passive,
+        function-driven agents (Part A) with no brain turn of their own to
+        react on, so the kernel computes the effect right here, in the
+        acting character's own apply step, in the SAME tick -- deposit a
+        memory owned by the environment (`source="act_on"`) so the place
+        "remembers" what was done there, and return immediately. No
+        Message is sent, and no brain/LLM is ever called for this. If no
+        shared_memory is configured, the act_on still succeeds (nothing to
+        record it into)."""
         params = action.params
         targets = params["targets"]
         content = params["content"]
@@ -455,17 +463,15 @@ class Kernel:
         if agent.location() != target_id:
             return ActionResult(False, error=f"not at {target_id}")
 
-        msg = Message(
-            id=str(uuid.uuid4()),
-            sender=agent.id,
-            recipients=[target_id],
-            kind="act_on",
-            content=content,
-            tick_sent=self.tick,
-            wake=True,
+        if self.shared_memory is None:
+            return ActionResult(
+                True, data={"env": target_id, "recorded": content, "note": "no shared memory"}
+            )
+
+        await self.shared_memory.remember_atomic(
+            [target_id], content, tick=self.tick, source="act_on"
         )
-        self.send(msg)
-        return ActionResult(True, data="acted")
+        return ActionResult(True, data={"env": target_id, "recorded": content})
 
     # ------------------------------------------------------------------
     # Affiliated-memory CRUD (sync; no LLM calls; delegates to SharedMemory)
@@ -571,19 +577,24 @@ class Kernel:
     _GOAL_HINT_ZH = (
         "你的目标栈为空。请**先 push_goal** 自举一个你此刻最想推进的目标(根据你的"
         "记忆 recall 和当前处境),**然后**围绕它持续行动(say/observe/act_on/"
-        "remember…)。不要只做一个 pop_message 或 recall 就停;没有目标你下一刻就会"
-        "休眠。若收件箱里有消息,可以先 push_goal(如“回应 X 的消息”)再处理——消息"
-        "在你 pop 之前会一直留着。"
+        "remember…)。不要只做一个 pop_message 或 recall 就停;在唤醒模型下,即使"
+        "目标栈为空,你下一 tick 仍会被调度,并不会因此自动休眠。若收件箱里有消息,"
+        "可以先 push_goal(如“回应 X 的消息”)再处理——消息在你 pop 之前会一直留着。"
+        "如果你此刻确实无事可做,用 `wait` 让自己休眠,直到有人给你消息再醒来——不要"
+        "空转。"
     )
     _GOAL_HINT_EN = (
         "Your goal stack is empty. **First push_goal** to bootstrap a goal "
         "you most want to pursue right now (based on recall of your memory "
         "and your current situation), **then** act on it continuously "
         "(say/observe/act_on/remember...). Don't just do a single "
-        "pop_message or recall and stop; with no goal you'll go back to "
-        "sleep next tick. If there's a message in your inbox, you can "
-        "push_goal first (e.g. \"respond to X's message\") and handle it "
-        "afterward -- the message stays put until you pop it."
+        "pop_message or recall and stop; under the awake model you'll still "
+        "be scheduled next tick even with an empty goal stack -- it does "
+        "not put you to sleep automatically. If there's a message in your "
+        "inbox, you can push_goal first (e.g. \"respond to X's message\") "
+        "and handle it afterward -- the message stays put until you pop "
+        "it. If you truly have nothing to do right now, use `wait` to put "
+        "yourself to sleep until a message wakes you -- don't spin."
     )
 
     def _build_agent_view(self, agent) -> dict:
@@ -670,38 +681,42 @@ class Kernel:
 
         return ActionResult(False, error=f"cannot observe kind {target.kind}")
 
-    def _execute_read(self, agent, action: Action) -> ActionResult:
-        """read(target, query): async-only (Task S2, unified-agent
-        architecture) -- target must be an info_carrier co-located with (or
-        portable and held by) the reader, exactly as before, but instead of
-        synchronously calling `brain.retrieve()` this now queues a
-        Message(kind="read", content=query, wake=True) into the carrier's
-        own inbox. The carrier's LLM brain answers on its own next tick,
-        recalling its own LTM (the document chains deposited by
-        sedimentation) and `say`-ing the answer back to the asker -- same
-        mechanism as any other inbox-driven agent, nothing carrier-specific
-        in the kernel any more."""
+    async def _execute_read(self, agent, action: Action) -> ActionResult:
+        """read(target, query): target must be an info_carrier OR an
+        environment -- the two passive, function-driven kinds (Part A);
+        co-location/holder rules are unchanged (`_is_readable` for a
+        carrier: co-located, or portable and held by the reader; an
+        environment target just needs the reader to be co-located, i.e.
+        currently there). SYNCHRONOUS (Task R -- reverts S2's async
+        message-to-inbox approach): there is no brain on the target to
+        answer this on its own next tick, so the kernel itself retrieves
+        the TARGET's own memories relevant to `query` -- via
+        `SharedMemory.recall_of(target_id, query, top_k)`, i.e. the
+        target's OWN LTM entries (deposited by sedimentation, or by an
+        earlier `act_on` at this same environment) -- and returns them
+        directly as `[{"id": ..., "text": ...}, ...]`, in the SAME tick. If
+        no shared_memory is configured, returns an empty list."""
         params = action.params
         target_id = params["target"]
         query = params["query"]
+        top_k = params.get("top_k", 5)
 
         target = self.agents.get(target_id)
-        if target is None or target.kind != "info_carrier":
-            return ActionResult(False, error=f"not an info_carrier: {target_id}")
-        if not self._is_readable(agent, target):
-            return ActionResult(False, error=f"{target_id} not readable here")
+        if target is None or target.kind not in ("info_carrier", "environment"):
+            return ActionResult(False, error=f"not readable: {target_id}")
 
-        msg = Message(
-            id=str(uuid.uuid4()),
-            sender=agent.id,
-            recipients=[target_id],
-            kind="read",
-            content=query,
-            tick_sent=self.tick,
-            wake=True,
-        )
-        self.send(msg)
-        return ActionResult(True, data="queued")
+        if target.kind == "info_carrier":
+            if not self._is_readable(agent, target):
+                return ActionResult(False, error=f"{target_id} not readable here")
+        else:  # environment
+            if agent.location() != target_id:
+                return ActionResult(False, error=f"not at {target_id}")
+
+        if self.shared_memory is None:
+            return ActionResult(True, data=[])
+
+        data = await self.shared_memory.recall_of(target_id, query, top_k)
+        return ActionResult(True, data=data)
 
     def _execute_move(self, agent, action: Action) -> ActionResult:
         destination = action.params["destination"]

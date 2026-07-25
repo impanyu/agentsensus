@@ -142,13 +142,25 @@
 
 ### read
 - 签名: `{"action": "read", "params": {"target": "...", "query": "..."}}`
-- 异步。
-- 作用: 向一份可读文书(info_carrier,如书籍/信件/日记)发起带 query 的询问。
-  这是异步的:你的 `read` 只是把这条询问投递进该文书自己的收件箱,文书本身
-  (也是一个有 LLM brain 的 agent)会在它自己的回合里,根据自己的记忆(即文书
-  内容,由沉淀/`remember`写入其长期记忆)作答,再用 `say` 把答案发回给你——不
-  是本次 action 立即返回结果。只对 info_carrier 类型的目标有效;目标必须与你
-  同处一地,或者是可携带(portable)且正被你持有。
+- 同步。
+- 作用: 向一份可读文书(info_carrier,如书籍/信件/日记)或一个 environment
+  发起带 query 的询问。environment/info_carrier 都是被动的、纯函数式的
+  agent(没有自己的 brain 回合,永远不会被调度),所以这**本 tick 内立即返回
+  结果**:内核直接检索目标自己拥有的长期记忆(由沉淀/`remember`/`act_on`
+  写入)中与 query 相关的条目,返回 `[{"id": "...", "text": "..."}, ...]`,
+  不经过任何消息投递或 LLM 调用。目标必须是 info_carrier(需与你同处一地,
+  或可携带且正被你持有)或 environment(需与你同处一地)。
+
+### act_on
+- 签名: `{"action": "act_on", "params": {"targets": ["..."], "content": "..."}}`
+  ——`targets` 必须是**恰好包含一个**元素的列表,元素是你当前所在的那个
+  environment 类 agent 的 id。
+- 同步。
+- 作用: 对你当前所在的 environment 施加一个动作(例如推门、点火、翻找抽屉)。
+  environment 是被动的、纯函数式的 agent(没有自己的 brain 回合,永远不会被
+  调度),所以这**本 tick 内立即生效并返回结果**:内核把 `content` 作为一条
+  由该 environment 拥有的长期记忆存下来(这个地方因此"记得"发生过什么),
+  之后可以用 `read` 去查询。不会产生任何消息,也不会调用 LLM。
 
 ### move
 - 签名: `{"action": "move", "params": {"destination": "..."}}`
@@ -161,11 +173,14 @@
 ### wait
 - 签名: `{"action": "wait", "params": {"timeout_ticks": N}}`(`timeout_ticks` 可选)
 - 同步发起,但会产生"休眠"效果。
-- 作用: 带 `timeout_ticks=N` 时,你会休眠 N 个 tick 后自动醒来(即使没有任何消息);
-  不带这个参数时,等价于**永久休眠**,直到收到一条 `wake=true` 的消息才会被唤醒
-  ——**唤醒消息总能打断等待**,不论是定时等待还是永久等待。注意:`wake=false` 的
-  消息(见 `broadcast`)不会打断 `wait`,它会安静地留在你的收件箱里,等你因为其他
-  原因醒来后再去看。
+- 作用: 你默认就是**清醒的**(awake)——只要没有目标也没有关系,清醒状态下
+  你每个 tick 都会被调度,不会因为目标栈为空而自动休眠。`wait` 是**你唯一主动
+  让自己休眠的方式**:带 `timeout_ticks=N` 时,你会休眠 N 个 tick 后自动醒来
+  (即使没有任何消息);不带这个参数时,等价于**永久休眠**,直到收到一条
+  `wake=true` 的消息才会被唤醒——**唤醒消息总能打断等待**,不论是定时等待还是
+  永久等待。注意:`wake=false` 的消息(见 `broadcast`)不会打断 `wait`,它会
+  安静地留在你的收件箱里,等你因为其他原因醒来后再去看。**真的无事可做时就该
+  `wait`**——否则你会一直空转,每个 tick 都被重新调度、重新决策,白白消耗算力。
 
 ### noop
 - 签名: `{"action": "noop", "params": {}}`
@@ -188,19 +203,6 @@
 - 异步。
 - 作用: 向 `targets` 展示一个非语言的动作/表情/姿态,机制与 `say` 完全相同,只是
   内容语义是动作而非言语。
-
-### act_on
-- 签名: `{"action": "act_on", "params": {"targets": ["..."], "content": "..."}}`
-  ——`targets` 必须是**恰好包含一个**元素的列表,元素是你当前所在的那个
-  environment 类 agent 的 id(和 `say`/`gesture` 用同一套 `{targets, content}`
-  形状,没有特例)。
-- 异步。
-- 作用: 对一个 environment 类 agent 施加一个动作(例如推门、点火、翻找抽屉)。
-  这条 act_on 消息会被投递进目标环境自己的收件箱,和 `say`/`gesture` 发给任何
-  其他 agent 完全一样——环境 agent 自己也有 LLM brain 和完整短期记忆,会在它
-  自己的回合里对这条消息作出反应(例如用 `update_status` 更新自身状态,再
-  `say` 把结果回复给你)。这是纯异步的:发起 `act_on` 的这次 action 不会同步
-  拿到结果,结果要等环境自己回复。
 
 ### broadcast
 - 签名: `{"action": "broadcast", "params": {"targets": ["..."], "content": "...", "wake": false}}`

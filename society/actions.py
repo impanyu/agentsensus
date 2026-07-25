@@ -80,20 +80,24 @@ SYNC_ACTIONS: set[str] = {
     "add_affiliated",
     "remove_affiliated",
     "set_affiliated",
-    "get_affiliated"
+    "get_affiliated",
+    # Task R (revert of S2's async message-to-inbox plumbing):
+    # environments/info_carriers are passive, function-driven agents that
+    # never get a decide/execute turn of their own (Kernel.is_eligible
+    # always returns False for them), so act_on/read can no longer be
+    # answered "on the target's own next tick" -- the kernel computes their
+    # effect synchronously, in the acting character's own apply step.
+    "act_on",
+    "read",
 }
 
-# Asynchronous actions (may take multiple ticks)
+# Asynchronous actions (may take multiple ticks -- deliver a Message into a
+# recipient's inbox, visible starting next tick; only ever targets a
+# CHARACTER, which alone can take a proactive turn to react to it)
 ASYNC_ACTIONS: set[str] = {
     "say",
     "gesture",
-    "act_on",
     "broadcast",
-    # Task S2 (unified-agent architecture): `read` no longer synchronously
-    # calls brain.retrieve() -- it queues a Message into the target
-    # info_carrier's own inbox (Kernel._execute_read), answered on the
-    # carrier's own next tick, exactly like say/gesture/act_on.
-    "read"
 }
 
 # Required parameters for each action
