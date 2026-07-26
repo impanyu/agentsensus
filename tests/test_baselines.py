@@ -143,6 +143,21 @@ async def test_ga_restore_advances_clock_so_recall_does_not_overflow():
     assert any(r["text"] == TEXT_A for r in results)
 
 
+async def test_ga_chroma_per_owner_fanout():
+    m = GenerativeAgentsMemory(afake_embed, llm=None)
+    await m.remember_atomic(["a", "b"], "shared scene")
+    ents = m.all_entries()
+    assert len(ents) == 2  # one row per owner
+    assert {e["owners"][0] for e in ents} == {"a", "b"}
+
+
+async def test_ga_chroma_recall_scoped_and_reflection_fields():
+    m = GenerativeAgentsMemory(afake_embed, llm=None)
+    await m.remember("a", "刘备在新野议事")
+    assert await m.recall("a", "新野")  # owner a sees it
+    assert (await m.recall("b", "新野")) == []  # owner b does not
+
+
 # ========================================================================
 # GMemory
 # ========================================================================

@@ -18,6 +18,7 @@ import re
 import uuid
 from datetime import datetime, timezone
 
+from society.baseline_store import ChromaRows, dumps_meta, loads_meta
 from society.ltm import SharedMemory
 
 _DEFAULT_IMPORTANCE = 5
@@ -67,6 +68,19 @@ class GenerativeAgentsMemory:
     summarization pass, which is orthogonal to the retrieval-scoring
     mechanism this adapter is faithful to and is not needed to compare
     against consensus-compressed storage.
+
+    Storage note: rows live in a `ChromaRows` collection (one Chroma record
+    PER OWNER, matching the per-owner-duplication behavior above) instead of
+    an in-memory dict. Chroma metadata values must be scalars, so the
+    per-row `affiliated` id list is JSON-encoded (`dumps_meta`/`loads_meta`)
+    before being written and decoded after being read back. `recall_of`
+    narrows candidates server-side via `ChromaRows.query(..., where={"owner":
+    owner_id})` (fetching `max(4*top_k, 50)` candidates), then applies the
+    unchanged three-term score in Python -- Chroma's own query doesn't
+    surface per-candidate embeddings, so candidate texts are re-embedded in
+    one batched `embed_fn` call to get the exact cosine relevance term
+    (deterministic for a given text/model, identical to what was embedded at
+    insert time).
     """
 
     RECENCY_W = 1.0
@@ -77,7 +91,7 @@ class GenerativeAgentsMemory:
     def __init__(self, embed_fn, llm=None, *, top_k: int = 5, collection_name=None, **kwargs):
         self._embed_fn = embed_fn
         self._llm = llm
-        self._rows = {}  # id -> row dict
+        self._store = ChromaRows(embed_fn, collection_name=collection_name)
         self._clock = 0  # monotonic access-tick counter
 
     async def _score_importance(self, text: str) -> int:
@@ -98,6 +112,15 @@ class GenerativeAgentsMemory:
         except (ValueError, TypeError):
             return _DEFAULT_IMPORTANCE
 
+    @staticmethod
+    def _split_meta(metadata: dict) -> tuple[str, list[str], dict]:
+        """Split a raw Chroma metadata dict into (owner, affiliated ids, the
+        remaining `meta` sub-dict used by `all_entries`/`export`)."""
+        owner = metadata.get("owner")
+        affiliated = sorted(loads_meta(metadata.get("affiliated")))
+        meta = {k: v for k, v in metadata.items() if k not in ("owner", "affiliated")}
+        return owner, affiliated, meta
+
     async def remember(
         self,
         agent_id: str,
@@ -114,25 +137,20 @@ class GenerativeAgentsMemory:
         for owner in owners:
             row_id = uuid.uuid4().hex
             self._clock += 1
-            row = {
-                "id": row_id,
-                "text": text,
+            metadata = {
                 "owner": owner,
-                "embedding": list(embedding),
-                "meta": {
-                    "created_at": _now_iso(),
-                    "source": source,
-                    "tick": tick,
-                    "importance": importance,
-                    "last_access": self._clock,
-                },
+                "affiliated": dumps_meta([]),
+                "created_at": _now_iso(),
+                "source": source,
+                "tick": tick,
+                "importance": importance,
+                "last_access": self._clock,
             }
             if story_order is not None:
-                row["meta"]["story_order"] = story_order
+                metadata["story_order"] = story_order
             if story_time is not None:
-                row["meta"]["story_time"] = story_time
-            row["affiliated"] = []
-            self._rows[row_id] = row
+                metadata["story_time"] = story_time
+            await self._store.add(row_id, text, embedding, metadata)
             results.append({"id": row_id, "text": text, "merged": False, "owners": [owner]})
         return results
 
@@ -165,42 +183,52 @@ class GenerativeAgentsMemory:
             if first_id is None:
                 first_id = row_id
             self._clock += 1
-            row = {
-                "id": row_id,
-                "text": text,
+            metadata = {
                 "owner": owner,
-                "embedding": list(embedding),
-                "meta": {
-                    "created_at": _now_iso(),
-                    "source": source,
-                    "tick": tick,
-                    "importance": importance,
-                    "last_access": self._clock,
-                },
-                "affiliated": sorted(a for a in seed_affiliated if a != row_id),
+                "affiliated": dumps_meta(sorted(a for a in seed_affiliated if a != row_id)),
+                "created_at": _now_iso(),
+                "source": source,
+                "tick": tick,
+                "importance": importance,
+                "last_access": self._clock,
             }
             if story_order is not None:
-                row["meta"]["story_order"] = story_order
+                metadata["story_order"] = story_order
             if story_time is not None:
-                row["meta"]["story_time"] = story_time
-            self._rows[row_id] = row
+                metadata["story_time"] = story_time
+            await self._store.add(row_id, text, embedding, metadata)
         return {"id": first_id, "text": text, "merged": False, "owners": list(owners)}
 
     async def recall(self, agent_id: str, query: str, top_k: int = 5) -> list[dict]:
-        candidates = [r for r in self._rows.values() if r["owner"] == agent_id]
+        """`recall_of` already scopes candidates to `owner == owner_id`, so
+        a caller retrieving its own stream is just `recall_of` under its own
+        id."""
+        return await self.recall_of(agent_id, query, top_k)
+
+    async def recall_of(self, owner_id: str, query: str, top_k: int = 5) -> list[dict]:
+        candidate_k = max(4 * top_k, 50)
+        candidates = await self._store.query(query, candidate_k, where={"owner": owner_id})
         if not candidates:
             return []
         q_emb = (await self._embed_fn([query]))[0]
 
+        # `ChromaRows.query` doesn't surface per-candidate embeddings, so
+        # re-embed the candidate texts (one batched call) to recover the
+        # exact vectors for the relevance term -- identical to what was
+        # embedded at insert time for a given (text, embed_fn).
+        cand_texts = [c["text"] for c in candidates]
+        cand_embeddings = await self._embed_fn(cand_texts)
+
         self._clock += 1  # one "current time" tick shared by all candidates
         now = self._clock
         raw = []
-        for row in candidates:
-            ticks_since = now - row["meta"]["last_access"]
+        for cand, emb in zip(candidates, cand_embeddings):
+            meta = cand["metadata"]
+            ticks_since = now - int(meta.get("last_access", now))
             recency = math.exp(-self.DECAY * ticks_since)
-            importance = row["meta"]["importance"] / 10.0
-            relevance = _cosine(q_emb, row["embedding"])
-            raw.append((row, recency, importance, relevance))
+            importance = float(meta.get("importance", _DEFAULT_IMPORTANCE)) / 10.0
+            relevance = _cosine(q_emb, emb)
+            raw.append((cand, recency, importance, relevance))
 
         def _norm(vals):
             lo, hi = min(vals), max(vals)
@@ -213,31 +241,27 @@ class GenerativeAgentsMemory:
         relevances = _norm([r[3] for r in raw])
 
         scored = []
-        for (row, _, _, _), rec_n, imp_n, rel_n in zip(raw, recencies, importances, relevances):
+        for (cand, _, _, _), rec_n, imp_n, rel_n in zip(raw, recencies, importances, relevances):
             score = (
                 self.RECENCY_W * rec_n
                 + self.IMPORTANCE_W * imp_n
                 + self.RELEVANCE_W * rel_n
             )
-            scored.append((score, row))
+            scored.append((score, cand))
 
         scored.sort(key=lambda pair: pair[0], reverse=True)
         top = scored[:top_k]
-        for _, row in top:
-            row["meta"]["last_access"] = now
-        return [{"id": row["id"], "text": row["text"]} for _, row in top]
-
-    async def recall_of(self, owner_id: str, query: str, top_k: int = 5) -> list[dict]:
-        """`recall` already filters to `row["owner"] == agent_id`, so a
-        caller retrieving another owner's stream is just `recall` under
-        that owner's id."""
-        return await self.recall(owner_id, query, top_k)
+        for _, cand in top:
+            new_meta = dict(cand["metadata"])
+            new_meta["last_access"] = now
+            self._store.update_metadata(cand["id"], new_meta)
+        return [{"id": cand["id"], "text": cand["text"]} for _, cand in top]
 
     def forget(self, agent_id: str, memory_id: str) -> bool:
-        row = self._rows.get(memory_id)
-        if row is None or row["owner"] != agent_id:
+        row = self._store.get(memory_id)
+        if row is None or row["metadata"].get("owner") != agent_id:
             return False
-        del self._rows[memory_id]
+        self._store.delete(memory_id)
         return True
 
     async def revise(self, agent_id: str, memory_id: str, new_text: str, tick: int = 0) -> list[dict]:
@@ -245,51 +269,63 @@ class GenerativeAgentsMemory:
         return await self.remember(agent_id, new_text, tick=tick)
 
     def add_affiliations(self, memory_id: str, other_ids: list[str]) -> bool:
-        row = self._rows.get(memory_id)
+        row = self._store.get(memory_id)
         if row is None:
             return False
-        row["affiliated"] = sorted(
-            (set(row.get("affiliated", [])) | set(other_ids)) - {memory_id}
-        )
+        current = set(loads_meta(row["metadata"].get("affiliated")))
+        updated = sorted((current | set(other_ids)) - {memory_id})
+        new_meta = dict(row["metadata"])
+        new_meta["affiliated"] = dumps_meta(updated)
+        self._store.update_metadata(memory_id, new_meta)
         return True
 
     def remove_affiliations(self, memory_id: str, other_ids: list[str]) -> bool:
-        row = self._rows.get(memory_id)
+        row = self._store.get(memory_id)
         if row is None:
             return False
-        row["affiliated"] = sorted(set(row.get("affiliated", [])) - set(other_ids))
+        current = set(loads_meta(row["metadata"].get("affiliated")))
+        updated = sorted(current - set(other_ids))
+        new_meta = dict(row["metadata"])
+        new_meta["affiliated"] = dumps_meta(updated)
+        self._store.update_metadata(memory_id, new_meta)
         return True
 
     def get_affiliations(self, memory_id: str) -> list[str]:
-        row = self._rows.get(memory_id)
+        row = self._store.get(memory_id)
         if row is None:
             return []
-        return sorted(row.get("affiliated", []))
+        return sorted(loads_meta(row["metadata"].get("affiliated")))
 
     def all_entries(self) -> list[dict]:
-        return [
-            {
-                "id": r["id"],
-                "text": r["text"],
-                "owners": [r["owner"]],
-                "affiliated": list(r.get("affiliated", [])),
-                "meta": r["meta"],
-            }
-            for r in self._rows.values()
-        ]
+        entries = []
+        for r in self._store.all_rows():
+            owner, affiliated, meta = self._split_meta(r["metadata"])
+            entries.append(
+                {
+                    "id": r["id"],
+                    "text": r["text"],
+                    "owners": [owner],
+                    "affiliated": affiliated,
+                    "meta": meta,
+                }
+            )
+        return entries
 
     def export(self) -> list[dict]:
-        return [
-            {
-                "id": r["id"],
-                "text": r["text"],
-                "owners": [r["owner"]],
-                "affiliated": list(r.get("affiliated", [])),
-                "meta": dict(r["meta"]),
-                "embedding": list(r["embedding"]),
-            }
-            for r in self._rows.values()
-        ]
+        exported = []
+        for r in self._store.all_rows():
+            owner, affiliated, meta = self._split_meta(r["metadata"])
+            exported.append(
+                {
+                    "id": r["id"],
+                    "text": r["text"],
+                    "owners": [owner],
+                    "affiliated": affiliated,
+                    "meta": meta,
+                    "embedding": list(r["embedding"]),
+                }
+            )
+        return exported
 
     async def restore(self, entries: list[dict]) -> None:
         if not entries:
@@ -331,14 +367,10 @@ class GenerativeAgentsMemory:
             affiliated = list(entry.get("affiliated", []))
             for idx, owner in enumerate(owners):
                 row_id = entry["id"] if idx == 0 else uuid.uuid4().hex
-                self._rows[row_id] = {
-                    "id": row_id,
-                    "text": entry["text"],
-                    "owner": owner,
-                    "embedding": list(embedding),
-                    "meta": dict(base_meta),
-                    "affiliated": list(affiliated),
-                }
+                metadata = dict(base_meta)
+                metadata["owner"] = owner
+                metadata["affiliated"] = dumps_meta(affiliated)
+                await self._store.add(row_id, entry["text"], list(embedding), metadata)
 
     def stats(self) -> dict:
         entries = self.all_entries()
