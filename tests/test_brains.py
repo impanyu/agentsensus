@@ -28,7 +28,7 @@ async def test_llm_brain_parses_action_and_injects_skill():
     assert bucket == "decide"
     sys = llm.calls[0][2] if len(llm.calls[0]) > 2 else ""
     # FakeLLM must record system too: calls entries are (bucket, prompt, system)
-    assert "你是黛玉" in sys and "pop_message" in sys   # skill内容注入
+    assert "你是黛玉" in sys and "read_thread" in sys   # skill内容注入 (Task 6: pop_message -> read_thread)
 
 
 async def test_llm_brain_retries_then_noop():

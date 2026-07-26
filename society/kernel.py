@@ -687,7 +687,7 @@ class Kernel:
     _GOAL_HINT_ZH = (
         "你的目标栈为空。请**先 push_goal** 自举一个你此刻最想推进的目标(根据你的"
         "记忆 recall 和当前处境),**然后**围绕它持续行动(say/observe/act_on/"
-        "remember…)。不要只做一个 pop_message 或 recall 就停;在唤醒模型下,即使"
+        "remember…)。不要只做一次 read_thread 或 recall 就停;在唤醒模型下,即使"
         "目标栈为空,你下一 tick 仍会被调度,并不会因此自动休眠。若收件箱里有消息,"
         "可以先 push_goal(如“回应 X 的消息”)再处理——消息在你 pop 之前会一直留着。"
         "如果你此刻确实无事可做,用 `wait` 让自己休眠,直到有人给你消息再醒来——不要"
@@ -698,7 +698,7 @@ class Kernel:
         "you most want to pursue right now (based on recall of your memory "
         "and your current situation), **then** act on it continuously "
         "(say/observe/act_on/remember...). Don't just do a single "
-        "pop_message or recall and stop; under the awake model you'll still "
+        "read_thread or recall and stop; under the awake model you'll still "
         "be scheduled next tick even with an empty goal stack -- it does "
         "not put you to sleep automatically. If there's a message in your "
         "inbox, you can push_goal first (e.g. \"respond to X's message\") "

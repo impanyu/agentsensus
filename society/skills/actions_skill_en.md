@@ -16,8 +16,15 @@ The view you receive typically contains:
   are currently working on;
 - your status register (`status`) — arbitrary key/value pairs such as
   mood/appearance/clothing/location;
-- your inbox depth and a preview of the head-of-queue message (sender,
-  kind) — but **not** its body. You must `pop_message` to actually read it.
+- a `conversations` roster: one row per conversation you're part of —
+  every character/environment/info_carrier you've exchanged messages with
+  (an active thread), plus everyone currently co-located with you. Each
+  row is `{other, kind, colocated, unread, last_preview}` — the other
+  party's id and kind, whether they're co-located with you right now, how
+  many unread messages are waiting in that thread, and a short preview of
+  its last line. The roster does **not** include full message bodies — you
+  must `read_thread(target)` to actually fetch a conversation's messages
+  (and mark it read).
 
 ## Two kinds of actions
 
@@ -32,18 +39,16 @@ The view you receive typically contains:
 
 ## Synchronous actions
 
-### pop_message
-- Signature: `{"action": "pop_message", "params": {}}`
+### read_thread
+- Signature: `{"action": "read_thread", "params": {"target": "...", "k": 10}}`
+  (`k` is optional, defaults to 10)
 - Sync.
-- Removes and returns the message at the head of your inbox queue (sender,
-  kind, content, tick_sent, etc.). If the queue is empty, the result says so.
-
-### peek_inbox
-- Signature: `{"action": "peek_inbox", "params": {}}`
-- Sync.
-- Only **inspects** queue depth and a preview (sender/kind) of the head
-  message, without removing it. Use this to decide whether it's worth
-  handling right now.
+- Returns the last `k` messages of your conversation thread with `target`
+  (an id from the `conversations` roster) — the actual bodies (sender,
+  kind, content, tick), not just the roster's preview. As a side effect,
+  marks that thread read: its `unread` count in the roster resets to 0.
+  Use the roster's `unread` count and `last_preview` first to decide which
+  thread is worth opening.
 
 ### think
 - Signature: `{"action": "think", "params": {"question": "..."}}`
@@ -229,9 +234,10 @@ The view you receive typically contains:
   (even with no message). Without it, this is a **sleep forever** — you only
   wake up once a `wake=true` message arrives. **A waking message always
   interrupts a wait**, whether it's a timed wait or a forever wait. Note: a
-  `wake=false` message (see `broadcast`) does NOT interrupt `wait` — it sits
-  quietly in your inbox until you wake up for some other reason and check
-  it. **If you genuinely have nothing to do, `wait`** — otherwise you'll
+  `wake=false` message (see `say`/`gesture`) does NOT interrupt `wait` — it
+  sits quietly in its thread (bumping that row's `unread` count in the
+  `conversations` roster) until you wake up for some other reason and go
+  `read_thread` it. **If you genuinely have nothing to do, `wait`** — otherwise you'll
   keep spinning, getting rescheduled and re-deciding every tick for nothing.
 
 ### noop
@@ -246,53 +252,64 @@ The view you receive typically contains:
 ## Asynchronous actions
 
 ### say
-- Signature: `{"action": "say", "params": {"targets": ["..."], "content": "..."}}`
+- Signature: `{"action": "say", "params": {"targets": ["..."], "content": "...", "wake": true}}`
+  — `targets` is **optional**; `wake` is optional, defaults to `true`.
 - Async.
-- Sends a spoken-message to the agents in `targets`. Delivery may happen on
-  the next tick; the recipient receives it via their inbox and may be woken
-  up by it.
+- Sends a spoken message. If you **omit `targets`** (or pass an empty
+  list), it defaults to **everyone currently co-located with you** — a
+  bare `say` just speaks to the room. You can instead pass an explicit list
+  of target ids, mixing co-located and remote ones freely: a co-located
+  target receives it on the next tick, exactly as before; a **remote**
+  target (anywhere else in the world) instead receives it as a
+  distance-delayed "letter" — delivery is deferred by an amount
+  proportional to the worldmap distance between you and them, arriving
+  once that much in-world travel time has passed, not on the very next
+  tick.
+- `wake` defaults to `true`, actively waking the recipient(s). Pass
+  `"wake": false` for a quiet aside that doesn't interrupt them — it still
+  gets delivered and still bumps the `unread` count of that conversation's
+  row in their `conversations` roster, they just won't be woken by it
+  until they check for some other reason.
+- If `targets` is omitted (or empty) and nobody is currently co-located
+  with you, this is a harmless no-op (`{"delivered": 0}`), not an error —
+  there is simply no room to speak to.
+- Every explicit target must exist and not be archived, or the whole call
+  fails with the offending id(s) named in the error (no partial delivery).
 
 ### gesture
-- Signature: `{"action": "gesture", "params": {"targets": ["..."], "content": "..."}}`
+- Signature: `{"action": "gesture", "params": {"targets": ["..."], "content": "...", "wake": true}}`
+  — same optional `targets`/`wake` shape as `say`.
 - Async.
-- Shows a non-verbal action/expression/gesture to `targets`. Mechanically
-  identical to `say`, just with non-verbal content instead of speech.
-
-### broadcast
-- Signature: `{"action": "broadcast", "params": {"targets": ["..."], "content": "...", "wake": false}}`
-  — `wake` is optional, defaults to `false`.
-- Async.
-- Announces something to `targets` — the audience can be large. Mechanically
-  it works just like `say` (each target receives one message on the next
-  tick), but the intent differs: `say` is a directed conversation (defaults
-  to `wake=true`, actively waking the recipient); `broadcast` is a wide
-  announcement, defaulting to `wake=false` — it does **not** wake the
-  recipient, the message just sits quietly in their inbox until they wake up
-  for some other reason and see it. Pass `"wake": true` explicitly if you do
-  want the broadcast to wake its recipients.
+- Shows a non-verbal action/expression/gesture. Mechanically identical to
+  `say` in every respect (targets optional and defaulting to co-located,
+  remote targets distance-delayed, `wake` defaulting to `true`, no-op when
+  you're alone) — the only difference is that the content is non-verbal.
 
 ---
 
 ## Six typical pipelines
 
-### 1. Message handling (push_goal FIRST → pop → act → pop_goal)
-**Critical order: `push_goal` before `pop_message`.** The view's
-`inbox_head` already gives you a preview of the head-of-queue message
-(sender, kind) -- you can decide "what kind of message is this, is it
-worth handling now" from that alone, without popping. If you `pop_message`
-first while your goal stack happens to be empty, there is a window --
-before you get around to `push_goal` -- where you're judged goalless and
-stop being scheduled starting next tick; the message is already gone from
-the inbox (you popped it) and you never get a chance to push that goal
-afterward. The correct order is:
-1. Look at `inbox_head` (and/or `peek_inbox` first) to preview the head
-   message's sender and kind, and decide whether it's worth handling now;
+### 1. Message handling (check the roster → push_goal FIRST → read_thread → act → pop_goal)
+**Critical order: `push_goal` before `read_thread`.** The view's
+`conversations` roster already gives you, for every conversation you're
+part of, an `unread` count and a `last_preview` of its last line -- you
+can decide "is this thread worth handling now" from that alone, without
+opening it. If you `read_thread` first while your goal stack happens to be
+empty, there is a window -- before you get around to `push_goal` -- where
+you're judged goalless and stop being scheduled starting next tick; the
+thread's `unread` count has already been reset to 0 by the read (nothing
+is lost from the thread itself, but you may never get scheduled again to
+notice it needed a reply). The correct order is:
+1. Scan the `conversations` roster for rows with `unread > 0`, and use
+   `last_preview` (and `kind`/`other`) to judge whether it's worth handling
+   now;
 2. **`push_goal` first**, based on that preview, pushing a corresponding
-   small goal (e.g. "reply to alice's message") -- the message is still
-   sitting in the inbox at this point (nothing is lost), and you stay
-   awake because you now have a goal;
-3. Only then `pop_message` to actually take the body off the queue --
-   the content `peek_inbox` couldn't show you is visible now;
+   small goal (e.g. "reply to alice's message") -- the thread's `unread`
+   count is untouched at this point (nothing is lost), and you stay awake
+   because you now have a goal;
+3. Only then `read_thread(target)` to actually fetch the messages --
+   the content `last_preview` couldn't fully show you is visible now (this
+   also marks the thread read);
 4. Repeatedly perform the appropriate actions (`observe`/`think`/`say`/
    `recall`, etc.) around the goal pushed in step 2 until it is achieved;
 5. Only once it is achieved, `pop_goal` to remove it and return to a
@@ -339,11 +356,11 @@ afterward. The correct order is:
 **Worked example — a typical `remember` trajectory across one storyline**
 (one action per tick; a single matter moving from "learned" to "decided" to
 "acted" to "consequence" is the most common `remember` trajectory):
-- **Learned**: `pop_message` / `say` / `read` brings you a new piece of news
+- **Learned**: `read_thread` / `say` / `read` brings you a new piece of news
   → record on the spot: `remember("<who> learns that <what>.")`
 - **Decided**: after conferring or deciding alone, you settle on a plan
   → `remember("<who> (after conferring with <whom>) decides to <do what>.")`
-- **Acted**: `say` / `act_on` / `move` / `broadcast` carries it out and
+- **Acted**: `say` / `gesture` / `act_on` / `move` carries it out and
   changes the situation → `remember("<who> did <what>, causing <direct result>.")`
 - **Consequence**: a clash resolves, or someone arrives / leaves / dies
   → `remember("Outcome of <clash or event>: <who won/lost, who left, who died>.")`
@@ -401,8 +418,9 @@ next themselves).
   alice's reply -- the goal stack stays non-empty, so you'll be woken next
   by her reply message arriving, not left to sleep forever).
 - Tick 2: alice's reply arrives and wakes you → **first** `push_goal("respond
-  to alice's message")` (based on the `inbox_head` preview, following
-  pipeline 1's order above) → `pop_message` to read the body → it turns out
+  to alice's message")` (based on the `conversations` roster's
+  `last_preview` for alice, following pipeline 1's order above) →
+  `read_thread(target="alice")` to read the body → it turns out
   to be more complicated than expected, so `replace_goal("verify what alice
   said is actually true")` (a wording change, same stack depth) →
   `remember("alice said...")` to store the key fact in long-term memory.

@@ -42,16 +42,17 @@ def build(agents, config=None):
 
 def test_goal_hint_zh_mentions_push_goal_first():
     assert "push_goal" in Kernel._GOAL_HINT_ZH
-    # must instruct pushing a goal BEFORE popping the message so the agent
-    # stays eligible -- not a bare pop_message/recall-then-stop.
+    # must instruct pushing a goal BEFORE reading a thread so the agent
+    # stays eligible -- not a bare read_thread/recall-then-stop (Task 6:
+    # pop_message no longer exists, superseded by read_thread).
     assert "先" in Kernel._GOAL_HINT_ZH and "push_goal" in Kernel._GOAL_HINT_ZH
-    assert "pop" in Kernel._GOAL_HINT_ZH.lower()
+    assert "read_thread" in Kernel._GOAL_HINT_ZH
 
 
 def test_goal_hint_en_mentions_push_goal_first():
     assert "push_goal" in Kernel._GOAL_HINT_EN
     assert "first" in Kernel._GOAL_HINT_EN.lower()
-    assert "pop" in Kernel._GOAL_HINT_EN.lower()
+    assert "read_thread" in Kernel._GOAL_HINT_EN
 
 
 def test_goal_hint_zh_tells_idle_agent_to_wait():
