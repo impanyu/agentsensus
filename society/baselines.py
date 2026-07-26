@@ -387,6 +387,10 @@ class GenerativeAgentsMemory:
 # so tests can use a small value instead of waiting for 20 `remember` calls.
 DISTILL_EVERY = 20
 
+# Default `derived_from`-hop bound for bi-level retrieval (Task 8), see
+# `GMemory.__init__`/`GMemory.recall`.
+GMEMORY_MAX_HOPS = 2
+
 
 class GMemory:
     """Single shared store with a hierarchical tier tag (G-Memory, 2025).
@@ -423,11 +427,17 @@ class GMemory:
     `recall(..., owner_scope=True)`/`recall_of` filter server-side with
     `where={f"owner_{owner_id}": True}` (mirroring
     `society.ltm.SharedMemory`'s identical dual-storage trick). `affiliated`
-    is JSON-encoded the same way as `owners`. Because ranking here is plain
-    cosine similarity (no recency/importance rerank like
-    `GenerativeAgentsMemory`), `recall`/`recall_of` map directly onto one
-    `ChromaRows.query(..., where=...)` call each -- no candidate
-    over-fetch-then-rerank is needed.
+    is JSON-encoded the same way as `owners`.
+
+    Retrieval note (Task 8, bi-level retrieval): `recall`/`recall_of` query
+    the `insight` tier, walk `derived_from` provenance edges from the
+    retrieved insights to pull in their supporting `interaction` rows, and
+    also run a direct `interaction`-tier vector query so interactions with
+    no insight yet are not missed -- the three sources are merged
+    (de-duplicated by id) and ranked by plain cosine similarity (no
+    recency/importance rerank like `GenerativeAgentsMemory`) before being
+    truncated to `top_k`. Before any distillation has produced `insight`
+    rows this reduces to the old single interaction-tier vector query.
     """
 
     def __init__(
@@ -456,6 +466,13 @@ class GMemory:
         # since construction/restore, for a freshly built instance).
         self._distill_every = distill_every if distill_every is not None else DISTILL_EVERY
         self._pending_interactions: list[str] = []
+        # Bi-level retrieval (Task 8): bound on how many `derived_from` hops
+        # `recall`/`recall_of` walk out from a retrieved insight to collect
+        # supporting interactions. Today only insight->interaction
+        # `derived_from` edges exist (Task 7), so this resolves in a single
+        # hop in practice; kept at 2 so a future edge type chaining further
+        # (e.g. interaction->interaction) is picked up without code changes.
+        self._max_hops = GMEMORY_MAX_HOPS
 
     @staticmethod
     def _split_meta(metadata: dict) -> tuple[list[str], list[str], dict]:
@@ -566,9 +583,73 @@ class GMemory:
     async def recall(
         self, agent_id: str, query: str, top_k: int = 5, owner_scope: bool = False
     ) -> list[dict]:
-        where = {f"owner_{agent_id}": True} if owner_scope else None
-        hits = await self._store.query(query, top_k, where=where)
-        return [{"id": h["id"], "text": h["text"]} for h in hits]
+        """Bi-level retrieval (Task 8): the paper's G-Memory ranks a query
+        against the `insight` tier, then walks `derived_from` provenance
+        edges from the relevant insights to pull in the raw interactions
+        that support them, alongside a direct `interaction`-tier vector hit
+        so relevant interactions with no insight yet are not missed. All
+        three sources -- insight hits, their graph-linked interactions, and
+        direct interaction hits -- are merged (de-duplicated by id), ranked
+        by cosine similarity to the query embedding, and truncated to
+        `top_k`.
+
+        Backward-compat: before any distillation has run there are no
+        `insight` rows, so the insight-tier query and the graph traversal it
+        seeds both contribute nothing, and this reduces to exactly the old
+        single interaction-tier vector query.
+        """
+        owner_where = {f"owner_{agent_id}": True} if owner_scope else None
+
+        def _tier_where(tier: str) -> dict:
+            tier_clause = {"tier": tier}
+            return tier_clause if owner_where is None else {"$and": [tier_clause, owner_where]}
+
+        insight_hits, q_emb = await self._store.query(
+            query, top_k, where=_tier_where(INSIGHT), return_query_embedding=True
+        )
+        interaction_hits = await self._store.query(query, top_k, where=_tier_where(INTERACTION))
+
+        candidates: dict[str, dict] = {}
+        for hit in insight_hits + interaction_hits:
+            candidates.setdefault(hit["id"], hit)
+
+        # Graph traversal: from the retrieved insights, walk `derived_from`
+        # edges up to `_max_hops` deep to gather supporting interactions
+        # that the direct interaction-tier query above may not have
+        # surfaced. `_store.get` bypasses the tier queries' `where` clause,
+        # so owner scoping must be re-applied by hand here.
+        frontier = [hit["id"] for hit in insight_hits]
+        seen = set(frontier)
+        for _ in range(self._max_hops):
+            if not frontier:
+                break
+            next_frontier = []
+            for node_id in frontier:
+                for dst in self._graph.neighbors(node_id, "derived_from"):
+                    if dst in seen:
+                        continue
+                    seen.add(dst)
+                    next_frontier.append(dst)
+                    if dst in candidates:
+                        continue
+                    row = self._store.get(dst)
+                    if row is None:
+                        continue  # node was forgotten/deleted since the edge was added
+                    if owner_scope:
+                        owners, _affiliated, _meta = self._split_meta(row["metadata"])
+                        if agent_id not in owners:
+                            continue
+                    candidates[dst] = {
+                        "id": dst,
+                        "text": row["text"],
+                        "embedding": row["embedding"],
+                    }
+            frontier = next_frontier
+
+        ranked = sorted(
+            candidates.values(), key=lambda c: _cosine(q_emb, c["embedding"]), reverse=True
+        )
+        return [{"id": c["id"], "text": c["text"]} for c in ranked[:top_k]]
 
     async def recall_of(self, owner_id: str, query: str, top_k: int = 5) -> list[dict]:
         """Entries where owner_id is in row["owners"], ranked by cosine --

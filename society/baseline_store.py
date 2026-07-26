@@ -60,10 +60,17 @@ class ChromaRows:
         )
 
     def get(self, row_id: str) -> dict | None:
-        got = self._collection.get(ids=[row_id], include=["documents", "metadatas"])
+        got = self._collection.get(
+            ids=[row_id], include=["documents", "metadatas", "embeddings"]
+        )
         if not got["ids"]:
             return None
-        return {"id": row_id, "text": got["documents"][0], "metadata": got["metadatas"][0]}
+        return {
+            "id": row_id,
+            "text": got["documents"][0],
+            "metadata": got["metadatas"][0],
+            "embedding": list(got["embeddings"][0]),
+        }
 
     async def query(
         self,

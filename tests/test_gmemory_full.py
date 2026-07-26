@@ -307,3 +307,99 @@ async def test_maybe_distill_manual_call_is_noop_when_nothing_pending():
     result = await m.maybe_distill()
     assert result is None
     assert m.all_entries() == []
+
+
+# ========================================================================
+# Bi-level retrieval (Task 8): recall/recall_of are graph-aware
+# ========================================================================
+
+
+async def test_recall_after_distillation_returns_insight_and_its_interactions():
+    """A query semantically near the insight (here: an exact-text query,
+    matching the deterministic fake embedding's only notion of
+    "semantically near") must surface both the insight row and at least one
+    of its `derived_from` source interactions -- bi-level retrieval, not
+    just a flat vector hit on the insight alone."""
+    llm = FakeLLM(responses=[INSIGHT_TEXT])
+    m = GMemory(afake_embed, llm=llm, distill_every=2)
+
+    r1 = await m.remember("guanyu", TEXT_A)
+    r2 = await m.remember("liubei", TEXT_B)
+    source_ids = {r1[0]["id"], r2[0]["id"]}
+
+    insight_rows = [e for e in m.all_entries() if e["meta"]["tier"] == INSIGHT]
+    assert len(insight_rows) == 1
+    insight_id = insight_rows[0]["id"]
+
+    recalled = await m.recall("guanyu", INSIGHT_TEXT, top_k=5)
+    recalled_ids = {r["id"] for r in recalled}
+
+    assert insight_id in recalled_ids
+    assert recalled_ids & source_ids, "expected at least one derived interaction id"
+
+
+async def test_recall_owner_scope_excludes_insight_asker_does_not_own():
+    """An insight distilled from another agent's interactions (asker not
+    among its owners) must not surface for that asker under owner_scope."""
+    llm = FakeLLM(responses=[INSIGHT_TEXT])
+    m = GMemory(afake_embed, llm=llm, distill_every=2)
+
+    await m.remember("guanyu", TEXT_A)
+    await m.remember("liubei", TEXT_B)
+
+    insight_rows = [e for e in m.all_entries() if e["meta"]["tier"] == INSIGHT]
+    insight_id = insight_rows[0]["id"]
+
+    # zhangfei is not an owner of the insight (owners = union of guanyu/liubei)
+    recalled = await m.recall_of("zhangfei", INSIGHT_TEXT, top_k=5)
+    recalled_ids = {r["id"] for r in recalled}
+    assert insight_id not in recalled_ids
+
+
+async def test_recall_owner_scope_excludes_non_owned_derived_interaction():
+    """Even when the asker DOES own the insight (part of the owner union),
+    a specific derived interaction owned by a *different* agent must not
+    leak into that asker's owner-scoped recall."""
+    llm = FakeLLM(responses=[INSIGHT_TEXT])
+    m = GMemory(afake_embed, llm=llm, distill_every=2)
+
+    r1 = await m.remember("guanyu", TEXT_A)
+    r2 = await m.remember("liubei", TEXT_B)
+    guanyu_interaction_id = r1[0]["id"]
+    liubei_interaction_id = r2[0]["id"]
+
+    recalled = await m.recall_of("guanyu", INSIGHT_TEXT, top_k=5)
+    recalled_ids = {r["id"] for r in recalled}
+
+    assert guanyu_interaction_id in recalled_ids  # guanyu owns this one
+    assert liubei_interaction_id not in recalled_ids
+
+
+async def test_recall_pre_distillation_matches_plain_vector_query():
+    """Backward-compat: with no insight nodes yet, `recall` must reduce to
+    plain interaction-tier vector retrieval -- same ids/order a bare
+    `ChromaRows.query` over the (all-interaction) store would give."""
+    m = GMemory(afake_embed)  # no llm -> distillation never fires
+    await m.remember("guanyu", TEXT_A)
+    await m.remember("liubei", TEXT_B)
+    await m.remember("zhangfei", TEXT_C)
+
+    recalled = await m.recall("guanyu", TEXT_B, top_k=2)
+    direct_hits = await m._store.query(TEXT_B, 2, where={"tier": INTERACTION})
+
+    assert [r["id"] for r in recalled] == [h["id"] for h in direct_hits]
+    assert [r["text"] for r in recalled] == [h["text"] for h in direct_hits]
+
+
+async def test_recall_pre_distillation_owner_scope_matches_plain_query():
+    m = GMemory(afake_embed)
+    await m.remember("guanyu", TEXT_A)
+    await m.remember("liubei", TEXT_B)
+
+    recalled = await m.recall_of("guanyu", TEXT_A, top_k=5)
+    assert recalled and recalled[0]["text"] == TEXT_A
+
+    # explicit ownership check: liubei's row must not appear for guanyu's owner scope
+    liubei_only = await m.remember("liubei", "只有刘备知道的秘密")
+    recalled2 = await m.recall_of("guanyu", "只有刘备知道的秘密", top_k=5)
+    assert liubei_only[0]["id"] not in {r["id"] for r in recalled2}
