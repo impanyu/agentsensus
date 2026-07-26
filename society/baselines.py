@@ -131,9 +131,60 @@ class GenerativeAgentsMemory:
                 row["meta"]["story_order"] = story_order
             if story_time is not None:
                 row["meta"]["story_time"] = story_time
+            row["affiliated"] = []
             self._rows[row_id] = row
             results.append({"id": row_id, "text": text, "merged": False, "owners": [owner]})
         return results
+
+    async def remember_atomic(
+        self,
+        owners: list[str],
+        text: str,
+        tick: int = 0,
+        source: str = "sediment",
+        story_order=None,
+        story_time=None,
+        affiliated: list[str] | None = None,
+    ) -> dict | None:
+        """Mirror `remember`, but loop over the given `owners` list (not
+        `[agent_id]`) -- ONE separate row per owner, since per-owner
+        duplication is this baseline's whole point. Embeds once and scores
+        importance once, reused across every owner's row."""
+        text = text.strip()
+        if not text:
+            return None
+        if not owners:
+            raise ValueError("remember_atomic requires at least one owner")
+
+        embedding = (await self._embed_fn([text]))[0]
+        importance = await self._score_importance(text)
+        seed_affiliated = sorted(set(affiliated or []))
+        first_id = None
+        for owner in owners:
+            row_id = uuid.uuid4().hex
+            if first_id is None:
+                first_id = row_id
+            self._clock += 1
+            row = {
+                "id": row_id,
+                "text": text,
+                "owner": owner,
+                "embedding": list(embedding),
+                "meta": {
+                    "created_at": _now_iso(),
+                    "source": source,
+                    "tick": tick,
+                    "importance": importance,
+                    "last_access": self._clock,
+                },
+                "affiliated": sorted(a for a in seed_affiliated if a != row_id),
+            }
+            if story_order is not None:
+                row["meta"]["story_order"] = story_order
+            if story_time is not None:
+                row["meta"]["story_time"] = story_time
+            self._rows[row_id] = row
+        return {"id": first_id, "text": text, "merged": False, "owners": list(owners)}
 
     async def recall(self, agent_id: str, query: str, top_k: int = 5) -> list[dict]:
         candidates = [r for r in self._rows.values() if r["owner"] == agent_id]
@@ -176,6 +227,12 @@ class GenerativeAgentsMemory:
             row["meta"]["last_access"] = now
         return [{"id": row["id"], "text": row["text"]} for _, row in top]
 
+    async def recall_of(self, owner_id: str, query: str, top_k: int = 5) -> list[dict]:
+        """`recall` already filters to `row["owner"] == agent_id`, so a
+        caller retrieving another owner's stream is just `recall` under
+        that owner's id."""
+        return await self.recall(owner_id, query, top_k)
+
     def forget(self, agent_id: str, memory_id: str) -> bool:
         row = self._rows.get(memory_id)
         if row is None or row["owner"] != agent_id:
@@ -187,9 +244,37 @@ class GenerativeAgentsMemory:
         self.forget(agent_id, memory_id)
         return await self.remember(agent_id, new_text, tick=tick)
 
+    def add_affiliations(self, memory_id: str, other_ids: list[str]) -> bool:
+        row = self._rows.get(memory_id)
+        if row is None:
+            return False
+        row["affiliated"] = sorted(
+            (set(row.get("affiliated", [])) | set(other_ids)) - {memory_id}
+        )
+        return True
+
+    def remove_affiliations(self, memory_id: str, other_ids: list[str]) -> bool:
+        row = self._rows.get(memory_id)
+        if row is None:
+            return False
+        row["affiliated"] = sorted(set(row.get("affiliated", [])) - set(other_ids))
+        return True
+
+    def get_affiliations(self, memory_id: str) -> list[str]:
+        row = self._rows.get(memory_id)
+        if row is None:
+            return []
+        return sorted(row.get("affiliated", []))
+
     def all_entries(self) -> list[dict]:
         return [
-            {"id": r["id"], "text": r["text"], "owners": [r["owner"]], "meta": r["meta"]}
+            {
+                "id": r["id"],
+                "text": r["text"],
+                "owners": [r["owner"]],
+                "affiliated": list(r.get("affiliated", [])),
+                "meta": r["meta"],
+            }
             for r in self._rows.values()
         ]
 
@@ -199,6 +284,7 @@ class GenerativeAgentsMemory:
                 "id": r["id"],
                 "text": r["text"],
                 "owners": [r["owner"]],
+                "affiliated": list(r.get("affiliated", [])),
                 "meta": dict(r["meta"]),
                 "embedding": list(r["embedding"]),
             }
@@ -242,6 +328,7 @@ class GenerativeAgentsMemory:
             # case round-trips id-for-id, as before); any additional
             # owners get a fresh row id since two rows can never share one
             # id in this store.
+            affiliated = list(entry.get("affiliated", []))
             for idx, owner in enumerate(owners):
                 row_id = entry["id"] if idx == 0 else uuid.uuid4().hex
                 self._rows[row_id] = {
@@ -250,6 +337,7 @@ class GenerativeAgentsMemory:
                     "owner": owner,
                     "embedding": list(embedding),
                     "meta": dict(base_meta),
+                    "affiliated": list(affiliated),
                 }
 
     def stats(self) -> dict:
@@ -322,8 +410,52 @@ class GMemory:
             "owners": [agent_id],
             "embedding": list(embedding),
             "meta": meta,
+            "affiliated": [],
         }
         return [{"id": row_id, "text": text, "merged": False, "owners": [agent_id]}]
+
+    async def remember_atomic(
+        self,
+        owners: list[str],
+        text: str,
+        tick: int = 0,
+        source: str = "sediment",
+        story_order=None,
+        story_time=None,
+        affiliated: list[str] | None = None,
+    ) -> dict | None:
+        """One shared row, owners=sorted(set(owners)) -- faithful to
+        G-Memory's central design choice that memory is a single shared
+        graph rather than private per-agent streams."""
+        text = text.strip()
+        if not text:
+            return None
+        if not owners:
+            raise ValueError("remember_atomic requires at least one owner")
+
+        embedding = (await self._embed_fn([text]))[0]
+        row_id = uuid.uuid4().hex
+        meta = {
+            "created_at": _now_iso(),
+            "source": source,
+            "tick": tick,
+            "tier": "interaction",
+        }
+        if story_order is not None:
+            meta["story_order"] = story_order
+        if story_time is not None:
+            meta["story_time"] = story_time
+        new_owners = sorted(set(owners))
+        seed_affiliated = sorted(a for a in set(affiliated or []) if a != row_id)
+        self._rows[row_id] = {
+            "id": row_id,
+            "text": text,
+            "owners": new_owners,
+            "embedding": list(embedding),
+            "meta": meta,
+            "affiliated": seed_affiliated,
+        }
+        return {"id": row_id, "text": text, "merged": False, "owners": new_owners}
 
     async def recall(
         self, agent_id: str, query: str, top_k: int = 5, owner_scope: bool = False
@@ -339,6 +471,11 @@ class GMemory:
         top = scored[:top_k]
         return [{"id": r["id"], "text": r["text"]} for _, r in top]
 
+    async def recall_of(self, owner_id: str, query: str, top_k: int = 5) -> list[dict]:
+        """Entries where owner_id is in row["owners"], ranked by cosine --
+        i.e. `recall` restricted to the owner's own scope."""
+        return await self.recall(owner_id, query, top_k, owner_scope=True)
+
     def forget(self, agent_id: str, memory_id: str) -> bool:
         row = self._rows.get(memory_id)
         if row is None or agent_id not in row["owners"]:
@@ -352,9 +489,37 @@ class GMemory:
         self.forget(agent_id, memory_id)
         return await self.remember(agent_id, new_text, tick=tick)
 
+    def add_affiliations(self, memory_id: str, other_ids: list[str]) -> bool:
+        row = self._rows.get(memory_id)
+        if row is None:
+            return False
+        row["affiliated"] = sorted(
+            (set(row.get("affiliated", [])) | set(other_ids)) - {memory_id}
+        )
+        return True
+
+    def remove_affiliations(self, memory_id: str, other_ids: list[str]) -> bool:
+        row = self._rows.get(memory_id)
+        if row is None:
+            return False
+        row["affiliated"] = sorted(set(row.get("affiliated", [])) - set(other_ids))
+        return True
+
+    def get_affiliations(self, memory_id: str) -> list[str]:
+        row = self._rows.get(memory_id)
+        if row is None:
+            return []
+        return sorted(row.get("affiliated", []))
+
     def all_entries(self) -> list[dict]:
         return [
-            {"id": r["id"], "text": r["text"], "owners": list(r["owners"]), "meta": r["meta"]}
+            {
+                "id": r["id"],
+                "text": r["text"],
+                "owners": list(r["owners"]),
+                "affiliated": list(r.get("affiliated", [])),
+                "meta": r["meta"],
+            }
             for r in self._rows.values()
         ]
 
@@ -364,6 +529,7 @@ class GMemory:
                 "id": r["id"],
                 "text": r["text"],
                 "owners": list(r["owners"]),
+                "affiliated": list(r.get("affiliated", [])),
                 "meta": dict(r["meta"]),
                 "embedding": list(r["embedding"]),
             }
@@ -390,6 +556,7 @@ class GMemory:
                 "owners": list(entry.get("owners", [])),
                 "embedding": entry.get("embedding") or computed[i],
                 "meta": meta,
+                "affiliated": list(entry.get("affiliated", [])),
             }
 
     def stats(self) -> dict:
@@ -458,8 +625,51 @@ class CollaborativeMemory:
             "acl": {agent_id},
             "embedding": list(embedding),
             "meta": meta,
+            "affiliated": [],
         }
         return [{"id": row_id, "text": text, "merged": False, "owners": [agent_id]}]
+
+    async def remember_atomic(
+        self,
+        owners: list[str],
+        text: str,
+        tick: int = 0,
+        source: str = "sediment",
+        story_order=None,
+        story_time=None,
+        affiliated: list[str] | None = None,
+    ) -> dict | None:
+        """One row whose ACL is `set(owners)` -- faithful to this baseline's
+        access-controlled-fragment model, where a fragment's ACL is the set
+        of agents permitted to read it."""
+        text = text.strip()
+        if not text:
+            return None
+        if not owners:
+            raise ValueError("remember_atomic requires at least one owner")
+
+        embedding = (await self._embed_fn([text]))[0]
+        row_id = uuid.uuid4().hex
+        meta = {
+            "created_at": _now_iso(),
+            "source": source,
+            "tick": tick,
+        }
+        if story_order is not None:
+            meta["story_order"] = story_order
+        if story_time is not None:
+            meta["story_time"] = story_time
+        new_owners = set(owners)
+        seed_affiliated = sorted(a for a in set(affiliated or []) if a != row_id)
+        self._rows[row_id] = {
+            "id": row_id,
+            "text": text,
+            "acl": new_owners,
+            "embedding": list(embedding),
+            "meta": meta,
+            "affiliated": seed_affiliated,
+        }
+        return {"id": row_id, "text": text, "merged": False, "owners": sorted(new_owners)}
 
     async def recall(self, agent_id: str, query: str, top_k: int = 5) -> list[dict]:
         rows = [r for r in self._rows.values() if agent_id in r["acl"]]
@@ -470,6 +680,12 @@ class CollaborativeMemory:
         scored.sort(key=lambda pair: pair[0], reverse=True)
         top = scored[:top_k]
         return [{"id": r["id"], "text": r["text"]} for _, r in top]
+
+    async def recall_of(self, owner_id: str, query: str, top_k: int = 5) -> list[dict]:
+        """`recall` already filters candidates to `agent_id in r["acl"]`,
+        so retrieving on behalf of another owner is just `recall` under
+        that owner's id."""
+        return await self.recall(owner_id, query, top_k)
 
     def grant(self, memory_id: str, agent_id: str) -> bool:
         """Extend a fragment's read ACL to include `agent_id`. Returns False
@@ -496,9 +712,37 @@ class CollaborativeMemory:
         self.forget(agent_id, memory_id)
         return await self.remember(agent_id, new_text, tick=tick)
 
+    def add_affiliations(self, memory_id: str, other_ids: list[str]) -> bool:
+        row = self._rows.get(memory_id)
+        if row is None:
+            return False
+        row["affiliated"] = sorted(
+            (set(row.get("affiliated", [])) | set(other_ids)) - {memory_id}
+        )
+        return True
+
+    def remove_affiliations(self, memory_id: str, other_ids: list[str]) -> bool:
+        row = self._rows.get(memory_id)
+        if row is None:
+            return False
+        row["affiliated"] = sorted(set(row.get("affiliated", [])) - set(other_ids))
+        return True
+
+    def get_affiliations(self, memory_id: str) -> list[str]:
+        row = self._rows.get(memory_id)
+        if row is None:
+            return []
+        return sorted(row.get("affiliated", []))
+
     def all_entries(self) -> list[dict]:
         return [
-            {"id": r["id"], "text": r["text"], "owners": sorted(r["acl"]), "meta": r["meta"]}
+            {
+                "id": r["id"],
+                "text": r["text"],
+                "owners": sorted(r["acl"]),
+                "affiliated": list(r.get("affiliated", [])),
+                "meta": r["meta"],
+            }
             for r in self._rows.values()
         ]
 
@@ -508,6 +752,7 @@ class CollaborativeMemory:
                 "id": r["id"],
                 "text": r["text"],
                 "owners": sorted(r["acl"]),
+                "affiliated": list(r.get("affiliated", [])),
                 "meta": dict(r["meta"]),
                 "embedding": list(r["embedding"]),
             }
@@ -532,6 +777,7 @@ class CollaborativeMemory:
                 "acl": set(entry.get("owners", [])),
                 "embedding": entry.get("embedding") or computed[i],
                 "meta": dict(entry.get("meta", {}) or {}),
+                "affiliated": list(entry.get("affiliated", [])),
             }
 
     def stats(self) -> dict:
