@@ -5,9 +5,14 @@ constructor keyword shape, same `remember`/`recall`/`forget`/`revise`/
 `all_entries`/`export`/`restore`/`stats` methods and return shapes. None of
 them get our normalize gate or consensus merge -- that machinery is the
 contribution under test, so giving it to a baseline would invalidate the
-comparison. Every store here is a plain in-memory list of rows with
-embeddings stored as plain Python lists (no numpy); ranking is real cosine
-similarity, computed in pure Python, from vectors returned by `embed_fn`.
+comparison. Each baseline stores its rows in its own ChromaDB collection
+(via the `ChromaRows` helper in `society/baseline_store.py`), keeping the
+organization rule that distinguishes it (per-owner duplication, a single
+shared graph, or ACL-gated fragments -- see each class's docstring);
+ranking is cosine similarity computed by Chroma's HNSW index over the
+embeddings returned by `embed_fn` (`GenerativeAgentsMemory` additionally
+re-ranks the retrieved candidates with its recency+importance+relevance
+score).
 
 `make_memory(kind, embed_fn, llm=None, **kw)` is the factory experiment
 runners should call to select a backend by name.
@@ -120,12 +125,12 @@ class GenerativeAgentsMemory:
     every `recall` (paper uses wall-clock hours since last retrieval -- we
     substitute a monotonic tick counter since the simulator has no wall
     clock, which is the charitable, deterministic reading for testing).
-    Simplification left out: the paper's separate "reflection" tree
-    (higher-level synthesized memories) is not implemented -- reflections
-    would themselves be additional stream entries produced via an LLM
-    summarization pass, which is orthogonal to the retrieval-scoring
-    mechanism this adapter is faithful to and is not needed to compare
-    against consensus-compressed storage.
+    Reflection tree: implemented -- an importance accumulator
+    (`_deposit_importance`/`_maybe_reflect`) triggers `_reflect` once
+    deposited importance crosses `_reflection_threshold`, which asks the LLM
+    for salient high-level questions over recent memories, retrieves
+    per-question evidence, and stores each synthesized reflection
+    (`_store_reflection`) as a new stream entry linked back to its evidence.
 
     Storage note: rows live in a `ChromaRows` collection (one Chroma record
     PER OWNER, matching the per-owner-duplication behavior above) instead of
@@ -634,12 +639,19 @@ class GMemory:
     to `recall` to restrict to the calling agent's own writes, exposed for
     completeness but not the default since G-Memory's whole point is shared
     retrieval). Each row carries a `tier` tag ("interaction" for raw
-    `remember` observations, "insight"/"query" reserved for LLM-distilled
-    tiers) mirroring the paper's insight/query/interaction hierarchy, but
-    only the "interaction" tier is populated by plain `remember` -- the
-    paper's higher tiers are produced by a separate distillation pass over
-    accumulated interactions, which is out of scope for a like-for-like
-    comparison of the raw-storage mechanism. No atomic splitting and no
+    `remember` observations, "insight" for LLM-distilled summaries, "query"
+    reserved but unused -- see below) mirroring the paper's
+    insight/query/interaction hierarchy. Plain `remember`/`remember_atomic`
+    populate only the "interaction" tier; the paper's higher tier is
+    produced by a separate, implemented distillation pass (`maybe_distill`,
+    triggered every `_distill_every` new interactions) that summarizes
+    pending interactions into one LLM-synthesized "insight" row linked back
+    to its source interactions via `derived_from` provenance edges, and
+    `recall`/`recall_of` perform the paper's bi-level graph-aware retrieval
+    over both tiers (see "Retrieval note" below). The "query" tier is a
+    defined constant (`society.gmemory_graph.QUERY`) that is never written
+    or read here -- bi-level retrieval seeds its graph traversal from
+    insight/interaction hits, not from a query node. No atomic splitting and no
     dedup: the full observation text is stored as one row, owner={agent_id},
     appended every call even if a prior call stored identical text.
     `stats()`'s `shared` counts rows whose owner set has length >=2; since
