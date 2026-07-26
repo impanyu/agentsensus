@@ -80,6 +80,7 @@ def test_apply_sets_location_and_archives_dead():
     byid = {a["id"]: a for a in agents}
     assert byid["caocao"]["status"]["location"] == "xuchang"      # relocated
     assert byid["hejin"].get("archived") is True                 # dead archived
+    assert "location" not in byid["hejin"].get("status", {})     # dangling location cleared
     assert byid["liubei"]["status"]["location"] == "xinye"       # unresolved -> unchanged
     assert counts["archived"] == 1 and counts["relocated"] == 1
 

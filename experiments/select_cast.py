@@ -58,7 +58,11 @@ def boundary_source_tail(name):
     if not files or n is None:
         return ""
     src_dir = os.path.join(BASE, "scenarios", "sources")
-    text = "\n".join(open(os.path.join(src_dir, f), encoding="utf-8").read() for f in files)
+    parts = []
+    for f in files:
+        with open(os.path.join(src_dir, f), encoding="utf-8") as fh:
+            parts.append(fh.read())
+    text = "\n".join(parts)
     chs = _split_by_chapters(text)
     if not chs:
         return ""
@@ -80,6 +84,13 @@ def apply_boundary_state(agents, keep_char, finalized):
             counts["canon"] += 1
         if not fin.get("alive", True):
             a["archived"] = True
+            # Archived agents are never scheduled/observed (Kernel.is_eligible
+            # excludes them), so their location is unused -- and a stale
+            # location can dangle if the env-trim below drops that env,
+            # which the scenario loader then rejects (status.location must
+            # reference a live environment). Drop it so the loader's
+            # `loc is not None` guard simply skips archived agents.
+            a.get("status", {}).pop("location", None)
             counts["archived"] += 1
             continue
         loc = fin.get("location")
@@ -181,7 +192,7 @@ def curate(name, T):
     kinds = Counter(a.get("kind") for a in kept_agents)
     return {
         "name": name, "T": T,
-        "chars_total": len(char_ids), "chars_active": len(keep_char),
+        "chars_total": len(char_ids), "chars_active": len(active_char),
         "chars_dropped": len(dropped),
         "environments": kinds.get("environment", 0),
         "info_carriers": kinds.get("info_carrier", 0),
