@@ -54,13 +54,6 @@ class Agent:
 
     def build_view(self, tick: int) -> dict:
         """Build the serialized view passed to brain.decide()."""
-        inbox_size = self.stm.inbox.qsize()
-        inbox_head = None
-        queue = self.stm.inbox_items()
-        if queue:
-            head = queue[0]
-            inbox_head = {"sender": head.sender, "kind": head.kind}
-
         return {
             "tick": tick,
             "agent_id": self.id,
@@ -71,6 +64,4 @@ class Agent:
                 {"action": action, "result": result}
                 for action, result in self.stm.fifo.items()
             ],
-            "inbox_size": inbox_size,
-            "inbox_head": inbox_head,
         }

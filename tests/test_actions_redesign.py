@@ -54,11 +54,17 @@ def test_act_on_new_shape_validates_old_shape_rejected():
 async def test_gesture_executes_and_delivers_with_default_wake():
     a, b = char("a", "hall"), char("b", "hall")
     k = build([a, b, env("hall")])
+    await k.execute(b, Action("wait", {}))
+    assert k.is_eligible(b) is False
+
     r = await k.execute(a, Action("gesture", {"targets": ["b"], "content": "wave"}))
     assert r.ok
-    k.deliver_pending()
-    msg = b.stm.inbox.get_nowait()
-    assert msg.kind == "gesture" and msg.content == "wave" and msg.wake is True
+    k._deliver_due()
+
+    assert k.is_eligible(b) is True   # default wake=True clears waiting_until
+    msgs = k.conversations.read("b", "a", k=10)
+    assert len(msgs) == 1
+    assert msgs[0]["kind"] == "gesture" and msgs[0]["content"] == "wave"
 
 
 async def test_act_on_requires_exactly_one_colocated_environment_target():
@@ -80,95 +86,16 @@ async def test_act_on_requires_exactly_one_colocated_environment_target():
     # act_on just succeeds with a note (see test_unified_agents.py for the
     # shared_memory-backed deposit).
     assert r_ok.data["env"] == "hall" and r_ok.data["recorded"] == "push"
-    k.deliver_pending()
-    assert a.stm.inbox.qsize() == 0
-    assert hall.stm.inbox.qsize() == 0
+    # Task R: act_on is synchronous -- no Message is ever queued for delivery.
+    assert k._pending == []
 
 
 # ----------------------------------------------------------------------
-# 2. broadcast + Message.wake
+# 2. say/gesture + Message.wake (broadcast/pop_message were folded into the
+#    unified say/gesture actions and removed -- see test_actions.py's
+#    catalog test, and conversation-thread tests in test_kernel_core.py /
+#    test_liveness_s4.py for the replacement coverage)
 # ----------------------------------------------------------------------
-
-def test_broadcast_validates_wake_is_optional():
-    assert validate_action(Action("broadcast", {"targets": ["b"], "content": "fyi"})) is None
-    assert validate_action(
-        Action("broadcast", {"targets": ["b"], "content": "fyi", "wake": True})
-    ) is None
-    err = validate_action(Action("broadcast", {"content": "fyi"}))
-    assert err and "targets" in err
-
-
-async def test_broadcast_delivers_to_all_targets_next_tick_default_wake_false():
-    a, b, c = char("a", "hall"), char("b", "hall"), char("c", "hall")
-    k = build([a, b, c, env("hall")])
-    r = await k.execute(a, Action("broadcast", {"targets": ["b", "c"], "content": "listen up"}))
-    assert r.ok
-    assert b.stm.inbox.qsize() == 0 and c.stm.inbox.qsize() == 0   # not delivered yet
-    k.deliver_pending()
-    assert b.stm.inbox.qsize() == 1 and c.stm.inbox.qsize() == 1
-    mb, mc = b.stm.inbox.get_nowait(), c.stm.inbox.get_nowait()
-    assert mb.kind == "broadcast" and mb.content == "listen up" and mb.wake is False
-    assert mc.kind == "broadcast" and mc.wake is False
-
-
-async def test_broadcast_wake_false_does_not_wake_a_sleeping_agent():
-    # Task R (awake-based model): a goalless, never-waited character is
-    # eligible by default (no goal-emptiness requirement any more), so to
-    # exercise "wake=False doesn't wake" we must first put b to sleep via
-    # `wait`, then confirm a wake=False broadcast doesn't rouse it.
-    a, b = char("a", "hall"), char("b", "hall")
-    k = build([a, b, env("hall")])
-    await k.execute(b, Action("wait", {}))
-    assert k.is_eligible(b) is False
-
-    await k.execute(a, Action("broadcast", {"targets": ["b"], "content": "psst"}))
-    k.deliver_pending()
-
-    assert b.stm.inbox.qsize() == 1
-    assert k.is_eligible(b) is False
-
-
-async def test_broadcast_wake_false_does_not_clear_waiting_until():
-    a = char("a", "hall")
-    b = char("b", "hall", goals=["g"])
-    k = build([a, b, env("hall")])
-    b.waiting_until = -1   # forever-wait
-
-    await k.execute(a, Action("broadcast", {"targets": ["b"], "content": "psst"}))
-    k.deliver_pending()
-
-    assert b.waiting_until == -1              # not cleared by a wake=False delivery
-    assert k.is_eligible(b) is False           # still asleep despite nonempty goals
-
-
-async def test_agent_awake_for_other_reason_can_still_pop_wake_false_message():
-    a = char("a", "hall")
-    b = char("b", "hall", goals=["g"])   # eligible by default (awake model), not via the message
-    k = build([a, b, env("hall")])
-
-    await k.execute(a, Action("broadcast", {"targets": ["b"], "content": "psst"}))
-    k.deliver_pending()
-
-    assert k.is_eligible(b) is True
-    r = await k.execute(b, Action("pop_message", {}))
-    assert r.ok and r.data["kind"] == "broadcast"
-
-
-async def test_broadcast_wake_true_wakes_agent():
-    # Task R: put b to sleep first (awake-by-default means "eligible before
-    # the broadcast" is no longer informative on its own).
-    a, b = char("a", "hall"), char("b", "hall")
-    k = build([a, b, env("hall")])
-    await k.execute(b, Action("wait", {}))
-    assert k.is_eligible(b) is False
-
-    await k.execute(a, Action("broadcast", {"targets": ["b"], "content": "fire!", "wake": True}))
-    k.deliver_pending()
-
-    assert k.is_eligible(b) is True
-    msg = b.stm.inbox.get_nowait()
-    assert msg.kind == "broadcast" and msg.wake is True
-
 
 async def test_say_still_wakes_by_default_end_to_end():
     a, b = char("a", "hall"), char("b", "hall")
@@ -177,11 +104,11 @@ async def test_say_still_wakes_by_default_end_to_end():
     assert k.is_eligible(b) is False
 
     await k.execute(a, Action("say", {"targets": ["b"], "content": "hi"}))
-    k.deliver_pending()
+    k._deliver_due()
 
     assert k.is_eligible(b) is True
-    msg = b.stm.inbox.get_nowait()
-    assert msg.wake is True
+    msgs = k.conversations.read("b", "a", k=10)
+    assert len(msgs) == 1 and msgs[0]["content"] == "hi"
 
 
 # ----------------------------------------------------------------------
@@ -198,15 +125,15 @@ async def test_wait_forever_interrupted_only_by_wake_true_message():
     assert b.waiting_until == -1
     assert k.is_eligible(b) is False
 
-    # a wake=False broadcast does not interrupt the forever-wait
-    await k.execute(a, Action("broadcast", {"targets": ["b"], "content": "psst"}))
-    k.deliver_pending()
+    # a wake=False say does not interrupt the forever-wait
+    await k.execute(a, Action("say", {"targets": ["b"], "content": "psst", "wake": False}))
+    k._deliver_due()
     assert b.waiting_until == -1
     assert k.is_eligible(b) is False
 
     # a say (wake=True by default) does interrupt it
     await k.execute(a, Action("say", {"targets": ["b"], "content": "wake up"}))
-    k.deliver_pending()
+    k._deliver_due()
     assert b.waiting_until is None
     assert k.is_eligible(b) is True
 
@@ -282,22 +209,26 @@ async def test_affiliated_crud_unknown_memory_id_errors():
 # Review regressions: input-validation hardening (S1 review)
 # ----------------------------------------------------------------------
 
-async def test_broadcast_stringified_wake_false_stays_false():
+async def test_say_stringified_wake_false_stays_false():
     # LLM brains sometimes stringify booleans; bool("false") is True, which
     # would silently invert the sleep economy. "false" must mean False.
     a, b = char("alice", "hall"), char("bob", "hall")
     k = build([a, b, env("hall")])
-    r = await k.execute(a, Action("broadcast", {"targets": ["bob"], "content": "hi", "wake": "false"}))
+    await k.execute(b, Action("wait", {}))
+    assert k.is_eligible(b) is False
+
+    r = await k.execute(a, Action("say", {"targets": ["bob"], "content": "hi", "wake": "false"}))
     assert r.ok
-    k.deliver_pending()
-    (msg,) = b.stm.inbox_items()
-    assert msg.wake is False
+    k._deliver_due()
+    assert k.is_eligible(b) is False   # "false" must parse to False, not bool("false")==True
+    msgs = k.conversations.read("bob", "alice", k=10)
+    assert len(msgs) == 1              # still delivered -- wake=False only suppresses the wake
 
 
-async def test_broadcast_non_bool_wake_rejected():
+async def test_say_non_bool_wake_rejected():
     a, b = char("alice", "hall"), char("bob", "hall")
     k = build([a, b, env("hall")])
-    r = await k.execute(a, Action("broadcast", {"targets": ["bob"], "content": "hi", "wake": 123}))
+    r = await k.execute(a, Action("say", {"targets": ["bob"], "content": "hi", "wake": 123}))
     assert not r.ok and "boolean" in r.error
 
 

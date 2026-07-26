@@ -42,11 +42,14 @@ def build(agents, edges=None):
 async def test_archived_never_scheduled():
     hall = env("hall")
     guan_yu = char("guan_yu", "hall", goals=["revenge"], archived=True)
-    guan_yu.stm.inbox.put_nowait(
+    k = build([hall, guan_yu])
+    # Even with a goal on the stack AND a message queued for delivery to it,
+    # an archived agent must never be scheduled (STM inbox is gone --
+    # queue via the kernel's own pending-delivery mechanism instead).
+    k.send(
         Message(id="m1", sender="cao_cao", recipients=["guan_yu"], kind="say",
                 content="hi", tick_sent=0)
     )
-    k = build([hall, guan_yu])
 
     assert k.is_eligible(guan_yu) is False
 

@@ -134,10 +134,14 @@ async def test_env_and_carrier_never_eligible_even_with_pending_wake_message():
                     content="推门", tick_sent=0, wake=True))
     k.send(Message(id="m2", sender="amy", recipients=["book"], kind="read",
                     content="宝玉", tick_sent=0, wake=True))
-    k.deliver_pending()
+    k._deliver_due()
 
-    assert hall.stm.inbox.qsize() == 1
-    assert book.stm.inbox.qsize() == 1
+    # Even with a wake=True message actually delivered into their
+    # conversation threads, environments/info_carriers are passive,
+    # function-driven agents that are never eligible for a decide/execute
+    # turn of their own.
+    assert len(k.conversations.read("hall", "amy", k=10)) == 1
+    assert len(k.conversations.read("book", "amy", k=10)) == 1
     assert k.is_eligible(hall) is False
     assert k.is_eligible(book) is False
 
@@ -180,10 +184,11 @@ async def test_act_on_deposits_env_owned_memory_and_returns_ok_same_tick():
     assert r.ok
     assert r.data == {"env": "hall", "recorded": "推开了大门"}
 
-    # No message was ever sent -- hall's inbox stays empty even after a
-    # delivery pass, and hall is never scheduled to "reply".
-    k.deliver_pending()
-    assert k.agents["hall"].stm.inbox.qsize() == 0
+    # No message was ever sent -- there's nothing queued for delivery even
+    # after a delivery pass, and hall is never scheduled to "reply".
+    assert k._pending == []
+    k._deliver_due()
+    assert k._pending == []
 
     hits = await k.shared_memory.recall_of("hall", "大门", top_k=5)
     assert hits and "推开了大门" in hits[0]["text"]
@@ -236,8 +241,9 @@ async def test_read_carrier_returns_target_owned_memories_same_tick():
     assert r.ok
     assert len(r.data) == 1 and r.data[0]["text"] == "宝玉衔玉而生"
 
-    k.deliver_pending()
-    assert book.stm.inbox.qsize() == 0    # no Message ever sent
+    assert k._pending == []    # no Message ever sent
+    k._deliver_due()
+    assert k._pending == []
 
 
 async def test_read_environment_target_returns_its_own_memories_same_tick():

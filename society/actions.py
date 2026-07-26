@@ -32,8 +32,7 @@ class Message:
     sleeping recipient eligible (Kernel.is_eligible) and to clear a
     recipient's `waiting_until` on delivery (Kernel.deliver_pending).
     Defaults to True so say/gesture/system/arrival messages behave exactly
-    as before wake was introduced. `broadcast` is the only action that
-    lets the sender set this to False.
+    as before wake was introduced.
     """
     id: str
     sender: str
@@ -60,8 +59,7 @@ class Message:
 
 # Synchronous actions (complete in same tick)
 SYNC_ACTIONS: set[str] = {
-    "pop_message",
-    "peek_inbox",
+    "read_thread",
     "think",
     "conclude",
     "push_goal",
@@ -97,13 +95,11 @@ SYNC_ACTIONS: set[str] = {
 ASYNC_ACTIONS: set[str] = {
     "say",
     "gesture",
-    "broadcast",
 }
 
 # Required parameters for each action
 REQUIRED_PARAMS: dict[str, list[str]] = {
-    "pop_message": [],
-    "peek_inbox": [],
+    "read_thread": ["target"],
     "think": ["question"],
     "conclude": ["text"],
     "push_goal": ["text"],
@@ -121,13 +117,16 @@ REQUIRED_PARAMS: dict[str, list[str]] = {
     "wait": [],
     "noop": [],
     # {targets, content} is the uniform shape for every message-like
-    # action (say/gesture/broadcast/act_on): exactly the same two keys,
-    # no special cases. act_on's `targets` must contain exactly one
-    # co-located environment id (enforced by the kernel, not here).
-    "say": ["targets", "content"],
-    "gesture": ["targets", "content"],
+    # action (say/gesture/act_on): `targets` is required for act_on
+    # (exactly one co-located environment id, enforced by the kernel, not
+    # here) but OPTIONAL for say/gesture -- when omitted, the kernel
+    # defaults it to every currently co-located character (the "unified
+    # say": a bare `say` with no targets speaks to the room; an explicit
+    # `targets` list still lets a remote/private/multi-recipient message
+    # through, routed via `route()`'s distance delay).
+    "say": ["content"],
+    "gesture": ["content"],
     "act_on": ["targets", "content"],
-    "broadcast": ["targets", "content"],
     "add_affiliated": ["memory_id", "affiliated"],
     "remove_affiliated": ["memory_id", "affiliated"],
     "set_affiliated": ["memory_id", "affiliated"],

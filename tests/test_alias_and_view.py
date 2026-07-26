@@ -34,7 +34,7 @@ async def test_alias_resolves_chinese_names():
 
     assert r.ok is True
     assert len(k._pending) == 1
-    assert k._pending[0].recipients == ["sunquan"]
+    assert k._pending[0]["msg"].recipients == ["sunquan"]
 
 
 async def test_move_resolves_env_name():

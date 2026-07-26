@@ -51,17 +51,18 @@ async def test_goal_keeps_agent_awake_and_max_ticks():
 async def test_message_visible_next_tick_and_wakes_sleeper():
     # Task R (awake-based eligibility): b has no goals, but is still awake
     # by default at t=0 -- so to exercise "a message wakes a SLEEPING
-    # agent" b must explicitly `wait` first. It sees an empty inbox at t=0
-    # (delivery hasn't happened yet), sleeps, then a's `say` (delivered at
-    # the end of t=0, wake=True by default) wakes it back up for t=1, by
-    # which point the message is visible.
+    # agent" b must explicitly `wait` first. It sees no unread threads at
+    # t=0 (delivery hasn't happened yet), sleeps, then a's `say` (delivered
+    # at the end of t=0, wake=True by default) wakes it back up for t=1, by
+    # which point the message is visible in its conversations roster.
     seen = []
 
     def bfn(v):
-        seen.append((v["tick"], v["inbox_size"]))
+        total_unread = sum(c["unread"] for c in v["conversations"])
+        seen.append((v["tick"], total_unread))
         if v["tick"] == 0:
             return Action("wait")
-        return Action("pop_message")
+        return Action("read_thread", {"target": "a"})
 
     b = make_char("b", "hall", fn=bfn)
 
@@ -107,16 +108,16 @@ async def test_pop_and_registers():
 
 
 async def test_external_send_wakes_sleeper_no_crash():
-    # 'a' has no goals and an empty inbox, so it's not eligible on its own.
-    # Sending a message via the public kernel.send() API before run() starts
-    # simulates an external system/task poking the kernel: no timers or
-    # transit exist, so the old fast-forward branch's min(candidates) would
-    # crash with ValueError on an empty list.
+    # 'a' has no goals and no unread threads, so it's not eligible on its
+    # own. Sending a message via the public kernel.send() API before run()
+    # starts simulates an external system/task poking the kernel: no timers
+    # or transit exist, so the old fast-forward branch's min(candidates)
+    # would crash with ValueError on an empty list.
     calls = []
 
     def fn(v):
         calls.append(v)
-        return Action("pop_message")
+        return Action("read_thread", {"target": "system"})
 
     a = make_char("a", "hall", fn=fn)
     k = society([a, make_env("hall")])
@@ -127,7 +128,7 @@ async def test_external_send_wakes_sleeper_no_crash():
 
     assert summary["stop_reason"] in ("max_ticks", "quiescent")
     assert len(calls) >= 1
-    assert any(v["inbox_size"] >= 1 for v in calls)
+    assert any(sum(c["unread"] for c in v["conversations"]) >= 1 for v in calls)
 
 
 async def test_brain_exception_logged_not_fatal():

@@ -42,16 +42,17 @@ def build(agents, config=None):
 
 def test_goal_hint_zh_mentions_push_goal_first():
     assert "push_goal" in Kernel._GOAL_HINT_ZH
-    # must instruct pushing a goal BEFORE popping the message so the agent
-    # stays eligible -- not a bare pop_message/recall-then-stop.
+    # must instruct pushing a goal BEFORE reading a thread so the agent
+    # stays eligible -- not a bare read_thread/recall-then-stop (Task 6:
+    # pop_message no longer exists, superseded by read_thread).
     assert "先" in Kernel._GOAL_HINT_ZH and "push_goal" in Kernel._GOAL_HINT_ZH
-    assert "pop" in Kernel._GOAL_HINT_ZH.lower()
+    assert "read_thread" in Kernel._GOAL_HINT_ZH
 
 
 def test_goal_hint_en_mentions_push_goal_first():
     assert "push_goal" in Kernel._GOAL_HINT_EN
     assert "first" in Kernel._GOAL_HINT_EN.lower()
-    assert "pop" in Kernel._GOAL_HINT_EN.lower()
+    assert "read_thread" in Kernel._GOAL_HINT_EN
 
 
 def test_goal_hint_zh_tells_idle_agent_to_wait():
@@ -187,7 +188,7 @@ async def test_say_increments_counter_for_speaker_and_receiver():
     assert k._unremembered.get("a") == 1
     # receiver only counts once the message is actually delivered
     assert k._unremembered.get("b", 0) == 0
-    k.deliver_pending()
+    k._deliver_due()
     assert k._unremembered.get("b") == 1
 
 
@@ -202,9 +203,11 @@ async def test_remember_resets_counter():
 
 
 async def test_failed_say_does_not_increment_counter():
-    # target not co-located -> say is rejected -> not a real event
+    # target doesn't exist -> say is rejected -> not a real event. (Task 3:
+    # unified say has no co-location gate any more -- a cross-location
+    # target now succeeds via route()'s distance delay, so a genuinely
+    # unknown target is what's needed to exercise the failure path.)
     a = char("a", "hall")
-    b = char("b", "garden")
-    k = build([a, b, env("hall"), env("garden")])
-    await k._apply(a, Action("say", {"targets": ["b"], "content": "x"}), None)
+    k = build([a, env("hall")])
+    await k._apply(a, Action("say", {"targets": ["ghost"], "content": "x"}), None)
     assert k._unremembered.get("a", 0) == 0

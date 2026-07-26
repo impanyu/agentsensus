@@ -22,12 +22,27 @@ def char(aid, loc):
     return Agent(aid, "character", RuleBrain(), STM(status={"location": loc}))
 
 
-async def test_say_rejects_cross_location():
+async def test_say_cross_location_now_succeeds_after_distance_delay():
+    """Task 3 (unified say): cross-location targets are no longer rejected
+    -- there is no co-location gate any more. A remote `say` is routed
+    through `route()` and delivered after a worldmap-distance delay (a
+    "letter"), instead of instantly like a same-room utterance."""
     a, b = char("a", "hall"), char("b", "garden")
     k = build([a, b, Agent("hall", "environment", RuleBrain(), STM()),
                Agent("garden", "environment", RuleBrain(), STM())])
     r = await k.execute(a, Action("say", {"targets": ["b"], "content": "hi"}))
-    assert r.ok is False and "b" in r.error
+    assert r.ok is True
+
+    # Not yet delivered: build()'s WorldMap is fully-connected with
+    # default_distance=4, so hall->garden is a 4-tick delay.
+    k._deliver_due()
+    assert k.conversations.read("b", "a", k=10) == []
+
+    k.tick += 4
+    k._deliver_due()
+    msgs = k.conversations.read("b", "a", k=10)
+    assert len(msgs) == 1 and msgs[0]["content"] == "hi"
+
     r2 = await k.execute(a, Action("say", {"targets": ["ghost"], "content": "hi"}))
     assert r2.ok is False
 
@@ -63,9 +78,9 @@ async def test_read_info_carrier_returns_target_owner_recall_synchronously():
     r = await k.execute(a, Action("read", {"target": "book", "query": "宝玉"}))
     assert r.ok
     assert r.data and r.data[0]["text"] == "宝玉衔玉而生"
-    assert book.stm.inbox.qsize() == 0    # no Message ever sent
-    k.deliver_pending()
-    assert book.stm.inbox.qsize() == 0
+    assert k._pending == []    # no Message ever sent
+    k._deliver_due()
+    assert k._pending == []
 
 
 async def test_read_rejects_non_carrier_and_non_readable():
@@ -143,10 +158,9 @@ async def test_act_on_deposits_env_owned_memory_synchronously():
     r = await k.execute(a, Action("act_on", {"targets": ["hall"], "content": "大门"}))
     assert r.ok
     assert r.data == {"env": "hall", "recorded": "大门"}
-    assert env.stm.inbox.qsize() == 0
-    k.deliver_pending()
-    assert a.stm.inbox.qsize() == 0
-    assert env.stm.inbox.qsize() == 0    # no Message ever sent
+    assert k._pending == []
+    k._deliver_due()
+    assert k._pending == []    # no Message ever sent
 
     recorded = await shared.recall_of("hall", "大门", top_k=5)
     assert recorded and recorded[0]["text"] == "大门"

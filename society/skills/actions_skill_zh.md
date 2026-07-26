@@ -11,8 +11,13 @@
 - 最近若干条 `(action, result)` 历史(FIFO,最多若干条,越靠后越新);
 - 你的目标栈(goals,栈底是最根本、最不会变的目标,栈顶是你当前正在处理的具体小目标);
 - 你的状态寄存器(status,比如 mood/appearance/clothing/location 等任意键值);
-- 你的消息队列深度,以及队首消息的预览(发送者、类型),但**不包含**消息正文——
-  正文要用 `pop_message` 才能取到。
+- 一份 `conversations`("会话花名册"):你所参与的每一段会话各占一行——包括你
+  已经互通过消息的每一个 character/environment/info_carrier(活跃会话线程),
+  以及当前与你同处一地的所有对象。每一行形如
+  `{other, kind, colocated, unread, last_preview}`——对方的 id 与类型、对方
+  当前是否与你同处一地、该会话里有多少条未读消息、以及最后一条消息的简短预览。
+  这份花名册里**不包含**完整消息正文——要读取某段会话的实际内容,得用
+  `read_thread(target)`(同时会把该会话标记为已读)。
 
 ## Action 分为两类
 
@@ -24,17 +29,14 @@
 
 ## 同步 action 列表
 
-### pop_message
-- 签名: `{"action": "pop_message", "params": {}}`
+### read_thread
+- 签名: `{"action": "read_thread", "params": {"target": "...", "k": 10}}`
+  (`k` 可选,默认为 10)
 - 同步。
-- 作用: 从你的消息队列中取出并**移除**队首的一条消息,结果里包含这条消息的完整
-  内容(sender、kind、content、tick_sent 等)。如果队列为空,结果会标明"无消息"。
-
-### peek_inbox
-- 签名: `{"action": "peek_inbox", "params": {}}`
-- 同步。
-- 作用: 只**查看**队列深度和队首消息的预览(发送者/类型),不取出、不移除。用来
-  判断"值不值得现在处理这条消息"。
+- 作用: 返回你与 `target`(`conversations` 花名册里的某个 id)之间会话线程的
+  最近 `k` 条记录——是实际的消息正文(sender、kind、content、tick),不只是花名册
+  里的那句预览。作为副作用,会把该会话标记为已读:花名册里对应行的 `unread`
+  归零。建议先看花名册的 `unread` 和 `last_preview` 再决定值不值得打开哪个会话。
 
 ### think
 - 签名: `{"action": "think", "params": {"question": "..."}}`
@@ -183,8 +185,9 @@
   让自己休眠的方式**:带 `timeout_ticks=N` 时,你会休眠 N 个 tick 后自动醒来
   (即使没有任何消息);不带这个参数时,等价于**永久休眠**,直到收到一条
   `wake=true` 的消息才会被唤醒——**唤醒消息总能打断等待**,不论是定时等待还是
-  永久等待。注意:`wake=false` 的消息(见 `broadcast`)不会打断 `wait`,它会
-  安静地留在你的收件箱里,等你因为其他原因醒来后再去看。**真的无事可做时就该
+  永久等待。注意:`wake=false` 的消息(见 `say`/`gesture`)不会打断 `wait`,
+  它会安静地留在对应会话线程里(把 `conversations` 花名册里那一行的 `unread`
+  加一),等你因为其他原因醒来后再用 `read_thread` 去看。**真的无事可做时就该
   `wait`**——否则你会一直空转,每个 tick 都被重新调度、重新决策,白白消耗算力。
 
 ### noop
@@ -198,42 +201,50 @@
 ## 异步 action 列表
 
 ### say
-- 签名: `{"action": "say", "params": {"targets": ["..."], "content": "..."}}`
+- 签名: `{"action": "say", "params": {"targets": ["..."], "content": "...", "wake": true}}`
+  ——`targets` **可选**;`wake` 可选,默认 `true`。
 - 异步。
-- 作用: 向 `targets` 列表中的对象发送一条对话消息。实际送达可能要等到下一个
-  tick,对方通过自己的消息队列收到这条消息,并可能因此被唤醒。
+- 作用: 发送一条对话消息。如果**省略 `targets`**(或传空列表),默认发给
+  **当前与你同处一地的所有对象**——一句裸的 `say` 就是"对着这屋子里的人说"。
+  你也可以显式传一份目标 id 列表,co-located 和远程目标可以混在一起:同处一地
+  的目标和以前一样下一 tick 就能收到;**远程**目标(世界上任何别的地方)则会
+  变成一封"按距离延迟送达的信"——送达延迟量与你和对方在世界地图上的距离成正比,
+  要等相当于那段路程的游戏内时间过去后才会到达,而不是下一 tick 就送到。
+- `wake` 默认为 `true`,会主动唤醒收件人。传 `"wake": false` 可以悄悄说一句不
+  打扰对方——消息依然会送达,依然会让对方 `conversations` 花名册里这段会话的
+  `unread` 加一,只是不会因此把他们叫醒,直到他们因为别的原因醒来自己去看。
+- 如果省略(或空)`targets` 且当前没有任何人与你同处一地,这是一个无害的
+  空操作(`{"delivered": 0}`),不是错误——单纯是没人可说。
+- 每一个显式给出的目标都必须存在且未被 archived,否则整次调用失败,出错的
+  id 会在错误信息里列出(不会出现部分送达)。
 
 ### gesture
-- 签名: `{"action": "gesture", "params": {"targets": ["..."], "content": "..."}}`
+- 签名: `{"action": "gesture", "params": {"targets": ["..."], "content": "...", "wake": true}}`
+  ——`targets`/`wake` 的可选形状与 `say` 相同。
 - 异步。
-- 作用: 向 `targets` 展示一个非语言的动作/表情/姿态,机制与 `say` 完全相同,只是
-  内容语义是动作而非言语。
-
-### broadcast
-- 签名: `{"action": "broadcast", "params": {"targets": ["..."], "content": "...", "wake": false}}`
-  ——`wake` 可选,默认 `false`。
-- 异步。
-- 作用: 向 `targets` 广而告之——受众可以很多,机制上和 `say` 一样(每个目标下一
-  tick 收到一条消息),但语义不同:`say` 是定向交谈(默认 `wake=true`,会主动
-  唤醒对方);`broadcast` 是大范围周知,默认 `wake=false`——**不会**吵醒对方,
-  消息只是安静地躺进对方的收件箱,等对方下次因为别的原因醒来时自然会看到。如果
-  确实需要广播也能唤醒对方,显式传 `"wake": true`。
+- 作用: 展示一个非语言的动作/表情/姿态。机制与 `say` 完全相同(targets 可选、
+  默认同处一地,远程目标按距离延迟,`wake` 默认 `true`,独自一人时是空操作)——
+  唯一区别是内容语义是动作而非言语。
 
 ---
 
 ## 六种典型 pipeline
 
-### 1. 消息处理(push_goal 先行 → pop → 执行 → pop_goal)
-**关键顺序:先 `push_goal`,再 `pop_message`。** view 里的 `inbox_head` 已经给出了
-队首消息的预览(发送者、类型),不需要 pop 就能据此判断"这是一条什么消息、值不值得
-处理"。如果先 `pop_message` 取出消息,而当时目标栈恰好是空的,你会在**还没来得及
-push_goal** 的这个间隙里被判定为无目标、下一 tick 起就不再被调度——消息已经被你
-取走并清空了收件箱,永远没有机会再补上这个目标了。正确顺序是:
-1. 观察 `inbox_head`(和/或先 `peek_inbox`)预览队首消息的发送者与类型,判断值不
-   值得现在处理;
+### 1. 消息处理(先看花名册 → push_goal 先行 → read_thread → 执行 → pop_goal)
+**关键顺序:先 `push_goal`,再 `read_thread`。** view 里的 `conversations`
+花名册已经给出了每段会话的 `unread` 未读数和 `last_preview` 最后一句预览,
+不需要打开就能据此判断"这段会话值不值得现在处理"。如果先 `read_thread` 打开
+会话,而当时目标栈恰好是空的,你会在**还没来得及 push_goal** 的这个间隙里被
+判定为无目标、下一 tick 起就不再被调度——虽然会话本身的消息没有丢(该会话的
+`unread` 只是被清零了),但你可能再也没有机会被调度去注意到它需要回复了。
+正确顺序是:
+1. 扫一遍 `conversations` 花名册,找出 `unread > 0` 的行,用 `last_preview`
+   (以及 `kind`/`other`)判断值不值得现在处理;
 2. **先 `push_goal`**,根据这个预览压入一个对应的小目标(例如"回复 alice 的
-   消息")——此时消息还留在收件箱里,不会丢,你也因为有目标而保持清醒;
-3. 然后 `pop_message` 取出消息正文,`peek_inbox` 时看不到的实际内容现在才能看到;
+   消息")——此时该会话的 `unread` 还没被清零,不会丢,你也因为有目标而保持
+   清醒;
+3. 然后 `read_thread(target)` 取出消息正文,`last_preview` 看不到的实际内容
+   现在才能看到(这一步同时会把该会话标记为已读);
 4. 围绕第 2 步压入的这个小目标反复执行合适的 action(`observe`/`think`/`say`/
    `recall` 等),直到目标达成;
 5. 目标达成后才 `pop_goal` 弹出这个小目标,回到更上层的目标或 `wait`——不要在
@@ -267,11 +278,11 @@ push_goal** 的这个间隙里被判定为无目标、下一 tick 起就不再�
 
 **记忆示范——一条剧情线里 remember 的典型轨迹**(每个 tick 只做一个动作;一件事
 从"得知"发展到"决定"再到"行动"并产生"后果",是最常见的 remember 轨迹):
-- **得知**:`pop_message` / `say` / `read` 让你获知一条新情报或消息
+- **得知**:`read_thread` / `say` / `read` 让你获知一条新情报或消息
   → 当场 `remember("<谁>得知:<什么事>。")`
 - **决定**:与人商议或独自决断,定下一个方针/计策
   → `remember("<谁>(与<谁>商议后)决定:<做什么>。")`
-- **行动**:`say` / `act_on` / `move` / `broadcast` 付诸实施、改变了格局
+- **行动**:`say` / `gesture` / `act_on` / `move` 付诸实施、改变了格局
   → `remember("<谁>做了<什么>,导致<直接结果>。")`
 - **后果**:一场交锋/冲突有了结果,或有人到达 / 离开 / 伤亡
   → `remember("<交锋或变故>的结果:<谁胜谁负、谁去谁留、谁生谁死>。")`
@@ -315,7 +326,8 @@ push_goal** 的这个间隙里被判定为无目标、下一 tick 起就不再�
   发生了什么吗?")` → `wait`(等待 alice 回复,目标栈保持非空,所以下一次因为
   回复消息到达而被唤醒,而不是永久休眠)。
 - tick 2:alice 的回复消息到达并唤醒你 → 先 `push_goal("回应 alice 的消息")`
-  (根据 `inbox_head` 预览,遵循上面 pipeline 1 的顺序)→ `pop_message` 读到正文
+  (根据 `conversations` 花名册里 alice 那一行的 `last_preview`,遵循上面
+  pipeline 1 的顺序)→ `read_thread(target="alice")` 读到正文
   → 发现事情比预期复杂,`replace_goal("查证 alice 说的这件事是否属实")`(措辞
   调整,栈深不变)→ `remember("alice 说…")` 把关键信息存入长期记忆。
 - tick 3-4:围绕"查证"这个目标继续 `observe`/`recall`/`say` 若干轮,每次都

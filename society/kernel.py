@@ -3,6 +3,7 @@ import time
 import uuid
 
 from society.actions import Action, ActionResult, Message, validate_action
+from society.conversations import ConversationStore
 from society.llm import BudgetExceeded
 
 
@@ -21,9 +22,9 @@ class Kernel:
     acceptable.) A brain exception is caught and recorded as a failed
     action for that agent rather than aborting the tick.
 
-    Messages sent during a tick are only delivered into recipient inboxes
-    after all steps of that tick have completed, so they become visible
-    starting the next tick.
+    Messages sent during a tick are only delivered into recipient
+    conversation threads (`self.conversations`) after all steps of that
+    tick have completed, so they become visible starting the next tick.
     """
 
     def __init__(
@@ -45,13 +46,18 @@ class Kernel:
         self.config = config or {}
 
         self.tick = 0
-        self._pending: list[Message] = []
+        self._pending: list[dict] = []
         self._budget_hit = False
+
+        # Per-interlocutor conversation threads (Task 2): kernel-held store
+        # that `_deliver_due` records into on delivery -- the sole delivery
+        # target now that the STM inbox is gone (removed in Task 4).
+        self.conversations = ConversationStore()
 
         # Per-agent count of remember-worthy events accumulated since the
         # agent last called `remember` (a plot beat it took part in but has
-        # not yet deposited to shared LTM): its own say/gesture/broadcast/
-        # act_on, plus every say/gesture it *receives*. When this reaches
+        # not yet deposited to shared LTM): its own say/gesture/act_on,
+        # plus every say/gesture it *receives*. When this reaches
         # `_remember_hint_threshold`, `_build_agent_view` injects a
         # `remember_hint` into the agent's decision view (the empirical fix
         # for agents never picking the discretionary `remember` action on
@@ -144,51 +150,118 @@ class Kernel:
     # Messaging
     # ------------------------------------------------------------------
     def send(self, msg: Message) -> None:
-        """Queue a message for delivery after the current tick's steps."""
-        self._pending.append(msg)
-
-    def deliver_pending(self) -> bool:
-        """Deliver all messages queued via send() this tick into inboxes.
-
-        Delivery clears the recipient's waiting state only for messages
-        with wake=True -- a wake=False message (e.g. a `broadcast` sent
-        with wake=False) is still placed in the inbox (readable via
-        pop_message/peek_inbox once the agent is awake for any other
-        reason) but must not by itself interrupt a `wait`. Returns True if
-        anything was delivered.
+        """Queue a message for delivery next tick, with NO distance delay
+        (delay 0) -- used for kernel-internal / system messages (arrival,
+        departure, "X arrived"/"X departed") where the recipient IS the
+        origin/destination location itself, so there is nothing to delay
+        by distance. Player-facing `say`/`gesture` go through
+        `route()` instead, which computes a per-recipient delay from
+        `self.worldmap.distance`.
         """
-        pending, self._pending = self._pending, []
-        delivered_any = False
-        for msg in pending:
-            for rid in msg.recipients:
-                recipient = self.agents.get(rid)
-                if recipient is None:
-                    self.event_log.append(
-                        self.tick,
-                        "system",
-                        "kernel",
-                        {"note": "undeliverable", "recipient": rid, "message_id": msg.id},
-                    )
-                    continue
-                recipient.stm.inbox.put_nowait(msg)
-                if msg.wake:
-                    recipient.waiting_until = None
-                delivered_any = True
+        for rid in msg.recipients:
+            self._pending.append({"msg": msg, "recipient": rid, "deliver_at": self.tick})
+
+    def route(self, msg: Message, sender_loc) -> None:
+        """Enqueue `msg` to each recipient with a distance-based delay from
+        `sender_loc` (the sender's location at send time). Co-located
+        (same location, including both None) is delay 0 -- delivered next
+        tick, same as `send`. A recipient in a different, connected
+        location is delayed by `self.worldmap.distance(sender_loc, rloc)`
+        ticks; if the map reports no route (`None`), falls back to
+        `self.worldmap.default_distance` rather than dropping the message.
+
+        Guard: never enqueues a recipient equal to `msg.sender` (an agent
+        can't have a conversation thread with itself).
+        """
+        for rid in msg.recipients:
+            if rid == msg.sender:
+                continue
+            r = self.agents.get(rid)
+            if r is None:
                 self.event_log.append(
                     self.tick,
-                    "message",
-                    msg.sender,
-                    {"message": msg.to_dict(), "recipient": rid},
+                    "system",
+                    "kernel",
+                    {"note": "undeliverable", "recipient": rid, "message_id": msg.id},
                 )
-                if msg.kind in ("say", "gesture"):
-                    # Receiving a line of dialogue is itself a remember-worthy
-                    # event for the recipient (news/decisions reach them this
-                    # way), so it feeds their remember-hint backlog too.
-                    self._unremembered[rid] = self._unremembered.get(rid, 0) + 1
-                    if self.metrics is not None:
-                        on_message = getattr(self.metrics, "on_message", None)
-                        if on_message is not None:
-                            on_message(msg.sender, rid, msg.kind)
+                continue
+            rloc = r.location()
+            if rloc is None or rloc == sender_loc:
+                delay = 0
+            else:
+                d = self.worldmap.distance(sender_loc, rloc)
+                delay = d if d is not None else self.worldmap.default_distance
+            self._pending.append(
+                {"msg": msg, "recipient": rid, "deliver_at": self.tick + delay}
+            )
+
+    def _deliver_due(self) -> bool:
+        """Deliver all pending messages whose deliver_at <= current tick,
+        recording each into BOTH the recipient's thread (unread+1) and the
+        sender's own copy of that thread (unread+0), via
+        `self.conversations`. Delivery clears the recipient's waiting state
+        only for messages with wake=True -- a wake=False message (e.g. a
+        `say`/`gesture` sent with wake=False) is still recorded (readable via
+        `conversations.read` once the agent is awake for any other reason)
+        but must not by itself interrupt a `wait`. Returns True if anything
+        was delivered.
+
+        NOTE (Task 4): the STM inbox is gone -- `self.conversations` is now
+        the only delivery target; `pop_message` and `peek_inbox` were
+        removed as of Task 3 (superseded by `read_thread`/
+        `conversations.roster`).
+        """
+        due = [p for p in self._pending if p["deliver_at"] <= self.tick]
+        self._pending = [p for p in self._pending if p["deliver_at"] > self.tick]
+        delivered_any = False
+        for p in due:
+            msg, rid = p["msg"], p["recipient"]
+            recipient = self.agents.get(rid)
+            if recipient is None:
+                continue
+            # Kernel-internal system messages (arrival/departure/departing
+            # notices from _process_arrivals/_execute_move, always sent via
+            # `send()` with sender "kernel") are not a conversation --
+            # recording them into ConversationStore would create an
+            # unbounded, forever-checkpointed "kernel"-owned thread with no
+            # interlocutor to read it back. They still wake the recipient
+            # and get an event-log entry (below); only the thread-logging
+            # is skipped. Note: this is narrower than "any kind='system'
+            # message" -- an external caller's own kernel.send() with a
+            # different sender (e.g. sender="system") is a real
+            # conversational partner and must still be threaded (see
+            # tests/test_kernel_core.py::test_external_send_wakes_sleeper_no_crash).
+            is_system_msg = msg.sender == "kernel"
+            if not is_system_msg:
+                rec = {"sender": msg.sender, "kind": msg.kind, "content": msg.content, "tick": self.tick}
+                sender_agent = self.agents.get(msg.sender)
+                sender_kind = getattr(sender_agent, "kind", None)
+                recipient_kind = getattr(recipient, "kind", None)
+                self.conversations.record(
+                    rid, msg.sender, rec, unread_delta=1, kind=sender_kind
+                )
+                if msg.sender != rid:
+                    self.conversations.record(
+                        msg.sender, rid, rec, unread_delta=0, kind=recipient_kind
+                    )
+            if msg.wake:
+                recipient.waiting_until = None
+            delivered_any = True
+            self.event_log.append(
+                self.tick,
+                "message",
+                msg.sender,
+                {"message": msg.to_dict(), "recipient": rid},
+            )
+            if msg.kind in ("say", "gesture"):
+                # Receiving a line of dialogue is itself a remember-worthy
+                # event for the recipient (news/decisions reach them this
+                # way), so it feeds their remember-hint backlog too.
+                self._unremembered[rid] = self._unremembered.get(rid, 0) + 1
+                if self.metrics is not None:
+                    on_message = getattr(self.metrics, "on_message", None)
+                    if on_message is not None:
+                        on_message(msg.sender, rid, msg.kind)
         return delivered_any
 
     # ------------------------------------------------------------------
@@ -265,15 +338,12 @@ class Kernel:
             agent.stm.status.set("location", dest)
             self._presence_move(agent.id, origin, dest)
 
-            arrival_msg = Message(
-                id=str(uuid.uuid4()),
-                sender="kernel",
-                recipients=[agent.id],
-                kind="arrival",
-                content=dest,
-                tick_sent=self.tick,
-            )
-            agent.stm.inbox.put_nowait(arrival_msg)
+            # The arriving agent learns of its own arrival synchronously
+            # via the status/event log (its `location` status is already
+            # updated above, and the "arrival" system event below records
+            # it) -- there is no more STM inbox to deliver an "arrival"
+            # Message into (removed in Task 4), so waking it is the only
+            # remaining effect needed here.
             agent.waiting_until = None
 
             if dest in self.agents:
@@ -334,18 +404,6 @@ class Kernel:
                 agent.waiting_until = -1
             return ActionResult(True, data="waiting")
 
-        if name == "pop_message":
-            if agent.stm.inbox.empty():
-                return ActionResult(False, error="inbox empty")
-            msg = agent.stm.inbox.get_nowait()
-            return ActionResult(True, data=msg.to_dict())
-
-        if name == "peek_inbox":
-            data = [
-                {"sender": m.sender, "kind": m.kind} for m in agent.stm.inbox_items()
-            ]
-            return ActionResult(True, data=data)
-
         if name == "conclude":
             return ActionResult(True, data=params.get("text"))
 
@@ -371,8 +429,11 @@ class Kernel:
             agent.stm.status.remove(params["key"])
             return ActionResult(True, data="removed")
 
-        if name in ("say", "gesture", "broadcast"):
-            return self._execute_say_or_gesture(agent, action)
+        if name in ("say", "gesture"):
+            return self._execute_say(agent, action)
+
+        if name == "read_thread":
+            return self._execute_read_thread(agent, action)
 
         if name == "act_on":
             return await self._execute_act_on(agent, action)
@@ -397,48 +458,63 @@ class Kernel:
 
         return ActionResult(False, error=f"not implemented: {name}")
 
-    def _execute_say_or_gesture(self, agent, action: Action) -> ActionResult:
-        """say/gesture/broadcast: uniform {targets, content} shape. Every
-        target must exist and share sender's location, else no message is
-        sent and the offenders are named in the error.
+    def _execute_say(self, agent, action: Action) -> ActionResult:
+        """say/gesture: unified {targets?, content} shape (Task 3 -- folds
+        `broadcast` into `say`/`gesture`, which are now the only two
+        message-sending actions). `targets` is now OPTIONAL: when omitted
+        (or not a non-empty list), it defaults to every character
+        currently co-located with the sender -- i.e. a bare `say` speaks
+        to the room. If the resolved target set is empty (nobody else is
+        here), this is a logged no-op, NOT an error: `return
+        ActionResult(True, data={"delivered": 0})`.
 
-        wake defaults to True (say/gesture behave exactly as before wake
-        existed); `broadcast` accepts an optional `wake` param (default
-        False) that becomes Message.wake -- broadcast is a wide, un-targeted
-        announcement that by default sits quietly in the inbox instead of
-        interrupting a `wait`."""
+        Every explicit target must exist and not be archived, else no
+        message is sent and the offenders are named in the error. Targets
+        need NOT be co-located with the sender (Task 2): delivery is
+        routed through `route()`, which delivers next tick (delay 0) to a
+        co-located target and after a distance-based delay to a remote one
+        -- a `say` to someone elsewhere in the world is a "letter" that
+        arrives once the in-world travel time has elapsed, not an instant
+        same-room utterance.
+
+        wake defaults to True (unified say/gesture behave exactly as
+        before wake existed) but may be set explicitly by the sender (a
+        stringized bool from an LLM brain is parsed leniently, same as
+        before)."""
         params = action.params
-        targets = params["targets"]
         content = params["content"]
-        if action.name == "broadcast":
-            wake = params.get("wake", False)
-            # LLM brains emit JSON and sometimes stringify booleans; a lax
-            # bool("false")==True would silently invert the sleep economy.
-            if isinstance(wake, str):
-                wake = wake.strip().lower() == "true"
-            elif not isinstance(wake, bool):
-                return ActionResult(False, error="wake must be a boolean")
-        else:
-            wake = True
+
+        targets = params.get("targets")
+        if not targets:
+            targets = [
+                c["id"] for c in self._colocated_view(agent) if c["kind"] == "character"
+            ]
+
+        if not targets:
+            return ActionResult(True, data={"delivered": 0})
+
+        wake = params.get("wake", True)
+        # LLM brains emit JSON and sometimes stringify booleans; a lax
+        # bool("false")==True would silently invert the sleep economy.
+        if isinstance(wake, str):
+            wake = wake.strip().lower() == "true"
+        elif not isinstance(wake, bool):
+            return ActionResult(False, error="wake must be a boolean")
 
         # An environment agent IS its own location (it has no
-        # status.location -- see _colocated_view), so its say/gesture must
-        # be validated against its own id, not agent.location() (which
-        # would be None for an environment and always fail co-location).
+        # status.location -- see _colocated_view), so routing distance is
+        # computed from its own id, not agent.location() (which would be
+        # None for an environment).
         sender_loc = agent.id if agent.kind == "environment" else agent.location()
         offenders = []
         for tid in targets:
             target = self.agents.get(tid)
-            if (
-                target is None
-                or getattr(target, "archived", False)
-                or target.location() != sender_loc
-            ):
+            if target is None or getattr(target, "archived", False):
                 offenders.append(tid)
 
         if offenders:
             return ActionResult(
-                False, error=f"targets not present at {sender_loc}: {', '.join(offenders)}"
+                False, error=f"no such target(s): {', '.join(offenders)}"
             )
 
         msg = Message(
@@ -450,8 +526,34 @@ class Kernel:
             tick_sent=self.tick,
             wake=wake,
         )
-        self.send(msg)
-        return ActionResult(True, data="sent")
+        self.route(msg, sender_loc)
+        return ActionResult(True, data={"delivered": len(targets)})
+
+    def _execute_read_thread(self, agent, action: Action) -> ActionResult:
+        """read_thread(target, k=10): returns the last `k` records of
+        `agent`'s conversation thread with `target` (sender+recipient
+        share the same log content, kept in each party's own thread copy
+        -- see `ConversationStore`/`_deliver_due`), and marks that thread
+        read (unread reset to 0) as a side effect."""
+        params = action.params
+        target = params["target"]
+        k = params.get("k", 10)
+        return ActionResult(True, data=self.conversations.read(agent.id, target, k))
+
+    def _log_own_interaction(self, agent, target_id, kind_name, content, target_kind=None):
+        """Record `agent`'s own observe/act_on/read into its OWN thread with
+        `target_id` (unread_delta=0 -- it's the actor's own action, already
+        "read"). Called only after the action has SUCCEEDED; failures/
+        invalid targets are never logged. `target_kind` is the target
+        agent's `.kind` (environment/info_carrier/character), used to tag
+        the thread the same way `_deliver_due` does for message threads."""
+        self.conversations.record(
+            agent.id,
+            target_id,
+            {"sender": agent.id, "kind": kind_name, "content": content, "tick": self.tick},
+            unread_delta=0,
+            kind=target_kind,
+        )
 
     async def _execute_act_on(self, agent, action: Action) -> ActionResult:
         """act_on(targets, content): targets must be a list containing
@@ -483,14 +585,17 @@ class Kernel:
             return ActionResult(False, error=f"not at {target_id}")
 
         if self.shared_memory is None:
-            return ActionResult(
+            result = ActionResult(
                 True, data={"env": target_id, "recorded": content, "note": "no shared memory"}
             )
+        else:
+            await self.shared_memory.remember_atomic(
+                [target_id], content, tick=self.tick, source="act_on"
+            )
+            result = ActionResult(True, data={"env": target_id, "recorded": content})
 
-        await self.shared_memory.remember_atomic(
-            [target_id], content, tick=self.tick, source="act_on"
-        )
-        return ActionResult(True, data={"env": target_id, "recorded": content})
+        self._log_own_interaction(agent, target_id, action.name, content, target.kind)
+        return result
 
     # ------------------------------------------------------------------
     # Affiliated-memory CRUD (sync; no LLM calls; delegates to SharedMemory)
@@ -596,7 +701,7 @@ class Kernel:
     _GOAL_HINT_ZH = (
         "你的目标栈为空。请**先 push_goal** 自举一个你此刻最想推进的目标(根据你的"
         "记忆 recall 和当前处境),**然后**围绕它持续行动(say/observe/act_on/"
-        "remember…)。不要只做一个 pop_message 或 recall 就停;在唤醒模型下,即使"
+        "remember…)。不要只做一次 read_thread 或 recall 就停;在唤醒模型下,即使"
         "目标栈为空,你下一 tick 仍会被调度,并不会因此自动休眠。若收件箱里有消息,"
         "可以先 push_goal(如“回应 X 的消息”)再处理——消息在你 pop 之前会一直留着。"
         "如果你此刻确实无事可做,用 `wait` 让自己休眠,直到有人给你消息再醒来——不要"
@@ -607,7 +712,7 @@ class Kernel:
         "you most want to pursue right now (based on recall of your memory "
         "and your current situation), **then** act on it continuously "
         "(say/observe/act_on/remember...). Don't just do a single "
-        "pop_message or recall and stop; under the awake model you'll still "
+        "read_thread or recall and stop; under the awake model you'll still "
         "be scheduled next tick even with an empty goal stack -- it does "
         "not put you to sleep automatically. If there's a message in your "
         "inbox, you can push_goal first (e.g. \"respond to X's message\") "
@@ -618,7 +723,7 @@ class Kernel:
 
     # Remember-cue (empirical fix): shown at decision time once an agent has
     # accumulated `_remember_hint_threshold` remember-worthy events (its own
-    # say/act_on/broadcast + received dialogue) since its last `remember`.
+    # say/gesture/act_on + received dialogue) since its last `remember`.
     # The static skill-doc guidance never fired `remember` on its own; this
     # puts the cue *in the moment*, right when a plot beat has just happened.
     _REMEMBER_HINT_ZH = (
@@ -655,6 +760,9 @@ class Kernel:
         """
         view = agent.build_view(self.tick)
         view["colocated"] = self._colocated_view(agent)
+        view["conversations"] = self.conversations.roster(
+            agent.id, {c["id"] for c in view["colocated"]}, self.agents
+        )
         view["known_locations"] = self._known_locations_view()
         language = self.config.get("language", "zh")
         if agent.stm.goals.empty():
@@ -704,7 +812,7 @@ class Kernel:
                 occupants.append(
                     {"id": occ.id, "kind": occ.kind, "status": occ.stm.status.public_view()}
                 )
-            return ActionResult(
+            result = ActionResult(
                 True,
                 data={
                     "kind": target.kind,
@@ -712,6 +820,10 @@ class Kernel:
                     "occupants": occupants,
                 },
             )
+            self._log_own_interaction(
+                agent, target_id, action.name, f"observed {target_id}", target.kind
+            )
+            return result
 
         if target.kind == "character":
             if getattr(target, "archived", False):
@@ -720,16 +832,24 @@ class Kernel:
                 )
             if target.location() != agent.location():
                 return ActionResult(False, error=f"{target_id} not co-located")
-            return ActionResult(
+            result = ActionResult(
                 True, data={"kind": target.kind, "status": target.stm.status.public_view()}
             )
+            self._log_own_interaction(
+                agent, target_id, action.name, f"observed {target_id}", target.kind
+            )
+            return result
 
         if target.kind == "info_carrier":
             if not self._is_readable(agent, target):
                 return ActionResult(False, error=f"{target_id} not observable here")
-            return ActionResult(
+            result = ActionResult(
                 True, data={"kind": target.kind, "status": target.stm.status.public_view()}
             )
+            self._log_own_interaction(
+                agent, target_id, action.name, f"observed {target_id}", target.kind
+            )
+            return result
 
         return ActionResult(False, error=f"cannot observe kind {target.kind}")
 
@@ -765,10 +885,15 @@ class Kernel:
                 return ActionResult(False, error=f"not at {target_id}")
 
         if self.shared_memory is None:
-            return ActionResult(True, data=[])
+            result = ActionResult(True, data=[])
+        else:
+            data = await self.shared_memory.recall_of(target_id, query, top_k)
+            result = ActionResult(True, data=data)
 
-        data = await self.shared_memory.recall_of(target_id, query, top_k)
-        return ActionResult(True, data=data)
+        self._log_own_interaction(
+            agent, target_id, action.name, f"read: {query}", target.kind
+        )
+        return result
 
     def _execute_move(self, agent, action: Action) -> ActionResult:
         destination = action.params["destination"]
@@ -894,15 +1019,25 @@ class Kernel:
 
         # Maintain the remember-hint counter (see __init__): a successful
         # `remember` clears the agent's backlog; a successful outbound plot
-        # action (say/gesture/broadcast/act_on) adds to it. Only successful
+        # action (say/gesture/act_on) adds to it. Only successful
         # actions count -- a rejected say never happened.
         if result.ok:
             if action.name == "remember":
                 self._unremembered[agent.id] = 0
-            elif action.name in ("say", "gesture", "broadcast", "act_on"):
-                self._unremembered[agent.id] = (
-                    self._unremembered.get(agent.id, 0) + 1
+            elif action.name in ("say", "gesture", "act_on"):
+                # A say/gesture that delivered to nobody (e.g. a bare `say`
+                # into an empty room -- see _execute_say) is a logged no-op,
+                # not a plot beat: don't bump the backlog for it.
+                data = result.data
+                delivered_to_nobody = (
+                    action.name in ("say", "gesture")
+                    and isinstance(data, dict)
+                    and data.get("delivered") == 0
                 )
+                if not delivered_to_nobody:
+                    self._unremembered[agent.id] = (
+                        self._unremembered.get(agent.id, 0) + 1
+                    )
 
     # ------------------------------------------------------------------
     # Budget circuit-breaker
@@ -984,7 +1119,7 @@ class Kernel:
                     action, brain_error = decisions[agent.id]
                     await self._apply(agent, action, brain_error)
 
-            delivered = self.deliver_pending()
+            delivered = self._deliver_due()
 
             if self.metrics is not None:
                 maybe_snapshot = getattr(self.metrics, "maybe_snapshot", None)
@@ -1002,7 +1137,13 @@ class Kernel:
                 if a.waiting_until is not None and a.waiting_until != -1
             ]
 
-            if not awake and not delivered and not transit_pending and not waiting_timers:
+            if (
+                not awake
+                and not delivered
+                and not transit_pending
+                and not waiting_timers
+                and not self._pending
+            ):
                 stop_reason = "quiescent"
                 break
 
@@ -1018,6 +1159,7 @@ class Kernel:
                     if a.transit is not None
                 ]
                 candidates.extend(waiting_timers)
+                candidates.extend(p["deliver_at"] for p in self._pending)
                 if candidates:
                     self.tick = min(candidates)
                 else:

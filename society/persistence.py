@@ -27,7 +27,6 @@ def _agent_state(agent) -> dict:
         "goals": agent.stm.goals.items(),
         "status": agent.stm.status.all(),
         "private_keys": sorted(agent.stm.status._private_keys),
-        "inbox": [m.to_dict() for m in agent.stm.inbox_items()],
         "waiting_until": agent.waiting_until,
         "transit": agent.transit,
         "archived": agent.archived,
@@ -37,7 +36,14 @@ def _agent_state(agent) -> dict:
 def _build_checkpoint_dict(kernel) -> dict:
     agents_state = {aid: _agent_state(a) for aid, a in kernel.agents.items()}
     presence = {loc: sorted(ids) for loc, ids in kernel.presence.items()}
-    pending = [m.to_dict() for m in kernel._pending]
+    # `_pending` entries are dicts ({"msg": Message, "recipient": id,
+    # "deliver_at": tick}, since Task 2's distance-delayed delivery), not
+    # raw Message objects -- serialize the Message field and pass the rest
+    # through as-is.
+    pending = [
+        {"msg": p["msg"].to_dict(), "recipient": p["recipient"], "deliver_at": p["deliver_at"]}
+        for p in kernel._pending
+    ]
     ltm = kernel.shared_memory.export() if kernel.shared_memory is not None else []
 
     metrics_directed = {}
@@ -56,6 +62,7 @@ def _build_checkpoint_dict(kernel) -> dict:
         "pending": pending,
         "ltm": ltm,
         "metrics_directed": metrics_directed,
+        "conversations": kernel.conversations.export(),
     }
 
 
@@ -90,8 +97,8 @@ async def restore_society(ckpt: dict, *, llm, embed_fn, event_log, out_dir=None)
     Agents/brains/map are (re)built via `build_agents_and_map` -- the same
     helper `build_society` uses for a fresh run -- but seed memories and
     kickoff messages are deliberately NOT replayed (the checkpoint's LTM
-    export and per-agent inbox/pending state already reflect their
-    effects; replaying them would duplicate work).
+    export and per-agent pending state already reflect their effects;
+    replaying them would duplicate work).
     """
     cfg = ckpt["scenario"]
     agents, worldmap, defaults, _seed_specs = build_agents_and_map(cfg, llm=llm, embed_fn=embed_fn)
@@ -140,9 +147,6 @@ async def restore_society(ckpt: dict, *, llm, embed_fn, event_log, out_dir=None)
         # (a no-op in the common case).
         agent.archived = state.get("archived", agent.archived)
 
-        for msg_dict in state.get("inbox", []):
-            agent.stm.inbox.put_nowait(Message(**msg_dict))
-
         agent.waiting_until = state.get("waiting_until")
         agent.transit = state.get("transit")
 
@@ -150,12 +154,17 @@ async def restore_society(ckpt: dict, *, llm, embed_fn, event_log, out_dir=None)
         loc: set(ids) for loc, ids in ckpt.get("presence", {}).items()
     }
 
-    kernel._pending = [Message(**d) for d in ckpt.get("pending", [])]
+    kernel._pending = [
+        {"msg": Message(**d["msg"]), "recipient": d["recipient"], "deliver_at": d["deliver_at"]}
+        for d in ckpt.get("pending", [])
+    ]
 
     await shared.restore(ckpt.get("ltm", []))
 
     directed = ckpt.get("metrics_directed") or {}
     for edge, count in directed.items():
         metrics._directed_edges[edge] = count
+
+    kernel.conversations.restore(ckpt.get("conversations", {}))
 
     return kernel
