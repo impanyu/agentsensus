@@ -55,7 +55,7 @@ Everything else (`colocated`, `known_locations`, `goal_hint`, `remember_hint`) u
 
 ### Actions (delta to the catalog)
 - **REMOVE** `broadcast`, `pop_message`, `peek_inbox`.
-- **CHANGE** `say`: `{targets?: list[str], content: str, wake?: bool}` — targets optional (default local-all), wake default True, per-target distance delay, no co-location gate (remote allowed). Omitted-targets + no one co-located → error (see Risks). `gesture` stays a SEPARATE non-verbal action (not merged into `say`) with identical routing/delay/threading — same `{targets?, content, wake?}` shape, non-verbal semantics.
+- **CHANGE** `say`: `{targets?: list[str], content: str, wake?: bool}` — targets optional (default local-all), wake default True, per-target distance delay, no co-location gate (remote allowed). Omitted-targets + no one co-located → logged no-op (see Risks). `gesture` stays a SEPARATE non-verbal action (not merged into `say`) with identical routing/delay/threading — same `{targets?, content, wake?}` shape, non-verbal semantics.
 - **ADD** `read_thread`: `{target: str, k?: int}` → returns `[{sender, kind, content, tick}]` (last k, default e.g. 10) and marks that thread read.
 
 ### Eligibility / awake model
@@ -84,7 +84,7 @@ read_thread(target, k) -> last-k messages, marks read
 
 ## Testing
 
-- **Unified say**: co-located target → delivered next tick (delay 0), appears in BOTH sender's and recipient's thread, recipient unread+1 & woken; omitted `targets` → all co-located characters receive it; omitted `targets` with no one co-located → `ActionResult(False, ...)`.
+- **Unified say**: co-located target → delivered next tick (delay 0), appears in BOTH sender's and recipient's thread, recipient unread+1 & woken; omitted `targets` → all co-located characters receive it; omitted `targets` with no one co-located → logged no-op `ActionResult(True, data={"delivered": 0})`.
 - **gesture (separate action)**: same routing/delay/threading as `say` but distinct action kind; a co-located gesture threads on both sides.
 - **Remote delay**: a target at distance d → not delivered until tick+d, then appears in the thread; a nearer target arrives sooner (distance-ordered); unroutable pair → `default_distance`.
 - **Recipient moves mid-flight**: delivered on the original send-time schedule (no chasing), to the recipient's thread.
@@ -99,5 +99,5 @@ read_thread(target, k) -> last-k messages, marks read
 
 - **Broad blast radius**: touches kernel messaging, STM (inbox removal), the view, the action catalog + validator, skill docs, persistence, and existing tests/scenarios that use `broadcast`/`pop_message`. Sequenced in the plan so the store lands first, then routing, then the action/view swap, then doc/scenario cleanup.
 - **N² threads**: threads are created lazily (only on first message), and the roster shows only active + co-located, so storage and context stay bounded even at 187 agents.
-- **Default-targets semantics**: `say` with omitted `targets` = all co-located characters at send time. If `targets` is omitted AND no characters are co-located, `say` **returns an error** (`ActionResult(False, error="no co-located characters to say to; specify targets or move")`) rather than a silent no-op — the agent's view already shows `colocated`, so an error is clear feedback to move or address remote targets by id, instead of "speaking to an empty room" and wasting the tick. (Explicitly-listed `targets`, even remote ones, always send — a lone agent CAN still write a remote letter.)
+- **Default-targets semantics**: `say` with omitted `targets` = all co-located characters at send time. If `targets` is omitted AND no characters are co-located, `say` is a **logged no-op** (`ActionResult(True, data={"delivered": 0})` with a note) — it succeeds with zero deliveries rather than erroring. (Explicitly-listed `targets`, even remote ones, always send — a lone agent CAN still write a remote letter.)
 - **Wake noise**: `say` wakes recipients by default; a large remote letter with `wake=True` wakes many on arrival. Agents may pass `wake=False`. Acceptable per the "唤醒接收方" decision.
