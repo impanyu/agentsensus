@@ -6,7 +6,7 @@ agents:
   brain: llm
   profile: 蜀汉开国皇帝，桃园三结义大哥，仁德之君。
   status:
-    location: xinye
+    location: fancheng
   goals: []
   name: 刘备
 - id: guanyu
@@ -14,7 +14,7 @@ agents:
   brain: llm
   profile: 蜀汉五虎上将之首，忠义化身，刘备二弟。
   status:
-    location: xinye
+    location: fancheng
   goals: []
   name: 关羽
 - id: zhangfei
@@ -22,7 +22,7 @@ agents:
   brain: llm
   profile: 蜀汉五虎上将之一，勇猛过人的刘备三弟。
   status:
-    location: xinye
+    location: bolingdukou
   goals: []
   name: 张飞
 - id: zhugeliang
@@ -30,7 +30,7 @@ agents:
   brain: llm
   profile: 蜀汉丞相，号卧龙先生，足智多谋的政治家与军事家。
   status:
-    location: xinye
+    location: queweipo
   goals: []
   name: 诸葛亮
 - id: zhaoyun
@@ -38,7 +38,7 @@ agents:
   brain: llm
   profile: 蜀汉五虎上将之一，常山真定人，英勇忠诚。
   status:
-    location: fancheng
+    location: xinye
   goals: []
   name: 赵云
 - id: caocao
@@ -46,7 +46,7 @@ agents:
   brain: llm
   profile: 曹魏奠基者，汉丞相，乱世奸雄。
   status:
-    location: xuchang
+    location: wancheng
   goals: []
   name: 曹操
 - id: xiahoudun
@@ -62,7 +62,7 @@ agents:
   brain: llm
   profile: 曹魏大将，夏侯惇族弟，擅长奔袭。
   status:
-    location: hedong
+    location: xuchang
   goals: []
   name: 夏侯渊
 - id: caoren
@@ -70,7 +70,7 @@ agents:
   brain: llm
   profile: 曹魏大将，曹操堂弟，善守。
   status:
-    location: xuchang
+    location: bolingdukou
   goals: []
   name: 曹仁
 - id: caohong
@@ -78,7 +78,7 @@ agents:
   brain: llm
   profile: 曹魏大将，曹操堂弟，曾舍命救主。
   status:
-    location: guandu
+    location: bowangpo
   goals: []
   name: 曹洪
 - id: zhangliao
@@ -86,23 +86,23 @@ agents:
   brain: llm
   profile: 曹魏五子良将之首，原为吕布部将，逍遥津威震江东。
   status:
-    location: hedong
+    location: xuchang
   goals: []
   name: 张辽
 - id: xuhuang
   kind: character
   brain: llm
   profile: 曹魏五子良将之一，原杨奉部将，长驱直入。
-  status:
-    location: xuchang
+  status: {}
   goals: []
   name: 徐晃
+  archived: true
 - id: yujin
   kind: character
   brain: llm
   profile: 曹魏五子良将之一，治军严整。
   status:
-    location: hedong
+    location: xuchang
   goals: []
   name: 于禁
 - id: yuejin
@@ -110,7 +110,7 @@ agents:
   brain: llm
   profile: 曹魏五子良将之一，以骁果著称。
   status:
-    location: hedong
+    location: xuchang
   goals: []
   name: 乐进
 - id: xuchu
@@ -118,15 +118,14 @@ agents:
   brain: llm
   profile: 曹魏猛将，虎痴，曹操宿卫。
   status:
-    location: hedong
+    location: xinye
   goals: []
   name: 许褚
 - id: dianwei
   kind: character
   brain: llm
   profile: 曹魏猛将，宛城战死，古之恶来。
-  status:
-    location: wancheng
+  status: {}
   goals: []
   name: 典韦
   archived: true
@@ -158,8 +157,7 @@ agents:
   kind: character
   brain: llm
   profile: 曹魏谋士，天资奇才，十胜十败定北征。
-  status:
-    location: yizhou
+  status: {}
   goals: []
   name: 郭嘉
   archived: true
@@ -167,8 +165,7 @@ agents:
   kind: character
   brain: llm
   profile: 江东猛虎，孙吴奠基者，勇烈过人，死于刘表军。
-  status:
-    location: liangdong
+  status: {}
   goals: []
   name: 孙坚
   archived: true
@@ -176,8 +173,7 @@ agents:
   kind: character
   brain: llm
   profile: 孙坚长子，小霸王，平定江东。
-  status:
-    location: wujun
+  status: {}
   goals: []
   name: 孙策
   archived: true
@@ -194,7 +190,7 @@ agents:
   brain: llm
   profile: 东吴大都督，赤壁之战指挥官，儒将风范。
   status:
-    location: ouxhu
+    location: jiangxia
   goals: []
   name: 周瑜
 - id: zhangzhao
@@ -210,17 +206,17 @@ agents:
   brain: llm
   profile: 东吴老将，历仕孙坚、孙策、孙权三代。
   status:
-    location: jiangdong
+    location: wuhui
   goals: []
   name: 程普
 - id: huanggai
   kind: character
   brain: llm
   profile: 东吴老将，献苦肉计，火烧曹船。
-  status:
-    location: jiangdong
+  status: {}
   goals: []
   name: 黄盖
+  archived: true
 - id: taishici
   kind: character
   brain: llm
@@ -233,8 +229,7 @@ agents:
   kind: character
   brain: llm
   profile: 河北霸主，四世三公，官渡之战败于曹操。
-  status:
-    location: jizhou
+  status: {}
   goals: []
   name: 袁绍
   archived: true
@@ -242,8 +237,7 @@ agents:
   kind: character
   brain: llm
   profile: 袁绍之弟，僭称帝号，败亡。
-  status:
-    location: shouchun
+  status: {}
   goals: []
   name: 袁术
   archived: true
@@ -251,8 +245,7 @@ agents:
   kind: character
   brain: llm
   profile: 袁绍长子，青州刺史。
-  status:
-    location: nanpi
+  status: {}
   goals: []
   name: 袁谭
   archived: true
@@ -260,8 +253,7 @@ agents:
   kind: character
   brain: llm
   profile: 袁绍三子，冀州嗣主。
-  status:
-    location: liaodong
+  status: {}
   goals: []
   name: 袁尚
   archived: true
@@ -269,8 +261,7 @@ agents:
   kind: character
   brain: llm
   profile: 西凉军阀，废立皇帝，迁都长安，暴虐无道。
-  status:
-    location: changan
+  status: {}
   goals: []
   name: 董卓
   archived: true
@@ -278,8 +269,7 @@ agents:
   kind: character
   brain: llm
   profile: 飞将，武艺无双，先后事丁原、董卓，反复无常。
-  status:
-    location: xiapi
+  status: {}
   goals: []
   name: 吕布
   archived: true
@@ -288,15 +278,14 @@ agents:
   brain: llm
   profile: 王允府中歌伎，连环计离间董卓吕布。
   status:
-    location: xiangfu_changan
+    location: meiwu
   goals: []
   name: 貂蝉
 - id: wangyun
   kind: character
   brain: llm
   profile: 汉司徒，设连环计诛杀董卓。
-  status:
-    location: changan
+  status: {}
   goals: []
   name: 王允
   archived: true
@@ -304,8 +293,7 @@ agents:
   kind: character
   brain: llm
   profile: 董卓女婿，首席谋士，多献毒计。
-  status:
-    location: changan
+  status: {}
   goals: []
   name: 李儒
   archived: true
@@ -313,8 +301,7 @@ agents:
   kind: character
   brain: llm
   profile: 董卓部将，说降吕布，后参与诛杀董卓。
-  status:
-    location: sishuiguan
+  status: {}
   goals: []
   name: 李肃
   archived: true
@@ -330,8 +317,7 @@ agents:
   kind: character
   brain: llm
   profile: 汉灵帝之子，被董卓废为弘农王。
-  status:
-    location: yongangong
+  status: {}
   goals: []
   name: 少帝刘辩
   archived: true
@@ -339,8 +325,7 @@ agents:
   kind: character
   brain: llm
   profile: 大将军，诛宦官失败被杀。
-  status:
-    location: hedong
+  status: {}
   goals: []
   name: 何进
   archived: true
@@ -348,8 +333,7 @@ agents:
   kind: character
   brain: llm
   profile: 汉灵帝皇后，何进之妹。
-  status:
-    location: yongangong
+  status: {}
   goals: []
   name: 何太后
   archived: true
@@ -357,8 +341,7 @@ agents:
   kind: character
   brain: llm
   profile: 十常侍之首，宦官首恶。
-  status:
-    location: hedong
+  status: {}
   goals: []
   name: 张让
   archived: true
@@ -366,8 +349,7 @@ agents:
   kind: character
   brain: llm
   profile: 汉末名将，讨黄巾功臣。
-  status:
-    location: luoyang
+  status: {}
   goals: []
   name: 朱儁
   archived: true
@@ -375,8 +357,7 @@ agents:
   kind: character
   brain: llm
   profile: 北平太守，刘备同门，白马将军，后败于袁绍。
-  status:
-    location: pingyuan
+  status: {}
   goals: []
   name: 公孙瓒
   archived: true
@@ -384,8 +365,7 @@ agents:
   kind: character
   brain: llm
   profile: 荆州牧，坐拥荆襄，无大志的守户之犬。
-  status:
-    location: jingzhou
+  status: {}
   goals: []
   name: 刘表
   archived: true
@@ -393,8 +373,7 @@ agents:
   kind: character
   brain: llm
   profile: 徐州牧，三让徐州于刘备。
-  status:
-    location: xuzhou
+  status: {}
   goals: []
   name: 陶谦
   archived: true
@@ -402,8 +381,7 @@ agents:
   kind: character
   brain: llm
   profile: 北海太守，孔子之后，后被曹操所杀。
-  status:
-    location: xuchang
+  status: {}
   goals: []
   name: 孔融
   archived: true
@@ -419,16 +397,15 @@ agents:
   kind: character
   brain: llm
   profile: 张济之侄，屯兵宛城，降曹复叛，后再次降曹。
-  status:
-    location: xuchang
+  status: {}
   goals: []
   name: 张绣
+  archived: true
 - id: chengong
   kind: character
   brain: llm
   profile: 吕布谋士，后拒绝降曹慷慨赴死。
-  status:
-    location: xiapi
+  status: {}
   goals: []
   name: 陈宫
   archived: true
@@ -437,7 +414,7 @@ agents:
   brain: llm
   profile: 广陵太守，助曹操灭吕布，屡献奇谋。
   status:
-    location: hedong
+    location: xuzhou
   goals: []
   name: 陈登
 - id: xushu
@@ -468,8 +445,7 @@ agents:
   kind: character
   brain: llm
   profile: 袁绍谋士，死守冀州城，刚烈。
-  status:
-    location: jizhou
+  status: {}
   goals: []
   name: 审配
   archived: true
@@ -477,8 +453,7 @@ agents:
   kind: character
   brain: llm
   profile: 董卓部将，后把持朝政。
-  status:
-    location: changan
+  status: {}
   goals: []
   name: 李傕
   archived: true
@@ -486,8 +461,7 @@ agents:
   kind: character
   brain: llm
   profile: 董卓部将，与李傕内斗。
-  status:
-    location: changan
+  status: {}
   goals: []
   name: 郭汜
   archived: true
@@ -495,8 +469,7 @@ agents:
   kind: character
   brain: llm
   profile: 白波军将领，后降曹操。
-  status:
-    location: huainan
+  status: {}
   goals: []
   name: 杨奉
   archived: true
@@ -504,8 +477,7 @@ agents:
   kind: character
   brain: llm
   profile: 国舅，衣带诏核心人物。
-  status:
-    location: xuchang
+  status: {}
   goals: []
   name: 董承
   archived: true
@@ -513,8 +485,7 @@ agents:
   kind: character
   brain: llm
   profile: 衣带诏参与者。
-  status:
-    location: hedong
+  status: {}
   goals: []
   name: 王子服
   archived: true
@@ -522,8 +493,7 @@ agents:
   kind: character
   brain: llm
   profile: 太医，谋毒曹操事败撞阶殉义。
-  status:
-    location: xuchang
+  status: {}
   goals: []
   name: 吉平
   archived: true
@@ -531,24 +501,23 @@ agents:
   kind: character
   brain: llm
   profile: 吕布部将，盗赤兔马降曹。
-  status:
-    location: hedong
+  status: {}
   goals: []
   name: 侯成
+  archived: true
 - id: songxian
   kind: character
   brain: llm
   profile: 吕布部将，降曹。
-  status:
-    location: hedong
+  status: {}
   goals: []
   name: 宋宪
+  archived: true
 - id: gaoshun
   kind: character
   brain: llm
   profile: 吕布部将，陷阵营统领，忠义。
-  status:
-    location: xiapi
+  status: {}
   goals: []
   name: 高顺
   archived: true
@@ -556,8 +525,7 @@ agents:
   kind: character
   brain: llm
   profile: 袁术大将。
-  status:
-    location: shouchun
+  status: {}
   goals: []
   name: 纪灵
   archived: true
@@ -566,7 +534,7 @@ agents:
   brain: llm
   profile: 刘备臣，屡次捐资助军。
   status:
-    location: hedong
+    location: fancheng
   goals: []
   name: 糜竺
 - id: sunqian
@@ -574,7 +542,7 @@ agents:
   brain: llm
   profile: 刘备幕僚，外交使者。
   status:
-    location: xinye
+    location: fancheng
   goals: []
   name: 孙乾
 - id: fuhuanghou
@@ -582,23 +550,23 @@ agents:
   brain: llm
   profile: 汉献帝皇后。
   status:
-    location: xuchang
+    location: jingzhou
   goals: []
   name: 伏皇后
 - id: wushuo
   kind: character
   brain: llm
   profile: 衣带诏参与者。
-  status:
-    location: hedong
+  status: {}
   goals: []
   name: 吴硕
+  archived: true
 - id: tonger
   kind: character
   brain: llm
   profile: 诸葛亮的书童。
   status:
-    location: hedong
+    location: longzhong
   goals: []
   name: 童儿
 - id: luoyang
@@ -896,11 +864,6 @@ agents:
   brain: rule
   profile: 曹操早期根据地。
   name: 兖州
-- id: hedong
-  kind: environment
-  brain: rule
-  profile: 董卓家乡。
-  name: 河东
 - id: jibei
   kind: environment
   brain: rule
