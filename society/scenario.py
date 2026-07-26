@@ -303,7 +303,23 @@ async def build_society(
     if ltm_file is not None:
         ltm_path = os.path.join(cfg.get("_dir", "."), ltm_file)
         with open(ltm_path, "r", encoding="utf-8") as f:
-            await shared.restore(json.load(f))
+            entries = json.load(f)
+        # `restore` reuses each entry's stored embedding (no re-embedding) and
+        # already applies each backend's own storage rule: consensus keeps one
+        # merged owner-set row per event; every baseline fans the entry out into
+        # one row PER OWNER (per the per-owner change) -- so the initial-state
+        # footprint is per-method-faithful (baselines ~= sum of owner-set sizes,
+        # consensus = event count) and this stays fast (no LLM/embed at load).
+        # Firing each backend's higher-level machinery over the sediment
+        # (G-Memory distillation into insight nodes, GenerativeAgents
+        # importance-scoring + reflection) is a separate, concurrency-bounded
+        # priming step -- see `prime_initial_state` -- kept out of the load path
+        # because doing it inline/sequentially over thousands of entries is
+        # prohibitively slow.
+        await shared.restore(entries)
+        prime = getattr(shared, "prime_initial_state", None)
+        if prime is not None:
+            await prime()
     else:
         for agent_id, texts in seed_specs:
             for text in texts:

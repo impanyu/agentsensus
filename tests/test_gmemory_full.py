@@ -44,11 +44,15 @@ async def test_gmemory_remember_creates_interaction_tier_row():
 
 
 async def test_gmemory_remember_atomic_creates_interaction_tier_row():
+    # remember_atomic fans a multi-owner deposit out into one row per
+    # owner (society.baselines.GMemory.remember_atomic) -- both rows still
+    # land in the "interaction" tier.
     m = GMemory(afake_embed)
     await m.remember_atomic(["guanyu", "liubei"], TEXT_A)
     entries = m.all_entries()
-    assert len(entries) == 1
-    assert entries[0]["meta"]["tier"] == INTERACTION
+    assert len(entries) == 2
+    assert {e["owners"][0] for e in entries} == {"guanyu", "liubei"}
+    assert all(e["meta"]["tier"] == INTERACTION for e in entries)
 
 
 async def test_gmemory_owns_a_graph_index():
@@ -212,14 +216,31 @@ async def test_gmemory_forget_removes_node_edges_from_graph():
 
 
 async def test_gmemory_forget_partial_owner_keeps_edges():
-    m = GMemory(afake_embed)
-    r = await m.remember_atomic(["guanyu", "liubei"], TEXT_A)
-    row_id = r["id"]
+    # remember_atomic no longer produces a multi-owner row (it fans out one
+    # single-owner row per owner -- see society.baselines.GMemory
+    # .remember_atomic), so a genuinely multi-owner row to exercise
+    # forget's partial-owner-removal path (row survives, edges survive)
+    # now comes from distillation's insight rows instead, whose owners are
+    # the union of their source interactions' owners.
+    llm = FakeLLM(responses=[INSIGHT_TEXT])
+    m = GMemory(afake_embed, llm=llm, distill_every=2)
+    await m.remember("guanyu", TEXT_A)
+    await m.remember("liubei", TEXT_B)
+
+    insight_rows = [e for e in m.all_entries() if e["meta"]["tier"] == INSIGHT]
+    assert len(insight_rows) == 1
+    row_id = insight_rows[0]["id"]
+    assert sorted(insight_rows[0]["owners"]) == ["guanyu", "liubei"]
     m._graph.add_edge(row_id, "guanyu", "agent")
 
     # removing one of two owners does not delete the row -> edges survive
+    # (the insight row also carries its own derived_from provenance edges
+    # to its source interactions, so filter to the "agent" edge added above)
     assert m.forget("guanyu", row_id) is True
-    assert m._graph.neighbors(row_id) == ["guanyu"]
+    assert m._graph.neighbors(row_id, "agent") == ["guanyu"]
+
+    remaining = next(e for e in m.all_entries() if e["id"] == row_id)
+    assert remaining["owners"] == ["liubei"]
 
 
 # ========================================================================

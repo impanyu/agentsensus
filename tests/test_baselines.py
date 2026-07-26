@@ -12,6 +12,7 @@ from society.baselines import (
     CollaborativeMemory,
     make_memory,
 )
+from society.gmemory_graph import INTERACTION
 from society.stm import STM
 from society.worldmap import WorldMap
 from tests.helpers import FakeLLM, afake_embed
@@ -224,11 +225,12 @@ async def test_gmemory_no_dedup_on_duplicate_text():
     assert len(entries) == 2  # appended, no merge
 
 
-async def test_gmemory_chroma_shared_single_row():
+async def test_gmemory_chroma_per_owner_fanout():
     m = GMemory(afake_embed, llm=None)
     await m.remember_atomic(["a", "b"], "shared scene")
     ents = m.all_entries()
-    assert len(ents) == 1 and sorted(ents[0]["owners"]) == ["a", "b"]
+    assert len(ents) == 2  # one row per owner, no shared multi-owner row
+    assert {e["owners"][0] for e in ents} == {"a", "b"}
 
 
 async def test_gmemory_recall_of_owner_filter():
@@ -238,17 +240,23 @@ async def test_gmemory_recall_of_owner_filter():
     assert (await m.recall_of("z", "新野")) == []
 
 
-async def test_gmemory_forget_partial_owner_then_recall_of():
-    # Regression test: chromadb's `collection.update(metadatas=[...])`
-    # MERGES key-by-key rather than replacing the metadata dict, so a
-    # partial-owner-removal `forget` that doesn't explicitly null out the
-    # removed owner's `owner_<id>` boolean flag leaves that flag set
-    # forever, and `recall_of`/`recall(..., owner_scope=True)` (which filter
-    # via `where={f"owner_{id}": True}`) keep returning the row even after
-    # the owner was removed.
+async def test_gmemory_forget_sole_owner_deletes_row_leaves_sibling_row():
+    # With remember_atomic now fanning multi-owner deposits out into one
+    # single-owner row per owner (see GMemory.remember_atomic), a 2-owner
+    # call no longer produces one shared row to partially forget from --
+    # forgetting a row's sole owner takes the whole-row-delete path, and
+    # must leave the sibling row for the other owner (from the same
+    # remember_atomic call) untouched. (Partial-owner forget on a row that
+    # SURVIVES with owners remaining -- and the ChromaRows.update_metadata
+    # merge-trap regression that guards -- is now covered against
+    # distillation's genuinely multi-owner insight rows; see
+    # tests/test_gmemory_full.py::test_gmemory_forget_partial_owner_keeps_edges.)
     m = GMemory(afake_embed, llm=None)
-    r = await m.remember_atomic(["a", "b"], "shared scene")
-    assert m.forget("b", r["id"]) is True
+    await m.remember_atomic(["a", "b"], "shared scene")
+    rows_by_owner = {e["owners"][0]: e["id"] for e in m.all_entries()}
+    assert set(rows_by_owner) == {"a", "b"}
+
+    assert m.forget("b", rows_by_owner["b"]) is True
 
     assert (await m.recall_of("b", "scene")) == []
     assert any(e["text"] == "shared scene" for e in await m.recall_of("a", "scene"))
@@ -473,24 +481,86 @@ async def test_ga_remember_atomic_creates_one_row_per_owner():
     assert any(r["text"] == "共享场景" for r in liubei_results)
 
 
-async def test_gmemory_remember_atomic_creates_one_shared_row():
+async def test_gmemory_remember_atomic_creates_one_row_per_owner():
     m = GMemory(afake_embed)
-    await m.remember_atomic(["guanyu", "liubei"], "共享场景")
+    result = await m.remember_atomic(["guanyu", "liubei"], "共享场景")
     entries = m.all_entries()
-    assert len(entries) == 1
-    assert set(entries[0]["owners"]) == {"guanyu", "liubei"}
+    assert len(entries) == 2  # per-owner duplication, no shared multi-owner row
+    assert {e["owners"][0] for e in entries} == {"guanyu", "liubei"}
+    assert result["merged"] is False
+    assert set(result["owners"]) == {"guanyu", "liubei"}
 
     for owner in ("guanyu", "liubei"):
         results = await m.recall_of(owner, "共享场景")
         assert any(r["text"] == "共享场景" for r in results)
 
 
-async def test_collab_remember_atomic_creates_one_row_with_shared_acl():
+async def test_collab_remember_atomic_creates_one_fragment_per_owner():
     m = CollaborativeMemory(afake_embed)
-    await m.remember_atomic(["guanyu", "liubei"], "共享场景")
+    result = await m.remember_atomic(["guanyu", "liubei"], "共享场景")
     entries = m.all_entries()
-    assert len(entries) == 1
-    assert set(entries[0]["owners"]) == {"guanyu", "liubei"}
+    assert len(entries) == 2  # per-owner duplication, no shared ACL fragment
+    assert {e["owners"][0] for e in entries} == {"guanyu", "liubei"}
+    assert result["merged"] is False
+    assert set(result["owners"]) == {"guanyu", "liubei"}
+
+    for owner in ("guanyu", "liubei"):
+        results = await m.recall_of(owner, "共享场景")
+        assert any(r["text"] == "共享场景" for r in results)
+
+
+async def test_gmemory_restore_fans_multi_owner_entry_into_one_row_per_owner():
+    # Mirrors GenerativeAgentsMemory.restore's fan-out contract: a
+    # multi-owner dump entry (e.g. a consensus-merged export) becomes one
+    # single-owner row per owner, first owner keeping the entry's original
+    # id, extra owners getting a fresh id.
+    dump = [
+        {
+            "id": "shared-e1",
+            "text": "共享场景",
+            "owners": ["guanyu", "liubei"],
+            "affiliated": [],
+            "meta": {"source": "test", "tier": INTERACTION},
+            "embedding": None,
+        }
+    ]
+    m = GMemory(afake_embed)
+    await m.restore(dump)
+
+    entries = m.all_entries()
+    assert len(entries) == 2
+    assert {e["owners"][0] for e in entries} == {"guanyu", "liubei"}
+
+    by_owner = {e["owners"][0]: e for e in entries}
+    assert by_owner["guanyu"]["id"] == "shared-e1"  # first owner keeps entry id
+    assert by_owner["liubei"]["id"] != "shared-e1"  # extra owner gets a fresh id
+
+    for owner in ("guanyu", "liubei"):
+        results = await m.recall_of(owner, "共享场景")
+        assert any(r["text"] == "共享场景" for r in results)
+
+
+async def test_collab_restore_fans_multi_owner_entry_into_one_fragment_per_owner():
+    dump = [
+        {
+            "id": "shared-e1",
+            "text": "共享场景",
+            "owners": ["guanyu", "liubei"],
+            "affiliated": [],
+            "meta": {"source": "test"},
+            "embedding": None,
+        }
+    ]
+    m = CollaborativeMemory(afake_embed)
+    await m.restore(dump)
+
+    entries = m.all_entries()
+    assert len(entries) == 2
+    assert {e["owners"][0] for e in entries} == {"guanyu", "liubei"}
+
+    by_owner = {e["owners"][0]: e for e in entries}
+    assert by_owner["guanyu"]["id"] == "shared-e1"  # first owner keeps entry id
+    assert by_owner["liubei"]["id"] != "shared-e1"  # extra owner gets a fresh id
 
     for owner in ("guanyu", "liubei"):
         results = await m.recall_of(owner, "共享场景")
@@ -613,9 +683,10 @@ def _synthetic_dump():
     [a,b,c], [a,b], [x] -- in `export()`/`restore()` format. `embedding` is
     left None so `restore()` computes it via `afake_embed`, exactly as the
     brief asks. This is the fixture used to lock in the core fairness
-    property: GenerativeAgentsMemory fans out one row per owner while the
-    three shared stores (g_memory, collaborative, consensus) keep one row
-    per entry."""
+    property: GenerativeAgentsMemory, GMemory, and CollaborativeMemory all
+    fan out one row per owner (none of them has the consensus backend's
+    cross-agent equivalence merge, so each keeps its own per-owner copy),
+    while only the consensus store keeps one row per entry."""
     return [
         {
             "id": "e1",
@@ -662,22 +733,28 @@ async def test_restore_footprint_per_method():
     gm_total = gm.stats()["total"]
     collab_total = collab.stats()["total"]
 
-    # generative_agents: one row per (entry, owner) pair -- 3 + 2 + 1 = 6.
+    # generative_agents / g_memory / collaborative: one row per (entry,
+    # owner) pair -- 3 + 2 + 1 = 6. None of the three baselines has the
+    # consensus backend's cross-agent equivalence merge, so each is
+    # faithfully modeled as per-owner duplication (see the class
+    # docstrings) -- every agent that knows an event keeps its own record.
     expected_fanout = sum(len(e["owners"]) for e in dump)
     assert expected_fanout == 6
     assert ga_total == expected_fanout
+    assert gm_total == expected_fanout
+    assert collab_total == expected_fanout
 
-    # g_memory / collaborative / consensus are shared stores: one row per
-    # entry regardless of how many owners it has.
-    assert gm_total == collab_total == consensus_total == len(dump) == 3
+    # consensus is the only shared store: one row per entry regardless of
+    # how many owners it has.
+    assert consensus_total == len(dump) == 3
 
     # the fairness property this whole Chroma-unification effort exists to
-    # lock in: generative_agents' per-owner fanout inflates its footprint
-    # relative to the shared-store baselines whenever any entry has >=2
-    # owners (true here for e1 and e2).
-    assert ga_total > gm_total
-    assert ga_total > collab_total
+    # lock in: every per-owner baseline's fanout inflates its footprint
+    # relative to the consensus backend whenever any entry has >=2 owners
+    # (true here for e1 and e2).
     assert ga_total > consensus_total
+    assert gm_total > consensus_total
+    assert collab_total > consensus_total
 
 
 @pytest.mark.parametrize("kind", ["generative_agents", "g_memory", "collaborative"])

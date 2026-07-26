@@ -78,6 +78,41 @@ async def test_build_society_all_backends_restore_and_recall(tmp_path, memory_ki
     assert ben_hits, f"{memory_kind}: ben recall empty post-restore"
 
 
+async def test_build_society_baselines_init_per_owner_consensus_merged(tmp_path):
+    """Init principle: a multi-owner sediment entry is REPLAYED per owner into
+    each baseline (one row per owner, via that backend's own remember_atomic),
+    while consensus restores it as its single merged owner-set row. So the one
+    [amy, ben] dump entry becomes 2 rows in every baseline and 1 in consensus
+    -- baselines never get consensus's cross-agent merge for free."""
+    await _write_consensus_multi_owner_dump(tmp_path)  # one entry, owners=[amy,ben]
+
+    def _cfg():
+        return {
+            "scenario": "init_principle_test",
+            "language": "zh",
+            "_dir": str(tmp_path),
+            "ltm_file": "ltm.json",
+            "defaults": {"stats_interval": 1000},
+            "agents": [
+                {"id": "amy", "kind": "character", "brain": "rule", "goals": ["chat"]},
+                {"id": "ben", "kind": "character", "brain": "rule", "goals": ["chat"]},
+            ],
+        }
+
+    counts = {}
+    for kind in ("consensus", "generative_agents", "g_memory", "collaborative"):
+        k = await build_society(
+            _cfg(), llm=None, embed_fn=afake_embed,
+            event_log=EventLog(None), memory_kind=kind,
+        )
+        counts[kind] = len(k.shared_memory.all_entries())
+
+    assert counts["consensus"] == 1, counts
+    assert counts["generative_agents"] == 2, counts
+    assert counts["g_memory"] == 2, counts
+    assert counts["collaborative"] == 2, counts
+
+
 def test_default_memory_kind_is_consensus_shared_memory():
     """"consensus" must yield exactly today's SharedMemory instance (no
     behavior change for existing scenarios that don't pass memory_kind)."""
