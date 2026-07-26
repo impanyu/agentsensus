@@ -5,7 +5,12 @@ from society.actions import (Action, ActionResult, Message, SYNC_ACTIONS, ASYNC_
 def test_action_sets_are_disjoint_and_complete():
     assert SYNC_ACTIONS & ASYNC_ACTIONS == set()
     assert "move" in SYNC_ACTIONS and "say" in ASYNC_ACTIONS
-    assert "broadcast" in ASYNC_ACTIONS
+    # Conversation threads (Task 3): broadcast/pop_message/peek_inbox are
+    # removed from the catalog -- say/gesture are the only message-sending
+    # actions, and read_thread replaces pop_message/peek_inbox.
+    assert "gesture" in ASYNC_ACTIONS
+    assert {"broadcast", "pop_message", "peek_inbox"} & (SYNC_ACTIONS | ASYNC_ACTIONS) == set()
+    assert "read_thread" in SYNC_ACTIONS
     # Task R (revert of S2): act_on/read are answered synchronously by the
     # kernel during the acting character's own apply step (environments/
     # info_carriers are passive, function-driven agents with no brain turn
@@ -13,11 +18,15 @@ def test_action_sets_are_disjoint_and_complete():
     assert "read" in SYNC_ACTIONS and "read" not in ASYNC_ACTIONS
     assert "act_on" in SYNC_ACTIONS and "act_on" not in ASYNC_ACTIONS
     assert {"add_affiliated", "remove_affiliated", "set_affiliated", "get_affiliated"} <= SYNC_ACTIONS
-    assert len(SYNC_ACTIONS | ASYNC_ACTIONS) == 26
+    assert len(SYNC_ACTIONS | ASYNC_ACTIONS) == 24
 
 def test_validate_ok_and_missing_param():
+    # say/gesture targets are now OPTIONAL (default = co-located characters).
     assert validate_action(Action("say", {"targets": ["b"], "content": "hi"})) is None
-    err = validate_action(Action("say", {"content": "hi"}))
+    assert validate_action(Action("say", {"content": "hi"})) is None
+    # act_on still requires targets explicitly (exactly one env id, enforced
+    # by the kernel).
+    err = validate_action(Action("act_on", {"content": "hi"}))
     assert err and "targets" in err
 
 def test_validate_rejects_unknown_and_reserved_location():

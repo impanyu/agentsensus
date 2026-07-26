@@ -185,7 +185,7 @@ async def test_checkpoint_roundtrip_state(tmp_path):
             '{"action": "pop_goal", "params": {}}',
         ],
         "ben": [
-            '{"action": "pop_message", "params": {}}',
+            '{"action": "read_thread", "params": {"target": "amy"}}',
             '{"action": "say", "params": {"targets": ["amy"], "content": "yo"}}',
             '{"action": "remember", "params": {"text": "ben remembers meeting amy"}}',
         ],
@@ -225,7 +225,10 @@ async def test_checkpoint_roundtrip_state(tmp_path):
         assert len(r_agent.stm.fifo.items()) == len(agent.stm.fifo.items())
         assert r_agent.stm.goals.items() == agent.stm.goals.items()
         assert r_agent.stm.status.all() == agent.stm.status.all()
-        assert r_agent.stm.inbox.qsize() == agent.stm.inbox.qsize()
+
+    # The STM inbox is gone -- conversation threads (kernel.conversations)
+    # are the sole delivery target now, and they round-trip as a whole.
+    assert restored.conversations.export() == kernel.conversations.export()
 
     orig_ltm = sorted(
         (e["id"], tuple(e["owners"])) for e in kernel.shared_memory.all_entries()
@@ -245,49 +248,64 @@ WAKE_CKPT_SCEN = {
     "scenario": "wake_ckpt_test", "language": "zh",
     "defaults": {"stats_interval": 100, "distance": 3},
     "agents": [
-        {"id": "hall", "kind": "environment", "brain": "rule"},
-        {"id": "amy", "kind": "character", "brain": "rule",
-         "status": {"location": "hall"}},
+        {"id": "room_a", "kind": "environment", "brain": "rule"},
+        {"id": "room_b", "kind": "environment", "brain": "rule"},
+        {"id": "amy", "kind": "character", "brain": "rule", "status": {"location": "room_a"}},
+        {"id": "ben", "kind": "character", "brain": "rule", "status": {"location": "room_b"}},
     ],
-    "map": {"default_distance": 3},
+    "map": {"default_distance": 3, "edges": [["room_a", "room_b", 2]]},
 }
 
 
 async def test_message_wake_survives_checkpoint_roundtrip(tmp_path):
+    """The STM inbox is gone, so `wake` is only observable on still-pending
+    (not-yet-delivered) `Kernel._pending` entries now -- once delivered, the
+    thread record `_deliver_due` writes into `kernel.conversations` doesn't
+    carry `wake` forward, since its only effect (clearing the recipient's
+    `waiting_until`) has already happened at delivery time. This exercises
+    wake fidelity across a checkpoint for two still-in-flight messages to a
+    forever-waiting `ben`: a wake=False one that must not wake him on
+    delivery, and a wake=True one (delivered a tick later) that must --
+    both after a save/restore round-trip in between.
+    """
     kernel = await build_society(
         WAKE_CKPT_SCEN, llm=FakeLLM(), embed_fn=afake_embed, event_log=EventLog(None)
     )
-    amy = kernel.agents["amy"]
-    amy.stm.inbox.put_nowait(
-        Message(id="quiet", sender="ghost", recipients=["amy"], kind="broadcast",
-                content="fyi", tick_sent=0, wake=False)
-    )
-    amy.stm.inbox.put_nowait(
-        Message(id="loud", sender="ghost", recipients=["amy"], kind="say",
-                content="hi", tick_sent=0)
+    ben = kernel.agents["ben"]
+    ben.waiting_until = -1   # forever-wait
+
+    kernel._pending.append(
+        {"msg": Message(id="quiet", sender="amy", recipients=["ben"], kind="say",
+                         content="fyi", tick_sent=0, wake=False),
+         "recipient": "ben", "deliver_at": 2}
     )
     kernel._pending.append(
-        Message(id="pending_quiet", sender="ghost", recipients=["amy"], kind="broadcast",
-                content="later", tick_sent=0, wake=False)
+        {"msg": Message(id="loud", sender="amy", recipients=["ben"], kind="say",
+                         content="hi", tick_sent=0, wake=True),
+         "recipient": "ben", "deliver_at": 3}
     )
 
     ckpt_path = str(tmp_path / "wake_ckpt.json")
     save_checkpoint(kernel, ckpt_path)
     ckpt = load_checkpoint(ckpt_path)
 
-    inbox_wake = {m["id"]: m["wake"] for m in ckpt["agents"]["amy"]["inbox"]}
-    assert inbox_wake == {"quiet": False, "loud": True}
-    pending_wake = {m["id"]: m["wake"] for m in ckpt["pending"]}
-    assert pending_wake == {"pending_quiet": False}
+    pending_wake = {p["msg"]["id"]: p["msg"]["wake"] for p in ckpt["pending"]}
+    assert pending_wake == {"quiet": False, "loud": True}
 
     restored = await restore_society(
         ckpt, llm=FakeLLM(), embed_fn=afake_embed, event_log=EventLog(None)
     )
-    r_amy = restored.agents["amy"]
-    restored_inbox_wake = {m.id: m.wake for m in r_amy.stm.inbox_items()}
-    assert restored_inbox_wake == {"quiet": False, "loud": True}
-    restored_pending_wake = {m.id: m.wake for m in restored._pending}
-    assert restored_pending_wake == {"pending_quiet": False}
+    r_ben = restored.agents["ben"]
+    assert r_ben.waiting_until == -1
+
+    restored.tick = 2
+    assert restored._deliver_due() is True
+    assert r_ben.waiting_until == -1   # wake=False delivery did not clear it
+    assert [m["content"] for m in restored.conversations.read("ben", "amy", k=10)] == ["fyi"]
+
+    restored.tick = 3
+    assert restored._deliver_due() is True
+    assert r_ben.waiting_until is None   # wake=True delivery cleared it
 
 
 # ----------------------------------------------------------------------

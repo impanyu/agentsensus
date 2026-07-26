@@ -188,7 +188,7 @@ async def test_say_increments_counter_for_speaker_and_receiver():
     assert k._unremembered.get("a") == 1
     # receiver only counts once the message is actually delivered
     assert k._unremembered.get("b", 0) == 0
-    k.deliver_pending()
+    k._deliver_due()
     assert k._unremembered.get("b") == 1
 
 
@@ -203,9 +203,11 @@ async def test_remember_resets_counter():
 
 
 async def test_failed_say_does_not_increment_counter():
-    # target not co-located -> say is rejected -> not a real event
+    # target doesn't exist -> say is rejected -> not a real event. (Task 3:
+    # unified say has no co-location gate any more -- a cross-location
+    # target now succeeds via route()'s distance delay, so a genuinely
+    # unknown target is what's needed to exercise the failure path.)
     a = char("a", "hall")
-    b = char("b", "garden")
-    k = build([a, b, env("hall"), env("garden")])
-    await k._apply(a, Action("say", {"targets": ["b"], "content": "x"}), None)
+    k = build([a, env("hall")])
+    await k._apply(a, Action("say", {"targets": ["ghost"], "content": "x"}), None)
     assert k._unremembered.get("a", 0) == 0

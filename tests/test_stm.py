@@ -1,4 +1,3 @@
-import asyncio
 import math
 
 import pytest
@@ -185,9 +184,11 @@ def test_status_public_private():
     assert s2.public_view() == {"mood": "happy"}
 
 def test_stm_wiring_and_initial_goals():
+    # The STM inbox is gone (messages now live in kernel.conversations) --
+    # this just checks goals/status wiring and that a fresh fifo is empty.
     stm = STM(fifo_size=3, status={"location": "hall"}, goals=["deep", "top"])
     assert stm.goals.items() == ["deep", "top"]
-    assert isinstance(stm.inbox, asyncio.Queue)
+    assert len(stm.fifo) == 0
     assert stm.status.get("location") == "hall"
 
 
