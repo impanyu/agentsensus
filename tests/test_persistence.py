@@ -5,7 +5,7 @@ import uuid
 
 import yaml
 
-from society.actions import Message
+from society.actions import Action, Message
 from society.events import EventLog
 from society.ltm import SharedMemory
 from society.persistence import load_checkpoint, restore_society, save_checkpoint
@@ -288,6 +288,161 @@ async def test_message_wake_survives_checkpoint_roundtrip(tmp_path):
     assert restored_inbox_wake == {"quiet": False, "loud": True}
     restored_pending_wake = {m.id: m.wake for m in restored._pending}
     assert restored_pending_wake == {"pending_quiet": False}
+
+
+# ----------------------------------------------------------------------
+# 2c. Conversation threads (kernel.conversations) survive a checkpoint
+#     save/restore round-trip: same threads, same unread counts, same
+#     `.read()` output.
+# ----------------------------------------------------------------------
+
+CONV_CKPT_SCEN = {
+    "scenario": "conv_ckpt_test", "language": "zh",
+    "defaults": {"stats_interval": 100, "distance": 3},
+    "agents": [
+        {"id": "hall", "kind": "environment", "brain": "rule", "profile": "hall"},
+        {"id": "amy", "kind": "character", "brain": "rule", "status": {"location": "hall"}},
+        {"id": "ben", "kind": "character", "brain": "rule", "status": {"location": "hall"}},
+    ],
+    "map": {"default_distance": 3},
+}
+
+
+async def test_conversation_threads_survive_checkpoint_roundtrip(tmp_path):
+    kernel = await build_society(
+        CONV_CKPT_SCEN, llm=FakeLLM(), embed_fn=afake_embed, event_log=EventLog(None)
+    )
+
+    # Record a couple of exchanged messages directly into the store (mirrors
+    # what Kernel._deliver_due does on delivery): amy's own copy is
+    # unread=0, ben's copy of the same message is unread=1, and so on.
+    kernel.conversations.record(
+        "amy", "ben", {"sender": "amy", "kind": "say", "content": "hi ben", "tick": 0},
+        unread_delta=0, kind="character",
+    )
+    kernel.conversations.record(
+        "ben", "amy", {"sender": "amy", "kind": "say", "content": "hi ben", "tick": 0},
+        unread_delta=1, kind="character",
+    )
+    kernel.conversations.record(
+        "ben", "amy", {"sender": "ben", "kind": "say", "content": "hey amy", "tick": 1},
+        unread_delta=0, kind="character",
+    )
+    kernel.conversations.record(
+        "amy", "ben", {"sender": "ben", "kind": "say", "content": "hey amy", "tick": 1},
+        unread_delta=1, kind="character",
+    )
+
+    ckpt_path = str(tmp_path / "conv_ckpt.json")
+    save_checkpoint(kernel, ckpt_path)
+    ckpt = load_checkpoint(ckpt_path)
+
+    restored = await restore_society(
+        ckpt, llm=FakeLLM(), embed_fn=afake_embed, event_log=EventLog(None)
+    )
+
+    # Full underlying store round-trips exactly (same threads, same
+    # messages, same unread counts) -- neither side has been read yet.
+    assert restored.conversations.export() == kernel.conversations.export()
+
+    # `.read()` (which also mark_read()s) produces identical output on
+    # both, and each independently clears its own unread counter.
+    orig_amy_view = kernel.conversations.read("amy", "ben", k=10)
+    restored_amy_view = restored.conversations.read("amy", "ben", k=10)
+    assert orig_amy_view == restored_amy_view
+    assert orig_amy_view == [
+        {"sender": "amy", "kind": "say", "content": "hi ben", "tick": 0},
+        {"sender": "ben", "kind": "say", "content": "hey amy", "tick": 1},
+    ]
+
+    orig_ben_view = kernel.conversations.read("ben", "amy", k=10)
+    restored_ben_view = restored.conversations.read("ben", "amy", k=10)
+    assert orig_ben_view == restored_ben_view
+
+    # Reading marked both copies read; re-reading now returns unread=0 for
+    # both the original and the restored kernel.
+    assert kernel.conversations.export()["amy"]["ben"]["unread"] == 0
+    assert restored.conversations.export()["amy"]["ben"]["unread"] == 0
+
+
+# ----------------------------------------------------------------------
+# 2d. Task 2 changed each `Kernel._pending` entry from a raw Message to a
+#     dict ({"msg", "recipient", "deliver_at"}) so distance-delayed
+#     delivery could carry a per-recipient deliver tick. A checkpoint taken
+#     while such a message is still in flight (recipient in a different,
+#     distance>0 location) must not crash on save or restore, and the
+#     message must still deliver at the correct tick afterwards.
+# ----------------------------------------------------------------------
+
+PENDING_CKPT_SCEN = {
+    "scenario": "pending_ckpt_test", "language": "zh",
+    "defaults": {"stats_interval": 100, "distance": 3},
+    "agents": [
+        {"id": "room_a", "kind": "environment", "brain": "rule"},
+        {"id": "room_b", "kind": "environment", "brain": "rule"},
+        {"id": "amy", "kind": "character", "brain": "rule", "status": {"location": "room_a"}},
+        {"id": "ben", "kind": "character", "brain": "rule", "status": {"location": "room_b"}},
+    ],
+    "map": {"default_distance": 3, "edges": [["room_a", "room_b", 2]]},
+}
+
+
+async def test_pending_delayed_message_survives_checkpoint_roundtrip(tmp_path):
+    kernel = await build_society(
+        PENDING_CKPT_SCEN, llm=FakeLLM(), embed_fn=afake_embed, event_log=EventLog(None)
+    )
+    amy = kernel.agents["amy"]
+
+    # amy (room_a) says something to ben (room_b), 2 ticks away -> queued
+    # into _pending with deliver_at = tick(0) + 2, NOT yet delivered.
+    r = await kernel.execute(amy, Action("say", {"targets": ["ben"], "content": "hello from afar"}))
+    assert r.ok
+
+    assert len(kernel._pending) == 1
+    pending_entry = kernel._pending[0]
+    assert pending_entry["recipient"] == "ben"
+    assert pending_entry["deliver_at"] == 2
+    assert pending_entry["msg"].content == "hello from afar"
+
+    # Nothing has been delivered yet -- ben's thread with amy is still empty.
+    assert kernel.conversations.read("ben", "amy") == []
+
+    ckpt_path = str(tmp_path / "pending_ckpt.json")
+    save_checkpoint(kernel, ckpt_path)  # must not crash (Task 2 dict-shape bug)
+    ckpt = load_checkpoint(ckpt_path)
+
+    ckpt_pending = ckpt["pending"][0]
+    assert ckpt_pending["recipient"] == "ben"
+    assert ckpt_pending["deliver_at"] == 2
+    assert ckpt_pending["msg"]["content"] == "hello from afar"
+
+    restored = await restore_society(
+        ckpt, llm=FakeLLM(), embed_fn=afake_embed, event_log=EventLog(None)
+    )  # must not crash either
+
+    assert len(restored._pending) == 1
+    r_entry = restored._pending[0]
+    assert r_entry["recipient"] == "ben"
+    assert r_entry["deliver_at"] == 2
+    assert isinstance(r_entry["msg"], Message)
+    assert r_entry["msg"].content == "hello from afar"
+    assert r_entry["msg"].sender == "amy"
+
+    # Still not due at tick 1 -- delivery must respect deliver_at, not fire
+    # early just because it survived a restore.
+    restored.tick = 1
+    assert restored._deliver_due() is False
+    assert restored.conversations.read("ben", "amy") == []
+
+    # Due at tick 2 -- delivers into both ben's and amy's thread.
+    restored.tick = 2
+    assert restored._deliver_due() is True
+    assert len(restored._pending) == 0
+    ben_view = restored.conversations.read("ben", "amy")
+    assert len(ben_view) == 1
+    assert ben_view[0]["sender"] == "amy"
+    assert ben_view[0]["content"] == "hello from afar"
+    assert ben_view[0]["tick"] == 2
 
 
 # ----------------------------------------------------------------------

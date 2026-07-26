@@ -22,9 +22,6 @@ CHECKPOINT_VERSION = 1
 
 
 def _agent_state(agent) -> dict:
-    # TODO(Task 7): checkpoint conversations (the STM inbox this used to
-    # snapshot was removed in Task 4; conversation-thread persistence is
-    # not yet implemented).
     return {
         "fifo": [[action, result] for action, result in agent.stm.fifo.items()],
         "goals": agent.stm.goals.items(),
@@ -39,7 +36,14 @@ def _agent_state(agent) -> dict:
 def _build_checkpoint_dict(kernel) -> dict:
     agents_state = {aid: _agent_state(a) for aid, a in kernel.agents.items()}
     presence = {loc: sorted(ids) for loc, ids in kernel.presence.items()}
-    pending = [m.to_dict() for m in kernel._pending]
+    # `_pending` entries are dicts ({"msg": Message, "recipient": id,
+    # "deliver_at": tick}, since Task 2's distance-delayed delivery), not
+    # raw Message objects -- serialize the Message field and pass the rest
+    # through as-is.
+    pending = [
+        {"msg": p["msg"].to_dict(), "recipient": p["recipient"], "deliver_at": p["deliver_at"]}
+        for p in kernel._pending
+    ]
     ltm = kernel.shared_memory.export() if kernel.shared_memory is not None else []
 
     metrics_directed = {}
@@ -58,6 +62,7 @@ def _build_checkpoint_dict(kernel) -> dict:
         "pending": pending,
         "ltm": ltm,
         "metrics_directed": metrics_directed,
+        "conversations": kernel.conversations.export(),
     }
 
 
@@ -149,12 +154,17 @@ async def restore_society(ckpt: dict, *, llm, embed_fn, event_log, out_dir=None)
         loc: set(ids) for loc, ids in ckpt.get("presence", {}).items()
     }
 
-    kernel._pending = [Message(**d) for d in ckpt.get("pending", [])]
+    kernel._pending = [
+        {"msg": Message(**d["msg"]), "recipient": d["recipient"], "deliver_at": d["deliver_at"]}
+        for d in ckpt.get("pending", [])
+    ]
 
     await shared.restore(ckpt.get("ltm", []))
 
     directed = ckpt.get("metrics_directed") or {}
     for edge, count in directed.items():
         metrics._directed_edges[edge] = count
+
+    kernel.conversations.restore(ckpt.get("conversations", {}))
 
     return kernel
