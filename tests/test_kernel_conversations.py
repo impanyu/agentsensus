@@ -82,3 +82,76 @@ async def test_view_has_conversation_roster_not_inbox():
     v = k._build_agent_view(b)
     assert "conversations" in v and "inbox_head" not in v and "inbox_size" not in v
     assert any(r["other"] == "a" and r["unread"] == 1 for r in v["conversations"])
+
+
+# --- Task 5: observe/act_on/read log into the ACTOR's own thread with the
+# target env/carrier, unread_delta=0 (it's the actor's own action, already
+# "read"), without changing the actions' existing return values. ---
+
+async def test_act_on_logs_into_actor_thread_without_changing_return_value():
+    a = char("a", "hall")
+    k = _k([a, env("hall")])
+    r = await k.execute(a, Action("act_on", {"targets": ["hall"], "content": "推门"}))
+    assert r.ok is True
+    assert r.data == {"env": "hall", "recorded": "推门", "note": "no shared memory"}
+    thread = k.conversations.read("a", "hall")
+    assert len(thread) == 1
+    rec = thread[0]
+    assert rec["kind"] == "act_on" and rec["sender"] == "a" and "推门" in rec["content"]
+    assert rec["tick"] == k.tick
+    # own action is already "read" -- must not bump unread
+    assert k.conversations.roster("a", set(), k.agents)[0]["unread"] == 0
+
+
+async def test_act_on_failure_does_not_log():
+    a = char("a", "hall")
+    b = char("b", "garden")
+    k = _k([a, b, env("hall"), env("garden")])
+    r = await k.execute(a, Action("act_on", {"targets": ["garden"], "content": "推门"}))
+    assert r.ok is False
+    assert k.conversations.read("a", "garden") == []
+
+
+async def test_read_logs_into_actor_thread_without_changing_return_value():
+    from society.brains.retrieval_brain import RetrievalBrain
+    a = char("a", "hall")
+    book = Agent("book", "info_carrier", RetrievalBrain("宝玉衔玉而生。"), STM(status={"location": "hall"}))
+    k = _k([a, book, env("hall")])
+    r = await k.execute(a, Action("read", {"target": "book", "query": "宝玉"}))
+    assert r.ok is True
+    assert r.data == []  # no shared_memory configured -- unchanged behavior
+    thread = k.conversations.read("a", "book")
+    assert len(thread) == 1
+    rec = thread[0]
+    assert rec["kind"] == "read" and rec["sender"] == "a" and "宝玉" in rec["content"]
+
+
+async def test_read_failure_does_not_log():
+    from society.brains.retrieval_brain import RetrievalBrain
+    a = char("a", "garden")
+    book = Agent("book", "info_carrier", RetrievalBrain("宝玉衔玉而生。"), STM(status={"location": "hall"}))
+    k = _k([a, book, env("hall"), env("garden")])
+    r = await k.execute(a, Action("read", {"target": "book", "query": "宝玉"}))
+    assert r.ok is False
+    assert k.conversations.read("a", "book") == []
+
+
+async def test_observe_logs_into_actor_thread_without_changing_return_value():
+    a, b = char("a", "hall"), char("b", "hall")
+    k = _k([a, b, env("hall")])
+    r = await k.execute(a, Action("observe", {"target": "hall"}))
+    assert r.ok is True
+    assert r.data["kind"] == "environment"
+    assert [o["id"] for o in r.data["occupants"]] == ["b"]
+    thread = k.conversations.read("a", "hall")
+    assert len(thread) == 1
+    rec = thread[0]
+    assert rec["kind"] == "observe" and rec["sender"] == "a" and "hall" in rec["content"]
+
+
+async def test_observe_failure_does_not_log():
+    a = char("a", "hall")
+    k = _k([a, env("hall")])
+    r = await k.execute(a, Action("observe", {"target": "ghost"}))
+    assert r.ok is False
+    assert k.conversations.read("a", "ghost") == []

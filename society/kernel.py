@@ -526,6 +526,21 @@ class Kernel:
         k = params.get("k", 10)
         return ActionResult(True, data=self.conversations.read(agent.id, target, k))
 
+    def _log_own_interaction(self, agent, target_id, kind_name, content, target_kind=None):
+        """Record `agent`'s own observe/act_on/read into its OWN thread with
+        `target_id` (unread_delta=0 -- it's the actor's own action, already
+        "read"). Called only after the action has SUCCEEDED; failures/
+        invalid targets are never logged. `target_kind` is the target
+        agent's `.kind` (environment/info_carrier/character), used to tag
+        the thread the same way `_deliver_due` does for message threads."""
+        self.conversations.record(
+            agent.id,
+            target_id,
+            {"sender": agent.id, "kind": kind_name, "content": content, "tick": self.tick},
+            unread_delta=0,
+            kind=target_kind,
+        )
+
     async def _execute_act_on(self, agent, action: Action) -> ActionResult:
         """act_on(targets, content): targets must be a list containing
         EXACTLY ONE environment id, and the actor must be co-located with
@@ -556,14 +571,17 @@ class Kernel:
             return ActionResult(False, error=f"not at {target_id}")
 
         if self.shared_memory is None:
-            return ActionResult(
+            result = ActionResult(
                 True, data={"env": target_id, "recorded": content, "note": "no shared memory"}
             )
+        else:
+            await self.shared_memory.remember_atomic(
+                [target_id], content, tick=self.tick, source="act_on"
+            )
+            result = ActionResult(True, data={"env": target_id, "recorded": content})
 
-        await self.shared_memory.remember_atomic(
-            [target_id], content, tick=self.tick, source="act_on"
-        )
-        return ActionResult(True, data={"env": target_id, "recorded": content})
+        self._log_own_interaction(agent, target_id, action.name, content, target.kind)
+        return result
 
     # ------------------------------------------------------------------
     # Affiliated-memory CRUD (sync; no LLM calls; delegates to SharedMemory)
@@ -780,7 +798,7 @@ class Kernel:
                 occupants.append(
                     {"id": occ.id, "kind": occ.kind, "status": occ.stm.status.public_view()}
                 )
-            return ActionResult(
+            result = ActionResult(
                 True,
                 data={
                     "kind": target.kind,
@@ -788,6 +806,10 @@ class Kernel:
                     "occupants": occupants,
                 },
             )
+            self._log_own_interaction(
+                agent, target_id, action.name, f"observed {target_id}", target.kind
+            )
+            return result
 
         if target.kind == "character":
             if getattr(target, "archived", False):
@@ -796,16 +818,24 @@ class Kernel:
                 )
             if target.location() != agent.location():
                 return ActionResult(False, error=f"{target_id} not co-located")
-            return ActionResult(
+            result = ActionResult(
                 True, data={"kind": target.kind, "status": target.stm.status.public_view()}
             )
+            self._log_own_interaction(
+                agent, target_id, action.name, f"observed {target_id}", target.kind
+            )
+            return result
 
         if target.kind == "info_carrier":
             if not self._is_readable(agent, target):
                 return ActionResult(False, error=f"{target_id} not observable here")
-            return ActionResult(
+            result = ActionResult(
                 True, data={"kind": target.kind, "status": target.stm.status.public_view()}
             )
+            self._log_own_interaction(
+                agent, target_id, action.name, f"observed {target_id}", target.kind
+            )
+            return result
 
         return ActionResult(False, error=f"cannot observe kind {target.kind}")
 
@@ -841,10 +871,15 @@ class Kernel:
                 return ActionResult(False, error=f"not at {target_id}")
 
         if self.shared_memory is None:
-            return ActionResult(True, data=[])
+            result = ActionResult(True, data=[])
+        else:
+            data = await self.shared_memory.recall_of(target_id, query, top_k)
+            result = ActionResult(True, data=data)
 
-        data = await self.shared_memory.recall_of(target_id, query, top_k)
-        return ActionResult(True, data=data)
+        self._log_own_interaction(
+            agent, target_id, action.name, f"read: {query}", target.kind
+        )
+        return result
 
     def _execute_move(self, agent, action: Action) -> ActionResult:
         destination = action.params["destination"]
