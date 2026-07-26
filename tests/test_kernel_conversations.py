@@ -72,3 +72,13 @@ async def test_removed_actions_rejected():
     assert validate_action(Action("broadcast", {"targets": [], "content": "x"})) is not None
     assert validate_action(Action("pop_message", {})) is not None
     assert validate_action(Action("peek_inbox", {})) is not None
+
+
+async def test_view_has_conversation_roster_not_inbox():
+    a, b = char("a", "hall"), char("b", "hall")
+    k = _k([a, b, env("hall")])
+    await k.execute(a, Action("say", {"targets": ["b"], "content": "hi"}))
+    k._deliver_due()
+    v = k._build_agent_view(b)
+    assert "conversations" in v and "inbox_head" not in v and "inbox_size" not in v
+    assert any(r["other"] == "a" and r["unread"] == 1 for r in v["conversations"])

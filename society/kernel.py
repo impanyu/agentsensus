@@ -22,9 +22,9 @@ class Kernel:
     acceptable.) A brain exception is caught and recorded as a failed
     action for that agent rather than aborting the tick.
 
-    Messages sent during a tick are only delivered into recipient inboxes
-    after all steps of that tick have completed, so they become visible
-    starting the next tick.
+    Messages sent during a tick are only delivered into recipient
+    conversation threads (`self.conversations`) after all steps of that
+    tick have completed, so they become visible starting the next tick.
     """
 
     def __init__(
@@ -50,9 +50,8 @@ class Kernel:
         self._budget_hit = False
 
         # Per-interlocutor conversation threads (Task 2): kernel-held store
-        # that `_deliver_due` records into on delivery, replacing the STM
-        # inbox as the primary delivery target (the inbox still exists
-        # until Task 4 removes it, but is no longer written to here).
+        # that `_deliver_due` records into on delivery -- the sole delivery
+        # target now that the STM inbox is gone (removed in Task 4).
         self.conversations = ConversationStore()
 
         # Per-agent count of remember-worthy events accumulated since the
@@ -207,11 +206,10 @@ class Kernel:
         but must not by itself interrupt a `wait`. Returns True if anything
         was delivered.
 
-        NOTE (Task 2/3): delivery no longer writes into
-        `recipient.stm.inbox` -- that inbox still exists (removed in
-        Task 4) but is no longer the delivery target; `pop_message` and
-        `peek_inbox` are removed as of Task 3 (superseded by
-        `read_thread`/`conversations.roster`).
+        NOTE (Task 4): the STM inbox is gone -- `self.conversations` is now
+        the only delivery target; `pop_message` and `peek_inbox` were
+        removed as of Task 3 (superseded by `read_thread`/
+        `conversations.roster`).
         """
         due = [p for p in self._pending if p["deliver_at"] <= self.tick]
         self._pending = [p for p in self._pending if p["deliver_at"] > self.tick]
@@ -326,15 +324,12 @@ class Kernel:
             agent.stm.status.set("location", dest)
             self._presence_move(agent.id, origin, dest)
 
-            arrival_msg = Message(
-                id=str(uuid.uuid4()),
-                sender="kernel",
-                recipients=[agent.id],
-                kind="arrival",
-                content=dest,
-                tick_sent=self.tick,
-            )
-            agent.stm.inbox.put_nowait(arrival_msg)
+            # The arriving agent learns of its own arrival synchronously
+            # via the status/event log (its `location` status is already
+            # updated above, and the "arrival" system event below records
+            # it) -- there is no more STM inbox to deliver an "arrival"
+            # Message into (removed in Task 4), so waking it is the only
+            # remaining effect needed here.
             agent.waiting_until = None
 
             if dest in self.agents:
@@ -733,6 +728,9 @@ class Kernel:
         """
         view = agent.build_view(self.tick)
         view["colocated"] = self._colocated_view(agent)
+        view["conversations"] = self.conversations.roster(
+            agent.id, {c["id"] for c in view["colocated"]}, self.agents
+        )
         view["known_locations"] = self._known_locations_view()
         language = self.config.get("language", "zh")
         if agent.stm.goals.empty():

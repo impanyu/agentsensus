@@ -22,12 +22,14 @@ CHECKPOINT_VERSION = 1
 
 
 def _agent_state(agent) -> dict:
+    # TODO(Task 7): checkpoint conversations (the STM inbox this used to
+    # snapshot was removed in Task 4; conversation-thread persistence is
+    # not yet implemented).
     return {
         "fifo": [[action, result] for action, result in agent.stm.fifo.items()],
         "goals": agent.stm.goals.items(),
         "status": agent.stm.status.all(),
         "private_keys": sorted(agent.stm.status._private_keys),
-        "inbox": [m.to_dict() for m in agent.stm.inbox_items()],
         "waiting_until": agent.waiting_until,
         "transit": agent.transit,
         "archived": agent.archived,
@@ -90,8 +92,8 @@ async def restore_society(ckpt: dict, *, llm, embed_fn, event_log, out_dir=None)
     Agents/brains/map are (re)built via `build_agents_and_map` -- the same
     helper `build_society` uses for a fresh run -- but seed memories and
     kickoff messages are deliberately NOT replayed (the checkpoint's LTM
-    export and per-agent inbox/pending state already reflect their
-    effects; replaying them would duplicate work).
+    export and per-agent pending state already reflect their effects;
+    replaying them would duplicate work).
     """
     cfg = ckpt["scenario"]
     agents, worldmap, defaults, _seed_specs = build_agents_and_map(cfg, llm=llm, embed_fn=embed_fn)
@@ -139,9 +141,6 @@ async def restore_society(ckpt: dict, *, llm, embed_fn, event_log, out_dir=None)
         # in case it was ever toggled at runtime, so re-apply it explicitly
         # (a no-op in the common case).
         agent.archived = state.get("archived", agent.archived)
-
-        for msg_dict in state.get("inbox", []):
-            agent.stm.inbox.put_nowait(Message(**msg_dict))
 
         agent.waiting_until = state.get("waiting_until")
         agent.transit = state.get("transit")
