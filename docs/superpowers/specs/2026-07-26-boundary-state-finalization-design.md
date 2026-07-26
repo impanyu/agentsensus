@@ -65,16 +65,21 @@ the sim.yaml build step (after `select_cast`, before `place_carriers`).
 - The scenario's environment ids (valid locations) + optional display names.
 - A short boundary label (e.g. "end of ch40") — descriptive only.
 
-### Step 1 — one-time boundary world-state summary
-From the latest sediment events (top-K memories by `story_order`, across all owners),
-one LLM call produces a short "state of the world at the sediment boundary" paragraph
-(e.g. 三国: "曹操已定北方、亲率大军南征;刘备携诸葛亮在新野;孙权据江东;衣带诏事败…").
-Reused as context by every fallback call. Derived from the scenario's own sediment, so it
-works for canons the model doesn't know well (俄乌, obscure works).
+### Step 1 — boundary context = raw source tail (no summarization call)
+Take the TAIL of the sediment SOURCE TEXT — the last few chapters/segments of the sediment
+span (e.g. 三国 ~ch36-40; 俄乌 ~the events just before the 2024/04 boundary) — together with
+its chapter/time markers, sliced ONCE from the source. This raw boundary text is reused
+verbatim as the context for every fallback call. No separate summarization LLM call: it is
+the actual canonical text at the boundary (most reliable), and the chapter/time markers
+anchor the exact moment. Bound it (e.g. last 1-2 chapters, or a max-char cap) so the
+context stays affordable; if the tail exceeds the cap, keep the closest-to-boundary
+portion. Works for canons the model doesn't know well (俄乌, obscure works) because the
+grounding is the scenario's own source text, not the model's memory.
 
 ### Step 2 — per-character finalization
-`async def finalize_boundary_state(memories, cast, env_ids, *, llm, boundary_summary,
+`async def finalize_boundary_state(memories, cast, env_ids, *, llm, boundary_context,
 env_names=None, max_mem_per_char=200) -> dict[str, dict]`
+(`boundary_context` = the raw source-tail text from Step 1.)
 returning `{char_id: {"alive": bool, "location": <env_id>|None, "source": "memory"|"canon@boundary"}}`.
 
 For each `char_id` in `cast`:
@@ -86,8 +91,8 @@ For each `char_id` in `cast`:
    "based on what happens to this character in order, are they alive at the end and where
    are they; `determinable=false` if the memories don't say."
 3. If `determinable` is false (or `location` empty / off-list for a living character),
-   **Fallback LLM call**: provide `boundary_summary` as context + the env list, ask the
-   model to use its knowledge of the canonical work AT THAT STORY POINT to return
+   **Fallback LLM call**: provide `boundary_context` (the raw source-tail text with
+   chapter/time markers) + the env list, ask the model to determine, AT THAT STORY POINT,
    `{"alive": bool, "location": <env_id>}`. Mark `source="canon@boundary"`.
 4. Validate `location ∈ env_ids`; if off-list, map to the closest by name/id or leave
    `None` with a warning (a living character with no resolvable location keeps its
@@ -111,9 +116,9 @@ sediment (atomize + assign owners; memories carry story_order)
    select_cast (pick cast by memory threshold)
         │
    finalize_boundary_state  ← THIS STEP
-     ├─ boundary world-state summary (1 LLM call, from latest sediment)
+     ├─ boundary context = raw source-tail text (sliced once, no LLM call)
      └─ per char: timeline → grounded extract {alive,location}
-                   └─ if inconclusive → canon@boundary fallback (+summary)
+                   └─ if inconclusive → canon@boundary fallback (+ source-tail context)
         │  {char: {alive, location, source}}
         ▼
    apply: dead→archived, alive→status.location
@@ -128,7 +133,7 @@ sediment (atomize + assign owners; memories carry story_order)
   ending "X 在 <loc> 议事" → `alive=true, location=<loc>`.
 - **Fallback**: a character with an inconclusive timeline (no death, no location) →
   `determinable=false` → fallback call fires and returns a location from the env list;
-  `source="canon@boundary"`; the boundary summary is present in the fallback prompt.
+  `source="canon@boundary"`; the boundary source-tail context is present in the fallback prompt.
 - **Location domain**: an off-list model answer is mapped to an env id or left None (never
   a non-env location); a living character never ends with an invalid location.
 - **Apply**: `alive=false` → agent gets `archived: true` and is excluded by
