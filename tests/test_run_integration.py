@@ -66,9 +66,9 @@ async def test_smoke_run_produces_all_outputs(tmp_path):
                    '{"action": "say", "params": {"targets": ["ben", "cid"], "content": "大家好"}}',
                    '{"action": "remember", "params": {"text": "我在大厅打了招呼"}}',
                    '{"action": "pop_goal", "params": {}}'],
-           "ben": ['{"action": "pop_message", "params": {}}',
+           "ben": ['{"action": "read_thread", "params": {"target": "amy", "k": 10}}',
                    '{"action": "say", "params": {"targets": ["amy"], "content": "你好"}}'],
-           "cid": ['{"action": "pop_message", "params": {}}',
+           "cid": ['{"action": "read_thread", "params": {"target": "amy", "k": 10}}',
                    '{"action": "gesture", "params": {"targets": ["amy"], "content": "挥手"}}']}
 
     def fn(prompt, system=None):
