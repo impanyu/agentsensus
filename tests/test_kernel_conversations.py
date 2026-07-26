@@ -155,3 +155,87 @@ async def test_observe_failure_does_not_log():
     r = await k.execute(a, Action("observe", {"target": "ghost"}))
     assert r.ok is False
     assert k.conversations.read("a", "ghost") == []
+
+
+# --- C1 regression: run()'s quiescence-break/fast-forward must account for
+# self._pending (in-flight remote messages), not just awake/delivered/
+# transit/waiting_timers. Before the fix, a lone agent's remote `say` to an
+# asleep recipient at a distance was either declared quiescent (letter
+# silently dropped, wake never applied) or the tick was fast-forwarded PAST
+# deliver_at (late delivery -- a distance-delay violation). This drives via
+# `kernel.run()` itself (not manual `_deliver_due()` calls, as every other
+# test in this file does), because that's the loop the bug actually lives
+# in -- a manual-stepping test would never exercise it. ---
+
+async def test_run_loop_delivers_remote_letter_and_wakes_recipient():
+    calls = {"n": 0}
+
+    def a_brain(view):
+        calls["n"] += 1
+        if calls["n"] == 1:
+            return Action("say", {"targets": ["b"], "content": "letter", "wake": True})
+        return Action("wait")
+
+    a = Agent("a", "character", RuleBrain(a_brain), STM(status={"location": "hall"}))
+    b = char("b", "garden")
+    # Asleep "forever" (only a wake=True message clears this) -- the
+    # recipient scenario from the bug report: awake=[] and delivered=False
+    # for the ticks the letter is in flight, which is exactly what used to
+    # trip the (pre-fix) quiescence-break/fast-forward.
+    b.waiting_until = -1
+
+    k = _k([a, b, env("hall"), env("garden")], edges=[("hall", "garden", 3)])
+
+    result = await k.run(max_ticks=4)
+
+    thread = k.conversations.read("b", "a")
+    assert len(thread) == 1, "letter dropped -- quiescence-break fired before delivery"
+    assert thread[0]["content"] == "letter"
+    # sent at tick 0, distance 3 -> must land exactly at tick 3: neither
+    # dropped (never arrives) nor late (fast-forwarded past deliver_at).
+    assert thread[0]["tick"] == 3, "delivered off-schedule (not exactly at deliver_at)"
+    assert b.waiting_until is None, "recipient never woken -- wake was lost with the letter"
+    assert result["stop_reason"] == "max_ticks"
+
+
+# --- M1: system messages (kernel arrival/departure/departing notices) must
+# not create a "kernel"-owned conversation thread, nor a thread-with-
+# "kernel" in any agent's own thread map -- but the arrival wake (and the
+# event-log record) must still happen. ---
+
+async def test_move_arrival_does_not_create_kernel_threads_but_still_wakes():
+    a = char("a", "hall")
+    a.waiting_until = -1  # asleep beforehand, to prove arrival wakes it
+    k = _k([a, env("hall"), env("garden")], edges=[("hall", "garden", 1)])
+
+    r = await k.execute(a, Action("move", {"destination": "garden"}))
+    assert r.ok is True
+
+    # Advance one tick and run the same process-arrivals/deliver-due
+    # sequence run() itself uses, so the transit completes and the
+    # kernel-internal system messages (departing/arrived/departed) flow
+    # through _deliver_due().
+    k.tick += 1
+    k._process_arrivals()
+    k._deliver_due()
+
+    assert a.location() == "garden"
+    assert a.waiting_until is None  # arrival wake still fired
+
+    assert "kernel" not in k.conversations._threads, "a 'kernel'-owned thread was created"
+    for owner, threads in k.conversations._threads.items():
+        assert "kernel" not in threads, f"{owner} got a thread-with-'kernel'"
+
+
+# --- M2: a bare `say` into an empty room delivers to nobody and must not
+# bump the speaker's remember-hint backlog -- nothing was actually said to
+# anyone. (`_apply` is the layer that maintains `_unremembered`; `execute()`
+# alone -- used by every other test above -- never touches it, so this test
+# calls `_apply` directly, same as the existing `_unremembered` tests in
+# tests/test_liveness_s4.py.) ---
+
+async def test_bare_say_into_empty_room_does_not_bump_unremembered():
+    a = char("a", "hall")
+    k = _k([a, env("hall")])
+    await k._apply(a, Action("say", {"content": "..."}), None)
+    assert k._unremembered.get("a", 0) == 0

@@ -219,17 +219,31 @@ class Kernel:
             recipient = self.agents.get(rid)
             if recipient is None:
                 continue
-            rec = {"sender": msg.sender, "kind": msg.kind, "content": msg.content, "tick": self.tick}
-            sender_agent = self.agents.get(msg.sender)
-            sender_kind = getattr(sender_agent, "kind", None)
-            recipient_kind = getattr(recipient, "kind", None)
-            self.conversations.record(
-                rid, msg.sender, rec, unread_delta=1, kind=sender_kind
-            )
-            if msg.sender != rid:
+            # Kernel-internal system messages (arrival/departure/departing
+            # notices from _process_arrivals/_execute_move, always sent via
+            # `send()` with sender "kernel") are not a conversation --
+            # recording them into ConversationStore would create an
+            # unbounded, forever-checkpointed "kernel"-owned thread with no
+            # interlocutor to read it back. They still wake the recipient
+            # and get an event-log entry (below); only the thread-logging
+            # is skipped. Note: this is narrower than "any kind='system'
+            # message" -- an external caller's own kernel.send() with a
+            # different sender (e.g. sender="system") is a real
+            # conversational partner and must still be threaded (see
+            # tests/test_kernel_core.py::test_external_send_wakes_sleeper_no_crash).
+            is_system_msg = msg.sender == "kernel"
+            if not is_system_msg:
+                rec = {"sender": msg.sender, "kind": msg.kind, "content": msg.content, "tick": self.tick}
+                sender_agent = self.agents.get(msg.sender)
+                sender_kind = getattr(sender_agent, "kind", None)
+                recipient_kind = getattr(recipient, "kind", None)
                 self.conversations.record(
-                    msg.sender, rid, rec, unread_delta=0, kind=recipient_kind
+                    rid, msg.sender, rec, unread_delta=1, kind=sender_kind
                 )
+                if msg.sender != rid:
+                    self.conversations.record(
+                        msg.sender, rid, rec, unread_delta=0, kind=recipient_kind
+                    )
             if msg.wake:
                 recipient.waiting_until = None
             delivered_any = True
@@ -1011,9 +1025,19 @@ class Kernel:
             if action.name == "remember":
                 self._unremembered[agent.id] = 0
             elif action.name in ("say", "gesture", "act_on"):
-                self._unremembered[agent.id] = (
-                    self._unremembered.get(agent.id, 0) + 1
+                # A say/gesture that delivered to nobody (e.g. a bare `say`
+                # into an empty room -- see _execute_say) is a logged no-op,
+                # not a plot beat: don't bump the backlog for it.
+                data = result.data
+                delivered_to_nobody = (
+                    action.name in ("say", "gesture")
+                    and isinstance(data, dict)
+                    and data.get("delivered") == 0
                 )
+                if not delivered_to_nobody:
+                    self._unremembered[agent.id] = (
+                        self._unremembered.get(agent.id, 0) + 1
+                    )
 
     # ------------------------------------------------------------------
     # Budget circuit-breaker
@@ -1113,7 +1137,13 @@ class Kernel:
                 if a.waiting_until is not None and a.waiting_until != -1
             ]
 
-            if not awake and not delivered and not transit_pending and not waiting_timers:
+            if (
+                not awake
+                and not delivered
+                and not transit_pending
+                and not waiting_timers
+                and not self._pending
+            ):
                 stop_reason = "quiescent"
                 break
 
@@ -1129,6 +1159,7 @@ class Kernel:
                     if a.transit is not None
                 ]
                 candidates.extend(waiting_timers)
+                candidates.extend(p["deliver_at"] for p in self._pending)
                 if candidates:
                     self.tick = min(candidates)
                 else:
