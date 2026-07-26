@@ -24,6 +24,14 @@ from society.ltm import SharedMemory
 
 _DEFAULT_IMPORTANCE = 5
 
+# Generative Agents (Park et al. 2023) reflection trigger: the paper fires a
+# reflection pass once the SUM of importance scores of memories deposited
+# since the last reflection crosses this threshold (paper: ~150 on the 1-10
+# importance scale). Overridable per-instance via the `reflection_threshold`
+# constructor kwarg (e.g. tests use a small value to exercise the trigger
+# without depositing 150+ points of importance).
+REFLECTION_THRESHOLD = 150
+
 
 def _now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
@@ -88,11 +96,29 @@ class GenerativeAgentsMemory:
     RELEVANCE_W = 1.0
     DECAY = 0.1
 
-    def __init__(self, embed_fn, llm=None, *, top_k: int = 5, collection_name=None, **kwargs):
+    def __init__(
+        self,
+        embed_fn,
+        llm=None,
+        *,
+        top_k: int = 5,
+        collection_name=None,
+        reflection_threshold: int | None = None,
+        **kwargs,
+    ):
         self._embed_fn = embed_fn
         self._llm = llm
         self._store = ChromaRows(embed_fn, collection_name=collection_name)
         self._clock = 0  # monotonic access-tick counter
+        # Reflection trigger state (Task 9). `_importance_since_reflection`
+        # accumulates one deposit's worth of importance per logical
+        # `remember`/`remember_atomic` call (NOT once per per-owner row --
+        # see `_deposit_importance`). `_reflect` itself is a placeholder
+        # here; Task 10 fills in the actual reflection synthesis.
+        self._importance_since_reflection = 0.0
+        self._reflection_threshold = (
+            REFLECTION_THRESHOLD if reflection_threshold is None else reflection_threshold
+        )
 
     async def _score_importance(self, text: str) -> int:
         if self._llm is None:
@@ -111,6 +137,45 @@ class GenerativeAgentsMemory:
             return max(1, min(10, val))
         except (ValueError, TypeError):
             return _DEFAULT_IMPORTANCE
+
+    async def _deposit_importance(self, importance: float) -> None:
+        """Feed one logical deposit's importance into the reflection
+        accumulator and check the trigger.
+
+        Called exactly ONCE per public `remember`/`remember_atomic` call --
+        even when that call fans out into several per-owner rows -- so a
+        3-owner memory contributes its importance once, not 3x. Internal
+        reflection-storage paths (added in Task 10's `_store_reflection`)
+        must NOT call this, to avoid a reflection's own deposit re-feeding
+        (and recursively re-triggering) the accumulator.
+        """
+        self._importance_since_reflection += importance
+        await self._maybe_reflect()
+
+    async def _maybe_reflect(self) -> None:
+        """If the accumulator has crossed the threshold, reset it and run a
+        reflection pass. Resetting BEFORE calling `_reflect` (rather than
+        after) means `_reflect`'s own memory deposits -- if it made any
+        through the public path -- would start a fresh accumulation instead
+        of being folded into the crossing that triggered them; combined with
+        `_reflect` not being called from `_deposit_importance`, this keeps
+        one crossing -> one `_reflect` call, with no re-trigger loop.
+        """
+        if self._importance_since_reflection >= self._reflection_threshold:
+            self._importance_since_reflection = 0.0
+            await self._reflect()
+
+    async def _reflect(self) -> None:
+        """Placeholder reflection hook (Task 9 scope: trigger only).
+
+        Task 10 replaces this body with: ask the LLM for salient questions
+        from recent memories, `recall` evidence for each, LLM-synthesize a
+        reflection statement, and store it as a new stream entry (tagged
+        `kind=reflection`) with `affiliated` = the evidence memory ids --
+        via an internal storage path that bypasses `_deposit_importance` (see
+        that method's docstring).
+        """
+        return None
 
     @staticmethod
     def _split_meta(metadata: dict) -> tuple[str, list[str], dict]:
@@ -152,6 +217,9 @@ class GenerativeAgentsMemory:
                 metadata["story_time"] = story_time
             await self._store.add(row_id, text, embedding, metadata)
             results.append({"id": row_id, "text": text, "merged": False, "owners": [owner]})
+        # One logical deposit -> one accumulator update, regardless of how
+        # many per-owner rows were written above.
+        await self._deposit_importance(importance)
         return results
 
     async def remember_atomic(
@@ -197,6 +265,10 @@ class GenerativeAgentsMemory:
             if story_time is not None:
                 metadata["story_time"] = story_time
             await self._store.add(row_id, text, embedding, metadata)
+        # One logical deposit -> one accumulator update, regardless of how
+        # many per-owner rows were written above (avoids tripling the
+        # accumulator for a 3-owner memory).
+        await self._deposit_importance(importance)
         return {"id": first_id, "text": text, "merged": False, "owners": list(owners)}
 
     async def recall(self, agent_id: str, query: str, top_k: int = 5) -> list[dict]:
