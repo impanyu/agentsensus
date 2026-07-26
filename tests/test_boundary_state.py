@@ -82,3 +82,21 @@ def test_apply_sets_location_and_archives_dead():
     assert byid["hejin"].get("archived") is True                 # dead archived
     assert byid["liubei"]["status"]["location"] == "xinye"       # unresolved -> unchanged
     assert counts["archived"] == 1 and counts["relocated"] == 1
+
+
+async def test_prompts_are_conservative_and_novel_anchored():
+    # grounded prompt must instruct conservative death (explicit-only);
+    # fallback prompt must anchor to the novel, not real-world history.
+    prompts = []
+    def fn(prompt, system=None):
+        prompts.append(prompt)
+        if "determinable" in prompt:                       # grounded call
+            return '{"alive": true, "location": "", "determinable": false}'
+        return '{"alive": true, "location": "loc"}'          # fallback call
+    mems = [{"text": "x", "owners": ["a"], "meta": {"story_order": 1}}]
+    await finalize_boundary_state(
+        mems, ["a"], {"loc"}, llm=FakeLLM(fn=fn), boundary_context="第四十回 …")
+    grounded = next(p for p in prompts if "determinable" in p)
+    fallback = next(p for p in prompts if "determinable" not in p)
+    assert "EXPLICITLY" in grounded and "alive=false ONLY if" in grounded
+    assert "WORK ITSELF" in fallback and "history" in fallback
