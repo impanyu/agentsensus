@@ -65,20 +65,29 @@ class ChromaRows:
             return None
         return {"id": row_id, "text": got["documents"][0], "metadata": got["metadatas"][0]}
 
-    async def query(self, query: str, n: int, where: dict | None = None) -> list[dict]:
+    async def query(
+        self,
+        query: str,
+        n: int,
+        where: dict | None = None,
+        return_query_embedding: bool = False,
+    ) -> list[dict] | tuple[list[dict], list[float] | None]:
         if self._collection.count() == 0:
-            return []
+            return ([], None) if return_query_embedding else []
         emb = (await self._embed_fn([query]))[0]
         res = self._collection.query(
             query_embeddings=[emb],
             n_results=min(n, self._collection.count()),
             where=where,
-            include=["documents", "metadatas"],
+            include=["documents", "metadatas", "embeddings"],
         )
-        return [
-            {"id": i, "text": d, "metadata": m}
-            for i, d, m in zip(res["ids"][0], res["documents"][0], res["metadatas"][0])
+        hits = [
+            {"id": i, "text": d, "metadata": m, "embedding": list(e)}
+            for i, d, m, e in zip(
+                res["ids"][0], res["documents"][0], res["metadatas"][0], res["embeddings"][0]
+            )
         ]
+        return (hits, emb) if return_query_embedding else hits
 
     def update_metadata(self, row_id: str, metadata: dict) -> None:
         self._collection.update(ids=[row_id], metadatas=[dict(metadata)])

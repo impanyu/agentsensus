@@ -75,12 +75,11 @@ class GenerativeAgentsMemory:
     per-row `affiliated` id list is JSON-encoded (`dumps_meta`/`loads_meta`)
     before being written and decoded after being read back. `recall_of`
     narrows candidates server-side via `ChromaRows.query(..., where={"owner":
-    owner_id})` (fetching `max(4*top_k, 50)` candidates), then applies the
-    unchanged three-term score in Python -- Chroma's own query doesn't
-    surface per-candidate embeddings, so candidate texts are re-embedded in
-    one batched `embed_fn` call to get the exact cosine relevance term
-    (deterministic for a given text/model, identical to what was embedded at
-    insert time).
+    owner_id}, return_query_embedding=True)` (fetching `max(4*top_k, 50)`
+    candidates), then applies the unchanged three-term score in Python using
+    each candidate's stored embedding (returned inline by `query`) and the
+    query embedding `query` already computed internally -- no extra
+    `embed_fn` calls beyond the one `query` makes for the query text itself.
     """
 
     RECENCY_W = 1.0
@@ -207,22 +206,17 @@ class GenerativeAgentsMemory:
 
     async def recall_of(self, owner_id: str, query: str, top_k: int = 5) -> list[dict]:
         candidate_k = max(4 * top_k, 50)
-        candidates = await self._store.query(query, candidate_k, where={"owner": owner_id})
+        candidates, q_emb = await self._store.query(
+            query, candidate_k, where={"owner": owner_id}, return_query_embedding=True
+        )
         if not candidates:
             return []
-        q_emb = (await self._embed_fn([query]))[0]
-
-        # `ChromaRows.query` doesn't surface per-candidate embeddings, so
-        # re-embed the candidate texts (one batched call) to recover the
-        # exact vectors for the relevance term -- identical to what was
-        # embedded at insert time for a given (text, embed_fn).
-        cand_texts = [c["text"] for c in candidates]
-        cand_embeddings = await self._embed_fn(cand_texts)
 
         self._clock += 1  # one "current time" tick shared by all candidates
         now = self._clock
         raw = []
-        for cand, emb in zip(candidates, cand_embeddings):
+        for cand in candidates:
+            emb = cand["embedding"]
             meta = cand["metadata"]
             ticks_since = now - int(meta.get("last_access", now))
             recency = math.exp(-self.DECAY * ticks_since)
