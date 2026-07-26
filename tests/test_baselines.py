@@ -224,6 +224,20 @@ async def test_gmemory_no_dedup_on_duplicate_text():
     assert len(entries) == 2  # appended, no merge
 
 
+async def test_gmemory_chroma_shared_single_row():
+    m = GMemory(afake_embed, llm=None)
+    await m.remember_atomic(["a", "b"], "shared scene")
+    ents = m.all_entries()
+    assert len(ents) == 1 and sorted(ents[0]["owners"]) == ["a", "b"]
+
+
+async def test_gmemory_recall_of_owner_filter():
+    m = GMemory(afake_embed, llm=None)
+    await m.remember("a", "刘备在新野")
+    assert (await m.recall_of("a", "新野"))
+    assert (await m.recall_of("z", "新野")) == []
+
+
 # ========================================================================
 # CollaborativeMemory
 # ========================================================================

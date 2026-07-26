@@ -402,12 +402,58 @@ class GMemory:
     runtime use (this baseline shares the STORE across agents, not the
     per-entry OWNER SET) -- that is the faithful, expected reading, not a
     bug.
+
+    Storage note: rows live in a `ChromaRows` collection SHARED across every
+    agent (one Chroma record per `remember`/`remember_atomic` call, never
+    per-owner-duplicated), matching the paper's single-graph design above.
+    Chroma metadata values must be scalars, so each row's owner set is
+    stored TWICE: once as a JSON-encoded `owners` list (`dumps_meta`/
+    `loads_meta`) for `all_entries`/`export`, and once as a per-owner
+    boolean flag `owner_<id>=True` for every owner -- Chroma's `where` can't
+    test membership inside a JSON string, so the boolean flags are what let
+    `recall(..., owner_scope=True)`/`recall_of` filter server-side with
+    `where={f"owner_{owner_id}": True}` (mirroring
+    `society.ltm.SharedMemory`'s identical dual-storage trick). `affiliated`
+    is JSON-encoded the same way as `owners`. Because ranking here is plain
+    cosine similarity (no recency/importance rerank like
+    `GenerativeAgentsMemory`), `recall`/`recall_of` map directly onto one
+    `ChromaRows.query(..., where=...)` call each -- no candidate
+    over-fetch-then-rerank is needed.
     """
 
     def __init__(self, embed_fn, llm=None, *, top_k: int = 5, collection_name=None, **kwargs):
         self._embed_fn = embed_fn
         self._llm = llm
-        self._rows = {}
+        self._store = ChromaRows(embed_fn, collection_name=collection_name)
+
+    @staticmethod
+    def _split_meta(metadata: dict) -> tuple[list[str], list[str], dict]:
+        """Split a raw Chroma metadata dict into (owners, affiliated ids,
+        the remaining `meta` sub-dict used by `all_entries`/`export`),
+        stripping both JSON list fields and the per-owner `owner_<id>`
+        boolean flags (which are a derived index, not real entry data)."""
+        owners = sorted(loads_meta(metadata.get("owners")))
+        affiliated = sorted(loads_meta(metadata.get("affiliated")))
+        meta = {
+            k: v
+            for k, v in metadata.items()
+            if k not in ("owners", "affiliated") and not k.startswith("owner_")
+        }
+        return owners, affiliated, meta
+
+    @staticmethod
+    def _build_meta(owners: list[str], affiliated: list[str], meta: dict) -> dict:
+        """Inverse of `_split_meta`: rebuild a full Chroma metadata dict
+        (JSON-encoded `owners`/`affiliated` plus fresh per-owner boolean
+        flags) from the given owner set, affiliated set, and extra fields.
+        Always writes the COMPLETE metadata dict since `ChromaRows.
+        update_metadata` replaces rather than merges."""
+        metadata = dict(meta)
+        metadata["owners"] = dumps_meta(sorted(set(owners)))
+        metadata["affiliated"] = dumps_meta(sorted(set(affiliated)))
+        for o in owners:
+            metadata[f"owner_{o}"] = True
+        return metadata
 
     async def remember(
         self,
@@ -430,14 +476,8 @@ class GMemory:
             meta["story_order"] = story_order
         if story_time is not None:
             meta["story_time"] = story_time
-        self._rows[row_id] = {
-            "id": row_id,
-            "text": text,
-            "owners": [agent_id],
-            "embedding": list(embedding),
-            "meta": meta,
-            "affiliated": [],
-        }
+        metadata = self._build_meta([agent_id], [], meta)
+        await self._store.add(row_id, text, embedding, metadata)
         return [{"id": row_id, "text": text, "merged": False, "owners": [agent_id]}]
 
     async def remember_atomic(
@@ -473,29 +513,16 @@ class GMemory:
             meta["story_time"] = story_time
         new_owners = sorted(set(owners))
         seed_affiliated = sorted(a for a in set(affiliated or []) if a != row_id)
-        self._rows[row_id] = {
-            "id": row_id,
-            "text": text,
-            "owners": new_owners,
-            "embedding": list(embedding),
-            "meta": meta,
-            "affiliated": seed_affiliated,
-        }
+        metadata = self._build_meta(new_owners, seed_affiliated, meta)
+        await self._store.add(row_id, text, embedding, metadata)
         return {"id": row_id, "text": text, "merged": False, "owners": new_owners}
 
     async def recall(
         self, agent_id: str, query: str, top_k: int = 5, owner_scope: bool = False
     ) -> list[dict]:
-        rows = list(self._rows.values())
-        if owner_scope:
-            rows = [r for r in rows if agent_id in r["owners"]]
-        if not rows:
-            return []
-        q_emb = (await self._embed_fn([query]))[0]
-        scored = [(_cosine(q_emb, r["embedding"]), r) for r in rows]
-        scored.sort(key=lambda pair: pair[0], reverse=True)
-        top = scored[:top_k]
-        return [{"id": r["id"], "text": r["text"]} for _, r in top]
+        where = {f"owner_{agent_id}": True} if owner_scope else None
+        hits = await self._store.query(query, top_k, where=where)
+        return [{"id": h["id"], "text": h["text"]} for h in hits]
 
     async def recall_of(self, owner_id: str, query: str, top_k: int = 5) -> list[dict]:
         """Entries where owner_id is in row["owners"], ranked by cosine --
@@ -503,12 +530,17 @@ class GMemory:
         return await self.recall(owner_id, query, top_k, owner_scope=True)
 
     def forget(self, agent_id: str, memory_id: str) -> bool:
-        row = self._rows.get(memory_id)
-        if row is None or agent_id not in row["owners"]:
+        row = self._store.get(memory_id)
+        if row is None:
             return False
-        row["owners"] = [o for o in row["owners"] if o != agent_id]
-        if not row["owners"]:
-            del self._rows[memory_id]
+        owners, affiliated, meta = self._split_meta(row["metadata"])
+        if agent_id not in owners:
+            return False
+        owners = [o for o in owners if o != agent_id]
+        if not owners:
+            self._store.delete(memory_id)
+        else:
+            self._store.update_metadata(memory_id, self._build_meta(owners, affiliated, meta))
         return True
 
     async def revise(self, agent_id: str, memory_id: str, new_text: str, tick: int = 0) -> list[dict]:
@@ -516,51 +548,60 @@ class GMemory:
         return await self.remember(agent_id, new_text, tick=tick)
 
     def add_affiliations(self, memory_id: str, other_ids: list[str]) -> bool:
-        row = self._rows.get(memory_id)
+        row = self._store.get(memory_id)
         if row is None:
             return False
-        row["affiliated"] = sorted(
-            (set(row.get("affiliated", [])) | set(other_ids)) - {memory_id}
-        )
+        owners, affiliated, meta = self._split_meta(row["metadata"])
+        updated = sorted((set(affiliated) | set(other_ids)) - {memory_id})
+        self._store.update_metadata(memory_id, self._build_meta(owners, updated, meta))
         return True
 
     def remove_affiliations(self, memory_id: str, other_ids: list[str]) -> bool:
-        row = self._rows.get(memory_id)
+        row = self._store.get(memory_id)
         if row is None:
             return False
-        row["affiliated"] = sorted(set(row.get("affiliated", [])) - set(other_ids))
+        owners, affiliated, meta = self._split_meta(row["metadata"])
+        updated = sorted(set(affiliated) - set(other_ids))
+        self._store.update_metadata(memory_id, self._build_meta(owners, updated, meta))
         return True
 
     def get_affiliations(self, memory_id: str) -> list[str]:
-        row = self._rows.get(memory_id)
+        row = self._store.get(memory_id)
         if row is None:
             return []
-        return sorted(row.get("affiliated", []))
+        _, affiliated, _ = self._split_meta(row["metadata"])
+        return affiliated
 
     def all_entries(self) -> list[dict]:
-        return [
-            {
-                "id": r["id"],
-                "text": r["text"],
-                "owners": list(r["owners"]),
-                "affiliated": list(r.get("affiliated", [])),
-                "meta": r["meta"],
-            }
-            for r in self._rows.values()
-        ]
+        entries = []
+        for r in self._store.all_rows():
+            owners, affiliated, meta = self._split_meta(r["metadata"])
+            entries.append(
+                {
+                    "id": r["id"],
+                    "text": r["text"],
+                    "owners": owners,
+                    "affiliated": affiliated,
+                    "meta": meta,
+                }
+            )
+        return entries
 
     def export(self) -> list[dict]:
-        return [
-            {
-                "id": r["id"],
-                "text": r["text"],
-                "owners": list(r["owners"]),
-                "affiliated": list(r.get("affiliated", [])),
-                "meta": dict(r["meta"]),
-                "embedding": list(r["embedding"]),
-            }
-            for r in self._rows.values()
-        ]
+        exported = []
+        for r in self._store.all_rows():
+            owners, affiliated, meta = self._split_meta(r["metadata"])
+            exported.append(
+                {
+                    "id": r["id"],
+                    "text": r["text"],
+                    "owners": owners,
+                    "affiliated": affiliated,
+                    "meta": meta,
+                    "embedding": list(r["embedding"]),
+                }
+            )
+        return exported
 
     async def restore(self, entries: list[dict]) -> None:
         if not entries:
@@ -574,16 +615,13 @@ class GMemory:
                 computed[i] = list(vec)
 
         for i, entry in enumerate(entries):
+            owners = list(entry.get("owners", []))
+            affiliated = list(entry.get("affiliated", []))
             meta = dict(entry.get("meta", {}) or {})
             meta.setdefault("tier", "interaction")
-            self._rows[entry["id"]] = {
-                "id": entry["id"],
-                "text": entry["text"],
-                "owners": list(entry.get("owners", [])),
-                "embedding": entry.get("embedding") or computed[i],
-                "meta": meta,
-                "affiliated": list(entry.get("affiliated", [])),
-            }
+            embedding = entry.get("embedding") or computed[i]
+            metadata = self._build_meta(owners, affiliated, meta)
+            await self._store.add(entry["id"], entry["text"], list(embedding), metadata)
 
     def stats(self) -> dict:
         entries = self.all_entries()
