@@ -238,6 +238,26 @@ async def test_gmemory_recall_of_owner_filter():
     assert (await m.recall_of("z", "新野")) == []
 
 
+async def test_gmemory_forget_partial_owner_then_recall_of():
+    # Regression test: chromadb's `collection.update(metadatas=[...])`
+    # MERGES key-by-key rather than replacing the metadata dict, so a
+    # partial-owner-removal `forget` that doesn't explicitly null out the
+    # removed owner's `owner_<id>` boolean flag leaves that flag set
+    # forever, and `recall_of`/`recall(..., owner_scope=True)` (which filter
+    # via `where={f"owner_{id}": True}`) keep returning the row even after
+    # the owner was removed.
+    m = GMemory(afake_embed, llm=None)
+    r = await m.remember_atomic(["a", "b"], "shared scene")
+    assert m.forget("b", r["id"]) is True
+
+    assert (await m.recall_of("b", "scene")) == []
+    assert any(e["text"] == "shared scene" for e in await m.recall_of("a", "scene"))
+
+    entries = m.all_entries()
+    assert len(entries) == 1
+    assert entries[0]["owners"] == ["a"]
+
+
 # ========================================================================
 # CollaborativeMemory
 # ========================================================================

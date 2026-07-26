@@ -446,8 +446,21 @@ class GMemory:
         """Inverse of `_split_meta`: rebuild a full Chroma metadata dict
         (JSON-encoded `owners`/`affiliated` plus fresh per-owner boolean
         flags) from the given owner set, affiliated set, and extra fields.
-        Always writes the COMPLETE metadata dict since `ChromaRows.
-        update_metadata` replaces rather than merges."""
+
+        Note: `ChromaRows.update_metadata` -> `collection.update(metadatas=
+        ...)` MERGES the given dict into the existing stored metadata
+        key-by-key (it does NOT replace it wholesale); a key omitted here is
+        simply left untouched on the stored row. That's harmless for every
+        key this method writes, since `owners`/`affiliated` and every
+        `owner_<id>=True` flag for an owner still in the set are always
+        present with a fresh, correct value. It is NOT harmless for a flag
+        whose owner was just REMOVED from `owners`: that stale
+        `owner_<id>=True` key is absent from this dict's output (since the
+        id is gone from `owners`), so a plain merge would leave it in place
+        forever. Callers that remove an owner (see `forget`) must explicitly
+        set `owner_<removed_id>: None` in the update they send -- chromadb
+        treats `None` as "delete this key" -- in addition to what this
+        method builds."""
         metadata = dict(meta)
         metadata["owners"] = dumps_meta(sorted(set(owners)))
         metadata["affiliated"] = dumps_meta(sorted(set(affiliated)))
@@ -540,7 +553,18 @@ class GMemory:
         if not owners:
             self._store.delete(memory_id)
         else:
-            self._store.update_metadata(memory_id, self._build_meta(owners, affiliated, meta))
+            new_meta = self._build_meta(owners, affiliated, meta)
+            # `ChromaRows.update_metadata` -> `collection.update(metadatas=...)`
+            # MERGES key-by-key rather than replacing the metadata dict, and
+            # chromadb treats a `None` value as "delete this key" -- so the
+            # removed owner's `owner_<agent_id>` boolean flag (still present
+            # in the stored metadata, and NOT re-written by `_build_meta`
+            # since `agent_id` is no longer in `owners`) must be explicitly
+            # nulled out here, or it would keep matching
+            # `where={f"owner_{agent_id}": True}` in `recall`/`recall_of`
+            # forever. Mirrors `society.ltm.SharedMemory.forget`.
+            new_meta[f"owner_{agent_id}"] = None
+            self._store.update_metadata(memory_id, new_meta)
         return True
 
     async def revise(self, agent_id: str, memory_id: str, new_text: str, tick: int = 0) -> list[dict]:
