@@ -1,0 +1,61 @@
+import pytest
+from society.boundary_state import gather_timeline, finalize_boundary_state
+from tests.helpers import FakeLLM
+
+
+def _mem(text, owners, so):
+    return {"text": text, "owners": owners, "meta": {"story_order": so}}
+
+
+def test_gather_timeline_owned_sorted_and_capped():
+    mems = [
+        _mem("b", ["x"], 20), _mem("a", ["x"], 10),
+        _mem("other", ["y"], 5), _mem("c", ["x", "z"], 30),
+    ]
+    assert gather_timeline(mems, "x") == ["a", "b", "c"]        # owned by x, story order
+    assert gather_timeline(mems, "y") == ["other"]
+    # cap keeps the LATEST max_mem
+    big = [_mem(str(i), ["x"], i) for i in range(300)]
+    tl = gather_timeline(big, "x", max_mem=200)
+    assert len(tl) == 200 and tl[0] == "100" and tl[-1] == "299"
+
+
+async def test_grounded_death_from_timeline():
+    mems = [_mem("何进入宫", ["hejin"], 1), _mem("何进被十常侍所杀", ["hejin"], 2)]
+    llm = FakeLLM(fn=lambda p, s=None: '{"alive": false, "location": "", "determinable": true}')
+    out = await finalize_boundary_state(mems, ["hejin"], {"luoyang"}, llm=llm, boundary_context="ctx")
+    assert out["hejin"]["alive"] is False and out["hejin"]["source"] == "memory"
+
+
+async def test_grounded_location_from_timeline():
+    mems = [_mem("曹操在许昌议事", ["caocao"], 5)]
+    llm = FakeLLM(fn=lambda p, s=None: '{"alive": true, "location": "xuchang", "determinable": true}')
+    out = await finalize_boundary_state(mems, ["caocao"], {"xuchang", "luoyang"}, llm=llm, boundary_context="ctx")
+    assert out["caocao"] == {"alive": True, "location": "xuchang", "source": "memory"}
+
+
+async def test_inconclusive_timeline_triggers_canon_fallback():
+    mems = [_mem("某无关记忆", ["liubei"], 1)]
+    def fn(prompt, system=None):
+        if "determinable" in prompt:               # grounded call
+            return '{"alive": true, "location": "", "determinable": false}'
+        return '{"alive": true, "location": "xinye"}'  # fallback call
+    out = await finalize_boundary_state(mems, ["liubei"], {"xinye"}, llm=FakeLLM(fn=fn), boundary_context="第40回 …")
+    assert out["liubei"] == {"alive": True, "location": "xinye", "source": "canon@boundary"}
+
+
+async def test_off_list_location_becomes_none():
+    mems = [_mem("x", ["a"], 1)]
+    def fn(prompt, system=None):
+        if "determinable" in prompt:
+            return '{"alive": true, "location": "nowhere", "determinable": true}'
+        return '{"alive": true, "location": "stillnowhere"}'   # fallback also off-list
+    out = await finalize_boundary_state(mems, ["a"], {"xuchang"}, llm=FakeLLM(fn=fn), boundary_context="ctx")
+    assert out["a"]["location"] is None and out["a"]["alive"] is True
+
+
+async def test_no_timeline_goes_straight_to_fallback():
+    def fn(prompt, system=None):
+        return '{"alive": true, "location": "jiangdong"}'
+    out = await finalize_boundary_state([], ["sunquan"], {"jiangdong"}, llm=FakeLLM(fn=fn), boundary_context="ctx")
+    assert out["sunquan"]["source"] == "canon@boundary" and out["sunquan"]["location"] == "jiangdong"
