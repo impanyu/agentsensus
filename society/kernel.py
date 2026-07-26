@@ -3,6 +3,7 @@ import time
 import uuid
 
 from society.actions import Action, ActionResult, Message, validate_action
+from society.conversations import ConversationStore
 from society.llm import BudgetExceeded
 
 
@@ -45,8 +46,14 @@ class Kernel:
         self.config = config or {}
 
         self.tick = 0
-        self._pending: list[Message] = []
+        self._pending: list[dict] = []
         self._budget_hit = False
+
+        # Per-interlocutor conversation threads (Task 2): kernel-held store
+        # that `_deliver_due` records into on delivery, replacing the STM
+        # inbox as the primary delivery target (the inbox still exists
+        # until Task 4 removes it, but is no longer written to here).
+        self.conversations = ConversationStore()
 
         # Per-agent count of remember-worthy events accumulated since the
         # agent last called `remember` (a plot beat it took part in but has
@@ -144,51 +151,104 @@ class Kernel:
     # Messaging
     # ------------------------------------------------------------------
     def send(self, msg: Message) -> None:
-        """Queue a message for delivery after the current tick's steps."""
-        self._pending.append(msg)
-
-    def deliver_pending(self) -> bool:
-        """Deliver all messages queued via send() this tick into inboxes.
-
-        Delivery clears the recipient's waiting state only for messages
-        with wake=True -- a wake=False message (e.g. a `broadcast` sent
-        with wake=False) is still placed in the inbox (readable via
-        pop_message/peek_inbox once the agent is awake for any other
-        reason) but must not by itself interrupt a `wait`. Returns True if
-        anything was delivered.
+        """Queue a message for delivery next tick, with NO distance delay
+        (delay 0) -- used for kernel-internal / system messages (arrival,
+        departure, "X arrived"/"X departed") where the recipient IS the
+        origin/destination location itself, so there is nothing to delay
+        by distance. Player-facing `say`/`gesture`/`broadcast` go through
+        `route()` instead, which computes a per-recipient delay from
+        `self.worldmap.distance`.
         """
-        pending, self._pending = self._pending, []
-        delivered_any = False
-        for msg in pending:
-            for rid in msg.recipients:
-                recipient = self.agents.get(rid)
-                if recipient is None:
-                    self.event_log.append(
-                        self.tick,
-                        "system",
-                        "kernel",
-                        {"note": "undeliverable", "recipient": rid, "message_id": msg.id},
-                    )
-                    continue
-                recipient.stm.inbox.put_nowait(msg)
-                if msg.wake:
-                    recipient.waiting_until = None
-                delivered_any = True
+        for rid in msg.recipients:
+            self._pending.append({"msg": msg, "recipient": rid, "deliver_at": self.tick})
+
+    def route(self, msg: Message, sender_loc) -> None:
+        """Enqueue `msg` to each recipient with a distance-based delay from
+        `sender_loc` (the sender's location at send time). Co-located
+        (same location, including both None) is delay 0 -- delivered next
+        tick, same as `send`. A recipient in a different, connected
+        location is delayed by `self.worldmap.distance(sender_loc, rloc)`
+        ticks; if the map reports no route (`None`), falls back to
+        `self.worldmap.default_distance` rather than dropping the message.
+
+        Guard: never enqueues a recipient equal to `msg.sender` (an agent
+        can't have a conversation thread with itself).
+        """
+        for rid in msg.recipients:
+            if rid == msg.sender:
+                continue
+            r = self.agents.get(rid)
+            if r is None:
                 self.event_log.append(
                     self.tick,
-                    "message",
-                    msg.sender,
-                    {"message": msg.to_dict(), "recipient": rid},
+                    "system",
+                    "kernel",
+                    {"note": "undeliverable", "recipient": rid, "message_id": msg.id},
                 )
-                if msg.kind in ("say", "gesture"):
-                    # Receiving a line of dialogue is itself a remember-worthy
-                    # event for the recipient (news/decisions reach them this
-                    # way), so it feeds their remember-hint backlog too.
-                    self._unremembered[rid] = self._unremembered.get(rid, 0) + 1
-                    if self.metrics is not None:
-                        on_message = getattr(self.metrics, "on_message", None)
-                        if on_message is not None:
-                            on_message(msg.sender, rid, msg.kind)
+                continue
+            rloc = r.location()
+            if rloc is None or rloc == sender_loc:
+                delay = 0
+            else:
+                d = self.worldmap.distance(sender_loc, rloc)
+                delay = d if d is not None else self.worldmap.default_distance
+            self._pending.append(
+                {"msg": msg, "recipient": rid, "deliver_at": self.tick + delay}
+            )
+
+    def _deliver_due(self) -> bool:
+        """Deliver all pending messages whose deliver_at <= current tick,
+        recording each into BOTH the recipient's thread (unread+1) and the
+        sender's own copy of that thread (unread+0), via
+        `self.conversations`. Delivery clears the recipient's waiting state
+        only for messages with wake=True -- a wake=False message (e.g. a
+        `broadcast` sent with wake=False) is still recorded (readable via
+        `conversations.read` once the agent is awake for any other reason)
+        but must not by itself interrupt a `wait`. Returns True if anything
+        was delivered.
+
+        NOTE (Task 2): delivery no longer writes into `recipient.stm.inbox`
+        -- that inbox still exists (removed in Task 4) but is no longer the
+        delivery target; `pop_message`/`peek_inbox` will see nothing new
+        until Tasks 3/4 rewire them onto `self.conversations`.
+        """
+        due = [p for p in self._pending if p["deliver_at"] <= self.tick]
+        self._pending = [p for p in self._pending if p["deliver_at"] > self.tick]
+        delivered_any = False
+        for p in due:
+            msg, rid = p["msg"], p["recipient"]
+            recipient = self.agents.get(rid)
+            if recipient is None:
+                continue
+            rec = {"sender": msg.sender, "kind": msg.kind, "content": msg.content, "tick": self.tick}
+            sender_agent = self.agents.get(msg.sender)
+            sender_kind = getattr(sender_agent, "kind", None)
+            recipient_kind = getattr(recipient, "kind", None)
+            self.conversations.record(
+                rid, msg.sender, rec, unread_delta=1, kind=sender_kind
+            )
+            if msg.sender != rid:
+                self.conversations.record(
+                    msg.sender, rid, rec, unread_delta=0, kind=recipient_kind
+                )
+            if msg.wake:
+                recipient.waiting_until = None
+            delivered_any = True
+            self.event_log.append(
+                self.tick,
+                "message",
+                msg.sender,
+                {"message": msg.to_dict(), "recipient": rid},
+            )
+            if msg.kind in ("say", "gesture"):
+                # Receiving a line of dialogue is itself a remember-worthy
+                # event for the recipient (news/decisions reach them this
+                # way), so it feeds their remember-hint backlog too.
+                self._unremembered[rid] = self._unremembered.get(rid, 0) + 1
+                if self.metrics is not None:
+                    on_message = getattr(self.metrics, "on_message", None)
+                    if on_message is not None:
+                        on_message(msg.sender, rid, msg.kind)
         return delivered_any
 
     # ------------------------------------------------------------------
@@ -399,8 +459,14 @@ class Kernel:
 
     def _execute_say_or_gesture(self, agent, action: Action) -> ActionResult:
         """say/gesture/broadcast: uniform {targets, content} shape. Every
-        target must exist and share sender's location, else no message is
-        sent and the offenders are named in the error.
+        target must exist and not be archived, else no message is sent and
+        the offenders are named in the error. Targets need NOT be
+        co-located with the sender (Task 2): delivery is routed through
+        `route()`, which delivers next tick (delay 0) to a co-located
+        target and after a distance-based delay to a remote one -- a `say`
+        to someone elsewhere in the world is a "letter" that arrives once
+        the in-world travel time has elapsed, not an instant same-room
+        utterance.
 
         wake defaults to True (say/gesture behave exactly as before wake
         existed); `broadcast` accepts an optional `wake` param (default
@@ -422,23 +488,19 @@ class Kernel:
             wake = True
 
         # An environment agent IS its own location (it has no
-        # status.location -- see _colocated_view), so its say/gesture must
-        # be validated against its own id, not agent.location() (which
-        # would be None for an environment and always fail co-location).
+        # status.location -- see _colocated_view), so routing distance is
+        # computed from its own id, not agent.location() (which would be
+        # None for an environment).
         sender_loc = agent.id if agent.kind == "environment" else agent.location()
         offenders = []
         for tid in targets:
             target = self.agents.get(tid)
-            if (
-                target is None
-                or getattr(target, "archived", False)
-                or target.location() != sender_loc
-            ):
+            if target is None or getattr(target, "archived", False):
                 offenders.append(tid)
 
         if offenders:
             return ActionResult(
-                False, error=f"targets not present at {sender_loc}: {', '.join(offenders)}"
+                False, error=f"no such target(s): {', '.join(offenders)}"
             )
 
         msg = Message(
@@ -450,7 +512,7 @@ class Kernel:
             tick_sent=self.tick,
             wake=wake,
         )
-        self.send(msg)
+        self.route(msg, sender_loc)
         return ActionResult(True, data="sent")
 
     async def _execute_act_on(self, agent, action: Action) -> ActionResult:
@@ -984,7 +1046,7 @@ class Kernel:
                     action, brain_error = decisions[agent.id]
                     await self._apply(agent, action, brain_error)
 
-            delivered = self.deliver_pending()
+            delivered = self._deliver_due()
 
             if self.metrics is not None:
                 maybe_snapshot = getattr(self.metrics, "maybe_snapshot", None)
