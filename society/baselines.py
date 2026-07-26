@@ -18,6 +18,7 @@ score).
 runners should call to select a backend by name.
 """
 
+import asyncio
 import math
 import re
 import uuid
@@ -36,6 +37,15 @@ _DEFAULT_IMPORTANCE = 5
 # constructor kwarg (e.g. tests use a small value to exercise the trigger
 # without depositing 150+ points of importance).
 REFLECTION_THRESHOLD = 150
+
+# Max number of reflections fired while PRIMING the sediment (a whole story's
+# worth of memories at once would otherwise fire ~hundreds of sequential
+# LLM-bearing reflections -- ~48 min on the 三国 sediment). Priming is a
+# one-time init, so it is capped: the reflection tree is still built (the
+# mechanism runs), just bounded to a reasonable size. Does NOT affect
+# sim-time reflection, which is uncapped. Overridable via the
+# `prime_reflection_budget` constructor kwarg.
+PRIME_REFLECTION_BUDGET = 40
 
 # How many of the most-recently-touched rows in the WHOLE store (across all
 # owners -- `GenerativeAgentsMemory` is one shared instance whose rows are
@@ -158,12 +168,18 @@ class GenerativeAgentsMemory:
         top_k: int = 5,
         collection_name=None,
         reflection_threshold: int | None = None,
+        prime_reflection_budget: int | None = None,
         **kwargs,
     ):
         self._embed_fn = embed_fn
         self._llm = llm
         self._store = ChromaRows(embed_fn, collection_name=collection_name)
         self._clock = 0  # monotonic access-tick counter
+        self._prime_reflection_budget = (
+            PRIME_REFLECTION_BUDGET
+            if prime_reflection_budget is None
+            else prime_reflection_budget
+        )
         # Reflection trigger state (Task 9). `_importance_since_reflection`
         # accumulates one deposit's worth of importance per logical
         # `remember`/`remember_atomic` call (NOT once per per-owner row --
@@ -604,6 +620,101 @@ class GenerativeAgentsMemory:
                 metadata["affiliated"] = dumps_meta(affiliated)
                 await self._store.add(row_id, entry["text"], list(embedding), metadata)
 
+    async def prime_initial_state(self) -> None:
+        """Fire this backend's own higher-level mechanism (importance
+        scoring + reflection) over rows a fast `restore()` just loaded from
+        a holographic sediment dump -- called once by
+        `society.scenario.build_society` right after `restore()`, kept out
+        of `restore()` itself because doing this inline/sequentially over
+        thousands of entries is prohibitively slow (measured 2.5+ hours for
+        a full sediment via one `remember_atomic` await per entry).
+
+        No-op if no LLM is configured (some tests construct instances
+        without one; `restore()` still works for those, just without a
+        higher-level mechanism to prime).
+
+        1. Importance scoring: `_score_importance` is a pure function of
+           TEXT (see its docstring), and a multi-owner event is stored as
+           several per-owner rows sharing identical text (this backend's
+           per-owner duplication, see the class docstring) -- so every
+           UNIQUE text is scored exactly once, concurrently
+           (`asyncio.gather`, self-limited by the LLM client's own
+           semaphore -- see `society.llm.LLMClient`), rather than once per
+           row (which would re-score, and re-pay LLM cost for, the same
+           text N times for an N-owner event). Every row's `importance`
+           metadata is then updated to its text's score.
+        2. Reflection replay: the reflection trigger
+           (`_deposit_importance`/`_maybe_reflect`) is inherently ORDERED
+           (it is exactly the running accumulator `remember`/
+           `remember_atomic` would have fed at runtime) and each `_reflect`
+           it may trigger makes its own sequential LLM calls -- so this
+           step is NOT concurrent, it replays the SAME accumulator path
+           unchanged, in story order, ONCE PER LOGICAL EVENT (grouped by
+           `meta.story_order`, not once per per-owner row -- exactly
+           mirroring how `remember_atomic` deposits a multi-owner event's
+           importance once, see `_deposit_importance`'s docstring).
+           Reflections created along the way go through the same
+           `_reflect`/`_store_reflection` as a live run, and (per
+           `_store_reflection`'s contract) do not themselves feed the
+           accumulator.
+        """
+        if self._llm is None:
+            return
+
+        rows = self._store.all_rows()
+        if not rows:
+            return
+
+        # -- Step 1: importance, once per unique text, concurrently. --
+        unique_texts = sorted({r["text"] for r in rows})
+        scores = await asyncio.gather(*[self._score_importance(t) for t in unique_texts])
+        score_by_text = dict(zip(unique_texts, scores))
+
+        for row in rows:
+            new_meta = dict(row["metadata"])
+            new_meta["importance"] = score_by_text[row["text"]]
+            self._store.update_metadata(row["id"], new_meta)
+
+        # -- Step 2: reflection replay, once per logical event, in story
+        # order. A logical event = all per-owner rows sharing the same text
+        # (a k-owner sediment event is stored as k rows), so importance is
+        # deposited ONCE per event, not once per owner row. Key by
+        # story_order when present; fall back to the row TEXT (not the row
+        # id) so multi-owner rows of a story_order-less event still collapse
+        # to one event rather than double-counting importance per owner. --
+        events: dict = {}  # story_order (or fallback: text) -> text
+        for row in rows:
+            so = row["metadata"].get("story_order")
+            key = so if so is not None else row["text"]
+            events.setdefault(key, row["text"])
+
+        def _order_key(item):
+            key, _text = item
+            if isinstance(key, (int, float)):
+                return (0, key, "")
+            return (1, 0, str(key))
+
+        # Priming a whole story's sediment at once would fire hundreds of
+        # sequential (LLM-bearing) reflections. Cap it: keep depositing
+        # importance in story order so reflections fire via the real path,
+        # but stop once `_prime_reflection_budget` reflections have fired --
+        # the reflection tree exists (mechanism ran), bounded to a sane size.
+        # A reflection is detected by the accumulator resetting on a deposit.
+        reflections_fired = 0
+        for _key, text in sorted(events.items(), key=_order_key):
+            importance = score_by_text.get(text, _DEFAULT_IMPORTANCE)
+            before = self._importance_since_reflection
+            await self._deposit_importance(importance)
+            if self._importance_since_reflection != before + importance:
+                # accumulator did not simply grow -> _maybe_reflect reset it,
+                # i.e. a reflection fired this step
+                reflections_fired += 1
+                if reflections_fired >= self._prime_reflection_budget:
+                    break
+        # Note: the sub-threshold remainder in `_importance_since_reflection`
+        # is intentionally left to carry into the sim (matches how a
+        # continuous run would accumulate), same as the uncapped path.
+
     def stats(self) -> dict:
         entries = self.all_entries()
         total = len(entries)
@@ -1043,6 +1154,97 @@ class GMemory:
                 metadata = self._build_meta([owner], affiliated, meta)
                 await self._store.add(row_id, entry["text"], list(embedding), metadata)
 
+    async def prime_initial_state(self) -> None:
+        """Fire this backend's own higher-level mechanism (post-task
+        distillation into `insight` nodes + `derived_from` provenance
+        edges) over the `interaction`-tier rows a fast `restore()` just
+        loaded from a holographic sediment dump -- called once by
+        `society.scenario.build_society` right after `restore()`, kept out
+        of `restore()` itself because doing this inline/sequentially (one
+        `remember`-triggered `maybe_distill` per `_distill_every`
+        interactions, each a sequential `llm.chat` + `embed_fn` await) is
+        prohibitively slow over thousands of entries (measured 2.5+ hours
+        for a full sediment).
+
+        No-op if no LLM is configured (mirrors `maybe_distill`).
+
+        1. Collect the restored `interaction`-tier rows, ordered by
+           `meta.story_order` (fallback: each row lacking `story_order`
+           sorts after every row that has one, in a stable but otherwise
+           unspecified relative order) -- restore() writes rows in
+           whatever order the dump/`all_rows()` gives, not necessarily
+           story order, so this re-establishes it before batching.
+        2. Partition into consecutive batches of `_distill_every` (the same
+           batch size `maybe_distill` would have accumulated to at
+           sim-time; the last batch may be smaller).
+        3. Ask the LLM for one insight per batch, CONCURRENTLY
+           (`asyncio.gather`, self-limited by the LLM client's own
+           semaphore) -- this is the 6000-sequential-awaits-vs-concurrent
+           difference the priming step exists to fix. Batches whose
+           insight text comes back empty/whitespace are skipped (mirrors
+           `maybe_distill`).
+        4. Batch-embed every surviving insight text in ONE `embed_fn` call
+           (rather than one call per insight).
+        5. For each surviving insight, write its `insight`-tier row +
+           `derived_from` edges via `_store_insight` -- the exact same
+           helper `maybe_distill` uses, so the two paths can never diverge
+           on what an insight row/edge set looks like.
+        6. Reset `_pending_interactions` so a subsequent sim-time
+           `remember`-triggered `maybe_distill` starts counting cleanly
+           from zero (restore() itself never appends to it, but this makes
+           the post-condition explicit rather than relying on that).
+        """
+        if self._llm is None:
+            return
+
+        interaction_rows = [
+            r for r in self._store.all_rows() if r["metadata"].get("tier") == INTERACTION
+        ]
+        if not interaction_rows:
+            self._pending_interactions = []
+            return
+
+        def _order_key(item):
+            idx, row = item
+            so = row["metadata"].get("story_order")
+            if isinstance(so, (int, float)):
+                return (0, so, idx)
+            return (1, 0, idx)
+
+        ordered = [row for _, row in sorted(enumerate(interaction_rows), key=_order_key)]
+
+        batch_size = self._distill_every
+        batches = [ordered[i : i + batch_size] for i in range(0, len(ordered), batch_size)]
+
+        raw_insights = await asyncio.gather(
+            *[
+                self._llm.chat(distill_prompt([row["text"] for row in batch]), bucket="distill")
+                for batch in batches
+            ]
+        )
+
+        surviving: list[tuple[str, set[str], list[str]]] = []
+        for batch, raw in zip(batches, raw_insights):
+            insight_text = (raw or "").strip()
+            if not insight_text:
+                continue
+            owners_union: set[str] = set()
+            source_ids: list[str] = []
+            for row in batch:
+                owners, _affiliated, _meta = self._split_meta(row["metadata"])
+                owners_union.update(owners)
+                source_ids.append(row["id"])
+            surviving.append((insight_text, owners_union, source_ids))
+
+        if surviving:
+            embeddings = await self._embed_fn([text for text, _, _ in surviving])
+            for (insight_text, owners_union, source_ids), embedding in zip(
+                surviving, embeddings
+            ):
+                await self._store_insight(insight_text, list(embedding), owners_union, source_ids)
+
+        self._pending_interactions = []
+
     def stats(self) -> dict:
         entries = self.all_entries()
         total = len(entries)
@@ -1101,6 +1303,23 @@ class GMemory:
             return None
 
         embedding = (await self._embed_fn([insight_text]))[0]
+        return await self._store_insight(insight_text, embedding, owners_union, source_ids)
+
+    async def _store_insight(
+        self,
+        insight_text: str,
+        embedding: list[float],
+        owners_union: set[str],
+        source_ids: list[str],
+    ) -> dict:
+        """Write one distilled `insight`-tier row (owners = union of its
+        source interactions' owners) and its `derived_from` provenance
+        edges to each source interaction id -- the exact insight-creation +
+        edge logic shared by `maybe_distill` (sim-time, one batch, one
+        `embed_fn` call) and `prime_initial_state` (restore-time, many
+        batches, embeddings computed in a shared batch call up front) so
+        the two paths can never diverge on what an insight row/edge set
+        looks like."""
         insight_id = uuid.uuid4().hex
         meta = {
             "created_at": _now_iso(),
