@@ -342,6 +342,39 @@ async def test_collab_forget_unknown_agent_returns_false():
     assert m.forget("liubei", memory_id) is False
 
 
+async def test_collab_chroma_acl_gates_recall():
+    m = CollaborativeMemory(afake_embed, llm=None)
+    res = await m.remember("a", "密信内容")
+    mid = res[0]["id"]
+    assert (await m.recall("a", "密信"))
+    assert (await m.recall("b", "密信")) == []
+    assert m.grant(mid, "b") is True
+    assert (await m.recall("b", "密信"))
+
+
+async def test_collab_forget_partial_acl_then_recall():
+    # Regression for the ChromaRows.update_metadata merge trap (see
+    # GMemory.forget, fixed in 1eab70b): forgetting one reader out of a
+    # multi-reader ACL must null out that reader's `acl_<id>` flag, not
+    # just leave it stale on the stored metadata -- otherwise the revoked
+    # agent keeps matching `where={f"acl_{id}": True}` and can still recall
+    # the fragment even though it was removed from the ACL.
+    m = CollaborativeMemory(afake_embed)
+    results = await m.remember("a", TEXT_A)
+    memory_id = results[0]["id"]
+    assert m.grant(memory_id, "b") is True
+
+    assert m.forget("a", memory_id) is True
+
+    assert await m.recall("a", TEXT_A) == []
+    b_results = await m.recall("b", TEXT_A)
+    assert any(r["text"] == TEXT_A for r in b_results)
+
+    entries = m.all_entries()
+    assert len(entries) == 1
+    assert entries[0]["owners"] == ["b"]
+
+
 # ========================================================================
 # factory
 # ========================================================================

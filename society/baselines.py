@@ -680,12 +680,70 @@ class CollaborativeMemory:
     is documented as expected rather than a gap. `forget(agent_id, id)`
     mirrors `SharedMemory.forget`: it revokes read access for `agent_id`
     and deletes the fragment once its ACL is empty.
+
+    Storage note: rows live in a `ChromaRows` collection SHARED across every
+    agent (one Chroma record per `remember`/`remember_atomic` call, one
+    fragment, never duplicated per-reader), matching the shared-pool design
+    above. Chroma metadata values must be scalars, so each row's ACL is
+    stored TWICE, mirroring `GMemory`'s (and `society.ltm.SharedMemory`'s)
+    identical dual-storage trick: once as a JSON-encoded `acl` list
+    (`dumps_meta`/`loads_meta`) for `all_entries`/`export`, and once as a
+    per-member boolean flag `acl_<id>=True` for every reader -- Chroma's
+    `where` can't test membership inside a JSON string, so the boolean
+    flags are what let `recall`/`recall_of` filter server-side with
+    `where={f"acl_{agent_id}": True}` *before* Chroma ranks the (already
+    ACL-filtered) candidates by cosine similarity. `affiliated` is
+    JSON-encoded the same way as `acl`.
     """
 
     def __init__(self, embed_fn, llm=None, *, top_k: int = 5, collection_name=None, **kwargs):
         self._embed_fn = embed_fn
         self._llm = llm
-        self._rows = {}
+        self._store = ChromaRows(embed_fn, collection_name=collection_name)
+
+    @staticmethod
+    def _split_meta(metadata: dict) -> tuple[list[str], list[str], dict]:
+        """Split a raw Chroma metadata dict into (acl, affiliated ids, the
+        remaining `meta` sub-dict used by `all_entries`/`export`), stripping
+        both JSON list fields and the per-member `acl_<id>` boolean flags
+        (which are a derived index, not real entry data)."""
+        acl = sorted(loads_meta(metadata.get("acl")))
+        affiliated = sorted(loads_meta(metadata.get("affiliated")))
+        meta = {
+            k: v
+            for k, v in metadata.items()
+            if k not in ("acl", "affiliated") and not k.startswith("acl_")
+        }
+        return acl, affiliated, meta
+
+    @staticmethod
+    def _build_meta(acl: list[str], affiliated: list[str], meta: dict) -> dict:
+        """Inverse of `_split_meta`: rebuild a full Chroma metadata dict
+        (JSON-encoded `acl`/`affiliated` plus fresh per-member boolean
+        flags) from the given ACL, affiliated set, and extra fields.
+
+        Note: `ChromaRows.update_metadata` -> `collection.update(metadatas=
+        ...)` MERGES the given dict into the existing stored metadata
+        key-by-key (it does NOT replace it wholesale); a key omitted here is
+        simply left untouched on the stored row. That's harmless for every
+        key this method writes, since `acl`/`affiliated` and every
+        `acl_<id>=True` flag for a member still in the ACL are always
+        present with a fresh, correct value. It is NOT harmless for a flag
+        whose member was just REVOKED from `acl`: that stale `acl_<id>=True`
+        key is absent from this dict's output (since the id is gone from
+        `acl`), so a plain merge would leave it in place forever -- the
+        revoked agent would keep matching `where={f"acl_{id}": True}` and
+        could still `recall` the fragment. Callers that revoke a member (see
+        `forget`) must explicitly set `acl_<revoked_id>: None` in the update
+        they send -- chromadb treats `None` as "delete this key" -- in
+        addition to what this method builds. `grant` only ever ADDS a
+        member, so a plain merge is safe there."""
+        metadata = dict(meta)
+        metadata["acl"] = dumps_meta(sorted(set(acl)))
+        metadata["affiliated"] = dumps_meta(sorted(set(affiliated)))
+        for a in acl:
+            metadata[f"acl_{a}"] = True
+        return metadata
 
     async def remember(
         self,
@@ -707,14 +765,8 @@ class CollaborativeMemory:
             meta["story_order"] = story_order
         if story_time is not None:
             meta["story_time"] = story_time
-        self._rows[row_id] = {
-            "id": row_id,
-            "text": text,
-            "acl": {agent_id},
-            "embedding": list(embedding),
-            "meta": meta,
-            "affiliated": [],
-        }
+        metadata = self._build_meta([agent_id], [], meta)
+        await self._store.add(row_id, text, embedding, metadata)
         return [{"id": row_id, "text": text, "merged": False, "owners": [agent_id]}]
 
     async def remember_atomic(
@@ -747,53 +799,63 @@ class CollaborativeMemory:
             meta["story_order"] = story_order
         if story_time is not None:
             meta["story_time"] = story_time
-        new_owners = set(owners)
+        new_acl = sorted(set(owners))
         seed_affiliated = sorted(a for a in set(affiliated or []) if a != row_id)
-        self._rows[row_id] = {
-            "id": row_id,
-            "text": text,
-            "acl": new_owners,
-            "embedding": list(embedding),
-            "meta": meta,
-            "affiliated": seed_affiliated,
-        }
-        return {"id": row_id, "text": text, "merged": False, "owners": sorted(new_owners)}
+        metadata = self._build_meta(new_acl, seed_affiliated, meta)
+        await self._store.add(row_id, text, embedding, metadata)
+        return {"id": row_id, "text": text, "merged": False, "owners": new_acl}
 
     async def recall(self, agent_id: str, query: str, top_k: int = 5) -> list[dict]:
-        rows = [r for r in self._rows.values() if agent_id in r["acl"]]
-        if not rows:
-            return []
-        q_emb = (await self._embed_fn([query]))[0]
-        scored = [(_cosine(q_emb, r["embedding"]), r) for r in rows]
-        scored.sort(key=lambda pair: pair[0], reverse=True)
-        top = scored[:top_k]
-        return [{"id": r["id"], "text": r["text"]} for _, r in top]
+        """Filters candidates to fragments whose ACL contains `agent_id`
+        server-side via `where={f"acl_{agent_id}": True}` BEFORE Chroma
+        ranks by cosine relevance -- an agent with no grant sees nothing
+        regardless of relevance."""
+        hits = await self._store.query(query, top_k, where={f"acl_{agent_id}": True})
+        return [{"id": h["id"], "text": h["text"]} for h in hits]
 
     async def recall_of(self, owner_id: str, query: str, top_k: int = 5) -> list[dict]:
-        """`recall` already filters candidates to `agent_id in r["acl"]`,
-        so retrieving on behalf of another owner is just `recall` under
-        that owner's id."""
+        """`recall` already filters candidates to fragments whose ACL
+        contains `agent_id`, so retrieving on behalf of another owner is
+        just `recall` under that owner's id."""
         return await self.recall(owner_id, query, top_k)
 
     def grant(self, memory_id: str, agent_id: str) -> bool:
         """Extend a fragment's read ACL to include `agent_id`. Returns False
         if the fragment doesn't exist."""
-        row = self._rows.get(memory_id)
+        row = self._store.get(memory_id)
         if row is None:
             return False
-        row["acl"].add(agent_id)
+        acl, affiliated, meta = self._split_meta(row["metadata"])
+        updated_acl = sorted(set(acl) | {agent_id})
+        self._store.update_metadata(memory_id, self._build_meta(updated_acl, affiliated, meta))
         return True
 
     def forget(self, agent_id: str, memory_id: str) -> bool:
         """Revoke agent_id's read access; delete the fragment once its ACL
         is empty. Returns False if the fragment doesn't exist or agent_id
         was never a reader."""
-        row = self._rows.get(memory_id)
-        if row is None or agent_id not in row["acl"]:
+        row = self._store.get(memory_id)
+        if row is None:
             return False
-        row["acl"].discard(agent_id)
-        if not row["acl"]:
-            del self._rows[memory_id]
+        acl, affiliated, meta = self._split_meta(row["metadata"])
+        if agent_id not in acl:
+            return False
+        acl = [a for a in acl if a != agent_id]
+        if not acl:
+            self._store.delete(memory_id)
+        else:
+            new_meta = self._build_meta(acl, affiliated, meta)
+            # `ChromaRows.update_metadata` -> `collection.update(metadatas=...)`
+            # MERGES key-by-key rather than replacing the metadata dict, and
+            # chromadb treats a `None` value as "delete this key" -- so the
+            # revoked agent's `acl_<agent_id>` boolean flag (still present in
+            # the stored metadata, and NOT re-written by `_build_meta` since
+            # `agent_id` is no longer in `acl`) must be explicitly nulled out
+            # here, or it would keep matching `where={f"acl_{agent_id}":
+            # True}` in `recall`/`recall_of` forever. Mirrors
+            # `GMemory.forget`/`society.ltm.SharedMemory.forget`.
+            new_meta[f"acl_{agent_id}"] = None
+            self._store.update_metadata(memory_id, new_meta)
         return True
 
     async def revise(self, agent_id: str, memory_id: str, new_text: str, tick: int = 0) -> list[dict]:
@@ -801,51 +863,60 @@ class CollaborativeMemory:
         return await self.remember(agent_id, new_text, tick=tick)
 
     def add_affiliations(self, memory_id: str, other_ids: list[str]) -> bool:
-        row = self._rows.get(memory_id)
+        row = self._store.get(memory_id)
         if row is None:
             return False
-        row["affiliated"] = sorted(
-            (set(row.get("affiliated", [])) | set(other_ids)) - {memory_id}
-        )
+        acl, affiliated, meta = self._split_meta(row["metadata"])
+        updated = sorted((set(affiliated) | set(other_ids)) - {memory_id})
+        self._store.update_metadata(memory_id, self._build_meta(acl, updated, meta))
         return True
 
     def remove_affiliations(self, memory_id: str, other_ids: list[str]) -> bool:
-        row = self._rows.get(memory_id)
+        row = self._store.get(memory_id)
         if row is None:
             return False
-        row["affiliated"] = sorted(set(row.get("affiliated", [])) - set(other_ids))
+        acl, affiliated, meta = self._split_meta(row["metadata"])
+        updated = sorted(set(affiliated) - set(other_ids))
+        self._store.update_metadata(memory_id, self._build_meta(acl, updated, meta))
         return True
 
     def get_affiliations(self, memory_id: str) -> list[str]:
-        row = self._rows.get(memory_id)
+        row = self._store.get(memory_id)
         if row is None:
             return []
-        return sorted(row.get("affiliated", []))
+        _, affiliated, _ = self._split_meta(row["metadata"])
+        return affiliated
 
     def all_entries(self) -> list[dict]:
-        return [
-            {
-                "id": r["id"],
-                "text": r["text"],
-                "owners": sorted(r["acl"]),
-                "affiliated": list(r.get("affiliated", [])),
-                "meta": r["meta"],
-            }
-            for r in self._rows.values()
-        ]
+        entries = []
+        for r in self._store.all_rows():
+            acl, affiliated, meta = self._split_meta(r["metadata"])
+            entries.append(
+                {
+                    "id": r["id"],
+                    "text": r["text"],
+                    "owners": acl,
+                    "affiliated": affiliated,
+                    "meta": meta,
+                }
+            )
+        return entries
 
     def export(self) -> list[dict]:
-        return [
-            {
-                "id": r["id"],
-                "text": r["text"],
-                "owners": sorted(r["acl"]),
-                "affiliated": list(r.get("affiliated", [])),
-                "meta": dict(r["meta"]),
-                "embedding": list(r["embedding"]),
-            }
-            for r in self._rows.values()
-        ]
+        exported = []
+        for r in self._store.all_rows():
+            acl, affiliated, meta = self._split_meta(r["metadata"])
+            exported.append(
+                {
+                    "id": r["id"],
+                    "text": r["text"],
+                    "owners": acl,
+                    "affiliated": affiliated,
+                    "meta": meta,
+                    "embedding": list(r["embedding"]),
+                }
+            )
+        return exported
 
     async def restore(self, entries: list[dict]) -> None:
         if not entries:
@@ -859,14 +930,12 @@ class CollaborativeMemory:
                 computed[i] = list(vec)
 
         for i, entry in enumerate(entries):
-            self._rows[entry["id"]] = {
-                "id": entry["id"],
-                "text": entry["text"],
-                "acl": set(entry.get("owners", [])),
-                "embedding": entry.get("embedding") or computed[i],
-                "meta": dict(entry.get("meta", {}) or {}),
-                "affiliated": list(entry.get("affiliated", [])),
-            }
+            acl = list(entry.get("owners", []))
+            affiliated = list(entry.get("affiliated", []))
+            meta = dict(entry.get("meta", {}) or {})
+            embedding = entry.get("embedding") or computed[i]
+            metadata = self._build_meta(acl, affiliated, meta)
+            await self._store.add(entry["id"], entry["text"], list(embedding), metadata)
 
     def stats(self) -> dict:
         entries = self.all_entries()
