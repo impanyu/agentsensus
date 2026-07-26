@@ -287,6 +287,33 @@ async def test_ga_prime_multi_owner_event_without_story_order_counts_once():
     assert all(e["meta"].get("source") != "reflection" for e in m.all_entries())
 
 
+async def test_ga_prime_caps_reflections_at_budget():
+    # 20 events, each importance 8, threshold 8 -> every event would fire a
+    # reflection (20). With prime_reflection_budget=3, at most 3 fire.
+    entries = _ga_dump([(f"事件{i}", ["a"]) for i in range(20)])
+
+    def _fn(prompt, system=None):
+        if "On a scale of 1 to 10" in prompt:
+            return "8"
+        if "most salient high-level questions" in prompt:
+            return "问题？"
+        if prompt.startswith("You are synthesizing"):
+            return "Reflection: 综述"
+        return ""
+
+    m = GenerativeAgentsMemory(
+        afake_embed, llm=FakeLLM(fn=_fn),
+        reflection_threshold=8, prime_reflection_budget=3,
+    )
+    await m.restore(entries)
+    await m.prime_initial_state()
+
+    reflections = [e for e in m.all_entries() if e["meta"].get("source") == "reflection"]
+    # each reflection pass here synthesizes one reflection row (one question);
+    # the budget caps the count at 3 even though all 20 events would fire one
+    assert 0 < len(reflections) <= 3, len(reflections)
+
+
 async def test_ga_prime_noop_when_llm_is_none():
     entries = _ga_dump([("刘备三顾茅庐", ["guanyu", "liubei"])])
     m = GenerativeAgentsMemory(afake_embed, llm=None, reflection_threshold=10)

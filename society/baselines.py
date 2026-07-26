@@ -38,6 +38,15 @@ _DEFAULT_IMPORTANCE = 5
 # without depositing 150+ points of importance).
 REFLECTION_THRESHOLD = 150
 
+# Max number of reflections fired while PRIMING the sediment (a whole story's
+# worth of memories at once would otherwise fire ~hundreds of sequential
+# LLM-bearing reflections -- ~48 min on the 三国 sediment). Priming is a
+# one-time init, so it is capped: the reflection tree is still built (the
+# mechanism runs), just bounded to a reasonable size. Does NOT affect
+# sim-time reflection, which is uncapped. Overridable via the
+# `prime_reflection_budget` constructor kwarg.
+PRIME_REFLECTION_BUDGET = 40
+
 # How many of the most-recently-touched rows in the WHOLE store (across all
 # owners -- `GenerativeAgentsMemory` is one shared instance whose rows are
 # scoped per owner by metadata, not one instance per agent, so the
@@ -159,12 +168,18 @@ class GenerativeAgentsMemory:
         top_k: int = 5,
         collection_name=None,
         reflection_threshold: int | None = None,
+        prime_reflection_budget: int | None = None,
         **kwargs,
     ):
         self._embed_fn = embed_fn
         self._llm = llm
         self._store = ChromaRows(embed_fn, collection_name=collection_name)
         self._clock = 0  # monotonic access-tick counter
+        self._prime_reflection_budget = (
+            PRIME_REFLECTION_BUDGET
+            if prime_reflection_budget is None
+            else prime_reflection_budget
+        )
         # Reflection trigger state (Task 9). `_importance_since_reflection`
         # accumulates one deposit's worth of importance per logical
         # `remember`/`remember_atomic` call (NOT once per per-owner row --
@@ -679,9 +694,26 @@ class GenerativeAgentsMemory:
                 return (0, key, "")
             return (1, 0, str(key))
 
+        # Priming a whole story's sediment at once would fire hundreds of
+        # sequential (LLM-bearing) reflections. Cap it: keep depositing
+        # importance in story order so reflections fire via the real path,
+        # but stop once `_prime_reflection_budget` reflections have fired --
+        # the reflection tree exists (mechanism ran), bounded to a sane size.
+        # A reflection is detected by the accumulator resetting on a deposit.
+        reflections_fired = 0
         for _key, text in sorted(events.items(), key=_order_key):
             importance = score_by_text.get(text, _DEFAULT_IMPORTANCE)
+            before = self._importance_since_reflection
             await self._deposit_importance(importance)
+            if self._importance_since_reflection != before + importance:
+                # accumulator did not simply grow -> _maybe_reflect reset it,
+                # i.e. a reflection fired this step
+                reflections_fired += 1
+                if reflections_fired >= self._prime_reflection_budget:
+                    break
+        # Note: the sub-threshold remainder in `_importance_since_reflection`
+        # is intentionally left to carry into the sim (matches how a
+        # continuous run would accumulate), same as the uncapped path.
 
     def stats(self) -> dict:
         entries = self.all_entries()
