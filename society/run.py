@@ -235,6 +235,7 @@ def _build_llm_and_embed(config_path: str | None):
         max_concurrency=max_concurrency,
         max_calls=max_calls,
         max_tokens=max_tokens,
+        extra_body=cfg.get("extra_body"),
     )
     embed_client = EmbeddingClient(embed_api_key, embed_base_url, embed_model)
     return llm, embed_client.embed

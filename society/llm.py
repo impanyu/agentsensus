@@ -22,6 +22,7 @@ class LLMClient:
         transport=None,
         retries: int = 3,
         backoff_base: float = 0.5,
+        extra_body: dict | None = None,
     ):
         """
         Initialize LLMClient.
@@ -46,6 +47,11 @@ class LLMClient:
         self.max_concurrency = max_concurrency
         self.retries = retries
         self.backoff_base = backoff_base
+        # Extra top-level fields merged into every request payload (e.g.
+        # {"thinking": {"type": "disabled"}} to turn off DeepSeek v4 thinking
+        # mode, or {"temperature": ...}). Empty by default => no behavior
+        # change for existing configs.
+        self.extra_body = dict(extra_body) if extra_body else {}
         self._transport = transport or self._default_transport
         self._semaphore = asyncio.Semaphore(max_concurrency)
         self._usage = defaultdict(lambda: {"calls": 0, "tokens": 0})
@@ -90,7 +96,7 @@ class LLMClient:
         if system is not None:
             messages.append({"role": "system", "content": system})
         messages.append({"role": "user", "content": prompt})
-        payload = {"model": self.chat_model, "messages": messages}
+        payload = {"model": self.chat_model, "messages": messages, **self.extra_body}
 
         async with self._semaphore:
             response = await self._call_with_retry(payload)
