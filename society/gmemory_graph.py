@@ -92,3 +92,30 @@ class GraphIndex:
         graph = cls()
         graph.restore(edges)
         return graph
+
+
+# ---------------------------------------------------------------------------
+# Post-task distillation prompt (Task 7)
+# ---------------------------------------------------------------------------
+
+
+def distill_prompt(interaction_texts: list[str]) -> str:
+    """Build the LLM prompt used by `GMemory.maybe_distill` to summarize a
+    cluster of recent `interaction`-tier texts into ONE higher-level
+    `insight` statement.
+
+    Kept here (rather than inline in `society/baselines.py`) so the prompt
+    text is unit-testable/tweakable independent of the distillation
+    plumbing, mirroring how the tier constants and `GraphIndex` live in this
+    module as the "graph memory" surface of the G-Memory (Full) baseline.
+    """
+    bullets = "\n".join(f"- {t}" for t in interaction_texts)
+    return (
+        "You are consolidating an agent's recent memories into a single, "
+        "higher-level insight for a hierarchical memory graph.\n\n"
+        "Below are recent interaction memories:\n"
+        f"{bullets}\n\n"
+        "Write ONE concise sentence that generalizes the pattern, lesson, or "
+        "takeaway shared across these interactions. Respond with only that "
+        "sentence, no preamble or bullet points."
+    )

@@ -19,7 +19,7 @@ import uuid
 from datetime import datetime, timezone
 
 from society.baseline_store import ChromaRows, dumps_meta, loads_meta
-from society.gmemory_graph import INTERACTION, GraphIndex
+from society.gmemory_graph import INSIGHT, INTERACTION, GraphIndex, distill_prompt
 from society.ltm import SharedMemory
 
 _DEFAULT_IMPORTANCE = 5
@@ -379,6 +379,14 @@ class GenerativeAgentsMemory:
 # 2) GMemory -- Zhang et al. 2025 hierarchical graph memory
 # ==========================================================================
 
+# Post-task distillation trigger: run a distillation pass every this-many
+# NEW interaction-tier rows added since the last distillation (paper's
+# "post-task" summarization, approximated here as a periodic trigger since
+# this codebase has no explicit task/scene boundary at the memory layer).
+# Overridable per-instance via `GMemory(..., distill_every=...)`, primarily
+# so tests can use a small value instead of waiting for 20 `remember` calls.
+DISTILL_EVERY = 20
+
 
 class GMemory:
     """Single shared store with a hierarchical tier tag (G-Memory, 2025).
@@ -422,7 +430,16 @@ class GMemory:
     over-fetch-then-rerank is needed.
     """
 
-    def __init__(self, embed_fn, llm=None, *, top_k: int = 5, collection_name=None, **kwargs):
+    def __init__(
+        self,
+        embed_fn,
+        llm=None,
+        *,
+        top_k: int = 5,
+        collection_name=None,
+        distill_every: int | None = None,
+        **kwargs,
+    ):
         self._embed_fn = embed_fn
         self._llm = llm
         self._store = ChromaRows(embed_fn, collection_name=collection_name)
@@ -433,6 +450,12 @@ class GMemory:
         # (Task 7) and bi-level retrieval (Task 8); this task only wires the
         # scaffolding + keeps it in sync with row deletion (`forget`).
         self._graph = GraphIndex()
+        # Post-task distillation (Task 7): `_distill_every` new interaction
+        # rows trigger `maybe_distill`; `_pending_interactions` tracks the
+        # ids of interaction rows added since the last distillation pass (or
+        # since construction/restore, for a freshly built instance).
+        self._distill_every = distill_every if distill_every is not None else DISTILL_EVERY
+        self._pending_interactions: list[str] = []
 
     @staticmethod
     def _split_meta(metadata: dict) -> tuple[list[str], list[str], dict]:
@@ -499,6 +522,7 @@ class GMemory:
             meta["story_time"] = story_time
         metadata = self._build_meta([agent_id], [], meta)
         await self._store.add(row_id, text, embedding, metadata)
+        await self._track_new_interaction(row_id)
         return [{"id": row_id, "text": text, "merged": False, "owners": [agent_id]}]
 
     async def remember_atomic(
@@ -536,6 +560,7 @@ class GMemory:
         seed_affiliated = sorted(a for a in set(affiliated or []) if a != row_id)
         metadata = self._build_meta(new_owners, seed_affiliated, meta)
         await self._store.add(row_id, text, embedding, metadata)
+        await self._track_new_interaction(row_id)
         return {"id": row_id, "text": text, "merged": False, "owners": new_owners}
 
     async def recall(
@@ -666,6 +691,76 @@ class GMemory:
         shared = sum(1 for e in entries if len(e["owners"]) >= 2)
         ratio = (shared / total) if total else 0.0
         return {"total": total, "shared": shared, "ratio": ratio}
+
+    async def _track_new_interaction(self, row_id: str) -> None:
+        """Record a freshly-added `interaction`-tier row id and, once
+        `_distill_every` of them have accumulated since the last
+        distillation pass, run one (Task 7 post-task distillation)."""
+        self._pending_interactions.append(row_id)
+        if len(self._pending_interactions) >= self._distill_every:
+            await self.maybe_distill()
+
+    async def maybe_distill(self) -> dict | None:
+        """Summarize the interaction rows pending since the last
+        distillation into ONE new `insight`-tier row, linked back to its
+        source interactions via `insight -> interaction` (`derived_from`)
+        provenance edges in `self._graph`.
+
+        Called automatically by `_track_new_interaction` once
+        `_distill_every` new interactions have accumulated, and safe to call
+        directly (e.g. from tests) -- it processes whatever is pending,
+        regardless of whether that count reached the trigger threshold, and
+        is a no-op if nothing is pending.
+
+        Gracefully skips (no-op, never raises) when there is no LLM
+        configured (`self._llm is None`, the common case in tests that don't
+        exercise distillation) or when the LLM's summary is empty/whitespace
+        -- either way the pending id list is still cleared, so a skipped
+        distillation does not re-trigger on every subsequent `remember`.
+        """
+        ids = self._pending_interactions
+        self._pending_interactions = []
+        if not ids or self._llm is None:
+            return None
+
+        texts: list[str] = []
+        owners_union: set[str] = set()
+        source_ids: list[str] = []
+        for row_id in ids:
+            row = self._store.get(row_id)
+            if row is None:
+                continue  # row was forgotten/deleted since being queued
+            owners, _affiliated, _meta = self._split_meta(row["metadata"])
+            texts.append(row["text"])
+            owners_union.update(owners)
+            source_ids.append(row_id)
+        if not source_ids:
+            return None
+
+        insight_text = await self._llm.chat(distill_prompt(texts), bucket="distill")
+        insight_text = (insight_text or "").strip()
+        if not insight_text:
+            return None
+
+        embedding = (await self._embed_fn([insight_text]))[0]
+        insight_id = uuid.uuid4().hex
+        meta = {
+            "created_at": _now_iso(),
+            "source": "distilled",
+            "tick": 0,
+            "tier": INSIGHT,
+        }
+        metadata = self._build_meta(sorted(owners_union), [], meta)
+        await self._store.add(insight_id, insight_text, embedding, metadata)
+        for row_id in source_ids:
+            self._graph.add_edge(insight_id, row_id, "derived_from")
+
+        return {
+            "id": insight_id,
+            "text": insight_text,
+            "owners": sorted(owners_union),
+            "source_ids": source_ids,
+        }
 
     def export_graph(self) -> list[dict]:
         """Serialize the graph adjacency index (agent/team/task relations

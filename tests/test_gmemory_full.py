@@ -1,19 +1,22 @@
 """Tests for the G-Memory (Full) graph scaffolding: tier constants + the
 `GraphIndex` adjacency side-index, and their wiring into `GMemory`.
 
-See `.superpowers/sdd/task-6-brief.md` and the "Workstream 2 -- Full
-mechanisms -> G-Memory (Full)" section of
+See `.superpowers/sdd/task-6-brief.md`/`task-7-brief.md` and the
+"Workstream 2 -- Full mechanisms -> G-Memory (Full)" section of
 `docs/superpowers/specs/2026-07-25-faithful-chroma-baselines-design.md`.
-This task builds ONLY the tier constants + adjacency index + wiring;
-distillation (insight nodes) and bi-level retrieval are separate tasks.
+This file also covers Task 7's post-task distillation (`GMemory.maybe_distill`):
+periodically summarizing recent `interaction` nodes into `insight` nodes
+linked back to their sources via `derived_from` provenance edges. Bi-level
+retrieval at query time is a separate task.
 """
 
 from society.baselines import GMemory
 from society.gmemory_graph import INSIGHT, INTERACTION, QUERY, GraphIndex
-from tests.helpers import afake_embed
+from tests.helpers import FakeLLM, afake_embed
 
 TEXT_A = "关羽千里走单骑"
 TEXT_B = "刘备三顾茅庐"
+TEXT_C = "张飞喝断当阳桥"
 
 
 # ========================================================================
@@ -217,3 +220,90 @@ async def test_gmemory_forget_partial_owner_keeps_edges():
     # removing one of two owners does not delete the row -> edges survive
     assert m.forget("guanyu", row_id) is True
     assert m._graph.neighbors(row_id) == ["guanyu"]
+
+
+# ========================================================================
+# Post-task distillation (Task 7): maybe_distill / insight nodes
+# ========================================================================
+
+INSIGHT_TEXT = "刘关张三人情谊深厚，屡建战功"
+
+
+async def test_maybe_distill_triggers_after_distill_every_interactions():
+    llm = FakeLLM(responses=[INSIGHT_TEXT])
+    m = GMemory(afake_embed, llm=llm, distill_every=3)
+
+    r1 = await m.remember("guanyu", TEXT_A)
+    r2 = await m.remember("liubei", TEXT_B)
+    r3 = await m.remember("zhangfei", TEXT_C)
+    source_ids = sorted([r1[0]["id"], r2[0]["id"], r3[0]["id"]])
+
+    entries = m.all_entries()
+    insight_rows = [e for e in entries if e["meta"]["tier"] == INSIGHT]
+    assert len(insight_rows) == 1
+    assert insight_rows[0]["text"] == INSIGHT_TEXT
+
+    insight_id = insight_rows[0]["id"]
+    assert m._graph.neighbors(insight_id, "derived_from") == source_ids
+
+    # counter reset: a 4th remember does not trigger a second distillation
+    await m.remember("guanyu", "又一件事")
+    entries = m.all_entries()
+    assert len([e for e in entries if e["meta"]["tier"] == INSIGHT]) == 1
+
+
+async def test_maybe_distill_insight_owners_are_union_of_source_owners():
+    llm = FakeLLM(responses=[INSIGHT_TEXT])
+    m = GMemory(afake_embed, llm=llm, distill_every=2)
+
+    await m.remember("guanyu", TEXT_A)
+    await m.remember("liubei", TEXT_B)
+
+    insight_rows = [e for e in m.all_entries() if e["meta"]["tier"] == INSIGHT]
+    assert len(insight_rows) == 1
+    assert insight_rows[0]["owners"] == ["guanyu", "liubei"]
+
+
+async def test_maybe_distill_insight_retrievable_via_recall_by_source_owner():
+    llm = FakeLLM(responses=[INSIGHT_TEXT])
+    m = GMemory(afake_embed, llm=llm, distill_every=2)
+
+    await m.remember("guanyu", TEXT_A)
+    await m.remember("liubei", TEXT_B)
+
+    # recall by one of the source owners, querying with the insight's own
+    # text -- the deterministic fake embedding makes this an exact-match
+    # top hit, so the insight (owned jointly via the union) must surface.
+    recalled = await m.recall_of("guanyu", INSIGHT_TEXT)
+    assert any(r["text"] == INSIGHT_TEXT for r in recalled)
+
+
+async def test_maybe_distill_noop_when_llm_is_none():
+    m = GMemory(afake_embed, llm=None, distill_every=2)
+
+    await m.remember("guanyu", TEXT_A)
+    await m.remember("liubei", TEXT_B)  # crosses the threshold
+
+    entries = m.all_entries()
+    assert all(e["meta"]["tier"] != INSIGHT for e in entries)
+    assert len(entries) == 2
+
+
+async def test_maybe_distill_skips_insight_creation_on_empty_llm_output():
+    llm = FakeLLM(responses=["   "])
+    m = GMemory(afake_embed, llm=llm, distill_every=1)
+
+    await m.remember("guanyu", TEXT_A)  # crosses the threshold immediately
+
+    entries = m.all_entries()
+    assert all(e["meta"]["tier"] != INSIGHT for e in entries)
+    assert len(entries) == 1
+
+
+async def test_maybe_distill_manual_call_is_noop_when_nothing_pending():
+    llm = FakeLLM(responses=[INSIGHT_TEXT])
+    m = GMemory(afake_embed, llm=llm, distill_every=100)
+
+    result = await m.maybe_distill()
+    assert result is None
+    assert m.all_entries() == []
