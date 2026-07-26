@@ -220,37 +220,6 @@ def build_agents_and_map(cfg: dict, *, llm, embed_fn=None) -> tuple[dict, "World
     return agents, worldmap, defaults, seed_specs
 
 
-async def _replay_sediment_stream(shared, entries: list[dict]) -> None:
-    """Populate a baseline backend's initial memory by replaying the sediment
-    observation stream through its OWN `remember_atomic`, in narrative order,
-    rather than restoring the consensus dump wholesale.
-
-    Each dump entry is a single atomic event with an `owners` set (who knows
-    it, assigned during sedimentation) and `text`. Feeding `(owners, text)`
-    into a backend's `remember_atomic` makes that backend store the event the
-    way it would have had it observed the event itself: per-owner rows/streams,
-    plus any mechanism the backend fires on write (G-Memory distillation,
-    GenerativeAgents importance-scoring + reflection). Ordered by
-    `meta.story_order` so those mechanisms see the story in sequence. Entries
-    with no owners are skipped (nothing would own them). `affiliated` is passed
-    through; cross-entry refs that don't resolve after per-owner fan-out are
-    handled gracefully by the backends (dangling ids are ignored)."""
-    ordered = sorted(
-        entries, key=lambda e: (e.get("meta", {}) or {}).get("story_order", 0)
-    )
-    for e in ordered:
-        owners = e.get("owners") or []
-        if not owners:
-            continue
-        await shared.remember_atomic(
-            owners,
-            e["text"],
-            source="sediment",
-            story_order=(e.get("meta", {}) or {}).get("story_order"),
-            affiliated=e.get("affiliated") or None,
-        )
-
-
 async def build_society(
     cfg: dict,
     *,
@@ -335,21 +304,22 @@ async def build_society(
         ltm_path = os.path.join(cfg.get("_dir", "."), ltm_file)
         with open(ltm_path, "r", encoding="utf-8") as f:
             entries = json.load(f)
-        # Initialize the sediment through EACH backend's own mechanism, so the
-        # starting memory looks as if that method had generated it itself
-        # (design principle: no backend gets consensus's cross-agent merge for
-        # free). The consensus dump IS consensus's own output (atomize + assign
-        # + equivalence-merge over the source), so it is restored as-is. Every
-        # other backend instead REPLAYS the observation stream (each entry's
-        # (owners, text)) through its own `remember_atomic`, in narrative order,
-        # which fans out per owner and fires that backend's machinery on the way
-        # in -- GenerativeAgents scores importance + reflects, G-Memory distills
-        # insight nodes + builds its graph, Collaborative writes per-owner ACL
-        # fragments. This is a one-time (LLM-bearing) init cost per baseline run.
-        if memory_kind == "consensus":
-            await shared.restore(entries)
-        else:
-            await _replay_sediment_stream(shared, entries)
+        # `restore` reuses each entry's stored embedding (no re-embedding) and
+        # already applies each backend's own storage rule: consensus keeps one
+        # merged owner-set row per event; every baseline fans the entry out into
+        # one row PER OWNER (per the per-owner change) -- so the initial-state
+        # footprint is per-method-faithful (baselines ~= sum of owner-set sizes,
+        # consensus = event count) and this stays fast (no LLM/embed at load).
+        # Firing each backend's higher-level machinery over the sediment
+        # (G-Memory distillation into insight nodes, GenerativeAgents
+        # importance-scoring + reflection) is a separate, concurrency-bounded
+        # priming step -- see `prime_initial_state` -- kept out of the load path
+        # because doing it inline/sequentially over thousands of entries is
+        # prohibitively slow.
+        await shared.restore(entries)
+        prime = getattr(shared, "prime_initial_state", None)
+        if prime is not None:
+            await prime()
     else:
         for agent_id, texts in seed_specs:
             for text in texts:
