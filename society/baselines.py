@@ -19,6 +19,7 @@ import uuid
 from datetime import datetime, timezone
 
 from society.baseline_store import ChromaRows, dumps_meta, loads_meta
+from society.gmemory_graph import INTERACTION, GraphIndex
 from society.ltm import SharedMemory
 
 _DEFAULT_IMPORTANCE = 5
@@ -425,6 +426,13 @@ class GMemory:
         self._embed_fn = embed_fn
         self._llm = llm
         self._store = ChromaRows(embed_fn, collection_name=collection_name)
+        # Side adjacency index for the paper's graph topology (agent/team/
+        # task relations and insight->interaction provenance edges). Chroma
+        # only stores node rows; edges live here (see
+        # `society/gmemory_graph.py`). Populated by the distillation pass
+        # (Task 7) and bi-level retrieval (Task 8); this task only wires the
+        # scaffolding + keeps it in sync with row deletion (`forget`).
+        self._graph = GraphIndex()
 
     @staticmethod
     def _split_meta(metadata: dict) -> tuple[list[str], list[str], dict]:
@@ -483,7 +491,7 @@ class GMemory:
             "created_at": _now_iso(),
             "source": source,
             "tick": tick,
-            "tier": "interaction",
+            "tier": INTERACTION,
         }
         if story_order is not None:
             meta["story_order"] = story_order
@@ -518,7 +526,7 @@ class GMemory:
             "created_at": _now_iso(),
             "source": source,
             "tick": tick,
-            "tier": "interaction",
+            "tier": INTERACTION,
         }
         if story_order is not None:
             meta["story_order"] = story_order
@@ -552,6 +560,11 @@ class GMemory:
         owners = [o for o in owners if o != agent_id]
         if not owners:
             self._store.delete(memory_id)
+            # Row is gone -- drop any graph edges touching it (both as
+            # source, e.g. insight->interaction provenance, and as
+            # destination, e.g. agent/team/task edges) so the adjacency
+            # index never references a deleted node.
+            self._graph.remove_node(memory_id)
         else:
             new_meta = self._build_meta(owners, affiliated, meta)
             # `ChromaRows.update_metadata` -> `collection.update(metadatas=...)`
@@ -642,7 +655,7 @@ class GMemory:
             owners = list(entry.get("owners", []))
             affiliated = list(entry.get("affiliated", []))
             meta = dict(entry.get("meta", {}) or {})
-            meta.setdefault("tier", "interaction")
+            meta.setdefault("tier", INTERACTION)
             embedding = entry.get("embedding") or computed[i]
             metadata = self._build_meta(owners, affiliated, meta)
             await self._store.add(entry["id"], entry["text"], list(embedding), metadata)
@@ -653,6 +666,23 @@ class GMemory:
         shared = sum(1 for e in entries if len(e["owners"]) >= 2)
         ratio = (shared / total) if total else 0.0
         return {"total": total, "shared": shared, "ratio": ratio}
+
+    def export_graph(self) -> list[dict]:
+        """Serialize the graph adjacency index (agent/team/task relations
+        and insight->interaction provenance edges) as
+        `[{"src", "dst", "etype"}, ...]`, deterministic order. Kept
+        SEPARATE from `export()` (which stays a plain list[dict] of row
+        entries, per the existing contract relied on by
+        `society/persistence.py`, `society/run.py`, `experiments/run_sim.py`
+        and `society/scenario.py`) -- callers that want the full G-Memory
+        state must call both `export()`/`export_graph()` and
+        `restore()`/`restore_graph()`."""
+        return self._graph.export()
+
+    def restore_graph(self, edges: list[dict]) -> None:
+        """Inverse of `export_graph`: replace the current graph adjacency
+        with the given exported edges."""
+        self._graph.restore(edges)
 
 
 # ==========================================================================
