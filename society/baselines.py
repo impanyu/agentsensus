@@ -651,20 +651,35 @@ class GMemory:
     over both tiers (see "Retrieval note" below). The "query" tier is a
     defined constant (`society.gmemory_graph.QUERY`) that is never written
     or read here -- bi-level retrieval seeds its graph traversal from
-    insight/interaction hits, not from a query node. No atomic splitting and no
-    dedup: the full observation text is stored as one row, owner={agent_id},
-    appended every call even if a prior call stored identical text.
-    `stats()`'s `shared` counts rows whose owner set has length >=2; since
-    there is no cross-insert owner merge, `shared` stays ~0 under normal
-    runtime use (this baseline shares the STORE across agents, not the
-    per-entry OWNER SET) -- that is the faithful, expected reading, not a
-    bug.
+    insight/interaction hits, not from a query node. No dedup: the full
+    observation text is stored verbatim, appended every call even if a
+    prior call stored identical text.
+
+    Per-owner storage (deliberate deviation from the paper for a fair
+    baseline comparison): `remember_atomic(owners, text, ...)` writes ONE
+    ROW PER OWNER (each single-owner), not one shared multi-owner row --
+    since this baseline (like `CollaborativeMemory`) has no cross-agent
+    equivalence merge of its own, faithfully letting every agent that knows
+    an event keep its own record is what "as if that agent had simulated
+    the story itself" requires; collapsing multiple owners onto one row
+    would instead give this baseline a merge it never earns. `remember`
+    (single owner) was already one row per call and is unaffected. The
+    STORE (the Chroma collection) is still shared across every agent --
+    `recall`'s default `owner_scope=False` reads across all owners' rows --
+    only per-ENTRY ownership is now per-owner; that is the axis the paper's
+    "single shared graph" design choice above is actually about.
+    `maybe_distill`'s synthesized "insight" rows remain genuinely
+    multi-owner (the union of their source interactions' owners), since
+    they are not per-owner duplicated by this fan-out. `stats()`'s `shared`
+    counts rows whose owner set has length >=2; under plain runtime
+    `remember`/`remember_atomic` that is now ~0 (rows are single-owner),
+    with any nonzero count coming from distilled insight rows -- that is the
+    faithful, expected reading, not a bug.
 
     Storage note: rows live in a `ChromaRows` collection SHARED across every
-    agent (one Chroma record per `remember`/`remember_atomic` call, never
-    per-owner-duplicated), matching the paper's single-graph design above.
-    Chroma metadata values must be scalars, so each row's owner set is
-    stored TWICE: once as a JSON-encoded `owners` list (`dumps_meta`/
+    agent (one Chroma record per owner per `remember`/`remember_atomic`
+    call). Chroma metadata values must be scalars, so each row's owner set
+    is stored TWICE: once as a JSON-encoded `owners` list (`dumps_meta`/
     `loads_meta`) for `all_entries`/`export`, and once as a per-owner
     boolean flag `owner_<id>=True` for every owner -- Chroma's `where` can't
     test membership inside a JSON string, so the boolean flags are what let
@@ -796,9 +811,14 @@ class GMemory:
         story_time=None,
         affiliated: list[str] | None = None,
     ) -> dict | None:
-        """One shared row, owners=sorted(set(owners)) -- faithful to
-        G-Memory's central design choice that memory is a single shared
-        graph rather than private per-agent streams."""
+        """ONE ROW PER OWNER -- per-owner duplication, mirroring
+        `GenerativeAgentsMemory.remember_atomic`. None of the three
+        baselines implement the consensus store's cross-agent equivalence
+        merge, so faithfully modeling "each agent that knows an event keeps
+        its own record" means every owner in `owners` gets its own
+        single-owner row, embedded/tagged identically. Since rows are no
+        longer multi-owner under normal writes, `stats().shared` stays ~0
+        here too (see the class docstring)."""
         text = text.strip()
         if not text:
             return None
@@ -806,7 +826,6 @@ class GMemory:
             raise ValueError("remember_atomic requires at least one owner")
 
         embedding = (await self._embed_fn([text]))[0]
-        row_id = uuid.uuid4().hex
         meta = {
             "created_at": _now_iso(),
             "source": source,
@@ -817,12 +836,17 @@ class GMemory:
             meta["story_order"] = story_order
         if story_time is not None:
             meta["story_time"] = story_time
-        new_owners = sorted(set(owners))
-        seed_affiliated = sorted(a for a in set(affiliated or []) if a != row_id)
-        metadata = self._build_meta(new_owners, seed_affiliated, meta)
-        await self._store.add(row_id, text, embedding, metadata)
-        await self._track_new_interaction(row_id)
-        return {"id": row_id, "text": text, "merged": False, "owners": new_owners}
+        seed_affiliated = sorted(set(affiliated or []))
+        first_id = None
+        for owner in owners:
+            row_id = uuid.uuid4().hex
+            if first_id is None:
+                first_id = row_id
+            row_affiliated = sorted(a for a in seed_affiliated if a != row_id)
+            metadata = self._build_meta([owner], row_affiliated, meta)
+            await self._store.add(row_id, text, embedding, metadata)
+            await self._track_new_interaction(row_id)
+        return {"id": first_id, "text": text, "merged": False, "owners": list(owners)}
 
     async def recall(
         self, agent_id: str, query: str, top_k: int = 5, owner_scope: bool = False
@@ -1002,13 +1026,22 @@ class GMemory:
                 computed[i] = list(vec)
 
         for i, entry in enumerate(entries):
-            owners = list(entry.get("owners", []))
+            owners = entry.get("owners") or [None]
             affiliated = list(entry.get("affiliated", []))
             meta = dict(entry.get("meta", {}) or {})
             meta.setdefault("tier", INTERACTION)
             embedding = entry.get("embedding") or computed[i]
-            metadata = self._build_meta(owners, affiliated, meta)
-            await self._store.add(entry["id"], entry["text"], list(embedding), metadata)
+
+            # A multi-owner entry (e.g. a consensus-merged dump from
+            # `society.ltm.SharedMemory`) restored into this PER-OWNER
+            # backend becomes one owned row per owner -- mirrors
+            # `GenerativeAgentsMemory.restore`'s fan-out. The first owner
+            # keeps the entry's original id; additional owners get a fresh
+            # row id since two rows can never share one id in this store.
+            for idx, owner in enumerate(owners):
+                row_id = entry["id"] if idx == 0 else uuid.uuid4().hex
+                metadata = self._build_meta([owner], affiliated, meta)
+                await self._store.add(row_id, entry["text"], list(embedding), metadata)
 
     def stats(self) -> dict:
         entries = self.all_entries()
@@ -1122,19 +1155,33 @@ class CollaborativeMemory:
     copy -- `recall` filters candidates to fragments whose ACL contains
     `agent_id` *before* ranking by cosine relevance, so an agent with no
     grant sees nothing regardless of relevance. No merge/dedup of duplicate
-    fragment text: two agents writing identical text produce two fragments.
-    `grant(memory_id, agent_id)` extends a fragment's ACL (the paper's
-    sharing/delegation primitive) and is the only way `stats()`'s `shared`
-    (ACL size >= 2) becomes nonzero -- under plain runtime `remember` calls
-    ACLs start single-owner, so `shared` ~0 until an explicit grant, which
-    is documented as expected rather than a gap. `forget(agent_id, id)`
-    mirrors `SharedMemory.forget`: it revokes read access for `agent_id`
-    and deletes the fragment once its ACL is empty.
+    fragment text: two agents writing identical text produce separate
+    fragments. `grant(memory_id, agent_id)` extends a fragment's ACL (the
+    paper's sharing/delegation primitive) and is the only way `stats()`'s
+    `shared` (ACL size >= 2) becomes nonzero -- under plain runtime
+    `remember`/`remember_atomic` calls every fragment's ACL starts
+    single-member, so `shared` ~0 until an explicit grant, which is
+    documented as expected rather than a gap. `forget(agent_id, id)` mirrors
+    `SharedMemory.forget`: it revokes read access for `agent_id` and deletes
+    the fragment once its ACL is empty.
+
+    Per-owner storage (deliberate deviation from the paper for a fair
+    baseline comparison): `remember_atomic(owners, text, ...)` writes ONE
+    FRAGMENT PER OWNER, each with a single-member ACL, not one fragment
+    shared-ACL'd to every owner -- since this baseline (like `GMemory`) has
+    no cross-agent equivalence merge of its own, faithfully letting every
+    agent that knows an event keep its own readable copy is what "as if
+    that agent had simulated the story itself" requires; collapsing
+    multiple owners onto one shared-ACL fragment would instead give this
+    baseline a merge it never earns. `remember` (single owner) was already
+    one fragment per call and is unaffected. The pool remains a shared
+    Chroma collection across every agent; only the per-fragment ACL granted
+    at write time is now single-member, with `grant` still the sole way an
+    ACL grows past one reader.
 
     Storage note: rows live in a `ChromaRows` collection SHARED across every
-    agent (one Chroma record per `remember`/`remember_atomic` call, one
-    fragment, never duplicated per-reader), matching the shared-pool design
-    above. Chroma metadata values must be scalars, so each row's ACL is
+    agent (one Chroma record per owner per `remember`/`remember_atomic`
+    call). Chroma metadata values must be scalars, so each row's ACL is
     stored TWICE, mirroring `GMemory`'s (and `society.ltm.SharedMemory`'s)
     identical dual-storage trick: once as a JSON-encoded `acl` list
     (`dumps_meta`/`loads_meta`) for `all_entries`/`export`, and once as a
@@ -1229,9 +1276,15 @@ class CollaborativeMemory:
         story_time=None,
         affiliated: list[str] | None = None,
     ) -> dict | None:
-        """One row whose ACL is `set(owners)` -- faithful to this baseline's
-        access-controlled-fragment model, where a fragment's ACL is the set
-        of agents permitted to read it."""
+        """ONE FRAGMENT PER OWNER, each with a single-member ACL -- per-owner
+        duplication, mirroring `GenerativeAgentsMemory.remember_atomic`.
+        None of the three baselines implement the consensus store's
+        cross-agent equivalence merge, so faithfully modeling "each agent
+        that knows an event keeps its own record" means every owner in
+        `owners` gets its own single-reader fragment, embedded/tagged
+        identically. `grant` remains the only way a fragment's ACL grows
+        past one member (see the class docstring), so `stats().shared`
+        stays ~0 here under plain writes."""
         text = text.strip()
         if not text:
             return None
@@ -1239,7 +1292,6 @@ class CollaborativeMemory:
             raise ValueError("remember_atomic requires at least one owner")
 
         embedding = (await self._embed_fn([text]))[0]
-        row_id = uuid.uuid4().hex
         meta = {
             "created_at": _now_iso(),
             "source": source,
@@ -1249,11 +1301,16 @@ class CollaborativeMemory:
             meta["story_order"] = story_order
         if story_time is not None:
             meta["story_time"] = story_time
-        new_acl = sorted(set(owners))
-        seed_affiliated = sorted(a for a in set(affiliated or []) if a != row_id)
-        metadata = self._build_meta(new_acl, seed_affiliated, meta)
-        await self._store.add(row_id, text, embedding, metadata)
-        return {"id": row_id, "text": text, "merged": False, "owners": new_acl}
+        seed_affiliated = sorted(set(affiliated or []))
+        first_id = None
+        for owner in owners:
+            row_id = uuid.uuid4().hex
+            if first_id is None:
+                first_id = row_id
+            row_affiliated = sorted(a for a in seed_affiliated if a != row_id)
+            metadata = self._build_meta([owner], row_affiliated, meta)
+            await self._store.add(row_id, text, embedding, metadata)
+        return {"id": first_id, "text": text, "merged": False, "owners": list(owners)}
 
     async def recall(self, agent_id: str, query: str, top_k: int = 5) -> list[dict]:
         """Filters candidates to fragments whose ACL contains `agent_id`
@@ -1380,12 +1437,22 @@ class CollaborativeMemory:
                 computed[i] = list(vec)
 
         for i, entry in enumerate(entries):
-            acl = list(entry.get("owners", []))
+            acl = entry.get("owners") or [None]
             affiliated = list(entry.get("affiliated", []))
             meta = dict(entry.get("meta", {}) or {})
             embedding = entry.get("embedding") or computed[i]
-            metadata = self._build_meta(acl, affiliated, meta)
-            await self._store.add(entry["id"], entry["text"], list(embedding), metadata)
+
+            # A multi-ACL entry (e.g. a consensus-merged dump from
+            # `society.ltm.SharedMemory`) restored into this PER-OWNER
+            # backend becomes one single-reader fragment per owner --
+            # mirrors `GenerativeAgentsMemory.restore`'s fan-out. The first
+            # owner keeps the entry's original id; additional owners get a
+            # fresh row id since two rows can never share one id in this
+            # store.
+            for idx, owner in enumerate(acl):
+                row_id = entry["id"] if idx == 0 else uuid.uuid4().hex
+                metadata = self._build_meta([owner], affiliated, meta)
+                await self._store.add(row_id, entry["text"], list(embedding), metadata)
 
     def stats(self) -> dict:
         entries = self.all_entries()
