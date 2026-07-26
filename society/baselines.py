@@ -32,6 +32,55 @@ _DEFAULT_IMPORTANCE = 5
 # without depositing 150+ points of importance).
 REFLECTION_THRESHOLD = 150
 
+# How many of the most-recently-touched rows in the WHOLE store (across all
+# owners -- `GenerativeAgentsMemory` is one shared instance whose rows are
+# scoped per owner by metadata, not one instance per agent, so the
+# reflection accumulator and this recency window are store-wide too) are
+# handed to the LLM as "recent memories" context for question generation.
+# Selection key: (tick, last_access) descending -- `tick` is the caller-
+# supplied simulation step (coarse, matches the paper's narrative ordering)
+# with `last_access` (the monotonic access-tick counter) as a tiebreaker for
+# rows sharing a tick, since it strictly increases with every store write.
+REFLECTION_RECENT_N = 30
+
+# Max number of high-level questions the LLM is asked to generate per
+# reflection pass (paper: "salient high-level questions... about the
+# subjects"), and the number of candidate rows retrieved as evidence for
+# each question.
+REFLECTION_QUESTIONS = 3
+REFLECTION_EVIDENCE_K = 5
+
+
+def reflection_questions_prompt(recent_texts: list[str]) -> str:
+    """Build the LLM prompt used by `GenerativeAgentsMemory._reflect` to ask
+    for the top salient high-level questions given a batch of recent
+    memory-stream texts (Park et al. 2023, reflection step 1)."""
+    bullets = "\n".join(f"- {t}" for t in recent_texts)
+    return (
+        "Given only the statements below, what are the "
+        f"{REFLECTION_QUESTIONS} most salient high-level questions we can "
+        "answer about the subjects in the statements?\n\n"
+        f"{bullets}\n\n"
+        "Respond with one question per line, no numbering, no preamble."
+    )
+
+
+def reflection_synthesis_prompt(question: str, evidence_texts: list[str]) -> str:
+    """Build the LLM prompt used by `GenerativeAgentsMemory._reflect` to
+    synthesize ONE reflection statement answering `question` from its
+    retrieved evidence memories (Park et al. 2023, reflection step 2)."""
+    bullets = "\n".join(f"- {t}" for t in evidence_texts)
+    return (
+        "You are synthesizing a higher-level reflection for an agent's "
+        "memory stream.\n\n"
+        f"Question: {question}\n\n"
+        "Relevant memories:\n"
+        f"{bullets}\n\n"
+        "Write ONE concise sentence that answers the question with the "
+        "insight or conclusion drawn from these memories. Respond with "
+        "only that sentence, no preamble."
+    )
+
 
 def _now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
@@ -166,16 +215,127 @@ class GenerativeAgentsMemory:
             await self._reflect()
 
     async def _reflect(self) -> None:
-        """Placeholder reflection hook (Task 9 scope: trigger only).
+        """Generative Agents (Park et al. 2023) reflection synthesis.
 
-        Task 10 replaces this body with: ask the LLM for salient questions
-        from recent memories, `recall` evidence for each, LLM-synthesize a
-        reflection statement, and store it as a new stream entry (tagged
-        `kind=reflection`) with `affiliated` = the evidence memory ids --
-        via an internal storage path that bypasses `_deposit_importance` (see
-        that method's docstring).
+        Runs once per crossing of `_reflection_threshold` (called by
+        `_maybe_reflect`, which has already reset the accumulator):
+
+        1. Pull the `REFLECTION_RECENT_N` most-recently-touched rows across
+           the WHOLE store (see `REFLECTION_RECENT_N`'s docstring on why
+           this is store-wide, not per-owner) as "recent memories" context.
+        2. Ask the LLM for up to `REFLECTION_QUESTIONS` salient high-level
+           questions given those recent memories.
+        3. For each question, retrieve `REFLECTION_EVIDENCE_K` candidate
+           rows from the store as evidence (a plain relevance query over
+           the whole store -- reflection evidence is not owner-scoped
+           either, since the "recent memories" it questions weren't).
+        4. Ask the LLM to synthesize ONE reflection sentence answering the
+           question from that evidence, then store it via
+           `_store_reflection` (which fans the row out per evidence owner
+           and does NOT feed the importance accumulator).
+
+        No-ops (never raises) when: there is no LLM configured, the store
+        is empty, the LLM returns no parseable questions for a given pass,
+        a question's evidence query comes back empty, no evidence row
+        carries an owner, or a question's synthesized reflection text is
+        empty/whitespace -- that question is simply skipped, the rest of
+        the pass proceeds.
         """
-        return None
+        if self._llm is None:
+            return
+
+        rows = self._store.all_rows()
+        if not rows:
+            return
+
+        def _recency_key(row):
+            meta = row["metadata"]
+            return (
+                int(meta.get("tick", 0) or 0),
+                int(meta.get("last_access", 0) or 0),
+            )
+
+        recent_rows = sorted(rows, key=_recency_key, reverse=True)[:REFLECTION_RECENT_N]
+        recent_texts = [r["text"] for r in recent_rows]
+
+        raw_questions = await self._llm.chat(
+            reflection_questions_prompt(recent_texts), bucket="reflection_questions"
+        )
+        questions = [q.strip(" \t-") for q in (raw_questions or "").splitlines()]
+        questions = [q for q in questions if q][:REFLECTION_QUESTIONS]
+        if not questions:
+            return
+
+        for question in questions:
+            evidence = await self._store.query(question, REFLECTION_EVIDENCE_K)
+            if not evidence:
+                continue
+            evidence_ids = [cand["id"] for cand in evidence]
+            evidence_texts = [cand["text"] for cand in evidence]
+            owners = sorted(
+                {
+                    cand["metadata"].get("owner")
+                    for cand in evidence
+                    if cand["metadata"].get("owner")
+                }
+            )
+            if not owners:
+                continue
+
+            reflection_text = await self._llm.chat(
+                reflection_synthesis_prompt(question, evidence_texts),
+                bucket="reflection_synthesis",
+            )
+            reflection_text = (reflection_text or "").strip()
+            if not reflection_text:
+                continue
+
+            await self._store_reflection(reflection_text, owners, evidence_ids)
+
+    async def _store_reflection(self, text: str, owners: list[str], evidence_ids: list[str]) -> None:
+        """Store one synthesized reflection as new memory-stream row(s).
+
+        Mirrors `remember_atomic`'s per-owner fan-out (ONE row per owner in
+        `owners`), so `recall_of(owner_id, ...)` -- which scopes candidates
+        to `owner == owner_id` -- surfaces the reflection for every agent
+        whose evidence contributed to it, matching the paper's model of
+        reflections as higher-level entries living in the same per-agent
+        stream as everything else. `owners` here is the union of the
+        evidence rows' owners (passed in by `_reflect`), not the reflecting
+        agent's own id -- there is no single "reflecting agent" in this
+        shared-instance store (see `REFLECTION_RECENT_N`'s docstring).
+
+        CRUCIAL: unlike `remember`/`remember_atomic`, this does NOT call
+        `_deposit_importance`. `_deposit_importance` is the only path that
+        feeds `_importance_since_reflection` (see its docstring) and is
+        called exclusively from the public remember* methods; a reflection
+        is produced internally by `_reflect` itself; feeding a reflection's
+        importance back into the accumulator would let a reflection pass
+        re-trigger (or partially fund) the next one, an unbounded internal
+        feedback loop the paper's mechanism does not have. Skipping it here
+        is what keeps "one threshold crossing -> one `_reflect` call" true.
+        """
+        text = (text or "").strip()
+        if not text or not owners:
+            return
+
+        embedding = (await self._embed_fn([text]))[0]
+        importance = await self._score_importance(text)
+        affiliated = dumps_meta(sorted(set(evidence_ids)))
+        for owner in owners:
+            row_id = uuid.uuid4().hex
+            self._clock += 1
+            metadata = {
+                "owner": owner,
+                "affiliated": affiliated,
+                "created_at": _now_iso(),
+                "source": "reflection",
+                "kind": "reflection",
+                "tick": 0,
+                "importance": importance,
+                "last_access": self._clock,
+            }
+            await self._store.add(row_id, text, embedding, metadata)
 
     @staticmethod
     def _split_meta(metadata: dict) -> tuple[str, list[str], dict]:
