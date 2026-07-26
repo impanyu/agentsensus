@@ -99,6 +99,15 @@ def apply_boundary_state(agents, keep_char, finalized):
             if st.get("location") != loc:
                 counts["relocated"] += 1
             st["location"] = loc
+
+    # Any archived character (whether archived this run or already archived in
+    # the base scenario) must not carry a status.location: it is never
+    # scheduled, and env-trim can remove the env its stale location points to,
+    # which would make the scenario fail to load (scenario.py validates
+    # location membership for ALL characters, archived included).
+    for a in agents:
+        if a.get("kind") == "character" and a.get("archived"):
+            a.get("status", {}).pop("location", None)
     return counts
 
 

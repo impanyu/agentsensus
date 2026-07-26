@@ -69,19 +69,26 @@ def test_apply_sets_location_and_archives_dead():
         {"id": "caocao", "kind": "character", "status": {"location": "hedong"}},
         {"id": "hejin", "kind": "character", "status": {"location": "hedong"}},
         {"id": "liubei", "kind": "character", "status": {"location": "xinye"}},
+        {"id": "lijue", "kind": "character", "archived": True, "status": {"location": "shanzhong"}},
         {"id": "xuchang", "kind": "environment"},
     ]
     finalized = {
         "caocao": {"alive": True, "location": "xuchang", "source": "memory"},
         "hejin": {"alive": False, "location": None, "source": "memory"},
         "liubei": {"alive": True, "location": None, "source": "canon@boundary"},  # unresolved -> keep prior
+        # pre-archived (from prior sedimentation) + a false-negative "alive=True"
+        # from finalize_boundary_state -- must NOT be resurrected, but its
+        # dangling location must still be cleared.
+        "lijue": {"alive": True, "location": None, "source": "canon@boundary"},
     }
-    counts = apply_boundary_state(agents, {"caocao", "hejin", "liubei"}, finalized)
+    counts = apply_boundary_state(agents, {"caocao", "hejin", "liubei", "lijue"}, finalized)
     byid = {a["id"]: a for a in agents}
     assert byid["caocao"]["status"]["location"] == "xuchang"      # relocated
     assert byid["hejin"].get("archived") is True                 # dead archived
     assert "location" not in byid["hejin"].get("status", {})     # dangling location cleared
     assert byid["liubei"]["status"]["location"] == "xinye"       # unresolved -> unchanged
+    assert byid["lijue"].get("archived") is True                 # stays archived (not resurrected)
+    assert "location" not in byid["lijue"].get("status", {})     # dangling location cleared, even though "alive"
     assert counts["archived"] == 1 and counts["relocated"] == 1
 
 
