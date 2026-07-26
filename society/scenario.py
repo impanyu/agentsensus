@@ -264,7 +264,24 @@ async def build_society(
     )
     stats_interval = defaults.get("stats_interval", 10)
 
-    shared = make_memory(memory_kind, embed_fn, llm=llm, max_tokens=memory_max_tokens)
+    # Give every run its own Chroma collection: deterministic per
+    # (scenario, memory_kind) so a run's identity is legible in the
+    # collection name, plus a short uuid suffix so a re-run of the same
+    # (scenario, memory_kind) within the same process (e.g. parallel
+    # 三国-table sims, or repeated test instantiation) never collides with
+    # a stale collection left behind by a prior run. Without this,
+    # `collection_name=None` would fall back to each backend's own
+    # auto-generated name, which is unique per instance anyway (so
+    # isolation already holds) but not legible/deterministic per run.
+    collection_name = f"{cfg.get('scenario', 'scn')}_{memory_kind}_{uuid.uuid4().hex[:8]}"
+
+    shared = make_memory(
+        memory_kind,
+        embed_fn,
+        llm=llm,
+        max_tokens=memory_max_tokens,
+        collection_name=collection_name,
+    )
 
     interval = metrics_interval if metrics_interval is not None else stats_interval
     metrics = Metrics(agents, shared, out_dir, interval=interval)

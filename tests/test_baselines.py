@@ -143,6 +143,21 @@ async def test_ga_restore_advances_clock_so_recall_does_not_overflow():
     assert any(r["text"] == TEXT_A for r in results)
 
 
+async def test_ga_chroma_per_owner_fanout():
+    m = GenerativeAgentsMemory(afake_embed, llm=None)
+    await m.remember_atomic(["a", "b"], "shared scene")
+    ents = m.all_entries()
+    assert len(ents) == 2  # one row per owner
+    assert {e["owners"][0] for e in ents} == {"a", "b"}
+
+
+async def test_ga_chroma_recall_scoped_and_reflection_fields():
+    m = GenerativeAgentsMemory(afake_embed, llm=None)
+    await m.remember("a", "刘备在新野议事")
+    assert await m.recall("a", "新野")  # owner a sees it
+    assert (await m.recall("b", "新野")) == []  # owner b does not
+
+
 # ========================================================================
 # GMemory
 # ========================================================================
@@ -207,6 +222,40 @@ async def test_gmemory_no_dedup_on_duplicate_text():
     await m.remember("liubei", TEXT_A)
     entries = m.all_entries()
     assert len(entries) == 2  # appended, no merge
+
+
+async def test_gmemory_chroma_shared_single_row():
+    m = GMemory(afake_embed, llm=None)
+    await m.remember_atomic(["a", "b"], "shared scene")
+    ents = m.all_entries()
+    assert len(ents) == 1 and sorted(ents[0]["owners"]) == ["a", "b"]
+
+
+async def test_gmemory_recall_of_owner_filter():
+    m = GMemory(afake_embed, llm=None)
+    await m.remember("a", "刘备在新野")
+    assert (await m.recall_of("a", "新野"))
+    assert (await m.recall_of("z", "新野")) == []
+
+
+async def test_gmemory_forget_partial_owner_then_recall_of():
+    # Regression test: chromadb's `collection.update(metadatas=[...])`
+    # MERGES key-by-key rather than replacing the metadata dict, so a
+    # partial-owner-removal `forget` that doesn't explicitly null out the
+    # removed owner's `owner_<id>` boolean flag leaves that flag set
+    # forever, and `recall_of`/`recall(..., owner_scope=True)` (which filter
+    # via `where={f"owner_{id}": True}`) keep returning the row even after
+    # the owner was removed.
+    m = GMemory(afake_embed, llm=None)
+    r = await m.remember_atomic(["a", "b"], "shared scene")
+    assert m.forget("b", r["id"]) is True
+
+    assert (await m.recall_of("b", "scene")) == []
+    assert any(e["text"] == "shared scene" for e in await m.recall_of("a", "scene"))
+
+    entries = m.all_entries()
+    assert len(entries) == 1
+    assert entries[0]["owners"] == ["a"]
 
 
 # ========================================================================
@@ -291,6 +340,39 @@ async def test_collab_forget_unknown_agent_returns_false():
     results = await m.remember("guanyu", TEXT_A)
     memory_id = results[0]["id"]
     assert m.forget("liubei", memory_id) is False
+
+
+async def test_collab_chroma_acl_gates_recall():
+    m = CollaborativeMemory(afake_embed, llm=None)
+    res = await m.remember("a", "密信内容")
+    mid = res[0]["id"]
+    assert (await m.recall("a", "密信"))
+    assert (await m.recall("b", "密信")) == []
+    assert m.grant(mid, "b") is True
+    assert (await m.recall("b", "密信"))
+
+
+async def test_collab_forget_partial_acl_then_recall():
+    # Regression for the ChromaRows.update_metadata merge trap (see
+    # GMemory.forget, fixed in 1eab70b): forgetting one reader out of a
+    # multi-reader ACL must null out that reader's `acl_<id>` flag, not
+    # just leave it stale on the stored metadata -- otherwise the revoked
+    # agent keeps matching `where={f"acl_{id}": True}` and can still recall
+    # the fragment even though it was removed from the ACL.
+    m = CollaborativeMemory(afake_embed)
+    results = await m.remember("a", TEXT_A)
+    memory_id = results[0]["id"]
+    assert m.grant(memory_id, "b") is True
+
+    assert m.forget("a", memory_id) is True
+
+    assert await m.recall("a", TEXT_A) == []
+    b_results = await m.recall("b", TEXT_A)
+    assert any(r["text"] == TEXT_A for r in b_results)
+
+    entries = m.all_entries()
+    assert len(entries) == 1
+    assert entries[0]["owners"] == ["b"]
 
 
 # ========================================================================
@@ -519,3 +601,150 @@ async def test_kernel_act_on_and_read_do_not_crash_on_baseline_memory(kind):
     assert shared.get_affiliations(ids[0]) == [ids[1]]
     assert shared.remove_affiliations(ids[0], [ids[1]]) is True
     assert shared.get_affiliations(ids[0]) == []
+
+
+# ========================================================================
+# Task 5: per-run Chroma collection isolation + footprint fairness
+# ========================================================================
+
+
+def _synthetic_dump():
+    """A tiny holographic dump with 3 multi-owner entries -- owners
+    [a,b,c], [a,b], [x] -- in `export()`/`restore()` format. `embedding` is
+    left None so `restore()` computes it via `afake_embed`, exactly as the
+    brief asks. This is the fixture used to lock in the core fairness
+    property: GenerativeAgentsMemory fans out one row per owner while the
+    three shared stores (g_memory, collaborative, consensus) keep one row
+    per entry."""
+    return [
+        {
+            "id": "e1",
+            "text": TEXT_A,
+            "owners": ["a", "b", "c"],
+            "affiliated": [],
+            "meta": {"source": "test"},
+            "embedding": None,
+        },
+        {
+            "id": "e2",
+            "text": TEXT_B,
+            "owners": ["a", "b"],
+            "affiliated": [],
+            "meta": {"source": "test"},
+            "embedding": None,
+        },
+        {
+            "id": "e3",
+            "text": "曹操煮酒论英雄",
+            "owners": ["x"],
+            "affiliated": [],
+            "meta": {"source": "test"},
+            "embedding": None,
+        },
+    ]
+
+
+async def test_restore_footprint_per_method():
+    dump = _synthetic_dump()
+
+    consensus = SharedMemory(afake_embed)
+    ga = make_memory("generative_agents", afake_embed)
+    gm = make_memory("g_memory", afake_embed)
+    collab = make_memory("collaborative", afake_embed)
+
+    await consensus.restore(dump)
+    await ga.restore(dump)
+    await gm.restore(dump)
+    await collab.restore(dump)
+
+    consensus_total = consensus.stats()["total"]
+    ga_total = ga.stats()["total"]
+    gm_total = gm.stats()["total"]
+    collab_total = collab.stats()["total"]
+
+    # generative_agents: one row per (entry, owner) pair -- 3 + 2 + 1 = 6.
+    expected_fanout = sum(len(e["owners"]) for e in dump)
+    assert expected_fanout == 6
+    assert ga_total == expected_fanout
+
+    # g_memory / collaborative / consensus are shared stores: one row per
+    # entry regardless of how many owners it has.
+    assert gm_total == collab_total == consensus_total == len(dump) == 3
+
+    # the fairness property this whole Chroma-unification effort exists to
+    # lock in: generative_agents' per-owner fanout inflates its footprint
+    # relative to the shared-store baselines whenever any entry has >=2
+    # owners (true here for e1 and e2).
+    assert ga_total > gm_total
+    assert ga_total > collab_total
+    assert ga_total > consensus_total
+
+
+@pytest.mark.parametrize("kind", ["generative_agents", "g_memory", "collaborative"])
+async def test_make_memory_collection_name_isolation(kind):
+    """Two `make_memory(..., collection_name=...)` calls with DIFFERENT
+    names must not see each other's writes -- this is the property
+    `build_society`'s per-run collection name (derived from
+    `f"{scenario}_{memory_kind}_<uuid>"`) relies on so repeated/parallel
+    runs of the same (scenario, backend) don't contaminate each other.
+    Regression-guards against chromadb's `Client()` instances silently
+    sharing an in-process store keyed by collection name (verified: two
+    separate `chromadb.Client()` objects with the SAME collection name DO
+    share data, so a unique name -- not just a fresh Client() -- is what
+    actually isolates runs)."""
+    m1 = make_memory(kind, afake_embed, collection_name=f"isolation_alpha_{kind}")
+    m2 = make_memory(kind, afake_embed, collection_name=f"isolation_beta_{kind}")
+
+    await m1.remember_atomic(["a"], TEXT_A, tick=0)
+
+    assert len(m1.all_entries()) == 1
+    assert len(m2.all_entries()) == 0
+
+
+async def test_shared_memory_collection_name_isolation():
+    """Same isolation property for the consensus backend
+    (`society.ltm.SharedMemory`), which is not covered by
+    `test_make_memory_collection_name_isolation`'s BASELINE_CLASSES-style
+    parametrization since it's constructed directly rather than through
+    `make_memory`'s registry in most tests."""
+    m1 = SharedMemory(afake_embed, collection_name="isolation_alpha_consensus")
+    m2 = SharedMemory(afake_embed, collection_name="isolation_beta_consensus")
+
+    await m1.remember_atomic(["a"], TEXT_A, tick=0)
+
+    assert len(m1.all_entries()) == 1
+    assert len(m2.all_entries()) == 0
+
+
+async def test_build_society_gives_each_call_a_distinct_collection():
+    """Two `build_society(...)` calls for the same scenario/memory_kind must
+    not contaminate each other's shared memory, even though both derive
+    their collection name from the same `f"{scenario}_{memory_kind}"`
+    prefix -- the uuid suffix in `build_society` must make each call's name
+    unique."""
+    from society.events import EventLog
+    from society.scenario import build_society
+
+    cfg = {
+        "scenario": "isolation_test",
+        "agents": [
+            {"id": "a", "kind": "character", "brain": "rule",
+             "status": {"location": "hall"}},
+            {"id": "hall", "kind": "environment", "brain": "rule"},
+        ],
+        "map": {"environments": ["hall"], "edges": []},
+    }
+
+    k1 = await build_society(
+        cfg, llm=None, embed_fn=afake_embed, event_log=EventLog(None),
+        memory_kind="g_memory",
+    )
+    k2 = await build_society(
+        cfg, llm=None, embed_fn=afake_embed, event_log=EventLog(None),
+        memory_kind="g_memory",
+    )
+
+    await k1.shared_memory.remember_atomic(["a"], TEXT_A, tick=0)
+
+    assert len(k1.shared_memory.all_entries()) == 1
+    assert len(k2.shared_memory.all_entries()) == 0
