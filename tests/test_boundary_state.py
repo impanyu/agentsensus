@@ -59,3 +59,26 @@ async def test_no_timeline_goes_straight_to_fallback():
         return '{"alive": true, "location": "jiangdong"}'
     out = await finalize_boundary_state([], ["sunquan"], {"jiangdong"}, llm=FakeLLM(fn=fn), boundary_context="ctx")
     assert out["sunquan"]["source"] == "canon@boundary" and out["sunquan"]["location"] == "jiangdong"
+
+
+from experiments.select_cast import apply_boundary_state
+
+
+def test_apply_sets_location_and_archives_dead():
+    agents = [
+        {"id": "caocao", "kind": "character", "status": {"location": "hedong"}},
+        {"id": "hejin", "kind": "character", "status": {"location": "hedong"}},
+        {"id": "liubei", "kind": "character", "status": {"location": "xinye"}},
+        {"id": "xuchang", "kind": "environment"},
+    ]
+    finalized = {
+        "caocao": {"alive": True, "location": "xuchang", "source": "memory"},
+        "hejin": {"alive": False, "location": None, "source": "memory"},
+        "liubei": {"alive": True, "location": None, "source": "canon@boundary"},  # unresolved -> keep prior
+    }
+    counts = apply_boundary_state(agents, {"caocao", "hejin", "liubei"}, finalized)
+    byid = {a["id"]: a for a in agents}
+    assert byid["caocao"]["status"]["location"] == "xuchang"      # relocated
+    assert byid["hejin"].get("archived") is True                 # dead archived
+    assert byid["liubei"]["status"]["location"] == "xinye"       # unresolved -> unchanged
+    assert counts["archived"] == 1 and counts["relocated"] == 1
