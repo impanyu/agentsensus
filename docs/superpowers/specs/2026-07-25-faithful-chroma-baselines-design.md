@@ -61,8 +61,8 @@ not a fair, faithful basis for the paper as currently built:
 | G-Memory fidelity | **Full** — interaction + insight + query graph, graph-traversal retrieval, post-task distillation |
 | Generative Agents | **Add the reflection tree** (full fidelity), keep existing 3-term retrieval |
 | Storage substrate | **ChromaDB for all four backends** |
-| Sediment | **Rebuilt per-method** from a captured pre-merge deposit stream |
-| Model for re-runs | **deepseek-v4-flash + `thinking:{type:disabled}`** (config `extra_body`) |
+| Sediment | **Built per-method by each backend's own `restore()`** from the EXISTING consensus dump — NO re-sediment (multi-owner comes from the backend-neutral `assign` step, not from consensus merge, so the 6051 dump is already the faithful atomic-event set) |
+| Model for re-runs | **deepseek-v4-flash + `thinking:{type:disabled}`** for all SIM runs (config `extra_body`); the existing v4-pro sediment is reused as-is (sediment is one-time preprocessing, independent of the sim model) |
 | Sequencing | 1) Chroma unify + per-method sediment → fair 三国 table; 2) G-Memory Full; 3) GA reflection; 4) other 3 scenarios |
 
 ## Architecture
@@ -131,47 +131,60 @@ baseline class stays focused on its own organization rule.
 **Collaborative — unchanged mechanism, ported to Chroma.** Keep the immutable
 ACL-gated fragments and `grant()`.
 
-### Workstream 3 — Per-method sedimentation
+### Workstream 3 — Per-method sediment base (NO re-sediment)
 
-- **Capture the deposit stream.** Instrument the sediment pipeline
-  (`society/history_extract.py`, which calls `shared.remember_atomic(owners, text,
-  …)`) so every deposit is appended once to a JSONL:
-  `{owners, text, affiliated, story_order}` (order = call order). Implement via a
-  thin recording wrapper around the shared-memory object passed to the pipeline
-  (no change to the atomize/assign logic), so the stream is exactly the fragments
-  fed to consensus.
-- **Re-run 三国 sediment on flash**, producing (a) the consensus store as today and
-  (b) `three_kingdoms.deposit_stream.jsonl`.
-- **Build each backend's base by replaying the identical stream** through that
-  backend's `remember_atomic` (+ `link_group`/affiliations where applicable):
-  consensus merges → ~6051; generative → per-owner expansion; g_memory → shared
-  interaction nodes, no equivalence-merge; collaborative → one fragment per
-  deposit with ACL. This produces four faithful sediment bases from one stream.
-- **Report** raw-deposit count `D` vs consensus `6051` = consensus's real
-  equivalence-merge compression (previously unknown), plus per-backend base
-  footprints.
+Investigation (society/history_extract.py:1516) showed each atomic event is
+deposited **once** via `remember_atomic(owners, fragment, …)` with its FULL
+owner-set already assigned by the backend-neutral `assign` step ("assign MULTIPLE
+owners … everyone who would plausibly know it"). So the multi-owner structure is
+NOT a consensus artifact — the existing 6051-entry consensus dump is already the
+faithful set of atomic world-events with their witnesses. Re-sedimenting is
+therefore unnecessary.
+
+- **Build each backend's sediment base by loading the EXISTING consensus dump
+  through that backend's own `restore()`**, which already applies the per-method
+  storage rule: consensus → 6051 (owner-set rows); generative → per-owner private
+  copies (~19856, 3.3×); g_memory → shared interaction nodes with owner-sets
+  (6051); collaborative → one ACL-gated fragment per event (6051). g_memory/collab
+  matching 6051 is faithful, not inherited compression — they are shared stores
+  that (like consensus) don't fan out per owner; only generative uses private
+  streams. The per-method footprint DIVERGENCE for g_memory/collaborative appears
+  during the SIM (they don't equivalence-merge duplicate deposits agents make),
+  which is exactly why live sims are required.
+- Under Chroma unification (WS1), each backend's `restore()` writes into its own
+  Chroma collection instead of the in-memory dict, but the per-method row logic is
+  unchanged.
+- (Dropped: capturing a pre-merge deposit stream to measure consensus's
+  cross-fragment equivalence-merge compression `D` vs 6051. It's a secondary
+  nice-to-have, not a fairness requirement, and the only way to get it is a logged
+  re-sediment — deferred unless we later want that specific number.)
 
 ### Model
 
 `config_flash.json` already sets `chat_model=deepseek-v4-flash`,
 `extra_body={"thinking":{"type":"disabled"}}`, `max_concurrency=32`, threaded via
-the new `LLMClient(extra_body=…)` passthrough (llm.py / run.py). Re-sediment and
-all sim runs use it. The already-completed v4-pro consensus 三国 sim is re-run on
-flash so the whole matrix shares one model.
+the new `LLMClient(extra_body=…)` passthrough (llm.py / run.py). All SIM runs use
+it. The already-completed v4-pro consensus 三国 sim is re-run on flash so the whole
+4-backend matrix shares one sim model. The sediment is NOT re-run — it is one-time
+preprocessing whose output (the 6051 dump) is reused as the per-method base source.
 
 ## Data flow (three国, end to end)
 
 ```
-source text ──atomize+assign(flash)──▶ deposit stream JSONL ──replay──▶ 4 bases
-                     │                        (owners,text,affiliated)      │
-                     └──consensus store (6051, ChromaDB)                    ▼
-                                                              consensus / GA / G-Mem / Collab
-                                                              (each ChromaDB, own rule)
-                                                                            │
-                         per backend: restore base ──▶ 50-tick sim (flash) ─┘
-                                                                            │
-                                                                            ▼
-                                            footprint + cost + new_memories per backend
+existing consensus dump (6051, from prior v4-pro sediment)
+        │
+        ├─ restore into consensus  (Chroma)  → 6051 owner-set rows
+        ├─ restore into generative (Chroma)  → ~19856 per-owner rows
+        ├─ restore into g_memory   (Chroma)  → 6051 shared interaction nodes
+        └─ restore into collab     (Chroma)  → 6051 ACL fragments
+                                                        │  (per-method bases)
+                                                        ▼
+                          each backend: 50-tick sim (flash+no-thinking),
+                          applying its own rule to new remembers
+                          (+ G-Mem distillation / GA reflection at runtime)
+                                                        │
+                                                        ▼
+                            footprint + cost + new_memories + fidelity per backend
 ```
 
 ## Testing
@@ -183,31 +196,35 @@ source text ──atomize+assign(flash)──▶ deposit stream JSONL ──repl
 - **G-Memory Full:** distillation adds `insight` nodes and insight→interaction
   edges; bi-level retrieval returns insights + traversed interactions; tier
   `where`-filtering works; graph survives export/restore.
-- **Sediment replay:** replaying the same deposit stream twice into a backend
-  yields identical bases (determinism); consensus base count ≤ deposit count;
-  generative base = sum of owner-set sizes; g_memory/collab base = deposit count.
+- **Per-method sediment base:** restoring the same consensus dump into each
+  Chroma-backed backend yields the expected per-method footprint — generative base
+  = sum of owner-set sizes (~19856); g_memory/collab base = entry count (6051);
+  consensus = 6051; round-trips through export/restore.
 - **Kernel integration:** `act_on`/`read`/affiliations drive each Chroma-backed
   baseline without error (extends the existing 13057ce integration test).
 - Full suite green.
 
 ## Risks / open points
 
-- **Re-sediment quality on flash.** The sediment is the foundation; atomize/assign
-  on flash may differ from v4-pro. Mitigation: spot-check the new 三国 sediment
-  memories for quality before committing to the base; the user accepted flash for
-  re-sediment.
 - **Runtime LLM cost of Full mechanisms.** G-Memory distillation and GA reflection
-  add per-sim LLM calls (extra cost/latency) — accepted for fidelity.
-- **Small equivalence-merge compression.** If narrative deposits are mostly unique
-  across chunks, `D ≈ 6051` and consensus shows little sediment-level advantage
-  over g_memory/collaborative. That is an honest empirical outcome; report it as
-  measured. (Generative's per-owner 3.3× inflation is independent of this.)
+  add per-sim LLM calls (extra cost/latency) — accepted for fidelity. Keep them
+  bounded (distillation every K interactions; reflection on importance threshold)
+  and configurable so a run can't blow up.
+- **g_memory/collaborative footprint divergence is a sim-length effect.** At the
+  sediment level they equal consensus (6051); the divergence only accrues as
+  agents deposit duplicate events during the sim that consensus merges and they
+  don't. A short (50-tick) sim may show only modest divergence — report what is
+  measured; generative's per-owner 3.3× is independent and robust.
+- **Chroma per-backend collections.** Each backend/run needs an isolated
+  collection name to avoid cross-run contamination; ensure teardown/uniqueness in
+  the runner.
 
 ## Sequencing
 
-1. **Chroma unification + per-method sediment replay** → produces a *fair* 三国
-   4-backend footprint table quickly (uses current mechanism level).
-2. **G-Memory Full graph.**
+1. **Chroma unification of the 3 baselines + per-method restore** → produces a
+   *fair* 三国 4-backend footprint table quickly (uses current mechanism level).
+2. **G-Memory Full graph** (interaction+insight+query, distillation, bi-level
+   retrieval).
 3. **Generative Agents reflection tree.**
-4. **Generalize to red_chamber / russia_ukraine / hamlet** (re-sediment each,
-   run the 4-backend matrix).
+4. **Generalize to red_chamber / russia_ukraine / hamlet** (reuse each existing
+   sediment dump, run the 4-backend matrix).
