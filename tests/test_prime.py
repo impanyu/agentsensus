@@ -270,6 +270,23 @@ async def test_ga_prime_does_not_trigger_reflection_if_first_event_alone_would_w
     assert all(e["meta"].get("source") != "reflection" for e in m.all_entries())
 
 
+async def test_ga_prime_multi_owner_event_without_story_order_counts_once():
+    # Regression: when an event lacks story_order, event identity must fall
+    # back to the row TEXT (not the row id), so a k-owner event stored as k
+    # rows still counts as ONE logical event. A single 2-owner event of
+    # importance 8: fed once per event (8) it must not cross threshold 10;
+    # if it wrongly fell back to per-row keys it would deposit 8+8=16 and cross.
+    entries = _ga_dump([("刘备在新野议事", ["guanyu", "liubei"])])
+    for e in entries:
+        e["meta"].pop("story_order", None)  # force the fallback path
+    llm = FakeLLM(fn=lambda p, s=None: "8")
+    m = GenerativeAgentsMemory(afake_embed, llm=llm, reflection_threshold=10)
+    await m.restore(entries)
+    await m.prime_initial_state()
+    assert m._importance_since_reflection == 8.0  # once, not 16
+    assert all(e["meta"].get("source") != "reflection" for e in m.all_entries())
+
+
 async def test_ga_prime_noop_when_llm_is_none():
     entries = _ga_dump([("刘备三顾茅庐", ["guanyu", "liubei"])])
     m = GenerativeAgentsMemory(afake_embed, llm=None, reflection_threshold=10)

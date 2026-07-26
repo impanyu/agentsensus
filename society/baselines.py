@@ -661,12 +661,16 @@ class GenerativeAgentsMemory:
             self._store.update_metadata(row["id"], new_meta)
 
         # -- Step 2: reflection replay, once per logical event, in story
-        # order (fallback: each row lacking story_order is its own event,
-        # in a stable but otherwise unspecified relative order). --
-        events: dict = {}  # story_order (or fallback row id) -> text
+        # order. A logical event = all per-owner rows sharing the same text
+        # (a k-owner sediment event is stored as k rows), so importance is
+        # deposited ONCE per event, not once per owner row. Key by
+        # story_order when present; fall back to the row TEXT (not the row
+        # id) so multi-owner rows of a story_order-less event still collapse
+        # to one event rather than double-counting importance per owner. --
+        events: dict = {}  # story_order (or fallback: text) -> text
         for row in rows:
             so = row["metadata"].get("story_order")
-            key = so if so is not None else row["id"]
+            key = so if so is not None else row["text"]
             events.setdefault(key, row["text"])
 
         def _order_key(item):
