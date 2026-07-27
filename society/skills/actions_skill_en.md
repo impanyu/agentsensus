@@ -133,9 +133,14 @@ The view you receive typically contains:
 ### recall
 - Signature: `{"action": "recall", "params": {"query": "..."}}`
 - Sync.
-- Retrieves semantically related entries from shared long-term memory.
-  Use it both to check for duplicates before `remember`, and to recall
-  background knowledge or past events.
+- Retrieves semantically related entries from shared long-term memory,
+  returning candidates each shaped `{"id": ..., "text": ...,
+  "n_affiliated": <int>}`. Use it both to check for duplicates before
+  `remember`, and to recall background knowledge or past events. The
+  `n_affiliated` field is how many **affiliated (linked) memories** that
+  entry carries: if `n_affiliated > 0`, this memory has other clues from the
+  same event/person chained behind it, which you can pull up with
+  `get_affiliated(memory_id)` (see "Action-trajectory demo A" at the end).
 
 ### forget
 - Signature: `{"action": "forget", "params": {"memory_id": "..."}}`
@@ -435,3 +440,87 @@ next themselves).
   letting the stack bottom out; only consider popping the fundamental goal
   too once it is genuinely settled and there is truly nothing left to do
   next.
+
+---
+
+## Action-trajectory demos (supplement: getting the neglected actions moving)
+
+Each demo below is a short trajectory (**one action per tick**, strung
+together with `→`), with a concrete Three-Kingdoms example plus a "when to
+use it." They specifically show off the actions that are easy to overlook
+yet quite useful.
+
+### A. Investigation chain (dig out the full backstory via affiliated memories) — `recall` → `get_affiliated` → `add_affiliated`
+`recall("Xu Shu")` → one result is `{text:"Xu Shu goes over to Cao Cao's
+camp", n_affiliated:2}` (`n_affiliated>0`, so it has affiliated memories
+attached) → `get_affiliated(that memory_id)` → surfaces
+`["Xu Shu's mother is held hostage by Cao Cao", "On departure Xu Shu
+recommends Zhuge Liang to Liu Bei"]` → follow the thread to weave the
+scattered clues into a full backstory → then act on it with
+`push_goal("seek out Zhuge Liang at Longzhong")` / `say` / `act_on`.
+- **Link them proactively too**: when you `remember` a new memory that
+  belongs to the **same event or person** as some older memory, use
+  `add_affiliated(new memory_id, [old memory_id])` to chain them, so that
+  later whoever `recall`s either one can follow `get_affiliated` to the
+  other.
+- **When to use**: if a `recall`ed memory has `n_affiliated>0`, use
+  `get_affiliated` to follow the chain and dig into the cause-and-effect of
+  the same event/person; use `add_affiliated` to build such chains between
+  memories in the first place.
+
+### B. Environment-interaction chain (act on your environment and leave a trace) — `observe` → `act_on` → `remember`
+`observe("xuchang_wuku")` to see what's in the armory → `act_on(targets=
+["xuchang_wuku"], content="take inventory of the armory, tallying the
+blades, spears, and armor")` to act on the environment (pushing a door,
+rifling case files, lighting a beacon, checking a granary all work the same
+way) → `remember("At the Xuchang armory, Yu Jin took inventory of the
+weapons and found the armor short by three hundred suits.")`.
+- **When to use**: when you want to **physically change or inspect the
+  environment you're in** (rather than talk to a person). `act_on` deposits
+  `content` as a memory owned by that environment, so the place henceforth
+  "remembers" what happened and it can be `read` later; don't forget to also
+  `remember` a memory of your own to lay the outcome into the shared history.
+
+### C. Reading documents / reading people (retrieve content the target holds) — `read` → `remember` → `push_goal`/`say`
+Encountering a messenger / document / someone present → `read(target=
+"secret_letter", query="Cai Mao Zhang Yun treachery")` to retrieve the
+info_carrier's (the secret letter's) own memories/content → `remember("In
+Zhou Yu's tent Jiang Gan stole a secret letter claiming Cai Mao and Zhang
+Yun mean to hand over the northern naval camp.")` → then act on it with
+`push_goal("hurry back north to report to Cao Cao")` or `say` to pass it on.
+- **When to use**: when the key information is **written in a document, or
+  held inside a present target's memory**, and `observe` only shows public
+  status, not content, use `read(target, query)` to read a document
+  (info_carrier) or environment with a question in hand. To ask a character
+  what it *knows*, still use `say`.
+
+### D. Status upkeep (update it when it changes, remove it when it clears) — `update_status` / `remove_status`
+Something that changes you happens (wounded / disguised / donning enemy
+armor / a swing of mood) → `update_status(key="injury", value="right arm
+struck by one of Cao's poisoned arrows")` (the key can also be mood /
+appearance / clothing / any custom key, but **not** the reserved key
+`location`) → once Hua Tuo scrapes the bone clean and the wound heals →
+`remove_status(key="injury")` to drop that status.
+- **When to use**: whenever you take on a state that will keep affecting
+  later interactions, `update_status` to record it (others see it when they
+  `observe` you); once the state clears, `remove_status` it — don't leave a
+  stale status hanging around.
+
+### E. Goal close-out (pop when achieved, replace when obsolete; don't let the goal stack grow stale) — `pop_goal` / `replace_goal`
+The goal stack, bottom to top, is `[root goal, …, current sub-goal]`
+(bottom = most fundamental goal, top = current sub-goal).
+- **Pop when achieved**: the top sub-goal is done → `pop_goal()` to drop it
+  and return to the goal above. E.g. with the stack `[restore the Han,
+  ally with Wu against Cao, persuade Sun Quan into an alliance]`, once the
+  Red Cliffs pact is sealed → `pop_goal()` drops "persuade Sun Quan into an
+  alliance" and returns to "ally with Wu against Cao."
+- **Replace when obsolete**: a goal has become impossible or meaningless
+  (e.g. the person you meant to persuade has died) → `replace_goal` in
+  place. E.g. the top goal is "take Nan Commandery through Zhou Yu's help,"
+  but Zhou Yu has died → `replace_goal("work with Lu Su instead to keep the
+  Sun-Liu alliance intact")` (stack depth unchanged).
+- **When to use**: agents tend to only `push` and never close out, so the
+  goal stack piles up stale and decisions lose focus. `pop_goal` a sub-goal
+  the moment it's truly achieved; `replace_goal` a goal that's obsolete or
+  impossible — but in both cases don't act early while things are still
+  unfinished.
