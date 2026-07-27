@@ -229,6 +229,7 @@ async def build_society(
     out_dir=None,
     metrics_interval=None,
     memory_kind: str = "consensus",
+    consensus_merge: bool = True,
 ) -> Kernel:
     """Build a fully-wired Kernel from a loaded scenario dict.
 
@@ -275,12 +276,16 @@ async def build_society(
     # isolation already holds) but not legible/deterministic per run.
     collection_name = f"{cfg.get('scenario', 'scn')}_{memory_kind}_{uuid.uuid4().hex[:8]}"
 
+    # `consensus_merge` is the merge ablation knob and only the consensus
+    # backend understands it; don't leak the kwarg to the per-owner baselines.
+    extra_mem_kw = {} if memory_kind != "consensus" else {"merge": consensus_merge}
     shared = make_memory(
         memory_kind,
         embed_fn,
         llm=llm,
         max_tokens=memory_max_tokens,
         collection_name=collection_name,
+        **extra_mem_kw,
     )
 
     interval = metrics_interval if metrics_interval is not None else stats_interval

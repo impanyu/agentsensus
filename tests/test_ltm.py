@@ -294,3 +294,70 @@ async def test_export_restore_roundtrips_affiliated():
     by_id = {e["id"]: e for e in m2.all_entries()}
     assert set(by_id[a]["affiliated"]) == {b}
     assert set(by_id[b]["affiliated"]) == {a}
+
+
+# ----------------------------------------------------------------------
+# recall surfaces n_affiliated (so agents can see which recalled memories
+# carry affiliated links worth expanding via get_affiliated)
+# ----------------------------------------------------------------------
+
+
+async def test_recall_surfaces_n_affiliated_count():
+    m = mem(None)
+    await m.remember_atomic(["a"], "刘备与张飞结拜", affiliated=["x", "y"])
+    await m.remember_atomic(["a"], "关羽独自一人")  # no affiliated
+    hits = await m.recall("a", "刘备与张飞结拜", top_k=5)
+    by_text = {h["text"]: h for h in hits}
+    assert by_text["刘备与张飞结拜"]["n_affiliated"] == 2
+    assert by_text["关羽独自一人"]["n_affiliated"] == 0
+    # id is still present so the agent can chain into get_affiliated
+    assert all("id" in h for h in hits)
+
+
+# ----------------------------------------------------------------------
+# merge ablation knob: merge=False disables consensus merge end to end
+# ----------------------------------------------------------------------
+
+
+async def test_merge_off_never_merges_equivalent_entries():
+    # Even though the llm WOULD say "index 0" (equivalent), merge-off skips the
+    # candidate search entirely, so two equivalent remembers stay two rows and
+    # the consensus judge is never consulted.
+    llm = FakeLLM(responses=["0"])
+    m = mem(llm, merge=False)
+    await m.remember_atomic(["alice"], "国王死于春天")
+    out2 = await m.remember_atomic(["bob"], "国王死于春天")
+    assert out2["merged"] is False
+    assert len(m.all_entries()) == 2
+    assert not any(c[0] == "consensus" for c in llm.calls)
+
+
+async def test_merge_on_still_merges_equivalent_entries():
+    # Regression: the default (merge=True) path is unchanged.
+    llm = FakeLLM(responses=["0"])
+    m = mem(llm, merge=True)
+    await m.remember_atomic(["alice"], "国王死于春天")
+    out2 = await m.remember_atomic(["bob"], "国王死于春天")
+    assert out2["merged"] is True
+    assert len(m.all_entries()) == 1
+
+
+async def test_merge_off_restore_fans_out_multi_owner_per_owner():
+    m = mem(None, merge=False)
+    await m.restore([{"id": "e1", "text": "桃园三结义", "owners": ["liubei", "guanyu", "zhangfei"]}])
+    entries = m.all_entries()
+    assert len(entries) == 3  # one row per owner, footprint = |owner-set|
+    owner_sets = sorted(tuple(e["owners"]) for e in entries)
+    assert owner_sets == [("guanyu",), ("liubei",), ("zhangfei",)]
+    # every fanned owner can still recall it
+    for o in ("liubei", "guanyu", "zhangfei"):
+        hits = await m.recall(o, "桃园三结义")
+        assert any(h["text"] == "桃园三结义" for h in hits)
+
+
+async def test_merge_on_restore_keeps_single_merged_row():
+    # Regression: merge=True restore keeps the one merged owner-set row.
+    m = mem(None, merge=True)
+    await m.restore([{"id": "e1", "text": "桃园三结义", "owners": ["liubei", "guanyu", "zhangfei"]}])
+    (entry,) = m.all_entries()
+    assert set(entry["owners"]) == {"liubei", "guanyu", "zhangfei"}

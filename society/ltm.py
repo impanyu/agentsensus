@@ -28,6 +28,7 @@ class SharedMemory:
         sim_threshold: float = 0.86,
         top_k: int = 5,
         collection_name: str | None = None,
+        merge: bool = True,
     ):
         """
         Initialize SharedMemory.
@@ -49,6 +50,16 @@ class SharedMemory:
                 None auto-generates a unique name — chromadb's default clients
                 share one in-process store, so same-name collections in the same
                 process would silently share data.
+            merge: whether consensus merge is ON (default). This is the
+                ablation knob for the compression mechanism. When True, an
+                incoming memory equivalent to an existing one is folded into
+                it (owner-sets unioned) so one event = one row; and `restore`
+                keeps each sedimented event as a single merged row. When
+                False, merge is disabled end to end — every `remember` inserts
+                a fresh row and `restore` fans each sedimented event out into
+                one row PER OWNER (like the per-owner baselines) — so the
+                footprint balloons from ~1x to ~sum-of-owner-set-sizes,
+                isolating exactly what the merge buys.
         """
         self._embed_fn = embed_fn
         self._llm = llm
@@ -56,6 +67,7 @@ class SharedMemory:
         self.max_tokens = max_tokens
         self.sim_threshold = sim_threshold
         self.top_k = top_k
+        self._merge = merge
         if collection_name is None:
             collection_name = f"agent_society_ltm_{uuid.uuid4().hex[:8]}"
         self._client = chromadb.Client()
@@ -128,7 +140,9 @@ class SharedMemory:
         embedding = (await self._embed_fn([text]))[0]
 
         candidates = []
-        if self._collection.count() > 0:
+        # merge OFF (ablation): never look for an equivalent existing entry, so
+        # match_idx stays -1 and every insert becomes a fresh per-owner row.
+        if self._merge and self._collection.count() > 0:
             results = self._collection.query(
                 query_embeddings=[embedding],
                 n_results=min(self.top_k, self._collection.count()),
@@ -341,7 +355,15 @@ class SharedMemory:
         )
         docs = results["documents"][0]
         ids = results["ids"][0]
-        return [{"id": i, "text": d} for i, d in zip(ids, docs)]
+        metas = results["metadatas"][0]
+        # Surface how many affiliated (linked) memories each hit carries, so
+        # the agent can see which recalled memories are worth expanding via
+        # `get_affiliated` (an empty/absent field == 0 == nothing to chain).
+        out = []
+        for i, d, m in zip(ids, docs, metas):
+            aff = json.loads((m or {}).get("affiliated", "[]"))
+            out.append({"id": i, "text": d, "n_affiliated": len(aff)})
+        return out
 
     def forget(self, agent_id: str, memory_id: str) -> bool:
         """Remove agent_id from the entry's owners; delete the entry if it becomes
@@ -529,24 +551,39 @@ class SharedMemory:
         embeddings = []
         metadatas = []
         for i, entry in enumerate(entries):
-            owners = entry.get("owners", [])
+            owners = list(entry.get("owners", []))
             affiliated = entry.get("affiliated", []) or []
             meta = entry.get("meta", {}) or {}
-            metadata = {
-                "owners": json.dumps(list(owners)),
-                "affiliated": json.dumps(list(affiliated)),
-            }
-            for key in ("created_at", "source", "tick", "story_order", "story_time"):
-                value = meta.get(key)
-                if value is not None:
-                    metadata[key] = value
-            for owner in owners:
-                metadata[f"owner_{owner}"] = True
+            emb = entry.get("embedding") or computed[i]
 
-            ids.append(entry["id"])
-            docs.append(entry["text"])
-            embeddings.append(entry.get("embedding") or computed[i])
-            metadatas.append(metadata)
+            # merge ON: keep each sedimented event as ONE merged row carrying
+            # the full owner-set (its original id). merge OFF (ablation): fan a
+            # multi-owner event out into one row PER OWNER so the sediment
+            # footprint matches the per-owner baselines. (The fanned-out rows'
+            # `affiliated` ids still point at the original merged ids, which no
+            # longer exist as rows under merge-off; get_affiliated simply skips
+            # unresolvable ids, so this is harmless for the ablation.)
+            if self._merge or len(owners) <= 1:
+                row_specs = [(entry["id"], owners)]
+            else:
+                row_specs = [(f"{entry['id']}::{o}", [o]) for o in owners]
+
+            for row_id, row_owners in row_specs:
+                metadata = {
+                    "owners": json.dumps(list(row_owners)),
+                    "affiliated": json.dumps(list(affiliated)),
+                }
+                for key in ("created_at", "source", "tick", "story_order", "story_time"):
+                    value = meta.get(key)
+                    if value is not None:
+                        metadata[key] = value
+                for owner in row_owners:
+                    metadata[f"owner_{owner}"] = True
+
+                ids.append(row_id)
+                docs.append(entry["text"])
+                embeddings.append(emb)
+                metadatas.append(metadata)
 
         # ChromaDB caps a single add() (its max batch is ~5461); real
         # sedimented scenarios have thousands of entries, so chunk the add.

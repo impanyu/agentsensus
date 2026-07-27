@@ -97,9 +97,18 @@ async def run_sim(
     config_path: str = "config.json",
     llm=None,
     embed_fn=None,
+    consensus_merge: bool = True,
+    cache_strategy: str | None = None,
 ) -> dict:
     """Run ONE (scenario, memory backend, seed) and write a self-contained
     result to `out_dir`.
+
+    `consensus_merge` / `cache_strategy` are the two ablation knobs.
+    `consensus_merge=False` disables the consensus merge end to end (sediment
+    fans out per-owner + no sim-time merge); it is a no-op for the per-owner
+    baselines. `cache_strategy` (one of "fifo"/"relevance"/"hybrid"), when
+    given, overrides the scenario's short-term FIFO-cache eviction policy for
+    this run by injecting into `cfg["defaults"]`.
 
     `llm`/`embed_fn` are optional injection points (tests pass a FakeLLM +
     a fake embed function here so nothing ever hits a real API); when
@@ -146,6 +155,8 @@ async def run_sim(
     os.makedirs(out_dir, exist_ok=True)
 
     cfg = load_scenario(scenario_path)
+    if cache_strategy is not None:
+        cfg.setdefault("defaults", {})["cache_strategy"] = cache_strategy
     event_log = EventLog(os.path.join(out_dir, "events.jsonl"))
 
     kernel = await build_society(
@@ -155,6 +166,7 @@ async def run_sim(
         event_log=event_log,
         out_dir=out_dir,
         memory_kind=memory_kind,
+        consensus_merge=consensus_merge,
     )
 
     # Starting memory count: the post-restore (or post-seed) sediment size,
@@ -187,6 +199,8 @@ async def run_sim(
         "scenario": scenario_path,
         "memory_kind": memory_kind,
         "seed": seed,
+        "consensus_merge": consensus_merge,
+        "cache_strategy": cache_strategy,
         "ticks_run": kernel.tick,
         "stop_reason": stop_reason,
         "footprint": evaluation.footprint(kernel.shared_memory),
