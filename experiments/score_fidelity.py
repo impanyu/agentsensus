@@ -39,6 +39,18 @@ ARC_CHARS = [
 ]
 BACKENDS = ["consensus", "generative_agents", "g_memory", "collaborative"]
 PREFIX = os.environ.get("RUN_PREFIX", "fair2")
+# FIDELITY_REPEAT>1 scores each backend N times (reusing the same gold) and
+# reports mean±std per metric -- the LLM answer/judge steps are nondeterministic
+# so a single run cannot rank backends (see the grounding variance finding).
+REPEAT = int(os.environ.get("FIDELITY_REPEAT", "1"))
+
+
+def _mean_std(xs):
+    n = len(xs)
+    if n == 0:
+        return 0.0, 0.0
+    m = sum(xs) / n
+    return m, (sum((x - m) ** 2 for x in xs) / n) ** 0.5
 
 
 def _source_chapters():
@@ -120,6 +132,14 @@ async def main():
     gold_arcs = await ev.extract_arcs(ref, ARC_CHARS, llm)
     print(f"gold: {len(qa)} QA, {len(gold_arcs)} arcs", flush=True)
 
+    async def score_once(backend, transcript):
+        qa_r = await ev.run_qa(backend, qa, llm, embed, llm, top_k=5)
+        gr = await grounding_rate(transcript, llm)
+        tj = await ev.trajectory_consistency(gold_arcs, transcript, llm)
+        nq = await ev.narrative_quality(transcript, llm)
+        return {"qa": qa_r["accuracy"], "grnd": gr["rate"], "grnd_n": gr["n"],
+                "traj": tj["mean"], "narr": nq["overall"]}
+
     results = {}
     for kind in which:
         rd = f"runs/{PREFIX}_{kind}"
@@ -127,36 +147,29 @@ async def main():
         backend = _ShimBackend(entries)
         transcript = sim_transcript(rd)
 
-        qa_r = await ev.run_qa(backend, qa, llm, embed, llm, top_k=5)
-        gr = await grounding_rate(transcript, llm)
-        tj = await ev.trajectory_consistency(gold_arcs, transcript, llm)
-        nq = await ev.narrative_quality(transcript, llm)
-
-        results[kind] = {
-            "entries": len(entries),
-            "qa_accuracy": qa_r["accuracy"],
-            "grounding_rate": gr["rate"],
-            "grounding_n": gr["n"],
-            "trajectory_mean": tj["mean"],
-            "narrative_overall": nq["overall"],
-            "narrative_fidelity": nq.get("fidelity"),
-            "_raw": {"qa": qa_r, "grounding": gr, "trajectory": tj, "narrative": nq},
-        }
-        print(f"{kind}: QA {qa_r['accuracy']:.2f} | grounding {gr['rate']:.2f} "
-              f"({gr['hits']}/{gr['n']}) | traj {tj['mean']:.2f} | "
-              f"narrative {nq['overall']:.2f}", flush=True)
+        runs = [await score_once(backend, transcript) for _ in range(REPEAT)]
+        agg = {}
+        for key in ("qa", "grnd", "traj", "narr"):
+            m, sd = _mean_std([r[key] for r in runs])
+            agg[key] = {"mean": m, "std": sd}
+        agg["grnd_n"] = sum(r["grnd_n"] for r in runs) / len(runs)
+        results[kind] = {"entries": len(entries), "repeat": REPEAT, "agg": agg, "runs": runs}
+        print(f"{kind}: QA {agg['qa']['mean']:.2f}±{agg['qa']['std']:.2f} | "
+              f"grounding {agg['grnd']['mean']:.2f}±{agg['grnd']['std']:.2f} (n≈{agg['grnd_n']:.0f}) | "
+              f"traj {agg['traj']['mean']:.2f}±{agg['traj']['std']:.2f} | "
+              f"narr {agg['narr']['mean']:.2f}±{agg['narr']['std']:.2f}", flush=True)
 
     json.dump(results, open("runs/fidelity_results.json", "w", encoding="utf-8"),
               ensure_ascii=False, indent=1)
-    print("\n=== FIDELITY TABLE ===")
-    print(f"{'backend':<20}{'entries':>8}{'QA':>7}{'grnd':>7}{'(n)':>6}{'traj':>7}{'narr':>7}")
+    print(f"\n=== FIDELITY TABLE (mean±std over {REPEAT} run{'s' if REPEAT>1 else ''}) ===")
+    print(f"{'backend':<20}{'entries':>8}{'QA':>13}{'grnd':>13}{'traj':>13}{'narr':>13}")
     for k in which:
-        if k not in results:
-            continue
-        r = results[k]
-        print(f"{k:<20}{r['entries']:>8}{r['qa_accuracy']:>7.2f}"
-              f"{r['grounding_rate']:>7.2f}{r['grounding_n']:>6}"
-              f"{r['trajectory_mean']:>7.2f}{r['narrative_overall']:>7.2f}")
+        if k in results:
+            a = results[k]["agg"]
+            def c(key):
+                return f"{a[key]['mean']:.2f}±{a[key]['std']:.2f}"
+            print(f"{k:<20}{results[k]['entries']:>8}{c('qa'):>13}{c('grnd'):>13}"
+                  f"{c('traj'):>13}{c('narr'):>13}")
 
 
 if __name__ == "__main__":
