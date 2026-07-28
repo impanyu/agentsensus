@@ -107,37 +107,50 @@
 - 作用: 按语义相似度从共享长期记忆中检索相关条目,返回若干候选,每条形如
   `{"id": ..., "text": ..., "n_affiliated": <int>}`。既可以用来查重,也可以用来
   获取背景知识、回忆过去发生的事。其中 `n_affiliated` 表示该条记忆挂着多少条
-  **关联记忆**:若 `n_affiliated > 0`,说明这条记忆背后还串着同一事件/人物的其他
-  线索,可以用 `get_affiliated(memory_id)` 顺链挖出来(见文末"动作轨迹示范 A")。
+  **关联记忆**。**recall 会自动顺关联边,把你也拥有的关联记忆一并带出来**(这些
+  条目标 `via_affiliated: true`)——所以你 recall 一条,同一事件/人物的散落线索
+  通常就**自动到手了**,不必再单独 `get_affiliated`(见文末"动作轨迹示范 A")。
 
 ### forget
-- 签名: `{"action": "forget", "params": {"memory_id": "..."}}`
+- 签名: `{"action": "forget", "params": {"query": "..."}}`
 - 同步。
-- 作用: 把**你自己**从这条记忆的 owners 中移除。只有当 owners 变空时,这条记忆
-  才会被真正物理删除(如果别人仍然持有这条记忆,它会被保留)。
+- 作用: 把**你自己**从一条记忆的 owners 中移除。你不用记忆的 id 来指定它——而是
+  用一句自然语言 `query` 描述你指的是哪条记忆,内核会在**你自己拥有的**记忆里取
+  语义最相近的那一条(top-1)来操作。只有当 owners 变空时,这条记忆才会被真正物理
+  删除(如果别人仍然持有这条记忆,它会被保留)。若没有任何你拥有的记忆匹配该
+  query,动作会失败并返回"no owned memory matches query"。
 
 ### revise_memory
-- 签名: `{"action": "revise_memory", "params": {"memory_id": "...", "new_text": "..."}}`
+- 签名: `{"action": "revise_memory", "params": {"query": "...", "new_text": "..."}}`
 - 同步。
-- 作用: 修订一条已有记忆,语义上等价于"先对旧条目做一次 forget,再让新文本走一遍
-  规范化与共识插入流程"。用它来更正错误或过时的记忆,而不要自己手动拆成
-  forget + remember 两步。
+- 作用: 修订一条已有记忆(用 `query` 语义命中你自己拥有的那一条),语义上等价于
+  "先对旧条目做一次 forget,再让新文本走一遍规范化与共识插入流程"。用它来更正错误
+  或过时的记忆,而不要自己手动拆成 forget + remember 两步。
 
 ### add_affiliated / remove_affiliated / set_affiliated / get_affiliated
-- 签名(四个动作参数形状一致,`get_affiliated` 只需要 `memory_id`):
-  - `{"action": "add_affiliated", "params": {"memory_id": "...", "affiliated": ["..."]}}`
-  - `{"action": "remove_affiliated", "params": {"memory_id": "...", "affiliated": ["..."]}}`
-  - `{"action": "set_affiliated", "params": {"memory_id": "...", "affiliated": ["..."]}}`
-  - `{"action": "get_affiliated", "params": {"memory_id": "..."}}`
+- 签名(四个动作都用 `query` 定位源记忆,`get_affiliated` 只需要 `query`):
+  - `{"action": "add_affiliated", "params": {"query": "...", "affiliated": ["query1", "query2"]}}`
+  - `{"action": "remove_affiliated", "params": {"query": "...", "affiliated": ["query1"]}}`
+  - `{"action": "set_affiliated", "params": {"query": "...", "affiliated": ["query1"]}}`
+  - `{"action": "get_affiliated", "params": {"query": "..."}}`
 - 同步。不调用 LLM。
 - 作用: 每条长期记忆都有一个"关联记忆"数组(`affiliated`),用来把同一事件/同一
-  话题下相关的多条记忆链接起来,方便日后一并回忆。这四个动作分别是对这个数组的
-  增(`add_affiliated`)、删(`remove_affiliated`)、整体替换(`set_affiliated`,
-  用新数组整体覆盖旧数组)、查(`get_affiliated`,返回
-  `[{"id": "...", "text": "..."}, ...]`,把每个关联 id 解析成对应记忆的正文;
-  如果某个关联 id 指向的记忆已经不存在,会被静默跳过,不报错)。
-  **只能操作你自己拥有(owners 包含你)的记忆**——`memory_id` 不属于你时,四个动作
-  都会失败并返回"not an owner of ..."错误。
+  话题下相关的多条记忆链接起来,方便日后一并回忆。这里**不出现任何原始记忆 id**:
+  `query` 用一句话描述**源记忆**,内核在你自己拥有的记忆里取 top-1 命中它;
+  `affiliated` 是一个**查询列表**,列表里每一条 query 同样各自解析成你拥有的一条
+  记忆,作为要挂上/取下的链接目标。这四个动作分别是对源记忆的关联数组做增
+  (`add_affiliated`,**追加**——把解析出的目标并入现有关联集合)、删
+  (`remove_affiliated`)、整体替换(`set_affiliated`,**替换**——用解析出的新集合
+  整体覆盖旧集合)、查(`get_affiliated`,返回 `[{"id": "...", "text": "..."}, ...]`,
+  把源记忆的每个关联解析成正文——但**只返回你也拥有的那些关联记忆**,你不拥有的
+  会被静默跳过)。因为 `query` 只在**你自己拥有的**记忆上解析,所以你天然只能操作
+  自己的记忆,不存在单独的归属错误;若没有任何你拥有的记忆匹配某个 query,该动作
+  失败并返回"no owned memory matches query"。
+- **拆分时自动挂链(新)**:当一条 `remember` 被拆成多条原子记忆(复合事件)时,
+  系统会**自动**把这些碎片互相设为关联。所以对同一件事的多个碎片,你通常**不必**
+  自己再 `add_affiliated`——直接 `remember` 那句复合句,链就替你建好了。手动
+  `add_affiliated` 留给这种情况:你**分开**记下的几条记忆,事后发现其实说的是
+  同一事件/同一人,再手动把它们挂到一起。
 
 ### observe
 - 签名: `{"action": "observe", "params": {"target": "..."}}`
@@ -348,16 +361,16 @@
 下面每条示范都是一小段轨迹(**每个 tick 只做一个动作**,用 `→` 串起),配一个
 三国具体例子,外加"何时用"。它们专门演示那些容易被忽略、却很有用的动作。
 
-### A. 调查链(顺着关联记忆挖来龙去脉)——`recall` → `get_affiliated` → `add_affiliated`
-`recall("徐庶")` → 结果里有一条 `{text:"徐庶归曹营", n_affiliated:2}`(`n_affiliated>0`,
-说明挂着关联记忆)→ `get_affiliated(那条memory_id)` → 挖出
-`["徐庶之母被曹操挟持为质","徐庶临行走马荐诸葛亮于刘备"]` → 顺藤摸瓜把散落的线索
-串成完整来龙去脉 → 据此 `push_goal("往隆中寻访诸葛亮")` / `say` / `act_on`。
-- **反过来也要主动挂链**:当你 `remember` 一条新记忆,而它和某条旧记忆属于**同一
-  事件或同一人物**时,用 `add_affiliated(新memory_id, [旧memory_id])` 把它们挂在
-  一起,日后你或别人 `recall` 到任一条,都能顺 `get_affiliated` 挖到另一条。
-- **何时用**:`recall` 回来的记忆若 `n_affiliated>0`,就用 `get_affiliated` 顺链
-  深挖同一事件/人物的前因后果;要给记忆之间建立这种链,则用 `add_affiliated`。
+### A. 调查链(关联记忆自动顺出来)——`recall`(自动扩展)→ 据此行动
+`recall("徐庶")` → 结果里既有直接命中 `{text:"徐庶归曹营", n_affiliated:2}`,
+**也自动带出它关联的、你也拥有的记忆**(标 `via_affiliated:true`,如
+「徐庶之母被曹操挟持为质」「徐庶临行走马荐诸葛亮于刘备」)→ 散落的线索**一次
+recall 就串起来了** → 据此 `push_goal("往隆中寻访诸葛亮")` / `say` / `act_on`。
+- **想显式列某条的全部关联**:`get_affiliated("徐庶归曹营")`(用 query)→ 返回
+  该记忆关联的、你也拥有的记忆。(多数时候 recall 已自动带出一跳,不必单独调。)
+- **手动建链(较少用)**:把**分开**记下、事后发现属于同一事件/人物的两条记忆
+  挂起来,用 `add_affiliated("某记忆的描述", ["另一条记忆的描述"])`(两头都 query,
+  **append**)。**同一条复合 `remember` 拆出来的碎片会被自动互挂**,那种不用手动。
 
 ### B. 环境交互链(对所在环境施加动作并留痕)——`observe` → `act_on` → `remember`
 `observe("xuchang_wuku")` 看清武库里有什么 → `act_on(targets=["xuchang_wuku"],

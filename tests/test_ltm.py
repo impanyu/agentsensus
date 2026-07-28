@@ -385,3 +385,39 @@ async def test_remember_single_atomic_has_no_affiliation():
     out = await m.remember("alice", "黛玉葬花")   # short, not split
     assert len(out) == 1
     assert m.get_affiliations(out[0]["id"]) == []
+
+
+# ----------------------------------------------------------------------
+# recall auto-expands one hop along affiliated edges (owner-scoped), so the
+# affiliated graph pays off at the retrieval layer (agents never traverse it)
+# ----------------------------------------------------------------------
+
+
+async def test_recall_auto_expands_owned_affiliated():
+    m = mem(None)
+    r1 = await m.remember_atomic(["alice"], "刘备三顾茅庐")
+    r2 = await m.remember_atomic(["alice"], "诸葛亮出山辅佐刘备")
+    m.add_affiliations(r1["id"], [r2["id"]])
+    hits = await m.recall("alice", "刘备三顾茅庐", top_k=1)
+    ids = [h["id"] for h in hits]
+    assert r1["id"] in ids and r2["id"] in ids           # neighbour pulled in
+    exp = [h for h in hits if h.get("via_affiliated")]
+    assert len(exp) == 1 and exp[0]["id"] == r2["id"]     # and marked as expansion
+
+
+async def test_recall_expansion_is_owner_scoped():
+    m = mem(None)
+    r1 = await m.remember_atomic(["alice"], "刘备三顾茅庐")
+    r2 = await m.remember_atomic(["bob"], "诸葛亮出山")     # bob's, not alice's
+    m.add_affiliations(r1["id"], [r2["id"]])
+    hits = await m.recall("alice", "刘备三顾茅庐", top_k=1)
+    assert r2["id"] not in [h["id"] for h in hits]        # not owned -> not expanded
+
+
+async def test_recall_expansion_can_be_disabled():
+    m = mem(None, affiliated_expand=False)
+    r1 = await m.remember_atomic(["alice"], "刘备三顾茅庐")
+    r2 = await m.remember_atomic(["alice"], "诸葛亮出山")
+    m.add_affiliations(r1["id"], [r2["id"]])
+    hits = await m.recall("alice", "刘备三顾茅庐", top_k=1)
+    assert [h["id"] for h in hits] == [r1["id"]]          # expansion off -> direct hit only

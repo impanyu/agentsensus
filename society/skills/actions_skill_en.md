@@ -138,44 +138,64 @@ The view you receive typically contains:
   "n_affiliated": <int>}`. Use it both to check for duplicates before
   `remember`, and to recall background knowledge or past events. The
   `n_affiliated` field is how many **affiliated (linked) memories** that
-  entry carries: if `n_affiliated > 0`, this memory has other clues from the
-  same event/person chained behind it, which you can pull up with
-  `get_affiliated(memory_id)` (see "Action-trajectory demo A" at the end).
+  entry carries. **recall automatically follows those affiliated edges and
+  pulls in the linked memories you also own** (marked `via_affiliated: true`),
+  so recalling one memory usually brings the scattered clues about the same
+  event/person along **for free** — so you rarely need a separate
+  `get_affiliated`. `n_affiliated` just tells you how many more are chained
+  behind a hit; `get_affiliated(query)` can still explicitly list one memory's
+  affiliates (see "Action-trajectory demo A" at the end).
 
 ### forget
-- Signature: `{"action": "forget", "params": {"memory_id": "..."}}`
+- Signature: `{"action": "forget", "params": {"query": "..."}}`
 - Sync.
-- Removes **you** from that memory's owners. The memory is only physically
-  deleted once its owners become empty (if others still hold it, it is
-  kept).
+- Removes **you** from a memory's owners. You don't name the memory by its
+  id — you describe it in a natural-language `query`, and the kernel operates
+  on the single best (top-1) semantic match among **your own** memories. The
+  memory is only physically deleted once its owners become empty (if others
+  still hold it, it is kept). If nothing you own matches the query, the action
+  fails with "no owned memory matches query".
 
 ### revise_memory
-- Signature: `{"action": "revise_memory", "params": {"memory_id": "...", "new_text": "..."}}`
+- Signature: `{"action": "revise_memory", "params": {"query": "...", "new_text": "..."}}`
 - Sync.
-- Revises an existing memory; semantically equivalent to "forget the old
-  entry, then run the new text through normalization and consensus
-  insertion." Use this to correct or update a memory instead of manually
-  doing forget + remember yourself.
+- Revises an existing memory (the `query` picks the one you own by semantic
+  match); semantically equivalent to "forget the old entry, then run the new
+  text through normalization and consensus insertion." Use this to correct or
+  update a memory instead of manually doing forget + remember yourself.
 
 ### add_affiliated / remove_affiliated / set_affiliated / get_affiliated
-- Signatures (all four share the same param shape; `get_affiliated` only needs `memory_id`):
-  - `{"action": "add_affiliated", "params": {"memory_id": "...", "affiliated": ["..."]}}`
-  - `{"action": "remove_affiliated", "params": {"memory_id": "...", "affiliated": ["..."]}}`
-  - `{"action": "set_affiliated", "params": {"memory_id": "...", "affiliated": ["..."]}}`
-  - `{"action": "get_affiliated", "params": {"memory_id": "..."}}`
+- Signatures (all four locate the source memory by `query`; `get_affiliated` only needs `query`):
+  - `{"action": "add_affiliated", "params": {"query": "...", "affiliated": ["query1", "query2"]}}`
+  - `{"action": "remove_affiliated", "params": {"query": "...", "affiliated": ["query1"]}}`
+  - `{"action": "set_affiliated", "params": {"query": "...", "affiliated": ["query1"]}}`
+  - `{"action": "get_affiliated", "params": {"query": "..."}}`
 - Sync. No LLM calls.
 - Every long-term memory entry has an "affiliated" array — a set of related
-  memory ids (e.g. other memories from the same event or topic) that you can
-  link together for easier joint recall later. These four actions are,
-  respectively, add to that array (`add_affiliated`), remove from it
-  (`remove_affiliated`), wholesale replace it (`set_affiliated` — the new
-  array replaces the old one entirely), and read it (`get_affiliated`,
-  returning `[{"id": "...", "text": "..."}, ...]` — each affiliated id
-  resolved to that memory's text; if an affiliated id no longer resolves to
-  an existing memory it is skipped silently, no error). **You may only
-  operate on memories you own** (i.e. you're in that entry's owners) — if
-  `memory_id` isn't yours, all four actions fail with a "not an owner of
-  ..." error.
+  memories (e.g. other memories from the same event or topic) that you can
+  link together for easier joint recall later. **No raw memory ids appear
+  here**: `query` describes the **source memory** in words and the kernel
+  resolves it to the top-1 match among your own memories; `affiliated` is a
+  **list of queries**, each of which is likewise resolved to one memory you
+  own — the link targets to attach or detach. These four actions are,
+  respectively, add to that array (`add_affiliated` — **APPENDS**, unioning
+  the resolved targets into the existing affiliated set), remove from it
+  (`remove_affiliated`), wholesale replace it (`set_affiliated` — **REPLACES**
+  the whole set with the resolved new set), and read it (`get_affiliated`,
+  returning `[{"id": "...", "text": "..."}, ...]` — each of the source
+  memory's affiliates resolved to its text, but **only the affiliated
+  memories YOU also own are returned**; any you don't own are skipped
+  silently). Because a `query` only ever resolves over **your own** memories,
+  you can only operate on memories you own — there's no separate ownership
+  error to worry about; a query that matches nothing you own just fails with
+  "no owned memory matches query".
+- **Automatic affiliation on split (NEW)**: when a `remember` gets split into
+  multiple atomic memories (a compound event), the system **automatically**
+  makes those pieces mutually affiliated. So for pieces of one event you
+  usually **don't** need to call `add_affiliated` yourself — just `remember`
+  the compound sentence and the links are built for you. Reserve manual
+  `add_affiliated` for linking memories you recorded **separately** that turn
+  out to be about the same event/person.
 
 ### observe
 - Signature: `{"action": "observe", "params": {"target": "..."}}`
@@ -450,23 +470,20 @@ together with `→`), with a concrete Three-Kingdoms example plus a "when to
 use it." They specifically show off the actions that are easy to overlook
 yet quite useful.
 
-### A. Investigation chain (dig out the full backstory via affiliated memories) — `recall` → `get_affiliated` → `add_affiliated`
-`recall("Xu Shu")` → one result is `{text:"Xu Shu goes over to Cao Cao's
-camp", n_affiliated:2}` (`n_affiliated>0`, so it has affiliated memories
-attached) → `get_affiliated(that memory_id)` → surfaces
-`["Xu Shu's mother is held hostage by Cao Cao", "On departure Xu Shu
-recommends Zhuge Liang to Liu Bei"]` → follow the thread to weave the
-scattered clues into a full backstory → then act on it with
-`push_goal("seek out Zhuge Liang at Longzhong")` / `say` / `act_on`.
-- **Link them proactively too**: when you `remember` a new memory that
-  belongs to the **same event or person** as some older memory, use
-  `add_affiliated(new memory_id, [old memory_id])` to chain them, so that
-  later whoever `recall`s either one can follow `get_affiliated` to the
-  other.
-- **When to use**: if a `recall`ed memory has `n_affiliated>0`, use
-  `get_affiliated` to follow the chain and dig into the cause-and-effect of
-  the same event/person; use `add_affiliated` to build such chains between
-  memories in the first place.
+### A. Investigation chain (affiliated memories surface automatically) — `recall` (auto-expands) → act on it
+`recall("Xu Shu")` → the result has the direct hit `{text:"Xu Shu goes over to
+Cao Cao's camp", n_affiliated:2}` **and automatically brings in its affiliated
+memories that you also own** (marked `via_affiliated:true`, e.g. "Xu Shu's
+mother is held hostage by Cao Cao", "On departure Xu Shu recommends Zhuge Liang
+to Liu Bei") → the scattered clues are **woven together in one recall** → then
+act on it with `push_goal("seek out Zhuge Liang at Longzhong")` / `say` / `act_on`.
+- **To explicitly list one memory's affiliates**: `get_affiliated("Xu Shu goes
+  over to Cao Cao's camp")` (by query) → returns that memory's affiliates you
+  also own. (Usually unnecessary — recall already pulled the one-hop neighbours.)
+- **Manual linking (rare)**: to chain two memories you recorded **separately**
+  that turn out to be the same event/person, use `add_affiliated("description of
+  one", ["description of the other"])` (both ends by query, **appends**). Pieces
+  split out of one compound `remember` are auto-linked, so you don't do those.
 
 ### B. Environment-interaction chain (act on your environment and leave a trace) — `observe` → `act_on` → `remember`
 `observe("xuchang_wuku")` to see what's in the armory → `act_on(targets=

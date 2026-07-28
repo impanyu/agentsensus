@@ -29,6 +29,7 @@ class SharedMemory:
         top_k: int = 5,
         collection_name: str | None = None,
         merge: bool = True,
+        affiliated_expand: bool = True,
     ):
         """
         Initialize SharedMemory.
@@ -68,6 +69,7 @@ class SharedMemory:
         self.sim_threshold = sim_threshold
         self.top_k = top_k
         self._merge = merge
+        self._affiliated_expand = affiliated_expand
         if collection_name is None:
             collection_name = f"agent_society_ltm_{uuid.uuid4().hex[:8]}"
         self._client = chromadb.Client()
@@ -370,9 +372,33 @@ class SharedMemory:
         # the agent can see which recalled memories are worth expanding via
         # `get_affiliated` (an empty/absent field == 0 == nothing to chain).
         out = []
+        seen = set()
+        to_expand = []
         for i, d, m in zip(ids, docs, metas):
             aff = json.loads((m or {}).get("affiliated", "[]"))
             out.append({"id": i, "text": d, "n_affiliated": len(aff)})
+            seen.add(i)
+            to_expand.extend(aff)
+
+        # Auto-expand: follow each hit's affiliated edges ONE hop and pull in the
+        # linked memories that owner_id ALSO owns (owner-scoped, deduped). Agents
+        # never traverse the graph by hand (get_affiliated-by-id was ~0 uses), so
+        # the graph pays off at the retrieval layer instead: a recall returns the
+        # semantic hits PLUS their owned neighbours, marked via_affiliated=True.
+        if self._affiliated_expand:
+            for aid in dict.fromkeys(to_expand):        # dedup, preserve order
+                if aid in seen:
+                    continue
+                seen.add(aid)
+                got = self._collection.get(ids=[aid], include=["documents", "metadatas"])
+                if not got["ids"]:
+                    continue                            # dangling / forgotten id
+                em = got["metadatas"][0] or {}
+                if not em.get(f"owner_{owner_id}"):
+                    continue                            # owner-scoped: skip if not owned
+                eaff = json.loads(em.get("affiliated", "[]"))
+                out.append({"id": aid, "text": got["documents"][0],
+                            "n_affiliated": len(eaff), "via_affiliated": True})
         return out
 
     def forget(self, agent_id: str, memory_id: str) -> bool:
