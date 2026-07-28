@@ -26,7 +26,7 @@ from datetime import datetime, timezone
 
 from society.baseline_store import ChromaRows, dumps_meta, loads_meta
 from society.gmemory_graph import INSIGHT, INTERACTION, GraphIndex, distill_prompt
-from society.ltm import SharedMemory
+from society.ltm import SharedMemory, atomize
 
 _DEFAULT_IMPORTANCE = 5
 
@@ -173,6 +173,7 @@ class GenerativeAgentsMemory:
     ):
         self._embed_fn = embed_fn
         self._llm = llm
+        self.max_tokens = kwargs.get("max_tokens", 50)
         self._store = ChromaRows(embed_fn, collection_name=collection_name)
         self._clock = 0  # monotonic access-tick counter
         self._prime_reflection_budget = (
@@ -376,15 +377,17 @@ class GenerativeAgentsMemory:
         story_order=None,
         story_time=None,
     ) -> list[dict]:
-        owners = [agent_id]
-        embedding = (await self._embed_fn([text]))[0]
-        importance = await self._score_importance(text)
+        # Atomize first (same granularity as consensus) -> one row per atomic,
+        # self-contained piece; store each with its own importance.
+        pieces = await atomize(text, self._llm, self.max_tokens)
         results = []
-        for owner in owners:
+        for piece in pieces:
+            embedding = (await self._embed_fn([piece]))[0]
+            importance = await self._score_importance(piece)
             row_id = uuid.uuid4().hex
             self._clock += 1
             metadata = {
-                "owner": owner,
+                "owner": agent_id,
                 "affiliated": dumps_meta([]),
                 "created_at": _now_iso(),
                 "source": source,
@@ -396,11 +399,9 @@ class GenerativeAgentsMemory:
                 metadata["story_order"] = story_order
             if story_time is not None:
                 metadata["story_time"] = story_time
-            await self._store.add(row_id, text, embedding, metadata)
-            results.append({"id": row_id, "text": text, "merged": False, "owners": [owner]})
-        # One logical deposit -> one accumulator update, regardless of how
-        # many per-owner rows were written above.
-        await self._deposit_importance(importance)
+            await self._store.add(row_id, piece, embedding, metadata)
+            results.append({"id": row_id, "text": piece, "merged": False, "owners": [agent_id]})
+            await self._deposit_importance(importance)
         return results
 
     async def remember_atomic(
@@ -822,6 +823,7 @@ class GMemory:
     ):
         self._embed_fn = embed_fn
         self._llm = llm
+        self.max_tokens = kwargs.get("max_tokens", 50)
         self._store = ChromaRows(embed_fn, collection_name=collection_name)
         # Side adjacency index for the paper's graph topology (agent/team/
         # task relations and insight->interaction provenance edges). Chroma
@@ -895,22 +897,28 @@ class GMemory:
         story_order=None,
         story_time=None,
     ) -> list[dict]:
-        embedding = (await self._embed_fn([text]))[0]
-        row_id = uuid.uuid4().hex
-        meta = {
-            "created_at": _now_iso(),
-            "source": source,
-            "tick": tick,
-            "tier": INTERACTION,
-        }
-        if story_order is not None:
-            meta["story_order"] = story_order
-        if story_time is not None:
-            meta["story_time"] = story_time
-        metadata = self._build_meta([agent_id], [], meta)
-        await self._store.add(row_id, text, embedding, metadata)
-        await self._track_new_interaction(row_id)
-        return [{"id": row_id, "text": text, "merged": False, "owners": [agent_id]}]
+        # Atomize first (same granularity as consensus) -> one interaction-tier
+        # row per atomic, self-contained piece.
+        pieces = await atomize(text, self._llm, self.max_tokens)
+        results = []
+        for piece in pieces:
+            embedding = (await self._embed_fn([piece]))[0]
+            row_id = uuid.uuid4().hex
+            meta = {
+                "created_at": _now_iso(),
+                "source": source,
+                "tick": tick,
+                "tier": INTERACTION,
+            }
+            if story_order is not None:
+                meta["story_order"] = story_order
+            if story_time is not None:
+                meta["story_time"] = story_time
+            metadata = self._build_meta([agent_id], [], meta)
+            await self._store.add(row_id, piece, embedding, metadata)
+            await self._track_new_interaction(row_id)
+            results.append({"id": row_id, "text": piece, "merged": False, "owners": [agent_id]})
+        return results
 
     async def remember_atomic(
         self,
@@ -1415,6 +1423,7 @@ class CollaborativeMemory:
     def __init__(self, embed_fn, llm=None, *, top_k: int = 5, collection_name=None, **kwargs):
         self._embed_fn = embed_fn
         self._llm = llm
+        self.max_tokens = kwargs.get("max_tokens", 50)
         self._store = ChromaRows(embed_fn, collection_name=collection_name)
 
     @staticmethod
@@ -1470,20 +1479,26 @@ class CollaborativeMemory:
         story_order=None,
         story_time=None,
     ) -> list[dict]:
-        embedding = (await self._embed_fn([text]))[0]
-        row_id = uuid.uuid4().hex
-        meta = {
-            "created_at": _now_iso(),
-            "source": source,
-            "tick": tick,
-        }
-        if story_order is not None:
-            meta["story_order"] = story_order
-        if story_time is not None:
-            meta["story_time"] = story_time
-        metadata = self._build_meta([agent_id], [], meta)
-        await self._store.add(row_id, text, embedding, metadata)
-        return [{"id": row_id, "text": text, "merged": False, "owners": [agent_id]}]
+        # Atomize first (same granularity as consensus) -> one ACL fragment per
+        # atomic, self-contained piece.
+        pieces = await atomize(text, self._llm, self.max_tokens)
+        results = []
+        for piece in pieces:
+            embedding = (await self._embed_fn([piece]))[0]
+            row_id = uuid.uuid4().hex
+            meta = {
+                "created_at": _now_iso(),
+                "source": source,
+                "tick": tick,
+            }
+            if story_order is not None:
+                meta["story_order"] = story_order
+            if story_time is not None:
+                meta["story_time"] = story_time
+            metadata = self._build_meta([agent_id], [], meta)
+            await self._store.add(row_id, piece, embedding, metadata)
+            results.append({"id": row_id, "text": piece, "merged": False, "owners": [agent_id]})
+        return results
 
     async def remember_atomic(
         self,

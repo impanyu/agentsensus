@@ -825,3 +825,30 @@ async def test_build_society_gives_each_call_a_distinct_collection():
 
     assert len(k1.shared_memory.all_entries()) == 1
     assert len(k2.shared_memory.all_entries()) == 0
+
+
+# ----------------------------------------------------------------------
+# Fairness: every backend (baselines + consensus) atomizes a compound memory
+# at the SAME granularity, so a footprint comparison isolates the merge, not
+# incidental row coarseness. Each atomic piece must be self-contained.
+# ----------------------------------------------------------------------
+
+import uuid
+from society.baselines import make_memory as _make
+
+
+@pytest.mark.parametrize("kind", ["generative_agents", "g_memory", "collaborative", "consensus"])
+async def test_all_backends_split_compound_remember_identically(kind):
+    llm = FakeLLM(responses=['["宝玉挨打", "贾政大发雷霆"]'])
+    m = _make(kind, afake_embed, llm=llm, max_tokens=50, collection_name=f"t_{uuid.uuid4().hex[:6]}")
+    out = await m.remember("alice", "宝玉挨打了，然后贾政大发雷霆。", tick=1)
+    assert [r["text"] for r in out] == ["宝玉挨打", "贾政大发雷霆"]   # split into 2 atomic rows
+    assert all(r["owners"] == ["alice"] for r in out)
+
+
+@pytest.mark.parametrize("kind", ["generative_agents", "g_memory", "collaborative"])
+async def test_baseline_short_memory_not_split(kind):
+    # A short, already-atomic memory stays one row (no spurious splitting).
+    m = _make(kind, afake_embed, llm=None, max_tokens=50, collection_name=f"t_{uuid.uuid4().hex[:6]}")
+    out = await m.remember("alice", "黛玉葬花", tick=1)
+    assert len(out) == 1 and out[0]["text"] == "黛玉葬花"

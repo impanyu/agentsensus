@@ -11,6 +11,62 @@ _TERMINATORS = "。！？；.;"
 _CONNECTIVES = ("然后", "并且", "而且", "同时", "接着", " and ", " then ")
 
 
+# ----------------------------------------------------------------------
+# Atomization, shared by EVERY backend (consensus + baselines) so all methods
+# split compound memories at the same granularity -- the footprint comparison
+# then isolates the merge mechanism, not incidental differences in how coarse
+# each backend's rows are.
+# ----------------------------------------------------------------------
+
+def needs_normalize(text: str, max_tokens: int) -> bool:
+    if count_tokens(text) > max_tokens:
+        return True
+    if sum(text.count(ch) for ch in _TERMINATORS) > 1:
+        return True
+    if any(conn in text for conn in _CONNECTIVES):
+        return True
+    return False
+
+
+def fallback_split(text: str, max_tokens: int) -> list[str]:
+    parts = re.split(f"[{re.escape(_TERMINATORS)}!]", text)
+    entries = [p.strip() for p in parts if p.strip()]
+    return [truncate_to_tokens(e, max_tokens) for e in entries]
+
+
+async def atomize(text: str, llm, max_tokens: int) -> list[str]:
+    """Split `text` into atomic memory statements, calling the LLM only when the
+    text looks compound. CRITICAL: every piece must be INDEPENDENT and SELF-
+    CONTAINED -- understandable on its own without the others -- so it stands as
+    one complete memory. Used by consensus AND the baselines (identical
+    granularity across methods)."""
+    if not needs_normalize(text, max_tokens):
+        return [text]
+    if llm is None:
+        return fallback_split(text, max_tokens)
+    prompt = (
+        "Split the following memory into a JSON array of atomic memory statements.\n"
+        "CRITICAL REQUIREMENTS for each statement:\n"
+        "1. INDEPENDENT & SELF-CONTAINED: it must be fully understandable on its "
+        "own, WITHOUT reading the others. Resolve every pronoun and reference to "
+        "an explicit name; carry over the necessary context (who did what, to "
+        "whom, where) so nothing dangles.\n"
+        "2. ONE COMPLETE EVENT each, at most ~%d tokens.\n"
+        "Reply with ONLY the JSON array of strings.\n\nMemory: %s" % (max_tokens, text)
+    )
+    reply = await llm.chat(prompt, system=None, bucket="normalize")
+    match = re.search(r"\[.*\]", reply, re.S)
+    if match:
+        try:
+            parsed = json.loads(match.group(0))
+            entries = [str(e).strip() for e in parsed if str(e).strip()]
+            if entries:
+                return [truncate_to_tokens(e, max_tokens) for e in entries]
+        except (ValueError, TypeError):
+            pass
+    return fallback_split(text, max_tokens)
+
+
 def _now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
 
@@ -82,48 +138,14 @@ class SharedMemory:
     # ------------------------------------------------------------------
 
     def _needs_normalize(self, text: str) -> bool:
-        if count_tokens(text) > self.max_tokens:
-            return True
-        terminator_count = sum(text.count(ch) for ch in _TERMINATORS)
-        if terminator_count > 1:
-            return True
-        if any(conn in text for conn in _CONNECTIVES):
-            return True
-        return False
+        return needs_normalize(text, self.max_tokens)
 
     def _fallback_split(self, text: str) -> list[str]:
-        parts = re.split(f"[{re.escape(_TERMINATORS)}!]", text)
-        entries = [p.strip() for p in parts if p.strip()]
-        return [truncate_to_tokens(e, self.max_tokens) for e in entries]
+        return fallback_split(text, self.max_tokens)
 
     async def _normalize(self, text: str) -> list[str]:
-        """Split text into atomic memory strings, calling the LLM only when needed."""
-        if not self._needs_normalize(text):
-            return [text]
-
-        if self._llm is None:
-            return self._fallback_split(text)
-
-        prompt = (
-            "Split the following memory into a JSON array of short, atomic, "
-            "independent memory statements. Reply with ONLY the JSON array. "
-            f"Each atomic statement should be at most ~{self.max_tokens} tokens "
-            "(one complete event).\n\n"
-            f"Memory: {text}"
-        )
-        reply = await self._llm.chat(prompt, system=None, bucket="normalize")
-
-        match = re.search(r"\[.*\]", reply, re.S)
-        if match:
-            try:
-                parsed = json.loads(match.group(0))
-                entries = [str(e).strip() for e in parsed if str(e).strip()]
-                if entries:
-                    return [truncate_to_tokens(e, self.max_tokens) for e in entries]
-            except (ValueError, TypeError):
-                pass
-
-        return self._fallback_split(text)
+        """Split text into atomic, self-contained memory strings (shared logic)."""
+        return await atomize(text, self._llm, self.max_tokens)
 
     # ------------------------------------------------------------------
     # consensus insert
