@@ -74,13 +74,14 @@ async def test_run_sim_writes_result_json_with_documented_keys(tmp_path, monkeyp
 
     expected_keys = {
         "scenario", "memory_kind", "seed", "consensus_merge", "cache_strategy",
-        "ticks_run", "stop_reason", "footprint", "cost", "sediment_memories",
-        "new_memories", "per_tick_memory",
+        "continued_from", "ticks_run", "stop_reason", "footprint", "cost",
+        "sediment_memories", "new_memories", "per_tick_memory",
     }
     assert set(result.keys()) == expected_keys
     assert result["memory_kind"] == "consensus"
     assert result["consensus_merge"] is True   # default knob position
     assert result["cache_strategy"] is None
+    assert result["continued_from"] is None
     assert result["seed"] == 0
     assert result["ticks_run"] == 5
     assert result["stop_reason"] == "max_ticks"

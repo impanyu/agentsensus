@@ -323,7 +323,7 @@ async def build_society(
         # prohibitively slow.
         await shared.restore(entries)
         prime = getattr(shared, "prime_initial_state", None)
-        if prime is not None:
+        if prime is not None and not cfg.get("_skip_prime"):
             await prime()
     else:
         for agent_id, texts in seed_specs:

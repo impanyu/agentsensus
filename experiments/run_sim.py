@@ -99,6 +99,8 @@ async def run_sim(
     embed_fn=None,
     consensus_merge: bool = True,
     cache_strategy: str | None = None,
+    ltm_file: str | None = None,
+    skip_prime: bool = False,
 ) -> dict:
     """Run ONE (scenario, memory backend, seed) and write a self-contained
     result to `out_dir`.
@@ -157,6 +159,17 @@ async def run_sim(
     cfg = load_scenario(scenario_path)
     if cache_strategy is not None:
         cfg.setdefault("defaults", {})["cache_strategy"] = cache_strategy
+    if ltm_file is not None:
+        # Continue from an EARLIER run's memory: load its ltm_final.json as the
+        # starting shared memory instead of the scenario's original sediment.
+        # (Only the LTM carries over -- agents restart from the scenario's
+        # initial STM/positions but with the full accumulated memory.) An
+        # absolute path overrides the scenario's own ltm_file via os.path.join.
+        cfg["ltm_file"] = os.path.abspath(ltm_file)
+    if skip_prime:
+        # The reused dump is already primed (GA reflections / g_memory insights
+        # are in the export); don't re-prime over it.
+        cfg["_skip_prime"] = True
     event_log = EventLog(os.path.join(out_dir, "events.jsonl"))
 
     kernel = await build_society(
@@ -201,6 +214,7 @@ async def run_sim(
         "seed": seed,
         "consensus_merge": consensus_merge,
         "cache_strategy": cache_strategy,
+        "continued_from": ltm_file,
         "ticks_run": kernel.tick,
         "stop_reason": stop_reason,
         "footprint": evaluation.footprint(kernel.shared_memory),
