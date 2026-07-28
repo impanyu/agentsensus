@@ -21,6 +21,7 @@ import time
 
 from society import evaluation
 from society.events import EventLog
+from society.persistence import load_checkpoint, restore_society, save_checkpoint
 from society.run import _build_llm_and_embed, write_transcripts
 from society.scenario import build_society, load_scenario
 
@@ -33,7 +34,8 @@ _MEMORY_KINDS = ("consensus", "generative_agents", "g_memory", "collaborative")
 _ADAPTIVE_STOP_REASON = "adaptive_target"
 
 
-async def _step_until_stop(kernel, *, max_ticks: int, adaptive_new_memories, sediment_start: int):
+async def _step_until_stop(kernel, *, max_ticks: int, adaptive_new_memories, sediment_start: int,
+                           out_dir=None, checkpoint_every: int = 0):
     """Run `kernel` one tick at a time (reusing `Kernel.run`'s absolute
     `max_ticks` semantics -- each call just asks for one more tick than the
     kernel has already reached) until a stop condition fires.
@@ -58,6 +60,9 @@ async def _step_until_stop(kernel, *, max_ticks: int, adaptive_new_memories, sed
     shared = kernel.shared_memory
     per_tick_memory: list[int] = []
     last_recorded_tick = 0
+    # System-snapshot cadence: one checkpoint per `checkpoint_every`-tick block
+    # (captures STM + kernel runtime + LTM, so the run can resume bit-for-bit).
+    last_ckpt_block = kernel.tick // checkpoint_every if checkpoint_every else 0
 
     while True:
         if kernel.tick >= max_ticks:
@@ -70,6 +75,10 @@ async def _step_until_stop(kernel, *, max_ticks: int, adaptive_new_memories, sed
         while last_recorded_tick < kernel.tick:
             per_tick_memory.append(total)
             last_recorded_tick += 1
+
+        if checkpoint_every and out_dir and kernel.tick // checkpoint_every > last_ckpt_block:
+            save_checkpoint(kernel, os.path.join(out_dir, "checkpoints", f"ckpt_t{kernel.tick}.json"))
+            last_ckpt_block = kernel.tick // checkpoint_every
 
         if summary["stop_reason"] in ("quiescent", "budget", "wall_time"):
             return summary["stop_reason"], per_tick_memory
@@ -101,6 +110,8 @@ async def run_sim(
     cache_strategy: str | None = None,
     ltm_file: str | None = None,
     skip_prime: bool = False,
+    checkpoint_every: int = 20,
+    resume_from: str | None = None,
 ) -> dict:
     """Run ONE (scenario, memory backend, seed) and write a self-contained
     result to `out_dir`.
@@ -155,32 +166,47 @@ async def run_sim(
             embed_fn = cfg_embed_fn
 
     os.makedirs(out_dir, exist_ok=True)
-
-    cfg = load_scenario(scenario_path)
-    if cache_strategy is not None:
-        cfg.setdefault("defaults", {})["cache_strategy"] = cache_strategy
-    if ltm_file is not None:
-        # Continue from an EARLIER run's memory: load its ltm_final.json as the
-        # starting shared memory instead of the scenario's original sediment.
-        # (Only the LTM carries over -- agents restart from the scenario's
-        # initial STM/positions but with the full accumulated memory.) An
-        # absolute path overrides the scenario's own ltm_file via os.path.join.
-        cfg["ltm_file"] = os.path.abspath(ltm_file)
-    if skip_prime:
-        # The reused dump is already primed (GA reflections / g_memory insights
-        # are in the export); don't re-prime over it.
-        cfg["_skip_prime"] = True
     event_log = EventLog(os.path.join(out_dir, "events.jsonl"))
 
-    kernel = await build_society(
-        cfg,
-        llm=llm,
-        embed_fn=embed_fn,
-        event_log=event_log,
-        out_dir=out_dir,
-        memory_kind=memory_kind,
-        consensus_merge=consensus_merge,
-    )
+    if resume_from is not None:
+        # TRUE bit-for-bit resume from a system checkpoint: STM (FIFO/goals/
+        # status) AND kernel runtime (presence/pending/conversations/tick/
+        # event_seq/LTM) are all restored, so ticks continue exactly where the
+        # checkpoint was taken. The backend (and merge knob) come from the
+        # checkpoint itself, not the args.
+        ckpt = load_checkpoint(resume_from)
+        kernel = await restore_society(
+            ckpt, llm=llm, embed_fn=embed_fn, event_log=event_log, out_dir=out_dir
+        )
+        memory_kind = ckpt.get("memory_kind", memory_kind)
+        consensus_merge = ckpt.get("consensus_merge", consensus_merge)
+        scenario_path = f"{scenario_path} (resumed from {resume_from} @ tick {ckpt['tick']})"
+    else:
+        cfg = load_scenario(scenario_path)
+        if cache_strategy is not None:
+            cfg.setdefault("defaults", {})["cache_strategy"] = cache_strategy
+        if ltm_file is not None:
+            # Continue from an EARLIER run's memory: load its ltm_final.json as
+            # the starting shared memory instead of the scenario's original
+            # sediment. (Only the LTM carries over -- agents restart from the
+            # scenario's initial STM/positions but with the full accumulated
+            # memory.) An absolute path overrides the scenario's own ltm_file
+            # via os.path.join.
+            cfg["ltm_file"] = os.path.abspath(ltm_file)
+        if skip_prime:
+            # The reused dump is already primed (GA reflections / g_memory
+            # insights are in the export); don't re-prime over it.
+            cfg["_skip_prime"] = True
+
+        kernel = await build_society(
+            cfg,
+            llm=llm,
+            embed_fn=embed_fn,
+            event_log=event_log,
+            out_dir=out_dir,
+            memory_kind=memory_kind,
+            consensus_merge=consensus_merge,
+        )
 
     # Starting memory count: the post-restore (or post-seed) sediment size,
     # BEFORE any tick runs.
@@ -192,8 +218,15 @@ async def run_sim(
         max_ticks=max_ticks,
         adaptive_new_memories=adaptive_new_memories,
         sediment_start=sediment_start,
+        out_dir=out_dir,
+        checkpoint_every=checkpoint_every,
     )
     wall_s = time.monotonic() - wall_start
+
+    # Always leave a final checkpoint at the stop tick, so ANY run (even one
+    # that stops off a 20-tick boundary) can be resumed from where it ended.
+    if checkpoint_every:
+        save_checkpoint(kernel, os.path.join(out_dir, "checkpoints", "ckpt_final.json"))
 
     if kernel.metrics is not None:
         kernel.metrics.snapshot(kernel.tick)

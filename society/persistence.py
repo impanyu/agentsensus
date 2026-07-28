@@ -11,10 +11,11 @@ replayed, since the checkpoint already reflects their effects.
 
 import json
 import os
+import uuid
 
 from society.actions import Message
+from society.baselines import make_memory
 from society.kernel import Kernel
-from society.ltm import SharedMemory
 from society.metrics import Metrics
 from society.scenario import build_agents_and_map
 
@@ -56,6 +57,8 @@ def _build_checkpoint_dict(kernel) -> dict:
         "version": CHECKPOINT_VERSION,
         "tick": kernel.tick,
         "event_seq": kernel.event_log._seq_counter,
+        "memory_kind": getattr(kernel, "memory_kind", "consensus"),
+        "consensus_merge": getattr(kernel, "consensus_merge", True),
         "scenario": kernel.scenario_cfg,
         "agents": agents_state,
         "presence": presence,
@@ -108,7 +111,19 @@ async def restore_society(ckpt: dict, *, llm, embed_fn, event_log, out_dir=None)
     )
     stats_interval = defaults.get("stats_interval", 10)
 
-    shared = SharedMemory(embed_fn, llm, max_tokens=memory_max_tokens)
+    # Rebuild the SAME backend the checkpoint was taken from (default consensus
+    # for pre-`memory_kind` checkpoints), with a fresh unique collection so it
+    # never collides with a co-resident run's in-process chroma store.
+    memory_kind = ckpt.get("memory_kind", "consensus")
+    extra_mem_kw = (
+        {"merge": ckpt.get("consensus_merge", True)} if memory_kind == "consensus" else {}
+    )
+    shared = make_memory(
+        memory_kind, embed_fn, llm=llm,
+        max_tokens=memory_max_tokens,
+        collection_name=f"{cfg.get('scenario', 'scn')}_{memory_kind}_resume_{uuid.uuid4().hex[:8]}",
+        **extra_mem_kw,
+    )
     metrics = Metrics(agents, shared, out_dir, interval=stats_interval)
 
     kernel = Kernel(
@@ -121,6 +136,8 @@ async def restore_society(ckpt: dict, *, llm, embed_fn, event_log, out_dir=None)
         config={"language": cfg.get("language", "zh")},
     )
     kernel.scenario_cfg = cfg
+    kernel.memory_kind = memory_kind
+    kernel.consensus_merge = ckpt.get("consensus_merge", True)
     kernel.tick = ckpt["tick"]
 
     for aid, state in ckpt.get("agents", {}).items():

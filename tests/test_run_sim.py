@@ -174,3 +174,56 @@ async def test_fixed_run_ignores_adaptive_when_none(tmp_path, monkeypatch):
     )
     assert result["stop_reason"] == "max_ticks"
     assert result["ticks_run"] == 4
+
+
+# ----------------------------------------------------------------------
+# System snapshots: run_sim checkpoints every `checkpoint_every` ticks (+ a
+# final one) and can RESUME from one, continuing the tick counter rather than
+# restarting -- STM + kernel runtime round-trip is proven in test_persistence.
+# ----------------------------------------------------------------------
+
+
+async def test_run_sim_writes_periodic_and_final_checkpoints(tmp_path, monkeypatch):
+    _patch_rule_brain_noop(monkeypatch)
+    spath = _write_scenario(tmp_path)
+    out = str(tmp_path / "out")
+    result = await run_sim(
+        spath, "consensus", out, max_ticks=5,
+        llm=_harmless_llm(), embed_fn=afake_embed, checkpoint_every=2,
+    )
+    ckpt_dir = os.path.join(out, "checkpoints")
+    files = set(os.listdir(ckpt_dir))
+    assert {"ckpt_t2.json", "ckpt_t4.json", "ckpt_final.json"} <= files
+    final = json.load(open(os.path.join(ckpt_dir, "ckpt_final.json")))
+    assert final["tick"] == result["ticks_run"] == 5
+    assert final["memory_kind"] == "consensus"
+    assert final["consensus_merge"] is True
+
+
+async def test_run_sim_resume_from_checkpoint_continues_not_restarts(tmp_path, monkeypatch):
+    _patch_rule_brain_noop(monkeypatch)
+    spath = _write_scenario(tmp_path)
+    out1 = str(tmp_path / "run1")
+    await run_sim(
+        spath, "consensus", out1, max_ticks=4,
+        llm=_harmless_llm(), embed_fn=afake_embed, checkpoint_every=2,
+    )
+    ckpt = os.path.join(out1, "checkpoints", "ckpt_t4.json")
+    assert os.path.exists(ckpt)
+
+    out2 = str(tmp_path / "run2")
+    r2 = await run_sim(
+        spath, "consensus", out2, max_ticks=8,
+        llm=_harmless_llm(), embed_fn=afake_embed,
+        checkpoint_every=2, resume_from=ckpt,
+    )
+    # Continued to tick 8, and its checkpoints start AFTER the resume point
+    # (block 2 -> first new snapshot at t6): proof it resumed at tick 4, not 0.
+    assert r2["ticks_run"] == 8
+    files = set(os.listdir(os.path.join(out2, "checkpoints")))
+    assert "ckpt_t6.json" in files
+    assert "ckpt_t2.json" not in files and "ckpt_t4.json" not in files
+    # memory count at resume start == the checkpoint's captured LTM size
+    ck = json.load(open(ckpt))
+    assert r2["sediment_memories"] == len(ck["ltm"])
+    assert r2["memory_kind"] == "consensus"

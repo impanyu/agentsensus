@@ -303,6 +303,10 @@ async def build_society(
         },
     )
     kernel.scenario_cfg = cfg
+    # Record the backend identity so a checkpoint can rebuild the SAME memory
+    # backend on resume (not always consensus).
+    kernel.memory_kind = memory_kind
+    kernel.consensus_merge = consensus_merge
 
     ltm_file = cfg.get("ltm_file")
     if ltm_file is not None:
