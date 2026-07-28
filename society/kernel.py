@@ -439,7 +439,7 @@ class Kernel:
             return await self._execute_act_on(agent, action)
 
         if name in ("add_affiliated", "remove_affiliated", "set_affiliated", "get_affiliated"):
-            return self._execute_affiliated_crud(agent, action)
+            return await self._execute_affiliated_crud(agent, action)
 
         if name == "observe":
             return self._execute_observe(agent, action)
@@ -608,56 +608,75 @@ class Kernel:
                 return entry
         return None
 
-    def _execute_affiliated_crud(self, agent, action: Action) -> ActionResult:
-        """add_affiliated/remove_affiliated/set_affiliated/get_affiliated:
-        all four operate only on memories `agent` owns. `set_affiliated`
-        replaces the whole affiliated array (implemented here as
-        remove-all-then-add; ltm.py itself is not modified).
-        `get_affiliated` resolves each affiliated id to its text, skipping
-        dangling ids (ones with no matching entry) silently."""
+    async def _resolve_owned_id(self, agent, query: str):
+        """Resolve a natural-language `query` to the id of the single
+        best-matching memory OWNED by `agent` (top-1 semantic recall), or None
+        if the agent owns nothing matching. Memory actions address memories by
+        CONTENT via this, never by a raw id -- an opaque uuid is something LLM
+        agents empirically never thread across ticks (get_affiliated/forget/
+        revise/...-by-id were all ~0 uses), whereas a query is one natural,
+        single-step argument."""
+        if not isinstance(query, str) or not query.strip():
+            return None
+        hits = await self.shared_memory.recall(agent.id, query, top_k=1)
+        return hits[0]["id"] if hits else None
+
+    async def _execute_affiliated_crud(self, agent, action: Action) -> ActionResult:
+        """get/add/remove/set_affiliated -- all address memories by natural-
+        language QUERY (top-1 semantic recall over the agent's OWN memories),
+        never a raw id. The source memory is `params["query"]`; for add/remove/
+        set, `params["affiliated"]` is a LIST of QUERIES, each resolved to one
+        owned memory (the link targets). `get_affiliated` returns only affiliated
+        memories the agent ALSO owns (owner-scoped). `add_affiliated` appends
+        (unions) to the existing affiliated set; `set_affiliated` replaces it."""
         if self.shared_memory is None:
             return ActionResult(False, error="no shared memory")
 
         params = action.params
-        memory_id = params["memory_id"]
-
         name = action.name
-        if name != "get_affiliated":
-            affiliated = params.get("affiliated")
-            # A bare string would be iterated character-by-character and
-            # silently corrupt the persistent affiliation set.
-            if not isinstance(affiliated, list) or not all(
-                isinstance(x, str) for x in affiliated
-            ):
-                return ActionResult(False, error="affiliated must be a list of memory ids")
 
-        entry = self._get_owned_entry(memory_id)
-        if entry is None:
-            return ActionResult(False, error=f"no such memory: {memory_id}")
-        if agent.id not in entry["owners"]:
-            return ActionResult(False, error=f"not an owner of {memory_id}")
+        src_id = await self._resolve_owned_id(agent, params.get("query"))
+        if src_id is None:
+            return ActionResult(False, error=f"no owned memory matches query: {params.get('query')!r}")
+
+        if name == "get_affiliated":
+            ids = self.shared_memory.get_affiliations(src_id)
+            # owner-scoped: surface only affiliated memories the agent also owns.
+            owned = {
+                e["id"]: e["text"]
+                for e in self.shared_memory.all_entries()
+                if agent.id in e.get("owners", [])
+            }
+            data = [{"id": i, "text": owned[i]} for i in ids if i in owned]
+            return ActionResult(True, data=data)
+
+        # add/remove/set: resolve each target query to an owned memory id.
+        target_queries = params.get("affiliated")
+        if not isinstance(target_queries, list) or not all(
+            isinstance(x, str) for x in target_queries
+        ):
+            return ActionResult(False, error="affiliated must be a list of memory queries")
+        target_ids = []
+        for q in target_queries:
+            tid = await self._resolve_owned_id(agent, q)
+            if tid is not None and tid != src_id and tid not in target_ids:
+                target_ids.append(tid)
 
         if name == "add_affiliated":
-            self.shared_memory.add_affiliations(memory_id, params["affiliated"])
-            return ActionResult(True, data="added")
+            self.shared_memory.add_affiliations(src_id, target_ids)  # append/union
+            return ActionResult(True, data={"linked": target_ids})
 
         if name == "remove_affiliated":
-            self.shared_memory.remove_affiliations(memory_id, params["affiliated"])
-            return ActionResult(True, data="removed")
+            self.shared_memory.remove_affiliations(src_id, target_ids)
+            return ActionResult(True, data={"unlinked": target_ids})
 
-        if name == "set_affiliated":
-            current = self.shared_memory.get_affiliations(memory_id)
-            if current:
-                self.shared_memory.remove_affiliations(memory_id, current)
-            if params["affiliated"]:
-                self.shared_memory.add_affiliations(memory_id, params["affiliated"])
-            return ActionResult(True, data="set")
-
-        # get_affiliated
-        ids = self.shared_memory.get_affiliations(memory_id)
-        id_to_text = {e["id"]: e["text"] for e in self.shared_memory.all_entries()}
-        data = [{"id": i, "text": id_to_text[i]} for i in ids if i in id_to_text]
-        return ActionResult(True, data=data)
+        # set_affiliated (replace the whole set)
+        current = self.shared_memory.get_affiliations(src_id)
+        if current:
+            self.shared_memory.remove_affiliations(src_id, current)
+        if target_ids:
+            self.shared_memory.add_affiliations(src_id, target_ids)
+        return ActionResult(True, data={"set": target_ids})
 
     # ------------------------------------------------------------------
     # View construction (Fix 1b: discoverability of ids for say/observe/
@@ -942,12 +961,18 @@ class Kernel:
             return ActionResult(True, data=data)
 
         if name == "forget":
-            data = self.shared_memory.forget(agent.id, params["memory_id"])
+            mid = await self._resolve_owned_id(agent, params["query"])
+            if mid is None:
+                return ActionResult(False, error=f"no owned memory matches query: {params['query']!r}")
+            data = self.shared_memory.forget(agent.id, mid)
             return ActionResult(True, data=data)
 
         # revise_memory
+        mid = await self._resolve_owned_id(agent, params["query"])
+        if mid is None:
+            return ActionResult(False, error=f"no owned memory matches query: {params['query']!r}")
         data = await self.shared_memory.revise(
-            agent.id, params["memory_id"], params["new_text"], tick=self.tick
+            agent.id, mid, params["new_text"], tick=self.tick
         )
         return ActionResult(True, data=data)
 

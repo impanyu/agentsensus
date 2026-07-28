@@ -109,8 +109,11 @@ REQUIRED_PARAMS: dict[str, list[str]] = {
     "remove_status": ["key"],
     "remember": ["text"],
     "recall": ["query"],
-    "forget": ["memory_id"],
-    "revise_memory": ["memory_id", "new_text"],
+    # memory-mutating actions address a memory by natural-language `query`
+    # (top-1 semantic recall over the agent's OWN memories), never a raw id --
+    # LLM agents empirically never thread opaque uuids across ticks.
+    "forget": ["query"],
+    "revise_memory": ["query", "new_text"],
     "observe": ["target"],
     "read": ["target", "query"],
     "move": ["destination"],
@@ -127,10 +130,12 @@ REQUIRED_PARAMS: dict[str, list[str]] = {
     "say": ["content"],
     "gesture": ["content"],
     "act_on": ["targets", "content"],
-    "add_affiliated": ["memory_id", "affiliated"],
-    "remove_affiliated": ["memory_id", "affiliated"],
-    "set_affiliated": ["memory_id", "affiliated"],
-    "get_affiliated": ["memory_id"]
+    # affiliated actions: `query` picks the source memory; `affiliated` is a
+    # LIST OF QUERIES, each resolved to one owned memory (the link targets).
+    "add_affiliated": ["query", "affiliated"],
+    "remove_affiliated": ["query", "affiliated"],
+    "set_affiliated": ["query", "affiliated"],
+    "get_affiliated": ["query"]
 }
 
 

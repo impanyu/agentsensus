@@ -361,3 +361,27 @@ async def test_merge_on_restore_keeps_single_merged_row():
     await m.restore([{"id": "e1", "text": "桃园三结义", "owners": ["liubei", "guanyu", "zhangfei"]}])
     (entry,) = m.all_entries()
     assert set(entry["owners"]) == {"liubei", "guanyu", "zhangfei"}
+
+
+# ----------------------------------------------------------------------
+# remember auto-affiliates the atomic pieces of a split compound memory
+# (mechanism-driven affiliation -- agents don't call add_affiliated live)
+# ----------------------------------------------------------------------
+
+
+async def test_remember_auto_affiliates_split_items():
+    llm = FakeLLM(responses=['["宝玉挨打", "贾政动怒"]'])
+    m = mem(llm)
+    out = await m.remember("alice", "宝玉挨打了，然后贾政大发雷霆并且惊动了贾母。")
+    assert len(out) == 2
+    id1, id2 = out[0]["id"], out[1]["id"]
+    # the two atomic pieces of the one compound event are mutually affiliated
+    assert m.get_affiliations(id1) == [id2]
+    assert m.get_affiliations(id2) == [id1]
+
+
+async def test_remember_single_atomic_has_no_affiliation():
+    m = mem(None)
+    out = await m.remember("alice", "黛玉葬花")   # short, not split
+    assert len(out) == 1
+    assert m.get_affiliations(out[0]["id"]) == []

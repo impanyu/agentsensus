@@ -293,6 +293,16 @@ class SharedMemory:
                     story_time=story_time,
                 )
             )
+        # If `text` was split into multiple atomic memories, they all came from
+        # ONE compound event -> mutually affiliate them, so the split stays a
+        # connected group in the memory graph. This is the mechanism-driven way
+        # affiliated links get built (agents don't call add_affiliated in
+        # practice). Dedup ids first: two atomic parts can consensus-merge into
+        # the same existing entry, and add_affiliations already excludes self.
+        if len(results) > 1:
+            ids = list(dict.fromkeys(r["id"] for r in results))
+            for mid in ids:
+                self.add_affiliations(mid, [x for x in ids if x != mid])
         return results
 
     async def remember_atomic(

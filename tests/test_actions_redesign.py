@@ -147,40 +147,43 @@ async def test_affiliated_crud_add_remove_set_get():
     a = char("alice", "hall")
     k = build([a, env("hall")], shared=shared)
 
+    # Memories are addressed by QUERY (content), never by raw id. afake_embed
+    # is deterministic per text, so a query equal to a memory's text recalls it.
     r1 = await shared.remember_atomic(["alice", "bob"], "国王驾崩")
     r2 = await shared.remember_atomic(["alice"], "王后哭泣")
     r3 = await shared.remember_atomic(["alice"], "百姓戴孝")
     m1, m2, m3 = r1["id"], r2["id"], r3["id"]
 
-    add = await k.execute(a, Action("add_affiliated", {"memory_id": m1, "affiliated": [m2, m3]}))
+    add = await k.execute(a, Action("add_affiliated", {"query": "国王驾崩", "affiliated": ["王后哭泣", "百姓戴孝"]}))
     assert add.ok
     assert shared.get_affiliations(m1) == sorted([m2, m3])
 
-    got = await k.execute(a, Action("get_affiliated", {"memory_id": m1}))
+    got = await k.execute(a, Action("get_affiliated", {"query": "国王驾崩"}))
     assert got.ok
     assert {d["id"] for d in got.data} == {m2, m3}
     texts = {d["id"]: d["text"] for d in got.data}
     assert texts[m2] == "王后哭泣" and texts[m3] == "百姓戴孝"
 
-    rem = await k.execute(a, Action("remove_affiliated", {"memory_id": m1, "affiliated": [m2]}))
+    rem = await k.execute(a, Action("remove_affiliated", {"query": "国王驾崩", "affiliated": ["王后哭泣"]}))
     assert rem.ok
     assert shared.get_affiliations(m1) == [m3]
 
-    setr = await k.execute(a, Action("set_affiliated", {"memory_id": m1, "affiliated": [m2]}))
+    setr = await k.execute(a, Action("set_affiliated", {"query": "国王驾崩", "affiliated": ["王后哭泣"]}))
     assert setr.ok
     assert shared.get_affiliations(m1) == [m2]   # m3 removed, m2 added -- full replace
 
 
 async def test_affiliated_crud_rejects_non_owner():
+    # Owner-scoping is now enforced at RESOLUTION: query resolves over the
+    # asker's OWN memories only, so bob simply cannot address alice's memory.
     shared = fresh_shared()
     alice, bob = char("alice", "hall"), char("bob", "hall")
     k = build([alice, bob, env("hall")], shared=shared)
 
-    r1 = await shared.remember_atomic(["alice"], "秘密日记")
-    m1 = r1["id"]
+    await shared.remember_atomic(["alice"], "秘密日记")
 
-    r = await k.execute(bob, Action("add_affiliated", {"memory_id": m1, "affiliated": []}))
-    assert r.ok is False and "not an owner" in r.error
+    r = await k.execute(bob, Action("add_affiliated", {"query": "秘密日记", "affiliated": []}))
+    assert r.ok is False and "no owned memory matches" in r.error
 
 
 async def test_get_affiliated_skips_dangling_ids_silently():
@@ -192,17 +195,19 @@ async def test_get_affiliated_skips_dangling_ids_silently():
     m1 = r1["id"]
     shared.add_affiliations(m1, ["ghost-id-does-not-exist"])
 
-    got = await k.execute(a, Action("get_affiliated", {"memory_id": m1}))
+    got = await k.execute(a, Action("get_affiliated", {"query": "国王驾崩"}))
     assert got.ok and got.data == []
 
 
-async def test_affiliated_crud_unknown_memory_id_errors():
+async def test_get_affiliated_no_owned_memory_errors():
+    # No id to be "unknown" any more: a query that resolves to nothing (here,
+    # an agent that owns no memories at all) errors cleanly.
     shared = fresh_shared()
     a = char("alice", "hall")
     k = build([a, env("hall")], shared=shared)
 
-    r = await k.execute(a, Action("get_affiliated", {"memory_id": "does-not-exist"}))
-    assert r.ok is False
+    r = await k.execute(a, Action("get_affiliated", {"query": "任何东西"}))
+    assert r.ok is False and "no owned memory" in r.error
 
 
 # ----------------------------------------------------------------------
@@ -238,6 +243,31 @@ async def test_affiliated_bare_string_rejected_no_corruption():
     a = char("alice", "hall")
     k = build([a, env("hall")], shared=shared)
     m = await shared.remember_atomic(["alice"], "国王驾崩")
-    r = await k.execute(a, Action("add_affiliated", {"memory_id": m["id"], "affiliated": "xyz123"}))
+    r = await k.execute(a, Action("add_affiliated", {"query": "国王驾崩", "affiliated": "xyz123"}))
     assert not r.ok and "list" in r.error
     assert shared.get_affiliations(m["id"]) == []
+
+
+async def test_get_affiliated_owner_scoped_hides_non_owned_targets():
+    # m1 (alice's) is affiliated to m2 (BOB's only). alice's get_affiliated must
+    # NOT surface m2 -- affiliated results are owner-scoped to the asker.
+    shared = fresh_shared()
+    a = char("alice", "hall")
+    k = build([a, env("hall")], shared=shared)
+    r1 = await shared.remember_atomic(["alice"], "国王驾崩")
+    r2 = await shared.remember_atomic(["bob"], "王后哭泣")
+    shared.add_affiliations(r1["id"], [r2["id"]])
+    got = await k.execute(a, Action("get_affiliated", {"query": "国王驾崩"}))
+    assert got.ok and got.data == []
+
+
+async def test_add_affiliated_appends_not_replaces():
+    shared = fresh_shared()
+    a = char("alice", "hall")
+    k = build([a, env("hall")], shared=shared)
+    r1 = await shared.remember_atomic(["alice"], "国王驾崩")
+    r2 = await shared.remember_atomic(["alice"], "王后哭泣")
+    r3 = await shared.remember_atomic(["alice"], "百姓戴孝")
+    await k.execute(a, Action("add_affiliated", {"query": "国王驾崩", "affiliated": ["王后哭泣"]}))
+    await k.execute(a, Action("add_affiliated", {"query": "国王驾崩", "affiliated": ["百姓戴孝"]}))
+    assert set(shared.get_affiliations(r1["id"])) == {r2["id"], r3["id"]}   # appended, not replaced

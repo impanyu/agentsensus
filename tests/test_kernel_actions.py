@@ -133,7 +133,7 @@ async def test_memory_actions_roundtrip():
     assert r.ok and r.data[0]["text"] == "花园着火"
     r2 = await k.execute(a, Action("recall", {"query": "花园着火"}))
     assert r2.ok and r2.data[0]["text"] == "花园着火"
-    r3 = await k.execute(a, Action("forget", {"memory_id": r.data[0]["id"]}))
+    r3 = await k.execute(a, Action("forget", {"query": "花园着火"}))   # by content, not id
     assert r3.ok
     assert (await k.execute(a, Action("recall", {"query": "花园"}))).data == []
 
