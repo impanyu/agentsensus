@@ -10,3 +10,6 @@ config.json
 scenarios/*.yaml.ltm.json
 scenarios/*.yaml.ltm.en.json
 config_flash.json
+
+# generated continuation scenarios (per-method, from run_continue.py)
+scenarios/*.cont_*.sim.yaml
