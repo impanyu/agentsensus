@@ -170,29 +170,34 @@ def main():
 
     fig, axes = plt.subplots(1, 3, figsize=(12, 3.6))
 
-    # P(A-O): talking vs non-talking pairs, co-owned counts (strip + means)
-    co = Counter()
-    for m in mems:
-        ow = owners[m["id"]]
-        for i in range(len(ow)):
-            for j in range(i + 1, len(ow)):
-                co[(ow[i], ow[j])] += 1
+    # per-agent sim-memory sets
+    mem_of = defaultdict(set)
+    for mid, ow in owners.items():
+        for o in ow:
+            mem_of[o].add(mid)
     talk_pairs = set(say)
-    all_pairs = [(a, b) for i, a in enumerate(order) for b in order[i + 1:]]
-    talk_vals = [co.get(tuple(sorted(p)), 0) for p in all_pairs if tuple(sorted(p)) in talk_pairs]
-    non_vals = [co.get(tuple(sorted(p)), 0) for p in all_pairs if tuple(sorted(p)) not in talk_pairs]
+    all_pairs = [tuple(sorted((a, b))) for i, a in enumerate(order) for b in order[i + 1:]]
+
+    # P(A-O): scatter, talk count vs Jaccard of the two agents' owned-memory sets
     axp = axes[0]
-    for i, vals in enumerate([talk_vals, non_vals]):
-        xs = np.random.default_rng(3).normal(i, 0.07, len(vals))
-        axp.scatter(xs, vals, s=26, alpha=0.55, color="#2563eb" if i == 0 else "#9ca3af")
-        axp.hlines(np.mean(vals), i - 0.22, i + 0.22, color="#d63b3b", lw=2.4, zorder=3)
-        axp.text(i + 0.26, np.mean(vals), f"mean {np.mean(vals):.2f}", ha="left", va="center",
-                 fontsize=8.5, color="#d63b3b")
-    axp.set_xticks([0, 1]); axp.set_xticklabels([f"talking pairs\n(n={len(talk_vals)})", f"non-talking\n(n={len(non_vals)})"], fontsize=8.5)
-    axp.set_ylim(-0.15, max(talk_vals + non_vals + [1]) * 1.25)
-    axp.set_ylabel("co-owned memories")
-    r = (np.mean(talk_vals)) / max(np.mean(non_vals), 1e-9)
-    axp.set_title(f"A↔O  talking pairs co-own memory ({r:.0f}×)", fontsize=9.5)
+    xs, ys = [], []
+    for p in all_pairs:
+        a, b = p
+        if not mem_of[a] or not mem_of[b]:
+            continue
+        xs.append(say.get(p, 0))
+        ys.append(jac(mem_of[a], mem_of[b]))
+    xs, ys = np.array(xs, float), np.array(ys, float)
+    jx = np.random.default_rng(3).normal(0, 0.08, len(xs))
+    axp.scatter(xs + jx, ys, s=30, alpha=0.6, color="#2563eb")
+    r1c = np.corrcoef(xs, ys)[0, 1] if len(xs) > 2 else float("nan")
+    if len(xs) > 2 and np.std(xs) > 0:
+        k, b0 = np.polyfit(xs, ys, 1)
+        xr = np.linspace(0, xs.max(), 20)
+        axp.plot(xr, k * xr + b0, color="#d63b3b", lw=1.6, ls="--")
+    axp.set_xlabel("say count between the pair")
+    axp.set_ylabel("Jaccard of owned-memory sets")
+    axp.set_title(f"A↔O  talk frequency vs memory-set overlap (r={r1c:.2f})", fontsize=9.5)
 
     # P(M-O): Jaccard distributions, affiliated vs random memory pairs
     aj = [jac(owners[u], owners[v]) for u, v in aff_edges]
@@ -206,29 +211,33 @@ def main():
     axp.legend(fontsize=7.5)
     axp.set_title(f"M↔O  linked memories share witnesses ({np.mean(aj)/max(np.mean(rj),1e-9):.1f}×)", fontsize=9.5)
 
-    # P(A-M): cross-owner affiliated edges -> did the owners talk?
-    hits = tot = 0
-    for u, v in aff_edges:
-        combos = {tuple(sorted((a, b))) for a in owners[u] for b in owners[v] if a != b}
-        if not combos:
-            continue
-        tot += 1
-        hits += bool(combos & talk_pairs)
-    rh = rt = 0
-    for _ in range(3000):
-        u, v = random.choice(ids), random.choice(ids)
-        combos = {tuple(sorted((a, b))) for a in owners[u] for b in owners[v] if a != b}
-        if not combos:
-            continue
-        rt += 1
-        rh += bool(combos & talk_pairs)
+    # P(A-M): scatter, talk count vs # affiliated edges between the two agents'
+    # owned-memory sets (an edge counts when one endpoint is in a's set and the
+    # other in b's; edges internal to one agent's own set don't).
     axp = axes[2]
-    vals = [100 * hits / max(tot, 1), 100 * rh / max(rt, 1)]
-    bars = axp.bar(["cross-owner\naffiliated pairs", "random\nmemory pairs"], vals, color=["#d63b3b", "#9ca3af"], width=0.55)
-    for b, v, n in zip(bars, vals, [f"{hits}/{tot}", f"n={rt}"]):
-        axp.text(b.get_x() + b.get_width() / 2, v + 2, f"{v:.0f}%  ({n})", ha="center", fontsize=8.5)
-    axp.set_ylabel("% with a conversation between owners"); axp.set_ylim(0, 115)
-    axp.set_title("A↔M  memory links follow conversations", fontsize=9.5)
+    xs2, ys2 = [], []
+    for p in all_pairs:
+        a, b = p
+        if not mem_of[a] or not mem_of[b]:
+            continue
+        n_edges = 0
+        for u, v in aff_edges:
+            if (u in mem_of[a] and v in mem_of[b]) or (u in mem_of[b] and v in mem_of[a]):
+                n_edges += 1
+        xs2.append(say.get(p, 0))
+        ys2.append(n_edges)
+    xs2, ys2 = np.array(xs2, float), np.array(ys2, float)
+    jx2 = np.random.default_rng(5).normal(0, 0.08, len(xs2))
+    jy2 = np.random.default_rng(6).normal(0, 0.05, len(ys2))
+    axp.scatter(xs2 + jx2, ys2 + jy2, s=30, alpha=0.6, color="#d63b3b")
+    r3c = np.corrcoef(xs2, ys2)[0, 1] if len(xs2) > 2 else float("nan")
+    if len(xs2) > 2 and np.std(xs2) > 0:
+        k, b0 = np.polyfit(xs2, ys2, 1)
+        xr = np.linspace(0, xs2.max(), 20)
+        axp.plot(xr, k * xr + b0, color="#7a1f1f", lw=1.6, ls="--")
+    axp.set_xlabel("say count between the pair")
+    axp.set_ylabel("affiliated edges between their memory sets")
+    axp.set_title(f"A↔M  talk frequency vs cross-set memory links (r={r3c:.2f})", fontsize=9.5)
 
     plt.tight_layout()
     plt.savefig(f"{OUT}/relationship_panels.png", dpi=150)
