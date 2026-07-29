@@ -178,44 +178,51 @@ def main():
     talk_pairs = set(say)
     all_pairs = [tuple(sorted((a, b))) for i, a in enumerate(order) for b in order[i + 1:]]
 
-    # P(A-O): scatter, talk count vs Jaccard of the two agents' owned-memory sets
+    # P(A-O): two-color histogram -- owned-memory-set Jaccard for TALKING vs
+    # NON-TALKING agent pairs.
     axp = axes[0]
-    xs, ys = [], []
+    talk_j, non_j = [], []
     for p in all_pairs:
         a, b = p
         if not mem_of[a] or not mem_of[b]:
             continue
-        xs.append(say.get(p, 0))
-        ys.append(jac(mem_of[a], mem_of[b]))
-    xs, ys = np.array(xs, float), np.array(ys, float)
-    jx = np.random.default_rng(3).normal(0, 0.08, len(xs))
-    axp.scatter(xs + jx, ys, s=30, alpha=0.6, color="#2563eb")
-    r1c = np.corrcoef(xs, ys)[0, 1] if len(xs) > 2 else float("nan")
-    if len(xs) > 2 and np.std(xs) > 0:
-        k, b0 = np.polyfit(xs, ys, 1)
-        xr = np.linspace(0, xs.max(), 20)
-        axp.plot(xr, k * xr + b0, color="#d63b3b", lw=1.6, ls="--")
-    axp.set_xlabel("say count between the pair")
-    axp.set_ylabel("Jaccard of owned-memory sets")
-    axp.set_title(f"A↔O  talk frequency vs memory-set overlap (r={r1c:.2f})", fontsize=9.5)
+        (talk_j if p in talk_pairs else non_j).append(jac(mem_of[a], mem_of[b]))
+    bins = np.linspace(0, max(talk_j + non_j + [0.05]) * 1.05, 16)
+    axp.hist(non_j, bins=bins, density=True, alpha=0.55, color="#9ca3af",
+             label=f"non-talking pairs (n={len(non_j)}, mean {np.mean(non_j):.3f})")
+    axp.hist(talk_j, bins=bins, density=True, alpha=0.65, color="#2563eb",
+             label=f"talking pairs (n={len(talk_j)}, mean {np.mean(talk_j):.3f})")
+    axp.set_yscale("log")
+    axp.set_xlabel("Jaccard of the pair's owned-memory sets")
+    axp.set_ylabel("density (log)")
+    axp.legend(fontsize=7.2)
+    axp.set_title("A↔O  memory overlap: talking vs non-talking pairs", fontsize=9.5)
 
-    # P(M-O): Jaccard distributions, affiliated vs random memory pairs
-    aj = [jac(owners[u], owners[v]) for u, v in aff_edges]
+    # P(M-O): two-color histogram -- owner-set Jaccard for memory pairs WITH an
+    # affiliated edge vs memory pairs WITHOUT one (all non-edge pairs, exact).
+    edge_set = {tuple(sorted(e)) for e in aff_edges}
     ids = list(byid)
-    rj = [jac(owners[random.choice(ids)], owners[random.choice(ids)]) for _ in range(3000)]
+    aj, nj = [], []
+    for i in range(len(ids)):
+        for j2 in range(i + 1, len(ids)):
+            pair = tuple(sorted((ids[i], ids[j2])))
+            (aj if pair in edge_set else nj).append(jac(owners[pair[0]], owners[pair[1]]))
     axp = axes[1]
     bins = np.linspace(0, 1, 21)
-    axp.hist(rj, bins=bins, density=True, alpha=0.55, color="#9ca3af", label=f"random pairs (mean {np.mean(rj):.2f})")
-    axp.hist(aj, bins=bins, density=True, alpha=0.65, color="#10b981", label=f"affiliated pairs (mean {np.mean(aj):.2f})")
-    axp.set_xlabel("owner-set Jaccard"); axp.set_ylabel("density")
-    axp.legend(fontsize=7.5)
-    axp.set_title(f"M↔O  linked memories share witnesses ({np.mean(aj)/max(np.mean(rj),1e-9):.1f}×)", fontsize=9.5)
+    axp.hist(nj, bins=bins, density=True, alpha=0.55, color="#9ca3af",
+             label=f"no affiliated edge (n={len(nj)}, mean {np.mean(nj):.2f})")
+    axp.hist(aj, bins=bins, density=True, alpha=0.65, color="#10b981",
+             label=f"affiliated edge (n={len(aj)}, mean {np.mean(aj):.2f})")
+    axp.set_yscale("log")
+    axp.set_xlabel("owner-set Jaccard of the memory pair"); axp.set_ylabel("density (log)")
+    axp.legend(fontsize=7.2)
+    axp.set_title("M↔O  owner overlap: linked vs unlinked memory pairs", fontsize=9.5)
 
-    # P(A-M): scatter, talk count vs # affiliated edges between the two agents'
-    # owned-memory sets (an edge counts when one endpoint is in a's set and the
-    # other in b's; edges internal to one agent's own set don't).
+    # P(A-M): two-color histogram -- # affiliated edges between the pair's
+    # memory sets, for TALKING vs NON-TALKING agent pairs. (An edge counts when
+    # one endpoint is in a's set and the other in b's.)
     axp = axes[2]
-    xs2, ys2 = [], []
+    talk_e, non_e = [], []
     for p in all_pairs:
         a, b = p
         if not mem_of[a] or not mem_of[b]:
@@ -224,20 +231,18 @@ def main():
         for u, v in aff_edges:
             if (u in mem_of[a] and v in mem_of[b]) or (u in mem_of[b] and v in mem_of[a]):
                 n_edges += 1
-        xs2.append(say.get(p, 0))
-        ys2.append(n_edges)
-    xs2, ys2 = np.array(xs2, float), np.array(ys2, float)
-    jx2 = np.random.default_rng(5).normal(0, 0.08, len(xs2))
-    jy2 = np.random.default_rng(6).normal(0, 0.05, len(ys2))
-    axp.scatter(xs2 + jx2, ys2 + jy2, s=30, alpha=0.6, color="#d63b3b")
-    r3c = np.corrcoef(xs2, ys2)[0, 1] if len(xs2) > 2 else float("nan")
-    if len(xs2) > 2 and np.std(xs2) > 0:
-        k, b0 = np.polyfit(xs2, ys2, 1)
-        xr = np.linspace(0, xs2.max(), 20)
-        axp.plot(xr, k * xr + b0, color="#7a1f1f", lw=1.6, ls="--")
-    axp.set_xlabel("say count between the pair")
-    axp.set_ylabel("affiliated edges between their memory sets")
-    axp.set_title(f"A↔M  talk frequency vs cross-set memory links (r={r3c:.2f})", fontsize=9.5)
+        (talk_e if p in talk_pairs else non_e).append(n_edges)
+    mx = max(talk_e + non_e + [1])
+    bins = np.arange(-0.5, mx + 1.5, 1)
+    axp.hist(non_e, bins=bins, density=True, alpha=0.55, color="#9ca3af",
+             label=f"non-talking pairs (n={len(non_e)}, mean {np.mean(non_e):.2f})")
+    axp.hist(talk_e, bins=bins, density=True, alpha=0.65, color="#d63b3b",
+             label=f"talking pairs (n={len(talk_e)}, mean {np.mean(talk_e):.2f})")
+    axp.set_yscale("log")
+    axp.set_xlabel("affiliated edges between the pair's memory sets")
+    axp.set_ylabel("density (log)")
+    axp.legend(fontsize=7.2)
+    axp.set_title("A↔M  cross-set links: talking vs non-talking", fontsize=9.5)
 
     plt.tight_layout()
     plt.savefig(f"{OUT}/relationship_panels.png", dpi=150)
