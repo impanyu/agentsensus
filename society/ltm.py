@@ -81,7 +81,7 @@ class SharedMemory:
         *,
         max_chars: int | None = None,
         max_tokens: int = 50,
-        sim_threshold: float = 0.86,
+        sim_threshold: float = 0.70,
         top_k: int = 5,
         collection_name: str | None = None,
         merge: bool = True,
@@ -101,7 +101,13 @@ class SharedMemory:
             max_tokens: max length of an atomic memory entry, in o200k_base
                 tokens, before hard truncation.
             sim_threshold: cosine similarity (1 - distance) required to consider two
-                entries candidates for consensus merge.
+                entries candidates for consensus merge. 0.70 is deliberately
+                permissive: the self-contained atomization writes each memory
+                with full who/where/what context, so two agents' views of the
+                SAME event embed further apart than near-identical phrasings
+                (the old 0.86 let ZERO cross-owner sim memories into candidacy).
+                The LLM equivalence judge -- not this pre-filter -- is what
+                actually decides a merge.
             top_k: default number of nearest neighbors to consider/return.
             collection_name: name of the underlying chroma collection. Default
                 None auto-generates a unique name — chromadb's default clients
