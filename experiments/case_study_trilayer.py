@@ -170,7 +170,7 @@ def main():
 
     # 2x3 grid: one COLUMN per relation, with-relation group on the TOP row and
     # without-relation group on the BOTTOM row (columns share x for comparison).
-    fig, axes = plt.subplots(2, 3, figsize=(12, 5.6), sharex="col")
+    fig, axes = plt.subplots(2, 3, figsize=(12, 5.6), sharex="col", sharey="col")
 
     # per-agent sim-memory sets
     mem_of = defaultdict(set)
@@ -181,10 +181,10 @@ def main():
     all_pairs = [tuple(sorted((a, b))) for i, a in enumerate(order) for b in order[i + 1:]]
 
     def split_hist(col, top_vals, bot_vals, bins, top_color, top_label, bot_label,
-                   xlabel, title, label_side="right"):
-        lx, ha = (0.98, "right") if label_side == "right" else (0.02, "left")
+                   xlabel, title, label_side=("right", "right")):
         for row, (vals, color, label) in enumerate(
                 [(top_vals, top_color, top_label), (bot_vals, "#9ca3af", bot_label)]):
+            lx, ha = (0.98, "right") if label_side[row] == "right" else (0.02, "left")
             axp = axes[row][col]
             axp.hist(vals, bins=bins, density=True, color=color, edgecolor="white")
             axp.set_yscale("log")
@@ -221,7 +221,7 @@ def main():
     split_hist(1, aj, nj, np.linspace(0, 1, 21), "#10b981",
                "affiliated (linked) pairs", "unlinked pairs",
                "owner-set Jaccard of the memory pair",
-               "M↔O  owner overlap between memories", label_side="left")
+               "M↔O  owner overlap between memories", label_side=("left", "right"))
 
     # P(A-M): cross-set affiliated edge counts, talking (top) vs non-talking
     # (bottom) agent pairs.
