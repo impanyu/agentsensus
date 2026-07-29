@@ -168,7 +168,9 @@ def main():
         u = A | B
         return len(A & B) / len(u) if u else 0.0
 
-    fig, axes = plt.subplots(1, 3, figsize=(12, 3.6))
+    # 2x3 grid: one COLUMN per relation, with-relation group on the TOP row and
+    # without-relation group on the BOTTOM row (columns share x for comparison).
+    fig, axes = plt.subplots(2, 3, figsize=(12, 5.6), sharex="col")
 
     # per-agent sim-memory sets
     mem_of = defaultdict(set)
@@ -178,9 +180,24 @@ def main():
     talk_pairs = set(say)
     all_pairs = [tuple(sorted((a, b))) for i, a in enumerate(order) for b in order[i + 1:]]
 
-    # P(A-O): two-color histogram -- owned-memory-set Jaccard for TALKING vs
-    # NON-TALKING agent pairs.
-    axp = axes[0]
+    def split_hist(col, top_vals, bot_vals, bins, top_color, top_label, bot_label,
+                   xlabel, title, label_side="right"):
+        lx, ha = (0.98, "right") if label_side == "right" else (0.02, "left")
+        for row, (vals, color, label) in enumerate(
+                [(top_vals, top_color, top_label), (bot_vals, "#9ca3af", bot_label)]):
+            axp = axes[row][col]
+            axp.hist(vals, bins=bins, density=True, color=color, edgecolor="white")
+            axp.set_yscale("log")
+            axp.text(lx, 0.86, f"{label}\nn={len(vals)}, mean {np.mean(vals):.3f}",
+                     transform=axp.transAxes, ha=ha, fontsize=8, color=color)
+            if row == 0:
+                axp.set_title(title, fontsize=9.5)
+            else:
+                axp.set_xlabel(xlabel)
+            if col == 0:
+                axp.set_ylabel("density (log)")
+
+    # P(A-O): owned-memory-set Jaccard, talking (top) vs non-talking (bottom)
     talk_j, non_j = [], []
     for p in all_pairs:
         a, b = p
@@ -188,18 +205,12 @@ def main():
             continue
         (talk_j if p in talk_pairs else non_j).append(jac(mem_of[a], mem_of[b]))
     bins = np.linspace(0, max(talk_j + non_j + [0.05]) * 1.05, 16)
-    axp.hist(non_j, bins=bins, density=True, alpha=0.55, color="#9ca3af",
-             label=f"non-talking pairs (n={len(non_j)}, mean {np.mean(non_j):.3f})")
-    axp.hist(talk_j, bins=bins, density=True, alpha=0.65, color="#2563eb",
-             label=f"talking pairs (n={len(talk_j)}, mean {np.mean(talk_j):.3f})")
-    axp.set_yscale("log")
-    axp.set_xlabel("Jaccard of the pair's owned-memory sets")
-    axp.set_ylabel("density (log)")
-    axp.legend(fontsize=7.2)
-    axp.set_title("A↔O  memory overlap: talking vs non-talking pairs", fontsize=9.5)
+    split_hist(0, talk_j, non_j, bins, "#2563eb", "talking pairs", "non-talking pairs",
+               "Jaccard of the pair's owned-memory sets",
+               "A↔O  memory overlap between agents")
 
-    # P(M-O): two-color histogram -- owner-set Jaccard for memory pairs WITH an
-    # affiliated edge vs memory pairs WITHOUT one (all non-edge pairs, exact).
+    # P(M-O): owner-set Jaccard, memory pairs with (top) vs without (bottom) an
+    # affiliated edge (all non-edge pairs, exact).
     edge_set = {tuple(sorted(e)) for e in aff_edges}
     ids = list(byid)
     aj, nj = [], []
@@ -207,21 +218,13 @@ def main():
         for j2 in range(i + 1, len(ids)):
             pair = tuple(sorted((ids[i], ids[j2])))
             (aj if pair in edge_set else nj).append(jac(owners[pair[0]], owners[pair[1]]))
-    axp = axes[1]
-    bins = np.linspace(0, 1, 21)
-    axp.hist(nj, bins=bins, density=True, alpha=0.55, color="#9ca3af",
-             label=f"no affiliated edge (n={len(nj)}, mean {np.mean(nj):.2f})")
-    axp.hist(aj, bins=bins, density=True, alpha=0.65, color="#10b981",
-             label=f"affiliated edge (n={len(aj)}, mean {np.mean(aj):.2f})")
-    axp.set_yscale("log")
-    axp.set_xlabel("owner-set Jaccard of the memory pair"); axp.set_ylabel("density (log)")
-    axp.legend(fontsize=7.2)
-    axp.set_title("M↔O  owner overlap: linked vs unlinked memory pairs", fontsize=9.5)
+    split_hist(1, aj, nj, np.linspace(0, 1, 21), "#10b981",
+               "affiliated (linked) pairs", "unlinked pairs",
+               "owner-set Jaccard of the memory pair",
+               "M↔O  owner overlap between memories", label_side="left")
 
-    # P(A-M): two-color histogram -- # affiliated edges between the pair's
-    # memory sets, for TALKING vs NON-TALKING agent pairs. (An edge counts when
-    # one endpoint is in a's set and the other in b's.)
-    axp = axes[2]
+    # P(A-M): cross-set affiliated edge counts, talking (top) vs non-talking
+    # (bottom) agent pairs.
     talk_e, non_e = [], []
     for p in all_pairs:
         a, b = p
@@ -233,16 +236,10 @@ def main():
                 n_edges += 1
         (talk_e if p in talk_pairs else non_e).append(n_edges)
     mx = max(talk_e + non_e + [1])
-    bins = np.arange(-0.5, mx + 1.5, 1)
-    axp.hist(non_e, bins=bins, density=True, alpha=0.55, color="#9ca3af",
-             label=f"non-talking pairs (n={len(non_e)}, mean {np.mean(non_e):.2f})")
-    axp.hist(talk_e, bins=bins, density=True, alpha=0.65, color="#d63b3b",
-             label=f"talking pairs (n={len(talk_e)}, mean {np.mean(talk_e):.2f})")
-    axp.set_yscale("log")
-    axp.set_xlabel("affiliated edges between the pair's memory sets")
-    axp.set_ylabel("density (log)")
-    axp.legend(fontsize=7.2)
-    axp.set_title("A↔M  cross-set links: talking vs non-talking", fontsize=9.5)
+    split_hist(2, talk_e, non_e, np.arange(-0.5, mx + 1.5, 1), "#d63b3b",
+               "talking pairs", "non-talking pairs",
+               "affiliated edges between the pair's memory sets",
+               "A↔M  memory links between agents")
 
     plt.tight_layout()
     plt.savefig(f"{OUT}/relationship_panels.png", dpi=150)
