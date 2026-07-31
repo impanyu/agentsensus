@@ -236,7 +236,11 @@ def main():
                 n_edges += 1
         (talk_e if p in talk_pairs else non_e).append(n_edges)
     mx = max(talk_e + non_e + [1])
-    split_hist(2, talk_e, non_e, np.arange(-0.5, mx + 1.5, 1), "#d63b3b",
+    # adaptive bin width: integer bins up to ~25 bars, else widen (a width-1
+    # bin over a 0..200+ range renders sub-pixel bars that look like an empty
+    # panel).
+    step = max(1, int(np.ceil((mx + 1) / 25)))
+    split_hist(2, talk_e, non_e, np.arange(-0.5, mx + step + 0.5, step), "#d63b3b",
                "talking pairs", "non-talking pairs",
                "affiliated edges between the pair's memory sets",
                "A↔M  memory links between agents")
