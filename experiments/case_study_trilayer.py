@@ -120,13 +120,15 @@ def main():
         arc(ax, ax_pos[a], ax_pos[b], YA + 0.05, 0.12 + 0.5 * abs(ax_pos[a] - ax_pos[b]) / len(order),
             "#2563eb", 0.7 + 2.4 * w / wmax, 0.5, up=True)
 
-    # affiliation arcs below the memory row; cross-owner ones highlighted
+    # affiliation arcs below the memory row: GREEN when the two memories'
+    # owner sets intersect (same/overlapping witnesses -- the normal case,
+    # including merge-ripple edges like {A}-{A,B}), GRAY when fully disjoint.
     for u, v in aff_edges:
-        cross = set(owners[u]) != set(owners[v])
+        overlap = bool(set(owners[u]) & set(owners[v]))
         arc(ax, mem_pos[u], mem_pos[v], YM - 0.05,
             0.10 + 0.45 * abs(mem_pos[u] - mem_pos[v]) / len(order),
-            "#d63b3b" if cross else "#10b981",
-            1.6 if cross else 0.7, 0.9 if cross else 0.35, up=False)
+            "#10b981" if overlap else "#9ca3af",
+            0.7 if overlap else 1.4, 0.35 if overlap else 0.85, up=False)
 
     # nodes
     for a, x in ax_pos.items():
@@ -144,8 +146,9 @@ def main():
     handles = [
         Line2D([], [], color="#2563eb", lw=2, label="interaction (say) — agents"),
         Line2D([], [], color="#c3c9d4", lw=1, label="ownership"),
-        Line2D([], [], color="#d63b3b", lw=1.6, label="shared memory (multi-owner) / cross-owner link"),
-        Line2D([], [], color="#10b981", lw=1.4, label="affiliation — memories"),
+        Line2D([], [], color="#d63b3b", lw=1.6, label="shared-memory ownership (multi-owner)"),
+        Line2D([], [], color="#10b981", lw=1.4, label="affiliation — owners overlap"),
+        Line2D([], [], color="#9ca3af", lw=1.4, label="affiliation — owners disjoint"),
         Line2D([], [], marker="*", color="#d63b3b", lw=0, markersize=11, label="merged (multi-owner) memory"),
     ]
     ax.legend(handles=handles, loc="lower left", fontsize=7.5, framealpha=0.9)
@@ -156,7 +159,7 @@ def main():
     ax.axis("off")
     ax.set_title("Three layers in one view: conversations (top), ownership (middle), memory affiliation (bottom)\n"
                  "merged memories (★) hang between the talking agents that share them; "
-                 "cross-owner affiliation (red arcs) bridges conversing agents",
+                 "affiliation arcs are green when the linked memories share a witness",
                  fontsize=10)
     plt.tight_layout()
     plt.savefig(f"{OUT}/tri_layer.png", dpi=150)
