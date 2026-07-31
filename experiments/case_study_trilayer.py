@@ -64,13 +64,30 @@ def arc(ax, x1, x2, y, height, color, lw, alpha, up=True):
     ax.add_patch(PathPatch(path, facecolor="none", edgecolor=color, lw=lw, alpha=alpha))
 
 
+def roster_and_kinds():
+    """(active-character roster, id->kind map) from the run's checkpoint;
+    ([], {}) when absent."""
+    p = f"{RUN}/checkpoints/ckpt_final.json"
+    if not os.path.exists(p):
+        return [], {}
+    ck = json.load(open(p, encoding="utf-8"))
+    kinds = {a["id"]: a.get("kind") for a in ck.get("scenario", {}).get("agents", [])}
+    state = ck.get("agents", {})
+    ros = sorted(aid for aid, kind in kinds.items()
+                 if kind == "character" and not state.get(aid, {}).get("archived"))
+    return ros, kinds
+
+
 def main():
     mems, say = load()
     byid = {m["id"]: m for m in mems}
     owners = {m["id"]: sorted(set(m.get("owners", []))) for m in mems}
 
-    # agents = those owning sim memories or talking
-    agents = sorted({o for ow in owners.values() for o in ow} |
+    # agents = FULL active-character roster, plus any other memory owner
+    # (environments/info-carriers own memories via act_on) or speaker.
+    ros, kinds = roster_and_kinds()
+    agents = sorted(set(ros) |
+                    {o for ow in owners.values() for o in ow} |
                     {a for p in say for a in p})
     # order agents by interaction communities to keep arcs short
     GA = nx.Graph()
@@ -130,10 +147,15 @@ def main():
             "#10b981" if overlap else "#9ca3af",
             0.7 if overlap else 1.4, 0.35 if overlap else 0.85, up=False)
 
-    # nodes
+    # nodes: characters as circles; passive owners (environments/info
+    # carriers, which own memories via act_on) as squares
     for a, x in ax_pos.items():
-        ax.scatter([x], [YA], s=170, color="#2563eb", zorder=3, edgecolors="white", linewidths=1.2)
-        ax.text(x, YA + 0.045, a, rotation=55, ha="left", va="bottom", fontsize=7.5)
+        is_char = kinds.get(a, "character") == "character"
+        ax.scatter([x], [YA], s=170 if is_char else 130,
+                   color="#2563eb" if is_char else "#7c9ff5",
+                   marker="o" if is_char else "s",
+                   zorder=3, edgecolors="white", linewidths=1.2)
+        ax.text(x, YA + 0.045, a, rotation=55, ha="left", va="bottom", fontsize=7)
     for mid, x in mem_pos.items():
         multi = len(owners[mid]) >= 2
         ax.scatter([x], [YM], s=64 if multi else 26,
@@ -144,6 +166,8 @@ def main():
     # legend
     from matplotlib.lines import Line2D
     handles = [
+        Line2D([], [], marker="o", color="#2563eb", lw=0, markersize=9, label="character"),
+        Line2D([], [], marker="s", color="#7c9ff5", lw=0, markersize=8, label="environment / info-carrier (memory owner)"),
         Line2D([], [], color="#2563eb", lw=2, label="interaction (say) — agents"),
         Line2D([], [], color="#c3c9d4", lw=1, label="ownership"),
         Line2D([], [], color="#d63b3b", lw=1.6, label="shared-memory ownership (multi-owner)"),

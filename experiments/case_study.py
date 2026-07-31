@@ -53,6 +53,20 @@ def load():
     return mems, say
 
 
+def roster():
+    """FULL active-character roster from the run's checkpoint, so figures show
+    every agent -- including ones that never spoke or never wrote a memory.
+    Falls back to [] (figures then cover only observed agents)."""
+    p = f"{RUN}/checkpoints/ckpt_final.json"
+    if not os.path.exists(p):
+        return []
+    ck = json.load(open(p, encoding="utf-8"))
+    kinds = {a["id"]: a.get("kind") for a in ck.get("scenario", {}).get("agents", [])}
+    state = ck.get("agents", {})
+    return sorted(aid for aid, kind in kinds.items()
+                  if kind == "character" and not state.get(aid, {}).get("archived"))
+
+
 def build_matrices(mems, say):
     inter = defaultdict(int)  # undirected interaction weight
     for (a, b), w in say.items():
@@ -69,11 +83,13 @@ def build_matrices(mems, say):
     return inter, co, own_total
 
 
-def interaction_graph(inter):
+def interaction_graph(inter, full_roster=()):
     G = nx.Graph()
+    G.add_nodes_from(full_roster)          # every active character, even silent
     for (a, b), w in inter.items():
         G.add_edge(a, b, weight=w)
-    comm = nx.community.greedy_modularity_communities(G, weight="weight")
+    connected = [n for n in G.nodes() if G.degree(n) > 0]
+    comm = nx.community.greedy_modularity_communities(G.subgraph(connected), weight="weight")
     node_comm = {n: i for i, c in enumerate(comm) for n in c}
     return G, comm, node_comm
 
@@ -81,17 +97,25 @@ def interaction_graph(inter):
 def fig_interaction_graph(G, node_comm):
     deg = dict(G.degree(weight="weight"))
     pos = nx.spring_layout(G, seed=1, weight="weight", k=0.5)
-    ncolors = [node_comm.get(n, 0) for n in G.nodes()]
-    sizes = [40 + 6 * deg.get(n, 0) ** 0.6 for n in G.nodes()]
+    # isolated (never-spoke) agents: park on a bottom row so they're visible
+    isolated = sorted(n for n in G.nodes() if G.degree(n) == 0)
+    if isolated:
+        xs = np.linspace(-1.1, 1.1, len(isolated))
+        ymin = min(y for _, y in pos.values()) if len(pos) > len(isolated) else 0
+        for x, n in zip(xs, isolated):
+            pos[n] = (x, ymin - 0.35)
+    ncolors = [node_comm.get(n, -1) for n in G.nodes()]
+    sizes = [60 + 6 * deg.get(n, 0) ** 0.6 for n in G.nodes()]
     ew = [0.2 + 0.15 * G[u][v]["weight"] for u, v in G.edges()]
-    plt.figure(figsize=(11, 9))
+    plt.figure(figsize=(11, 9.5))
     nx.draw_networkx_edges(G, pos, width=ew, alpha=0.25)
     nx.draw_networkx_nodes(G, pos, node_size=sizes, node_color=ncolors,
                            cmap="tab10", alpha=0.9)
-    # label the highest-degree nodes only
-    top = sorted(deg, key=deg.get, reverse=True)[:18]
-    nx.draw_networkx_labels(G, pos, labels={n: n for n in top}, font_size=8)
-    plt.title(f"Agent interaction graph (say frequency) — {len(G)} agents, "
+    # label EVERY agent (complete cast)
+    nx.draw_networkx_labels(G, pos, labels={n: n for n in G.nodes()}, font_size=7)
+    n_talk = sum(1 for n in G.nodes() if G.degree(n) > 0)
+    plt.title(f"Agent interaction graph (say frequency) — {len(G)} active characters "
+              f"({n_talk} conversing, {len(G) - n_talk} silent, bottom row), "
               f"{G.number_of_edges()} pairs, {len(set(node_comm.values()))} communities")
     plt.axis("off")
     plt.tight_layout()
@@ -99,8 +123,11 @@ def fig_interaction_graph(G, node_comm):
     plt.close()
 
 
-def fig_shared_heatmap(co, node_comm, deg):
-    order = sorted(deg, key=lambda n: (node_comm.get(n, 99), -deg[n]))[:22]
+def fig_shared_heatmap(co, node_comm, deg, full_roster=()):
+    # complete cast: every active character (community-ordered, silent last)
+    pool = sorted(set(deg) | set(full_roster),
+                  key=lambda n: (node_comm.get(n, 99), -deg.get(n, 0), n))
+    order = pool
     n = len(order)
     M = np.zeros((n, n))
     for i, a in enumerate(order):
@@ -193,12 +220,13 @@ def affiliated_analysis(mems):
 
 def main():
     mems, say = load()
+    full = roster()
     inter, co, own_total = build_matrices(mems, say)
-    G, comm, node_comm = interaction_graph(inter)
+    G, comm, node_comm = interaction_graph(inter, full_roster=full)
     deg = dict(G.degree(weight="weight"))
 
     fig_interaction_graph(G, node_comm)
-    fig_shared_heatmap(co, node_comm, deg)
+    fig_shared_heatmap(co, node_comm, deg, full_roster=full)
     r, p, intra_share, inter_share = fig_topology_vs_shared(inter, co, node_comm)
     aff_text = affiliated_analysis(mems)
 

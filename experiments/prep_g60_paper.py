@@ -31,6 +31,10 @@ with open("runs/g60full_consensus/events.jsonl", "w", encoding="utf-8") as out:
         if os.path.exists(p):
             out.write(open(p, encoding="utf-8").read())
 shutil.copy("runs/g60_consensus/ltm_final.json", "runs/g60full_consensus/ltm_final.json")
+# checkpoints too: case-study scripts read the full agent roster from
+# checkpoints/ckpt_final.json so figures can show EVERY active character.
+shutil.copytree("runs/g60_consensus/checkpoints", "runs/g60full_consensus/checkpoints",
+                dirs_exist_ok=True)
 
 stats = {}
 
