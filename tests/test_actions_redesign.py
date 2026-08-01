@@ -116,19 +116,26 @@ async def test_say_still_wakes_by_default_end_to_end():
 #    (behavior unchanged -- see also test_kernel_core's timeout test)
 # ----------------------------------------------------------------------
 
-async def test_wait_forever_interrupted_only_by_wake_true_message():
+async def test_wait_is_capped_and_interrupted_only_by_wake_true_message():
+    # Untimed wait no longer sleeps forever: it clamps to max_wait_ticks
+    # (default 20). Forever-sleep produced narrative deadlocks (a boss who
+    # delegated, slept "until the report", and was never messaged again).
     a = char("a", "hall")
     b = char("b", "hall", goals=["g"])
     k = build([a, b, env("hall")])
 
     await k.execute(b, Action("wait", {}))
-    assert b.waiting_until == -1
+    assert b.waiting_until == k.tick + 20      # capped, not -1/forever
     assert k.is_eligible(b) is False
 
-    # a wake=False say does not interrupt the forever-wait
+    # an over-long explicit timeout also clamps to the cap
+    await k.execute(b, Action("wait", {"timeout_ticks": 999}))
+    assert b.waiting_until == k.tick + 20
+
+    # a wake=False say does not interrupt the sleep
     await k.execute(a, Action("say", {"targets": ["b"], "content": "psst", "wake": False}))
     k._deliver_due()
-    assert b.waiting_until == -1
+    assert b.waiting_until == k.tick + 20
     assert k.is_eligible(b) is False
 
     # a say (wake=True by default) does interrupt it

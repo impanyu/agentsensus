@@ -36,7 +36,11 @@ async def test_sleeping_agents_not_scheduled_and_quiescence():
     k = society([a, make_env("hall")])
     summary = await k.run(max_ticks=5)
     assert len(calls) == 1                    # scheduled once, then chooses to sleep
-    assert summary["stop_reason"] == "quiescent" and summary["ticks_run"] == 1
+    # wait is now CAPPED (max_wait_ticks=20), so the sleeper has a real wake
+    # timer: no quiescence. The fast-forward jumps straight to that timer
+    # (kernel.run may overshoot max_ticks -- documented; run_sim backfills),
+    # so the run reports stop at the wake tick.
+    assert summary["stop_reason"] == "max_ticks" and summary["ticks_run"] == 20
 
 
 async def test_goal_keeps_agent_awake_and_max_ticks():

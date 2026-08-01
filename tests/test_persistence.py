@@ -548,7 +548,10 @@ async def test_checkpoint_written_on_stop(tmp_path):
     summary = await run_scenario(
         str(spath), ticks=10, out_dir=out, llm=FakeLLM(), embed_fn=afake_embed, checkpoint=True
     )
-    assert summary["stop_reason"] == "quiescent"
+    # capped wait (max_wait_ticks=20): sleepers now carry a real wake timer
+    # beyond ticks=10, so the run fast-forwards to max_ticks rather than
+    # quiescing -- the checkpoint-on-stop behavior under test is unchanged.
+    assert summary["stop_reason"] == "max_ticks"
 
     ckpt_path = os.path.join(out, "checkpoint.json")
     assert os.path.exists(ckpt_path)

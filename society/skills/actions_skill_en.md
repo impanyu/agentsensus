@@ -256,9 +256,15 @@ The view you receive typically contains:
   scheduled every tick; an empty goal stack does not put you to sleep on
   its own. `wait` is **the only way you choose to sleep**: with
   `timeout_ticks=N`, you sleep for N ticks and then wake up automatically
-  (even with no message). Without it, this is a **sleep forever** — you only
-  wake up once a `wake=true` message arrives. **A waking message always
-  interrupts a wait**, whether it's a timed wait or a forever wait. Note: a
+  (even with no message). **There is no sleeping forever**: a single sleep is
+  capped at 20 ticks — omitting the parameter, or passing a larger N, both
+  clamp to 20, and you wake automatically at that point. So **prefer an
+  explicit `timeout_ticks` matched to your intent** (e.g. `timeout_ticks=6`
+  to wait out a courier's round trip); and especially when waiting on someone
+  else to act or report back, do not plan to sleep through it — **if you wake
+  and there's still no word, follow up with a `say` to chase it** rather than
+  going straight back to sleep. A `wake=true` message always interrupts the
+  sleep early. Note: a
   `wake=false` message (see `say`/`gesture`) does NOT interrupt `wait` — it
   sits quietly in its thread (bumping that row's `unread` count in the
   `conversations` roster) until you wake up for some other reason and go

@@ -397,12 +397,19 @@ class Kernel:
             return ActionResult(True, data="noop")
 
         if name == "wait":
+            # Sleep is CAPPED at `max_wait_ticks` (default 20): an untimed wait
+            # or an over-long timeout both clamp to the cap. Uncapped forever-
+            # sleep produced narrative deadlocks -- an agent that delegated a
+            # task, slept "until the report arrives", and was simply never
+            # messaged again stayed silent for the rest of the run (曹操 in
+            # 宛城 slept from tick 8 to the end of a 60-tick sim). A capped
+            # sleeper wakes up on its own and can chase the report. Messages
+            # (wake=True) still interrupt the sleep early.
+            max_wait = int(self.config.get("max_wait_ticks", 20))
             timeout = params.get("timeout_ticks")
-            if timeout is not None:
-                agent.waiting_until = self.tick + int(timeout)
-            else:
-                agent.waiting_until = -1
-            return ActionResult(True, data="waiting")
+            timeout = max_wait if timeout is None else min(int(timeout), max_wait)
+            agent.waiting_until = self.tick + timeout
+            return ActionResult(True, data=f"waiting ({timeout} ticks)")
 
         if name == "conclude":
             return ActionResult(True, data=params.get("text"))
