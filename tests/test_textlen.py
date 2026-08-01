@@ -44,3 +44,12 @@ def test_truncate_to_tokens_noop_when_under_limit():
 def test_truncate_to_tokens_zh_respects_limit():
     truncated = truncate_to_tokens(ZH_LONG, 10)
     assert count_tokens(truncated) <= 10
+
+
+def test_truncate_never_leaves_replacement_chars():
+    # o200k is byte-level BPE: a Chinese char can span multiple tokens, so a
+    # token-boundary cut can split a character -> U+FFFD unless stripped.
+    t = "徐庶在许昌的防务会议上向张辽、荀彧、程昱、夏侯渊等人建议加固许昌城门与外壕并补足军械粮草"
+    from society.textlen import truncate_to_tokens
+    for n in range(3, 40):
+        assert "�" not in truncate_to_tokens(t, n)

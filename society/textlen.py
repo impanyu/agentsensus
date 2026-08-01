@@ -28,12 +28,13 @@ def count_tokens(text: str) -> int:
 def truncate_to_tokens(text: str, n: int) -> str:
     """Truncate `text` to at most `n` o200k_base tokens, then strip whitespace.
 
-    Safe on multi-byte/multi-char token boundaries: o200k tokens always
-    decode to whole strings, so slicing the encoded token ids and decoding
-    back never splits a character.
+    o200k is a byte-level BPE: one multi-byte character (e.g. a Chinese
+    character) can span SEVERAL tokens, so slicing the token ids can cut a
+    character in half -- decode then yields U+FFFD replacement characters at
+    the boundary (we found 23 stored memories ending in �). Strip them.
     """
     enc = _enc()
     tokens = enc.encode(text)
     if len(tokens) <= n:
         return text.strip()
-    return enc.decode(tokens[:n]).strip()
+    return enc.decode(tokens[:n]).strip().strip("�").strip()
