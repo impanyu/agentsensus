@@ -6,7 +6,7 @@ agents:
   brain: llm
   profile: 俄罗斯总统
   status:
-    location: mariupol
+    location: moscow
   goals: []
   name: Vladimir Putin
 - id: zelenskyy
@@ -14,7 +14,7 @@ agents:
   brain: llm
   profile: 乌克兰总统
   status:
-    location: odesa
+    location: kyiv
   goals: []
   name: Volodymyr Zelenskyy
 - id: lavrov
@@ -22,7 +22,7 @@ agents:
   brain: llm
   profile: 俄罗斯外交部长
   status:
-    location: antalya
+    location: moscow
   goals: []
   name: Sergei Lavrov
 - id: shoigu
@@ -30,7 +30,7 @@ agents:
   brain: llm
   profile: 俄罗斯国防部长
   status:
-    location: olenivka
+    location: moscow
   goals: []
   name: Sergei Shoigu
 - id: peskov
@@ -38,7 +38,7 @@ agents:
   brain: llm
   profile: 俄罗斯总统新闻秘书
   status:
-    location: olenivka
+    location: moscow
   goals: []
   name: Dmitry Peskov
 - id: pushilin
@@ -53,16 +53,16 @@ agents:
   kind: character
   brain: llm
   profile: 赫尔松州亲俄当局官员
-  status:
-    location: olenivka
+  status: {}
   goals: []
   name: Kirill Stremousov
+  archived: true
 - id: gladkov
   kind: character
   brain: llm
   profile: 俄罗斯别尔哥罗德州州长
   status:
-    location: olenivka
+    location: belgorod_oblast
   goals: []
   name: Vyacheslav Gladkov
 - id: sobyanin
@@ -70,23 +70,23 @@ agents:
   brain: llm
   profile: 莫斯科市长
   status:
-    location: olenivka
+    location: moscow
   goals: []
   name: Sergei Sobyanin
 - id: haidai
   kind: character
   brain: llm
   profile: 乌克兰卢甘斯克州州长
-  status:
-    location: olenivka
+  status: {}
   goals: []
   name: Serhiy Haidai
+  archived: true
 - id: zaluzhnyi
   kind: character
   brain: llm
   profile: 乌克兰武装部队总司令
   status:
-    location: olenivka
+    location: united_kingdom
   goals: []
   name: Valerii Zaluzhnyi
 - id: syrskyi
@@ -94,23 +94,23 @@ agents:
   brain: llm
   profile: 乌克兰陆军司令，后任乌克兰武装部队总司令
   status:
-    location: olenivka
+    location: kyiv
   goals: []
   name: Oleksandr Syrskyi
 - id: reznikov
   kind: character
   brain: llm
   profile: 乌克兰国防部长
-  status:
-    location: olenivka
+  status: {}
   goals: []
   name: Oleksii Reznikov
+  archived: true
 - id: klitschko
   kind: character
   brain: llm
   profile: 基辅市长
   status:
-    location: olenivka
+    location: kyiv
   goals: []
   name: Vitali Klitschko
 - id: podolyak
@@ -118,7 +118,7 @@ agents:
   brain: llm
   profile: 乌克兰总统顾问
   status:
-    location: olenivka
+    location: kyiv
   goals: []
   name: Mykhailo Podolyak
 - id: yermak
@@ -126,39 +126,39 @@ agents:
   brain: llm
   profile: 乌克兰总统办公室主任
   status:
-    location: olenivka
+    location: kyiv
   goals: []
   name: Andriy Yermak
 - id: kuleba
   kind: character
   brain: llm
   profile: 乌克兰外交部长
-  status:
-    location: antalya
+  status: {}
   goals: []
   name: Dmytro Kuleba
+  archived: true
 - id: kyrylenko
   kind: character
   brain: llm
   profile: 乌克兰顿涅茨克州州长
   status:
-    location: olenivka
+    location: kyiv
   goals: []
   name: Pavlo Kyrylenko
 - id: zhyvytskyi
   kind: character
   brain: llm
   profile: 乌克兰苏梅州州长
-  status:
-    location: sumy
+  status: {}
   goals: []
   name: Dmytro Zhyvytskyi
+  archived: true
 - id: erdogan
   kind: character
   brain: llm
   profile: 土耳其总统
   status:
-    location: lviv
+    location: turkey
   goals: []
   name: Recep Tayyip Erdoğan
 - id: reznich
@@ -166,7 +166,7 @@ agents:
   brain: llm
   profile: 乌克兰第聂伯罗彼得罗夫斯克州州长
   status:
-    location: olenivka
+    location: dnipro
   goals: []
   name: Valentyn Reznichenko
 - id: guterres
@@ -174,39 +174,39 @@ agents:
   brain: llm
   profile: 联合国秘书长
   status:
-    location: lviv
+    location: new_york
   goals: []
   name: António Guterres
 - id: starovoyt
   kind: character
   brain: llm
   profile: 俄罗斯库尔斯克州州长
-  status:
-    location: olenivka
+  status: {}
   goals: []
   name: Roman Starovoyt
+  archived: true
 - id: austin
   kind: character
   brain: llm
   profile: 美国国防部长
-  status:
-    location: olenivka
+  status: {}
   goals: []
   name: Lloyd Austin
+  archived: true
 - id: johnson
   kind: character
   brain: llm
   profile: 英国首相
-  status:
-    location: olenivka
+  status: {}
   goals: []
   name: Boris Johnson
+  archived: true
 - id: bogomaz
   kind: character
   brain: llm
   profile: 俄罗斯布良斯克州州长
   status:
-    location: olenivka
+    location: bryansk_oblast
   goals: []
   name: Alexander Bogomaz
 - id: radakin
@@ -214,7 +214,7 @@ agents:
   brain: llm
   profile: 英国国防参谋长
   status:
-    location: olenivka
+    location: united_kingdom
   goals: []
   name: Tony Radakin
 - id: konashenkov
@@ -222,17 +222,17 @@ agents:
   brain: llm
   profile: 俄罗斯国防部发言人
   status:
-    location: olenivka
+    location: moscow
   goals: []
   name: Igor Konashenkov
 - id: wallace
   kind: character
   brain: llm
   profile: 英国国防大臣
-  status:
-    location: olenivka
+  status: {}
   goals: []
   name: Ben Wallace
+  archived: true
 - id: grossi
   kind: character
   brain: llm
@@ -245,40 +245,40 @@ agents:
   kind: character
   brain: llm
   profile: 德国总理
-  status:
-    location: olenivka
+  status: {}
   goals: []
   name: Olaf Scholz
+  archived: true
 - id: biden
   kind: character
   brain: llm
   profile: 美国总统
-  status:
-    location: kyiv
+  status: {}
   goals: []
   name: Joe Biden
+  archived: true
 - id: stoltenberg
   kind: character
   brain: llm
   profile: 北约秘书长
   status:
-    location: bucharest
+    location: brussels
   goals: []
   name: Jens Stoltenberg
 - id: kirby_john
   kind: character
   brain: llm
   profile: 美国国家安全委员会战略沟通协调员
-  status:
-    location: olenivka
+  status: {}
   goals: []
   name: John Kirby
+  archived: true
 - id: patriarch_kirill
   kind: character
   brain: llm
   profile: 俄罗斯东正教大牧首
   status:
-    location: olenivka
+    location: moscow
   goals: []
   name: Patriarch Kirill
 - id: gerasimov
@@ -286,7 +286,7 @@ agents:
   brain: llm
   profile: 俄罗斯武装力量总参谋长
   status:
-    location: olenivka
+    location: moscow
   goals: []
   name: Valery Gerasimov
 - id: pistorius
@@ -294,23 +294,23 @@ agents:
   brain: llm
   profile: 德国国防部长
   status:
-    location: olenivka
+    location: germany
   goals: []
   name: Boris Pistorius
 - id: sunak
   kind: character
   brain: llm
   profile: 英国首相
-  status:
-    location: olenivka
+  status: {}
   goals: []
   name: Rishi Sunak
+  archived: true
 - id: aksyonov
   kind: character
   brain: llm
   profile: 俄罗斯任命的克里米亚领导人
   status:
-    location: olenivka
+    location: crimea
   goals: []
   name: Sergei Aksyonov
 - id: prokudin
@@ -318,7 +318,7 @@ agents:
   brain: llm
   profile: 乌克兰赫尔松州州长
   status:
-    location: olenivka
+    location: kherson_oblast
   goals: []
   name: Oleksandr Prokudin
 - id: razvozhayev
@@ -326,7 +326,7 @@ agents:
   brain: llm
   profile: 俄罗斯任命的塞瓦斯托波尔市长
   status:
-    location: olenivka
+    location: sevastopol
   goals: []
   name: Mikhail Razvozhayev
 - id: syniehubov
@@ -334,7 +334,7 @@ agents:
   brain: llm
   profile: 乌克兰哈尔科夫州州长
   status:
-    location: olenivka
+    location: kharkiv
   goals: []
   name: Oleh Syniehubov
 - id: klymenko
@@ -342,7 +342,7 @@ agents:
   brain: llm
   profile: 乌克兰内政部长
   status:
-    location: olenivka
+    location: kyiv
   goals: []
   name: Ihor Klymenko
 - id: budanov
@@ -350,7 +350,7 @@ agents:
   brain: llm
   profile: 乌克兰国防部情报总局局长
   status:
-    location: olenivka
+    location: kyiv
   goals: []
   name: Kyrylo Budanov
 - id: oleshchuk
@@ -358,7 +358,7 @@ agents:
   brain: llm
   profile: 乌克兰空军司令
   status:
-    location: olenivka
+    location: kyiv
   goals: []
   name: Mykola Oleshchuk
 - id: kyiv
@@ -606,11 +606,6 @@ agents:
   brain: rule
   profile: 克里米亚大桥
   name: Crimean Bridge
-- id: bucharest
-  kind: environment
-  brain: rule
-  profile: 罗马尼亚首都
-  name: Bucharest
 - id: kursk_oblast
   kind: environment
   brain: rule
@@ -681,11 +676,6 @@ agents:
   brain: rule
   profile: 莫斯科茹科夫斯基机场
   name: Zhunovsky airports
-- id: olenivka
-  kind: environment
-  brain: rule
-  profile: 乌克兰顿涅茨克州城市
-  name: Olenivka
 - id: mykolaiv_oblast
   kind: environment
   brain: rule
@@ -706,6 +696,11 @@ agents:
   brain: rule
   profile: 俄罗斯克拉斯诺达尔边疆区
   name: Krasnodar Krai
+- id: nestryha_island
+  kind: environment
+  brain: rule
+  profile: 乌克兰第聂伯河三角洲岛屿
+  name: Nestryha Island
 - id: brussels
   kind: environment
   brain: rule
@@ -752,15 +747,15 @@ agents:
   profile: 俄黑海舰队:黑海作战与封锁(莫斯科号、塞瓦斯托波尔)
   goals: []
   status:
-    location: crimea
+    location: sevastopol
 - id: wagner_group
   kind: character
   brain: llm
   name: Wagner Group
   profile: 瓦格纳雇佣兵集团:巴赫穆特攻坚、2023-06 兵变
   goals: []
-  status:
-    location: russia
+  status: {}
+  archived: true
 - id: fsb
   kind: character
   brain: llm
@@ -768,7 +763,7 @@ agents:
   profile: 俄联邦安全局:情报与国内安全(克里米亚大桥调查、抓捕)
   goals: []
   status:
-    location: moscow
+    location: russia
 - id: ukrainian_forces
   kind: character
   brain: llm
@@ -776,7 +771,7 @@ agents:
   profile: 乌克兰武装部队:防御反攻、防空拦截、战报主体
   goals: []
   status:
-    location: ukraine
+    location: nestryha_island
 - id: ukrainian_mod
   kind: character
   brain: llm
@@ -816,7 +811,7 @@ agents:
   profile: 亚速团:马里乌波尔/亚速钢铁厂防御战当事部队
   goals: []
   status:
-    location: mariupol
+    location: donetsk_oblast
 - id: nato
   kind: character
   brain: llm

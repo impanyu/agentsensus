@@ -154,12 +154,53 @@ def curate(name, T):
     # participant" (dead OR out of office/dismissed/disbanded) archives, and
     # unresolved placement falls to workplace/common-sense location.
     _STYLE = {"russia_ukraine": "realworld"}
+    # Manually verified boundary-state overrides (web-checked against the
+    # 2026-07 boundary; applied AFTER the LLM pass, authoritative over it).
+    # archive = dead or out of the conflict's stage by the boundary.
+    _OVERRIDES = {
+        "russia_ukraine": {
+            "archive": {
+                "biden": "US president only until 2025-01",
+                "stremousov": "died 2022-11",
+                "kuleba": "resigned as FM 2024-09",
+                "sunak": "ex-PM since 2024-07",
+                "scholz": "ex-chancellor since 2025-05",
+                "austin": "SecDef until 2025-01",
+                "kirby_john": "left with the administration 2025-01",
+                "starovoyt": "died 2025-07",
+                "haidai": "dismissed & detained 2025-08",
+                "zhyvytskyi": "dismissed as Sumy governor 2023-01",
+                "wagner_group": "disbanded/absorbed after the 2023 mutiny",
+            },
+            "unarchive": {
+                "pistorius": "still German defence minister through 2026",
+            },
+            "place": {
+                "pistorius": "germany",
+                "zaluzhnyi": "united_kingdom",   # ambassador to the UK since 2024-07
+                "prokudin": "kherson_oblast",     # Ukrainian Kherson governor, not Moscow
+                "azov_regiment": "donetsk_oblast" # Mariupol Russian-held since 2022-05
+            },
+        },
+    }
     finalized = asyncio.run(finalize_boundary_state(
         ltm, sorted(keep_char), env_ids,
         llm=llm, boundary_context=boundary_source_tail(name),
         style=_STYLE.get(name, "novel"),
     ))
     bcounts = apply_boundary_state(agents, keep_char, finalized)
+    ov = _OVERRIDES.get(name, {})
+    for a in agents:
+        if a.get("kind") != "character":
+            continue
+        aid = a["id"]
+        if aid in ov.get("archive", {}):
+            a["archived"] = True
+            a.get("status", {}).pop("location", None)
+        if aid in ov.get("unarchive", {}):
+            a.pop("archived", None)
+        if aid in ov.get("place", {}) and not a.get("archived"):
+            a.setdefault("status", {})["location"] = ov["place"][aid]
     # An archived (dead) character stays a registered agent -- still an owner
     # of its memories, kept in the cast (NOT deleted from `keep_char`/the
     # agent list) but never scheduled (Kernel.is_eligible excludes archived
