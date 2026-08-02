@@ -246,6 +246,12 @@ async def run_sim(
     with open(os.path.join(out_dir, "ltm_final.json"), "w", encoding="utf-8") as f:
         json.dump(kernel.shared_memory.export(), f, ensure_ascii=False)
 
+    # Per-call remember/recall latencies ({"op","tick","agent","s"} per line),
+    # for latency-vs-tick comparisons across backends.
+    with open(os.path.join(out_dir, "mem_ops.jsonl"), "w", encoding="utf-8") as f:
+        for rec in kernel.mem_ops:
+            f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+
     usage_fn = getattr(llm, "usage", None)
     usage = usage_fn() if usage_fn is not None else {}
 

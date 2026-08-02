@@ -64,6 +64,14 @@ class Kernel:
         # their own -- the static skill-doc guidance alone never fired it).
         # Reset to 0 on a successful `remember`.
         self._unremembered: dict[str, int] = {}
+        # Per-call latency log for agent-facing memory ops (remember/recall):
+        # [{"op", "tick", "agent", "s"}]. Uniform across backends because the
+        # timing wraps the duck-typed shared_memory call here in the kernel --
+        # each backend's own internal cost (consensus merge judging, GA
+        # importance scoring, auto-expand hops, ...) is inside the measured
+        # window. run_sim dumps this to <out>/mem_ops.jsonl for latency-vs-tick
+        # plots.
+        self.mem_ops: list[dict] = []
         self._remember_hint_threshold: int = int(
             self.config.get("remember_hint_threshold", 2)
         )
@@ -959,12 +967,18 @@ class Kernel:
         params = action.params
 
         if name == "remember":
+            t0 = time.monotonic()
             data = await self.shared_memory.remember(agent.id, params["text"], self.tick)
+            self.mem_ops.append({"op": "remember", "tick": self.tick, "agent": agent.id,
+                                 "s": time.monotonic() - t0})
             return ActionResult(True, data=data)
 
         if name == "recall":
             top_k = params.get("top_k", 5)
+            t0 = time.monotonic()
             data = await self.shared_memory.recall(agent.id, params["query"], top_k)
+            self.mem_ops.append({"op": "recall", "tick": self.tick, "agent": agent.id,
+                                 "s": time.monotonic() - t0})
             return ActionResult(True, data=data)
 
         if name == "forget":

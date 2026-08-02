@@ -227,3 +227,22 @@ async def test_run_sim_resume_from_checkpoint_continues_not_restarts(tmp_path, m
     ck = json.load(open(ckpt))
     assert r2["sediment_memories"] == len(ck["ltm"])
     assert r2["memory_kind"] == "consensus"
+
+
+async def test_run_sim_logs_memory_op_latencies(tmp_path, monkeypatch):
+    # every remember/recall gets a per-call latency record with its tick
+    async def scripted_decide(self, view):
+        t = view["tick"]
+        if t % 2 == 0:
+            return Action("remember", {"text": f"事件{t}"})
+        return Action("recall", {"query": "事件"})
+
+    monkeypatch.setattr(RuleBrain, "decide", scripted_decide)
+    spath = _write_scenario(tmp_path)
+    out = str(tmp_path / "out")
+    await run_sim(spath, "consensus", out, max_ticks=4,
+                  llm=_harmless_llm(), embed_fn=afake_embed)
+    recs = [json.loads(l) for l in open(f"{out}/mem_ops.jsonl", encoding="utf-8")]
+    assert len(recs) == 4
+    assert {r["op"] for r in recs} == {"remember", "recall"}
+    assert all(r["s"] >= 0 and isinstance(r["tick"], int) and r["agent"] == "worker" for r in recs)
