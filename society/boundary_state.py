@@ -44,30 +44,53 @@ async def _extract_grounded(char_id, timeline, env_ids, llm):
     return _parse_json(reply, default={"alive": True, "location": "", "determinable": False})
 
 
-async def _fallback_canon(char_id, boundary_context, env_ids, llm):
-    prompt = (
-        "The following is the source text at the current point of a story "
-        "(near the boundary of what has been narrated so far), including its "
-        "chapter/time markers:\n\n"
-        f"{boundary_context}\n\n"
-        f"At THIS point in the story, is the character '{char_id}' alive, and at "
-        "which location are they? Use your knowledge of this work anchored to "
-        "the moment shown above.\n\n"
-        "IMPORTANT — judge by the WORK ITSELF (this novel/story and its own "
-        "timeline), NOT by real-world history or historical death dates. A "
-        "character who is still alive in the story AT THIS POINT is alive "
-        "(alive=true) even if the historical person they are based on died "
-        "earlier. Only mark alive=false if the character has already died within "
-        "the story by the moment shown above.\n\n"
-        f"Choose location from this list of valid location ids: {sorted(env_ids)}\n\n"
-        'Return STRICT JSON: {"alive": true/false, "location": "<location id>"}. '
-        "Return ONLY the JSON."
-    )
+async def _fallback_canon(char_id, boundary_context, env_ids, llm, style="novel"):
+    if style == "realworld":
+        prompt = (
+            "The following is the TAIL of a real-world event timeline — the most "
+            "recent events before the boundary at which a simulation of this "
+            "situation begins:\n\n"
+            f"{boundary_context}\n\n"
+            f"As of the LAST date shown above, assess the real person or entity "
+            f"'{char_id}':\n"
+            "1. STILL A PARTICIPANT? Mark alive=false if, by that date, they are "
+            "DEAD, **or** have LEFT the stage of this situation — out of the "
+            "relevant office, retired, dismissed, disbanded, captured, or "
+            "otherwise no longer an active participant. Treat the timeline above "
+            "as authoritative over your possibly-older knowledge.\n"
+            "2. WHERE? Prefer any location the timeline implies. Otherwise place "
+            "them at their WORKPLACE or the location common sense assigns their "
+            "role (a governor in their region's capital, a minister in their "
+            "national capital, an organization at its headquarters, a military "
+            "unit at its current front). Choose the closest match from this list "
+            f"of valid location ids: {sorted(env_ids)}\n\n"
+            'Return STRICT JSON: {"alive": true/false, "location": "<location id>"}. '
+            "Return ONLY the JSON."
+        )
+    else:
+        prompt = (
+            "The following is the source text at the current point of a story "
+            "(near the boundary of what has been narrated so far), including its "
+            "chapter/time markers:\n\n"
+            f"{boundary_context}\n\n"
+            f"At THIS point in the story, is the character '{char_id}' alive, and at "
+            "which location are they? Use your knowledge of this work anchored to "
+            "the moment shown above.\n\n"
+            "IMPORTANT — judge by the WORK ITSELF (this novel/story and its own "
+            "timeline), NOT by real-world history or historical death dates. A "
+            "character who is still alive in the story AT THIS POINT is alive "
+            "(alive=true) even if the historical person they are based on died "
+            "earlier. Only mark alive=false if the character has already died within "
+            "the story by the moment shown above.\n\n"
+            f"Choose location from this list of valid location ids: {sorted(env_ids)}\n\n"
+            'Return STRICT JSON: {"alive": true/false, "location": "<location id>"}. '
+            "Return ONLY the JSON."
+        )
     reply = await llm.chat(prompt, system=None, bucket="boundary_fallback")
     return _parse_json(reply, default={"alive": True, "location": ""})
 
 
-async def _finalize_one(char_id, memories, env_ids, llm, boundary_context, max_mem):
+async def _finalize_one(char_id, memories, env_ids, llm, boundary_context, max_mem, style="novel"):
     timeline = gather_timeline(memories, char_id, max_mem)
     source = "memory"
     if timeline:
@@ -80,7 +103,7 @@ async def _finalize_one(char_id, memories, env_ids, llm, boundary_context, max_m
     # fall back when the timeline is inconclusive, or a living character has no
     # valid on-list location
     if (not determinable) or (alive and location not in env_ids):
-        fb = await _fallback_canon(char_id, boundary_context, env_ids, llm)
+        fb = await _fallback_canon(char_id, boundary_context, env_ids, llm, style=style)
         alive = bool(fb.get("alive", alive))
         location = fb.get("location") or location
         source = "canon@boundary"
@@ -90,13 +113,13 @@ async def _finalize_one(char_id, memories, env_ids, llm, boundary_context, max_m
 
 
 async def finalize_boundary_state(memories, cast, env_ids, *, llm,
-                                  boundary_context, max_mem_per_char=200):
+                                  boundary_context, max_mem_per_char=200, style="novel"):
     """For each character id in `cast`, return
     {char_id: {"alive": bool, "location": <env id>|None, "source": str}}.
     Per-character LLM work runs concurrently (the client bounds concurrency)."""
     env_ids = set(env_ids)
     results = await asyncio.gather(*[
-        _finalize_one(c, memories, env_ids, llm, boundary_context, max_mem_per_char)
+        _finalize_one(c, memories, env_ids, llm, boundary_context, max_mem_per_char, style=style)
         for c in cast
     ])
     return dict(zip(cast, results))

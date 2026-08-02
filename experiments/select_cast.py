@@ -56,6 +56,14 @@ def boundary_source_tail(name):
     files = _SOURCE_FILES.get(name)
     n = _SEDIMENT_CHAPTERS.get(name)
     if not files or n is None:
+        # Non-chaptered sources (e.g. the russia_ukraine timeline): anchor the
+        # canon fallback with the TAIL of the raw source -- the most recent
+        # events before the sediment boundary.
+        _TAILS = {"russia_ukraine": "russia_ukraine_timeline.txt"}
+        f = _TAILS.get(name)
+        if f:
+            src = open(os.path.join(BASE, "scenarios", "sources", f), encoding="utf-8").read()
+            return src[-6000:]
         return ""
     src_dir = os.path.join(BASE, "scenarios", "sources")
     parts = []
@@ -142,9 +150,14 @@ def curate(name, T):
     import asyncio
     from society.run import _build_llm_and_embed
     llm, _embed = _build_llm_and_embed(os.path.join(BASE, "config_flash.json"))
+    # real-world scenarios use real-world boundary semantics: "no longer a
+    # participant" (dead OR out of office/dismissed/disbanded) archives, and
+    # unresolved placement falls to workplace/common-sense location.
+    _STYLE = {"russia_ukraine": "realworld"}
     finalized = asyncio.run(finalize_boundary_state(
         ltm, sorted(keep_char), env_ids,
         llm=llm, boundary_context=boundary_source_tail(name),
+        style=_STYLE.get(name, "novel"),
     ))
     bcounts = apply_boundary_state(agents, keep_char, finalized)
     # An archived (dead) character stays a registered agent -- still an owner
