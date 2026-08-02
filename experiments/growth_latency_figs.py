@@ -23,7 +23,7 @@ LBL = {"consensus": "Consensus", "generative_agents": "Gen.Agents",
 COL = {"consensus": "#2563eb", "generative_agents": "#10b981",
        "g_memory": "#f59e0b", "collaborative": "#ef4444"}
 STAGES = [("g20", 0, 20), ("g40", 20, 40), ("g60", 40, 60), ("g80", 60, 80)]
-OUT = "runs/paper_figs_g60"
+OUT = "runs/paper_figs_g80"
 
 
 def quantize(p):
@@ -32,16 +32,21 @@ def quantize(p):
 
 
 # ---------- 1) total sim-generated entries vs tick ----------
+# Reconstructed from the final store by each entry's creation tick, filtered to
+# sim sources (runtime/act_on) -- same accounting as Table 1, so baseline
+# by-products (GA reflections, G-Memory re-distillation) never contaminate the
+# curve. (per_tick_memory counts raw store totals and picks up the g_memory
+# resume re-distillation artifact.)
 fig, ax = plt.subplots(figsize=(6.4, 3.2))
 for k in KINDS:
-    curve = []
-    for st, a, b in STAGES:
-        r = json.load(open(f"runs/{st}_{k}/result.json"))
-        ptm = r["per_tick_memory"]
-        sed = json.load(open(f"runs/g20_{k}/result.json"))["sediment_memories"]
-        seg = ptm[a:b] if len(ptm) > (b - a) else ptm      # resumed stages backfill 0..b
-        curve += [v - sed for v in seg]
-    ax.plot(range(1, len(curve) + 1), curve, label=LBL[k], color=COL[k], lw=1.8)
+    d = json.load(open(f"runs/g80_{k}/ltm_final.json", encoding="utf-8"))
+    curve = np.zeros(81)
+    for e in d:
+        m = e.get("meta") or {}
+        if m.get("source") in ("runtime", "act_on"):
+            t = min(max(int(m.get("tick", 0) or 0), 0), 80)
+            curve[t:] += 1
+    ax.plot(range(81), curve, label=LBL[k], color=COL[k], lw=1.8)
 ax.set_xlabel("tick"); ax.set_ylabel("cumulative sim-generated entries")
 ax.set_title("System memory growth (sim-only), 80 ticks")
 ax.legend(fontsize=8); ax.margins(x=0.01)

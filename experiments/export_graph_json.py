@@ -82,7 +82,7 @@ def relax(p, nodes, dmin, iters=80):
     return p
 
 
-pos = relax(dict(pos), G.nodes(), dmin=0.13)
+pos = relax(dict(pos), G.nodes(), dmin=0.24)
 isolated = sorted(n for n in G.nodes() if G.degree(n) == 0)
 if isolated:
     xs = np.linspace(-1.1, 1.1, len(isolated))
