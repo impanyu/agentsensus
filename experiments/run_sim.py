@@ -180,6 +180,16 @@ async def run_sim(
         )
         memory_kind = ckpt.get("memory_kind", memory_kind)
         consensus_merge = ckpt.get("consensus_merge", consensus_merge)
+        # Policy (not persistence): checkpoints from before the wait cap can
+        # carry legacy forever-sleepers (waiting_until == -1). Under the capped
+        # semantics they are long overdue, so normalize them to wake within the
+        # first few resumed ticks -- staggered deterministically so 12 sleepers
+        # don't all decide on the same tick. restore_society itself stays
+        # bit-for-bit faithful; this is an experiment-level migration.
+        overdue = sorted(a.id for a in kernel.agents.values()
+                         if getattr(a, "waiting_until", None) == -1)
+        for i, aid in enumerate(overdue):
+            kernel.agents[aid].waiting_until = kernel.tick + 1 + (i % 5)
         scenario_path = f"{scenario_path} (resumed from {resume_from} @ tick {ckpt['tick']})"
     else:
         cfg = load_scenario(scenario_path)
