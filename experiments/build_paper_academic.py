@@ -15,11 +15,12 @@ FIGS = {
     "quality": "runs/paper_figs_g80/quality_q.png",
     "arch": "runs/paper_figs_g80/architecture_q.png",
     "latency": "runs/paper_figs_g80/latency_q.png",
-    "ru_simfoot": "runs/paper_figs_ru20/sim_footprint_q.png",
-    "ru_structure": "runs/paper_figs_ru20/structure_q.png",
-    "ru_growth": "runs/paper_figs_ru20/growth_q.png",
-    "ru_latency": "runs/paper_figs_ru20/latency_q.png",
-    "ru_relpanels": "runs/ru20full_consensus/case_study/relationship_panels_q.png",
+    "ru_simfoot": "runs/paper_figs_ru40/sim_footprint_q.png",
+    "ru_structure": "runs/paper_figs_ru40/structure_q.png",
+    "ru_growth": "runs/paper_figs_ru40/growth_q.png",
+    "ru_latency": "runs/paper_figs_ru40/latency_q.png",
+    "ru_relpanels": "runs/ru40full_consensus/case_study/relationship_panels_q.png",
+    "ru_quality": "runs/paper_figs_ru40/quality_q.png",
 }
 IMG = {k: "data:image/png;base64," + base64.b64encode(open(v, "rb").read()).decode()
        for k, v in FIGS.items()}
@@ -36,9 +37,10 @@ def _scrub(o):
     return o
 
 S = _scrub(json.load(open("runs/paper_stats_g80.json", encoding="utf-8")))
-RU = _scrub(json.load(open("runs/paper_stats_ru20.json", encoding="utf-8")))
+RU = _scrub(json.load(open("runs/paper_stats_ru40.json", encoding="utf-8")))
 RUC = RU["consensus"]; RUR = RU["relations"]; RUE = RU["auto_expand"]
 Q = json.load(open("runs/results_g40.json", encoding="utf-8"))  # quality scored at the 40-tick checkpoint
+QR = json.load(open("runs/results_ru40.json", encoding="utf-8"))  # RU quality at 40 ticks
 def _slim_graphs(path):
     _G = json.loads(open(path, encoding="utf-8").read().replace("\ufffd", ""))
     _aidx = {n["id"]: i for i, n in enumerate(_G["affiliation"]["nodes"])}
@@ -53,7 +55,7 @@ def _slim_graphs(path):
     return json.dumps(_G, ensure_ascii=False, separators=(",", ":"))
 
 GRAPHS_JSON = _slim_graphs("runs/g80full_consensus/case_study/graphs.json")
-GRAPHS_RU_JSON = _slim_graphs("runs/ru20full_consensus/case_study/graphs.json")
+GRAPHS_RU_JSON = _slim_graphs("runs/ru40full_consensus/case_study/graphs.json")
 
 def cell(k, key):
     a = Q[k]["agg"][key]
@@ -181,13 +183,13 @@ HTML = CSS + f"""
 <h1>Agentsensus: Consensus-Compressed Shared Memory for<br>Multi-Agent Story-World Simulation</h1>
 <p class="sub">A shared long-term memory that merges agents&rsquo; equivalent memories into multi-witness records and self-organizes into a navigable memory graph.</p>
 <div class="byline">
-  <span><b>Scenarios</b> 三国演义 (80 ticks, 33 active agents) &middot; Russia&ndash;Ukraine (20 ticks, 47 active)</span>
+  <span><b>Scenarios</b> 三国演义 (80 ticks, 33 active agents) &middot; Russia&ndash;Ukraine (40 ticks, 47 active)</span>
   <span><b>Checkpointing</b> every 20 ticks</span>
   <span><b>Model</b> gpt-5-mini</span>
 </div>
 
 <div class="abstract"><div class="h">Abstract</div>
-<p>Multi-agent story-world simulations give every agent a private memory stream, so the same event is stored once per witness, memories of one plotline are scattered across isolated stores, and nothing connects what one agent knows to what another experienced. We present <b>Agentsensus</b>, a story-world simulation framework whose shared long-term memory performs <b>consensus compression</b>: every deposited memory is atomized into self-contained statements, semantically matched against the store, and &mdash; when an LLM judge deems two statements equivalent &mdash; merged into a single record whose <i>owner-set</i> is the union of its witnesses. Atomized pieces of one compound memory are automatically linked (<i>affiliated</i>), and recall automatically expands one hop along these links, so the memory self-organizes into a graph that retrieval exploits without any agent-side memory management. On an 80-tick simulation of <i>Romance of the Three Kingdoms</i> seeded with memories sedimented from chapters 1&ndash;40, and compared under an equal-granularity protocol against three per-agent memory baselines (Generative-Agents-style streams, G-Memory-style hierarchical graph, ACL-based collaborative memory), consensus is the only backend whose simulation memories become shared ({C['sh_pct']}% multi-owner, merges reaching {S['max_owners']} witnesses; baselines 0%) and linked ({C['aff_pct']}% with affiliated edges; baselines 0%), while also writing the fewest entries ({C['sim_new']} vs {GA['sim_new']}&ndash;{CO['sim_new']}). The emergent memory graph tracks the story&rsquo;s social structure: agents who talk overlap in memory {ao_ratio:.0f}&times; more than those who don&rsquo;t, linked memories share witnesses at Jaccard {R['MO']['link_mean']:.2f} vs {R['MO']['non_mean']:.2f}, and cross-agent memory links run almost exclusively between conversing agents. A 20-tick replication on a real-world Russia&ndash;Ukraine scenario reproduces the full structural signature &mdash; down to consensus folding officials&rsquo; accounts into their institutions&rsquo; records, with merges spanning up to three witnesses &mdash; and its sharing rate climbs as the horizon extends, confirming that structure compounds.</p>
+<p>Multi-agent story-world simulations give every agent a private memory stream, so the same event is stored once per witness, memories of one plotline are scattered across isolated stores, and nothing connects what one agent knows to what another experienced. We present <b>Agentsensus</b>, a story-world simulation framework whose shared long-term memory performs <b>consensus compression</b>: every deposited memory is atomized into self-contained statements, semantically matched against the store, and &mdash; when an LLM judge deems two statements equivalent &mdash; merged into a single record whose <i>owner-set</i> is the union of its witnesses. Atomized pieces of one compound memory are automatically linked (<i>affiliated</i>), and recall automatically expands one hop along these links, so the memory self-organizes into a graph that retrieval exploits without any agent-side memory management. On an 80-tick simulation of <i>Romance of the Three Kingdoms</i> seeded with memories sedimented from chapters 1&ndash;40, and compared under an equal-granularity protocol against three per-agent memory baselines (Generative-Agents-style streams, G-Memory-style hierarchical graph, ACL-based collaborative memory), consensus is the only backend whose simulation memories become shared ({C['sh_pct']}% multi-owner, merges reaching {S['max_owners']} witnesses; baselines 0%) and linked ({C['aff_pct']}% with affiliated edges; baselines 0%), while also writing the fewest entries ({C['sim_new']} vs {GA['sim_new']}&ndash;{CO['sim_new']}). The emergent memory graph tracks the story&rsquo;s social structure: agents who talk overlap in memory {ao_ratio:.0f}&times; more than those who don&rsquo;t, linked memories share witnesses at Jaccard {R['MO']['link_mean']:.2f} vs {R['MO']['non_mean']:.2f}, and cross-agent memory links run almost exclusively between conversing agents. A 40-tick replication on a real-world Russia&ndash;Ukraine scenario reproduces the full structural signature &mdash; sharing grows 6%&rarr;9%&rarr;14% as the horizon doubles and redoubles, with one presidential directive merging across ten institutional witnesses &mdash; confirming that consensus structure compounds with horizon in a real-world setting.</p>
 </div>
 
 <h2><span class="n">1</span> Introduction</h2>
@@ -245,7 +247,7 @@ HTML = CSS + f"""
 
 <h3>4.1 &nbsp;Scenarios</h3>
 <p>三国演义 chapters 1&ndash;40 are sedimented onto 191 canonical characters (33 active at the boundary, the rest archived as dead; ~6,000 consensus events). All four backends then run the <i>same</i> 80-tick simulation &mdash; same scenario file, same action repertoire, same model (<code>gpt-5-mini</code>; embeddings <code>text-embedding-3-small</code>) &mdash; in four checkpointed 20-tick stages.</p>
-<p>To test that the mechanisms are not an artifact of one fictional world, the second scenario is <b>real-world</b>: a timeline of the Russia&ndash;Ukraine conflict sedimented through 2026-07 (1,533 events over 170 entities). Real-world boundary semantics replace the novel&rsquo;s: a figure is archived if, by the boundary, they are dead <i>or out of the conflict&rsquo;s stage</i> (out of office, dismissed, disbanded), with placements grounded in the timeline or, failing that, the person&rsquo;s workplace/role (final cast: 47 active, 14 archived, manually verified). All four backends run the same 20-tick simulation under the identical fairness protocol.</p>
+<p>To test that the mechanisms are not an artifact of one fictional world, the second scenario is <b>real-world</b>: a timeline of the Russia&ndash;Ukraine conflict sedimented through 2026-07 (1,533 events over 170 entities). Real-world boundary semantics replace the novel&rsquo;s: a figure is archived if, by the boundary, they are dead <i>or out of the conflict&rsquo;s stage</i> (out of office, dismissed, disbanded), with placements grounded in the timeline or, failing that, the person&rsquo;s workplace/role (final cast: 47 active, 14 archived, manually verified). All four backends run the same 40-tick simulation under the identical fairness protocol.</p>
 
 <h3>4.2 &nbsp;Baselines</h3>
 <ul class="body">
@@ -262,7 +264,7 @@ HTML = CSS + f"""
 <h3>4.4 &nbsp;Metrics</h3>
 <ul class="body">
 <li><b>Structure</b> (deterministic): sim-entry count; share of multi-owner entries; share of entries with affiliated edges.</li>
-<li><b>Continuation quality</b> (LLM-judged, mean&plusmn;std over 3 scorings of the sim transcript): <i>grounding</i> &mdash; the fraction of the sim&rsquo;s own events consistent with the canon; <i>trajectory</i> &mdash; agreement of character arcs with reference arcs from held-out chapters 41&ndash;60; <i>narrative</i> &mdash; judged coherence/drama/fidelity (1&ndash;5).</li>
+<li><b>Continuation quality</b> (LLM-judged, mean&plusmn;std over 3 scorings of the sim transcript): <i>grounding</i> &mdash; the fraction of the sim&rsquo;s own events consistent with the canon; <i>trajectory</i> &mdash; agreement of character arcs with reference arcs extracted from each world&rsquo;s held-out continuation (三国: chapters 41&ndash;60; Russia&ndash;Ukraine: the timeline beyond the 2024-04 boundary); <i>narrative</i> &mdash; judged coherence/drama/fidelity (1&ndash;5). The verbose Russia&ndash;Ukraine transcripts are compacted to the judge&rsquo;s context window (messages truncated to 280 chars, lines sampled evenly when needed); 三国 fits untruncated.</li>
 <li><b>Operation latency</b> (&sect;5.2): per-call wall-clock time of <code>remember</code>/<code>recall</code>, timed in the kernel around the backend call so each mechanism&rsquo;s internal cost (equivalence judging, importance scoring, auto-expansion) falls inside the window. Ticks 61&ndash;80 are instrumented live; ticks 1&ndash;60 are measured by replaying each stage&rsquo;s logged operations against the store state the stage started from (checkpoint-exact for stages 2&ndash;3; the first stage&rsquo;s GA/G-Memory replay stores lack prime by-products, &asymp;3&ndash;5% of rows).</li>
 <li><b>Three-layer alignment</b> (&sect;5.4): relations between the interaction graph, the affiliation graph, and the ownership relation.</li>
 </ul>
@@ -280,7 +282,7 @@ HTML = CSS + f"""
 <tr><td>generative-agents</td><td>{GA['sim_new']}</td><td>0</td><td>0</td></tr>
 <tr><td>g-memory</td><td>{GM['sim_new']}</td><td>0</td><td>0</td></tr>
 <tr><td>collaborative</td><td>{CO['sim_new']}</td><td>0</td><td>0</td></tr>
-<tr class="grp"><td colspan="4">Russia&ndash;Ukraine &mdash; real world, 20 ticks</td></tr>
+<tr class="grp"><td colspan="4">Russia&ndash;Ukraine &mdash; real world, 40 ticks</td></tr>
 <tr class="hi"><td>consensus</td><td class="best">{RUC['sim_new']}</td><td class="best">{RUC['multi_owner']} ({RUC['sh_pct']}%)</td><td class="best">{RUC['aff_pct']}%</td></tr>
 <tr><td>generative-agents</td><td>{RU['generative_agents']['sim_new']}</td><td>0</td><td>0</td></tr>
 <tr><td>g-memory</td><td>{RU['g_memory']['sim_new']}</td><td>0</td><td>0</td></tr>
@@ -303,7 +305,7 @@ HTML = CSS + f"""
 <figure class="two">
   <img src="{IMG['ru_simfoot']}" alt="RU sim footprint">
   <img src="{IMG['ru_structure']}" alt="RU memory structure">
-  <figcaption><b>Figure 3. Footprint and structure &mdash; Russia&ndash;Ukraine (20 ticks).</b> Same panels as Figure 2: entries written under identical atomization (left) and the share of each backend&rsquo;s sim memories that are shared and linked (right).</figcaption>
+  <figcaption><b>Figure 3. Footprint and structure &mdash; Russia&ndash;Ukraine (40 ticks).</b> Same panels as Figure 2: entries written under identical atomization (left) and the share of each backend&rsquo;s sim memories that are shared and linked (right).</figcaption>
 </figure>
 <p><b>Discussion.</b> The same two readings hold at one eighth the horizon: the 19&ndash;30% footprint gap is again exactly the number of equivalence-judge folds, and the structural columns remain all-or-nothing &mdash; 0% for every per-agent baseline. What is new is the real-world flavor of the folds: equivalence merges a <i>person&rsquo;s</i> record into their <i>institution&rsquo;s</i> &mdash; the same mechanism that fuses two officers&rsquo; views of one battle fuses a spokesperson&rsquo;s statement with its organization&rsquo;s record of it.</p>
 <p>Merged records again pair one event seen from two sides &mdash; characteristically a person and their institution:</p>
@@ -332,16 +334,16 @@ HTML = CSS + f"""
 <h4>5.2.2 &nbsp;Russia&ndash;Ukraine</h4>
 <figure>
   <img src="{IMG['ru_growth']}" alt="RU memory growth">
-  <figcaption><b>Figure 6. Memory growth &mdash; Russia&ndash;Ukraine (20 ticks).</b> Left: cumulative sim-generated entries per tick for all four backends under the same sim-only accounting as Table 1. Right: per-agent owned memories per tick in the consensus run (top agents labeled; the rest gray).</figcaption>
+  <figcaption><b>Figure 6. Memory growth &mdash; Russia&ndash;Ukraine (40 ticks).</b> Left: cumulative sim-generated entries per tick for all four backends under the same sim-only accounting as Table 1. Right: per-agent owned memories per tick in the consensus run (top agents labeled; the rest gray).</figcaption>
 </figure>
 <figure>
   <img src="{IMG['ru_latency']}" alt="RU memory-operation latency">
-  <figcaption><b>Figure 7. Memory-operation latency &mdash; Russia&ndash;Ukraine (20 ticks).</b> Mean wall-clock seconds per <code>remember</code> (left) and <code>recall</code> (right) call, 2-tick bins, all four backends; every tick is instrumented live in the kernel.</figcaption>
+  <figcaption><b>Figure 7. Memory-operation latency &mdash; Russia&ndash;Ukraine (40 ticks).</b> Mean wall-clock seconds per <code>remember</code> (left) and <code>recall</code> (right) call, 2-tick bins, all four backends; every tick is instrumented live in the kernel.</figcaption>
 </figure>
 <p><b>Discussion.</b> Both figures replay the 三国 dynamics at a shorter horizon. The system curves separate from tick ~3 with consensus lowest and the gap widening, and per-agent growth again concentrates on the situation&rsquo;s protagonists. The latency ordering of Figure 5 reproduces: writes are LLM-bound (Generative-Agents&rsquo; per-atom importance calls most expensive, consensus paying the equivalence-judge tax), while reads are vector-bound and sub-second for all four backends, with consensus recall cheapest despite auto-expansion.</p>
 
 <h3>5.3 &nbsp;Continuation quality</h3>
-<p>Compression does not cost narrative quality: consensus scores highest on narrative, is competitive on trajectory, and sits mid-pack on grounding, with overlapping error bars elsewhere.</p>
+<p>Compression does not cost judged quality in either world. In 三国, consensus scores highest on narrative and is competitive elsewhere; in Russia&ndash;Ukraine all four backends land within overlapping error bars on every metric, with consensus tied-best on grounding and trajectory. The structural gaps of &sect;5.1 do not translate into behavioral penalties.</p>
 
 <h4>5.3.1 &nbsp;三国演义</h4>
 <figure>
@@ -351,7 +353,11 @@ HTML = CSS + f"""
 <p><b>Discussion.</b> The quality profile is consistent with what compression should and should not affect. Narrative coherence benefits from consensus (4.25, the clear leader): agents recalling one shared record of an event act on consistent premises, where baseline agents can act on N drifting paraphrases of it. Trajectory sits in the pack (0.68 vs 0.59&ndash;0.72): arc-following depends mostly on the persona and goal machinery all backends share. Grounding is mid-pack (0.86 vs 0.83&ndash;0.92, overlapping error bars): merging keeps the <i>shorter</i> of two equivalent texts, which occasionally discards a viewpoint detail a canon-consistency judge rewards. None of the differences approach the structural gaps of Figure 2 &mdash; the mechanisms separate on architecture, not on judged behavior.</p>
 
 <h4>5.3.2 &nbsp;Russia&ndash;Ukraine</h4>
-<p>Not scored: 20 ticks is still below the horizon at which grounding, trajectory, and narrative judgments are meaningful (三国&rsquo;s scoring uses a 40-tick checkpoint against held-out reference chapters). Quality scoring follows once the run reaches a comparable horizon.</p>
+<figure>
+  <img src="{IMG['ru_quality']}" alt="RU continuation quality comparison">
+  <figcaption><b>Figure 9. Continuation quality &mdash; Russia&ndash;Ukraine (40 ticks).</b> Same protocol as Figure 8 at the same horizon: grounding judges each sim event against the real conflict&rsquo;s world (real entities, correct roles/allegiances, plausible dynamics), trajectory compares ten principals&rsquo; arcs against arcs extracted from the held-out timeline (2024-05 onward), narrative is the same 4-dimension rubric; bars are means over 3 independent LLM scorings, whiskers &plusmn;1 std.</figcaption>
+</figure>
+<p><b>Discussion.</b> The real-world replication is a wash &mdash; which is the point. Grounding is uniformly high ({min(QR[k]['agg']['grnd']['mean'] for k in QR):.2f}&ndash;{max(QR[k]['agg']['grnd']['mean'] for k in QR):.2f}: institutional actors reciting real capabilities rarely fabricate), trajectory is tied within error bars ({QR['consensus']['agg']['traj']['mean']:.2f} for consensus vs {min(QR[k]['agg']['traj']['mean'] for k in QR if k!='consensus'):.2f}&ndash;{max(QR[k]['agg']['traj']['mean'] for k in QR if k!='consensus'):.2f}), and narrative spreads {QR['g_memory']['agg']['narr']['mean']:.2f}&ndash;{QR['generative_agents']['agg']['narr']['mean']:.2f} with overlapping whiskers and no stable leader across scorings. As in 三国, the mechanisms separate on architecture (Figure 3), not on judged behavior: consensus deduplicates {RUC['sim_new']} entries against the baselines&rsquo; {RU['collaborative']['sim_new']}&ndash;{RU['generative_agents']['sim_new']} and builds all the structure &mdash; while giving none of it back in quality.</p>
 
 <h3>5.4 &nbsp;Case study: three graphs over each world</h3>
 <p>Each world&rsquo;s consensus run induces the same three graphs: the <b>interaction graph</b> (who talks to whom), the <b>affiliation graph</b> (which memories are linked), and the <b>ownership relation</b> (who owns which memories). For each scenario we show the three layers, then all three in one view, then quantify their pairwise alignment.</p>
@@ -403,12 +409,12 @@ HTML = CSS + f"""
 </figure>
 <figure>
   <div class="ig" id="ig-ru-heatmap" style="height:560px"></div>
-  <figcaption><b>Figure 14. The ownership layer (interactive) &mdash; Russia&ndash;Ukraine.</b> Pairwise co-owned memory counts over the Russia&ndash;Ukraine roster, ordered by interaction community. Hover a cell for the pair and its count. As in Figure 10, non-zero cells sit on pairs that jointly experienced events &mdash; here the strongest cells are spokesperson&harr;institution pairs, the real-world counterpart of faction comrades.</figcaption>
+  <figcaption><b>Figure 13. The ownership layer (interactive) &mdash; Russia&ndash;Ukraine.</b> Pairwise co-owned memory counts over the Russia&ndash;Ukraine roster, ordered by interaction community. Hover a cell for the pair and its count. As in Figure 10, non-zero cells sit on pairs that jointly experienced events &mdash; here the strongest cells are spokesperson&harr;institution pairs, the real-world counterpart of faction comrades.</figcaption>
 </figure>
 <h5>All three layers in one view</h5>
 <figure>
   <div class="ig" id="ig-ru-trilayer" style="height:520px"></div>
-  <figcaption><b>Figure 15. All three layers in one view (interactive) &mdash; Russia&ndash;Ukraine.</b> Conversations above, ownership between, affiliation below; merged memories (&starf;) hang between the parties that share them.</figcaption>
+  <figcaption><b>Figure 14. All three layers in one view (interactive) &mdash; Russia&ndash;Ukraine.</b> Conversations above, ownership between, affiliation below; merged memories (&starf;) hang between the parties that share them.</figcaption>
 </figure>
 <h5>Pairwise alignment of the layers</h5>
 <div class="rel"><h4><span class="rx">A&harr;O</span> Agents who talk own overlapping memories <span class="stat">({RUR['AO']['talk_mean']:.3f} vs {RUR['AO']['non_mean']:.4f}, {RUR['AO']['talk_mean']/max(RUR['AO']['non_mean'],1e-9):.0f}&times;)</span></h4>
@@ -419,7 +425,7 @@ HTML = CSS + f"""
 <p>Talking pairs average {RUR['AM']['talk_mean']:.2f} affiliated edges between their memory sets; non-talking pairs essentially none.</p></div>
 <figure>
   <img src="{IMG['ru_relpanels']}" alt="RU relationship panels">
-  <figcaption><b>Figure 16. Each pairwise relation as a with/without pair of distributions &mdash; Russia&ndash;Ukraine</b> (same format as Figure 12). The structural signature transfers intact to a real-world scenario at one eighth the horizon.</figcaption>
+  <figcaption><b>Figure 15. Each pairwise relation as a with/without pair of distributions &mdash; Russia&ndash;Ukraine</b> (same format as Figure 12). The structural signature transfers intact to a real-world scenario at one eighth the horizon.</figcaption>
 </figure>
 
 <h3>5.5 &nbsp;Structure compounds with horizon</h3>
@@ -428,11 +434,11 @@ HTML = CSS + f"""
 <h4>5.5.1 &nbsp;三国演义</h4>
 <figure>
   <img src="{IMG['growth']}" alt="Growth across horizon">
-  <figcaption><b>Figure 17. Consensus structure across the horizon &mdash; 三国演义.</b> Sim-memory count (left), shared multi-owner memories (middle), and affiliated edges (right) at the 20/40/60/80-tick checkpoints of the same continuously-resumed run. All three grow super-linearly in usefulness even where counts grow linearly: each new shared memory raises the chance that a future deposit finds a merge partner, and each new edge widens what a single auto-expanding recall can surface.</figcaption>
+  <figcaption><b>Figure 16. Consensus structure across the horizon &mdash; 三国演义.</b> Sim-memory count (left), shared multi-owner memories (middle), and affiliated edges (right) at the 20/40/60/80-tick checkpoints of the same continuously-resumed run. All three grow super-linearly in usefulness even where counts grow linearly: each new shared memory raises the chance that a future deposit finds a merge partner, and each new edge widens what a single auto-expanding recall can surface.</figcaption>
 </figure>
 
 <h4>5.5.2 &nbsp;Russia&ndash;Ukraine</h4>
-<p>Twenty ticks in a second, structurally different world (real entities, institutional actors, English-language events, a live timeline rather than a novel) reproduce every qualitative claim of &sect;5: fewest entries, exclusive sharing and linking, the three-layer alignment, and the latency profile. The horizon effect predicted by 三国 is directly observable here: between tick 10 and tick 20 the sharing rate rose from 6% to {RUC['sh_pct']}%, and merges deepened from two witnesses to {{RU['max_owners']}} &mdash; including a three-way merge of an interior minister, a presidential adviser, and the security service over one directive &mdash; while the gap to 三国&rsquo;s 19% at 80 ticks remains consistent with sharing compounding as institutional records accumulate.</p>
+<p>Forty ticks in a second, structurally different world (real entities, institutional actors, English-language events, a live timeline rather than a novel) reproduce every qualitative claim of &sect;5: fewest entries, exclusive sharing and linking, the three-layer alignment, and the latency profile. The horizon effect predicted by 三国 is directly observable here: the sharing rate rose 6%&rarr;9%&rarr;{RUC['sh_pct']}% at ticks 10/20/40, three-plus-witness merges went from zero to {RU['n_3plus']}, and the deepest merge grew from two witnesses to {RU['max_owners']} &mdash; a presidential air-defense directive whose single record is co-owned by the president, his chief of staff and adviser, the interior minister, the air-force and intelligence commanders, and the security service &mdash; tracking 三国&rsquo;s 19% at 80 ticks on the same compounding curve.</p>
 
 <h3>5.6 &nbsp;Agents do not manage memory &mdash; mechanisms must</h3>
 <p>Across all four backends and both models tested, agents issued <b>zero</b> calls to every discretionary memory-management action &mdash; linking (<code>add/set/remove_affiliated</code>), explicit link-reading (<code>get_affiliated</code>), forgetting, and revision &mdash; despite documentation, worked skill examples, and the id-free query interface. In contrast, the two mechanism-embedded operations carried everything: <code>remember</code> (with atomization, merging, auto-affiliation inside) and <code>recall</code> (with auto-expansion inside; {AE['with_expansion']}/{AE['recalls']} recalls returned linked context). We take this as a design principle for agent memory systems: <b>structure must be a side-effect of the operations agents already perform, not a task delegated to them.</b></p>
