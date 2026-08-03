@@ -271,6 +271,15 @@
         "Wittenberg"
       ],
       "profile": "哈姆雷特与霍拉旭就读的大学城。"
+    },
+    {
+      "id": "remote_understage",
+      "name": "城堡偏远区域及舞台下方",
+      "aliases": [
+        "Elsinore Castle (a more remote part)",
+        "Elsinore Castle (a more remote part, then under the stage)"
+      ],
+      "profile": "厄耳锡诺城堡中一处偏远隐蔽的角落，并可通向舞台下方的地下空间。"
     }
   ],
   "carriers": [

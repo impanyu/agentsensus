@@ -26,6 +26,22 @@ THRESHOLDS = {
     "red_chamber": 100,
     "war_and_peace": 20,
     "russia_ukraine": 3,
+    "hamlet": 50,
+}
+
+# Characters kept regardless of memory count: canon-critical figures who are
+# absent from the sediment span (so they own ~0 memories) but drive the
+# continuation. Hamlet's Fortinbras never appears on stage in Acts 1-3 yet
+# closes the play in Act 5.
+FORCE_KEEP = {
+    "hamlet": {"fortinbras"},
+}
+
+# Environments kept regardless of the memory bar: canonical destinations of the
+# continuation that own no sediment memories (no scene there in the sediment
+# span). Hamlet's England is the sealed commission's destination in Act 4.
+FORCE_KEEP_ENV = {
+    "hamlet": {"england"},
 }
 # per-scenario ENVIRONMENT memory bar (env kept iff it's an active char's location
 # OR owns > E memories). Novels: E=0 (>=1 mem) trims well. 俄乌: every timeline
@@ -35,6 +51,7 @@ ENV_THRESHOLDS = {
     "red_chamber": 0,
     "war_and_peace": 0,
     "russia_ukraine": 5,
+    "hamlet": 0,
 }
 
 
@@ -64,6 +81,12 @@ def boundary_source_tail(name):
         if f:
             src = open(os.path.join(BASE, "scenarios", "sources", f), encoding="utf-8").read()
             return src[-6000:]
+        if name == "hamlet":
+            # sediment span = Acts I-III; boundary context = the end of Act III
+            src = open(os.path.join(BASE, "scenarios", "sources", "hamlet.txt"),
+                       encoding="utf-8").read()
+            act3 = src[src.index("ACT III"):src.index("ACT IV")]
+            return act3[-6000:]
         return ""
     src_dir = os.path.join(BASE, "scenarios", "sources")
     parts = []
@@ -136,7 +159,7 @@ def curate(name, T):
     char_ids = {a["id"] for a in agents if a.get("kind") == "character"}
     cnt = char_mem_counts(ltm, char_ids)
 
-    keep_char = {cid for cid in char_ids if cnt.get(cid, 0) > T}
+    keep_char = {cid for cid in char_ids if cnt.get(cid, 0) > T} | (FORCE_KEEP.get(name, set()) & char_ids)
     dropped = char_ids - keep_char
 
     # Trim environments: keep an env iff it is an active character's location OR
@@ -158,6 +181,21 @@ def curate(name, T):
     # 2026-07 boundary; applied AFTER the LLM pass, authoritative over it).
     # archive = dead or out of the conflict's stage by the boundary.
     _OVERRIDES = {
+        "hamlet": {
+            # canon@boundary (end of Act III), manually verified
+            "place": {
+                "fortinbras": "norway",   # zero sediment memories; readying the Polish march
+                "laertes": "france",      # left for Paris in 1.3, returns in 4.5
+            },
+        },
+        "red_chamber": {
+            # manually verified against ch40 (史太君两宴大观园); the LLM pass
+            # placed both via canon fallback and missed their residences.
+            "place": {
+                "xingfuren": "jiasheyuan",  # 邢夫人随贾赦居住
+                "jialian": "rongguofu",     # 贾琏管家,居荣府
+            },
+        },
         "russia_ukraine": {
             "archive": {
                 "biden": "US president only until 2025-01",
@@ -218,7 +256,7 @@ def curate(name, T):
     keep_env = {
         eid for eid in env_ids
         if eid in active_locations or env_mem.get(eid, 0) > E
-    }
+    } | (FORCE_KEEP_ENV.get(name, set()) & env_ids)
 
     def keep_agent(a):
         k = a.get("kind")

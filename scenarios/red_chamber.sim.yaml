@@ -6,7 +6,7 @@ agents:
   brain: llm
   profile: 荣国府衔玉而生的公子，情榜之首，深恶仕途经济。
   status:
-    location: loc_1
+    location: daguanlou
   goals: []
   name: 贾宝玉
 - id: lindaiyu
@@ -14,7 +14,7 @@ agents:
   brain: llm
   profile: 姑苏林如海之女，敏慧多才，寄居荣国府，与宝玉互为知己。
   status:
-    location: loc_1
+    location: hengwuyuan
   goals: []
   name: 林黛玉
 - id: xuebaochai
@@ -22,7 +22,7 @@ agents:
   brain: llm
   profile: 皇商薛家之女，稳重博学，挂有金锁，与宝玉配称金玉良缘。
   status:
-    location: loc_1
+    location: daguanlou
   goals: []
   name: 薛宝钗
 - id: jiamu
@@ -30,7 +30,7 @@ agents:
   brain: llm
   profile: 荣国府辈分最高的老太君，极宠孙辈宝玉、黛玉。
   status:
-    location: loc_1
+    location: daguanlou
   goals: []
   name: 贾母
 - id: wangfuren
@@ -38,7 +38,7 @@ agents:
   brain: llm
   profile: 贾政之妻，贾宝玉之母，笃信佛教，心狠手辣处绝不留情。
   status:
-    location: loc_1
+    location: ouxiangxie
   goals: []
   name: 王夫人
 - id: wangxifeng
@@ -46,7 +46,7 @@ agents:
   brain: llm
   profile: 荣国府管家奶奶，精明强干，嘴甜心苦，弄权铁槛寺。
   status:
-    location: loc_1
+    location: daguanlou
   goals: []
   name: 王熙凤
 - id: jiazheng
@@ -54,7 +54,7 @@ agents:
   brain: llm
   profile: 荣国府二老爷，任职工部，拘泥礼法，严教宝玉。
   status:
-    location: xuecharenshang
+    location: jiafu
   goals: []
   name: 贾政
 - id: xingfuren
@@ -62,7 +62,7 @@ agents:
   brain: llm
   profile: 贾赦继室，一味顺从丈夫，吝啬愚顽。
   status:
-    location: rongguofu
+    location: jiasheyuan
   goals: []
   name: 邢夫人
 - id: jialian
@@ -70,7 +70,7 @@ agents:
   brain: llm
   profile: 荣国府贾赦之子，捐官同知，风流浪荡，与凤姐夫妻貌合神离。
   status:
-    location: fenglianzhuzhai
+    location: rongguofu
   goals: []
   name: 贾琏
 - id: pinger
@@ -78,7 +78,7 @@ agents:
   brain: llm
   profile: 王熙凤心腹通房大丫头，心地善良，常替凤姐周全。
   status:
-    location: fenglianzhuzhai
+    location: jiafu
   goals: []
   name: 平儿
 - id: liwan
@@ -86,7 +86,7 @@ agents:
   brain: llm
   profile: 贾珠之妻，寡居守节，带领大观园诗社，宽厚柔顺。
   status:
-    location: loc_1
+    location: hengwuyuan
   goals: []
   name: 李纨
 - id: jiayuanchun
@@ -94,7 +94,7 @@ agents:
   brain: llm
   profile: 贾政长女，入宫为妃，省亲大观园，是贾家荣耀的靠山。
   status:
-    location: huanggong
+    location: fengzaogong
   goals: []
   name: 贾元春
 - id: jiayingchun
@@ -102,7 +102,7 @@ agents:
   brain: llm
   profile: 贾赦庶女，绰号二木头，懦弱怕事。
   status:
-    location: loc_1
+    location: hengwuyuan
   goals: []
   name: 贾迎春
 - id: jiatanchun
@@ -110,7 +110,7 @@ agents:
   brain: llm
   profile: 贾政庶女，敏慧志高，发起海棠诗社，后远嫁海外。
   status:
-    location: loc_1
+    location: hengwuyuan
   goals: []
   name: 贾探春
 - id: jiaxichun
@@ -118,7 +118,7 @@ agents:
   brain: llm
   profile: 宁国府贾珍胞妹，孤介冷僻，后出家为尼。
   status:
-    location: loc_1
+    location: hengwuyuan
   goals: []
   name: 贾惜春
 - id: shixiangyun
@@ -126,7 +126,7 @@ agents:
   brain: llm
   profile: 史鼎之女，豪爽豁达，才思敏捷，常来贾府居住。
   status:
-    location: loc_1
+    location: hengwuyuan
   goals: []
   name: 史湘云
 - id: jiazhen
@@ -134,7 +134,7 @@ agents:
   brain: llm
   profile: 宁国府袭爵人，恣意享乐，行事放荡。
   status:
-    location: ningguofu
+    location: daguanlou
   goals: []
   name: 贾珍
 - id: jiarong
@@ -142,15 +142,14 @@ agents:
   brain: llm
   profile: 贾珍之子，面目俊秀，轻薄无行。
   status:
-    location: tiesiansi
+    location: daguanlou
   goals: []
   name: 贾蓉
 - id: qinkeqing
   kind: character
   brain: llm
   profile: 贾蓉之妻，貌美温柔，早逝托梦王熙凤，暗示贾府盛衰。
-  status:
-    location: tiesiansi
+  status: {}
   goals: []
   name: 秦可卿
   archived: true
@@ -167,7 +166,7 @@ agents:
   brain: llm
   profile: 贾家旁支子弟，认贾宝玉为父，求职得种树差事，与小红以帕传情。
   status:
-    location: xirentanwang
+    location: rongguofu
   goals: []
   name: 贾芸
 - id: jiahuan
@@ -175,15 +174,14 @@ agents:
   brain: llm
   profile: 贾政庶子，猥琐嫉妒，常陷害宝玉。
   status:
-    location: xirentanwang
+    location: jiafu
   goals: []
   name: 贾环
 - id: jiarui
   kind: character
   brain: llm
   profile: 贾代儒之孙，垂涎凤姐美色，被设局折腾致死。
-  status:
-    location: xirentanwang
+  status: {}
   goals: []
   name: 贾瑞
   archived: true
@@ -192,7 +190,7 @@ agents:
   brain: llm
   profile: 薛蟠之母，王夫人之妹，携子女投靠贾府。
   status:
-    location: loc_1
+    location: daguanlou
   goals: []
   name: 薛姨妈
 - id: xuepan
@@ -200,7 +198,7 @@ agents:
   brain: llm
   profile: 薛姨妈之子，皇商之后，骄纵粗豪，曾打死冯渊。
   status:
-    location: fengziyingjia
+    location: xuepanshufang
   goals: []
   name: 薛蟠
 - id: xiren
@@ -240,7 +238,7 @@ agents:
   brain: llm
   profile: 金钏儿的妹妹，王夫人丫鬟，后为姐姐之事受宝玉款待。
   status:
-    location: loc_1
+    location: huaxuluogang
   goals: []
   name: 玉钏儿
 - id: mingyan
@@ -248,7 +246,7 @@ agents:
   brain: llm
   profile: 宝玉贴身小厮，机灵顽皮，后更名焙茗。
   status:
-    location: yihongyuan
+    location: jiafu
   goals: []
   name: 茗烟
 - id: xiaohong
@@ -256,7 +254,7 @@ agents:
   brain: llm
   profile: 原名林红玉，怡红院丫鬟，后为凤姐效力，与贾芸结缘。
   status:
-    location: fenglianzhuzhai
+    location: yihongyuan
   goals: []
   name: 小红
 - id: jiayucun
@@ -264,15 +262,14 @@ agents:
   brain: llm
   profile: 出身寒儒，攀附贾家复职升官，忘恩负义，徇情枉法。
   status:
-    location: yingtianfuyamen
+    location: jingdu
   goals: []
   name: 贾雨村
 - id: qinzhong
   kind: character
   brain: llm
   profile: 秦可卿之弟，俊秀腼腆，与宝玉交好，与智能儿偷情后夭逝。
-  status:
-    location: tiesiansi
+  status: {}
   goals: []
   name: 秦钟
   archived: true
@@ -281,7 +278,7 @@ agents:
   brain: llm
   profile: 乡村老妪，借着远亲投靠贾府，以俚俗风趣博贾母欢心。
   status:
-    location: loc_1
+    location: daguanlou
   goals: []
   name: 刘姥姥
 - id: baner
@@ -289,7 +286,7 @@ agents:
   brain: llm
   profile: 刘姥姥的外孙，随其进荣国府。
   status:
-    location: loc_1
+    location: rongguofu
   goals: []
   name: 板儿
 - id: zhouruijiade
@@ -297,7 +294,7 @@ agents:
   brain: llm
   profile: 王夫人的陪房，常牵线内外事务。
   status:
-    location: zhouruijia
+    location: jiamuyuan
   goals: []
   name: 周瑞家的
 - id: dahuangshan
@@ -580,6 +577,11 @@ agents:
   brain: rule
   profile: 秦可卿送殡途中经停的村庄。
   name: 村舍
+- id: fengzaogong
+  kind: environment
+  brain: rule
+  profile: 皇宫中元妃所住宫院。
+  name: 凤藻宫
 - id: qinjia
   kind: environment
   brain: rule
@@ -725,11 +727,6 @@ agents:
   brain: rule
   profile: 荣国府东北角上梨香院的别称，清静幽僻之所。
   name: 东北上一所幽静房舍
-- id: xuecharenshang
-  kind: environment
-  brain: rule
-  profile: 贾政外放学政时的任所，具体省份未详。
-  name: 学差任上
 - id: xuepanshufang
   kind: environment
   brain: rule
