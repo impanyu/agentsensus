@@ -105,13 +105,27 @@ class ChromaRows:
     def count(self) -> int:
         return self._collection.count()
 
+    # Chroma's SQLite backend binds one variable per row per requested column,
+    # so an unpaginated `get` over a large collection raises "too many SQL
+    # variables" (hit at ~28k rows with the 红楼 sediment). Page through
+    # instead -- the cap is per statement, not per collection.
+    _PAGE = 5000
+
     def all_rows(self) -> list[dict]:
-        if self._collection.count() == 0:
+        total = self._collection.count()
+        if total == 0:
             return []
-        got = self._collection.get(include=["documents", "metadatas", "embeddings"])
-        return [
-            {"id": i, "text": d, "metadata": m, "embedding": list(e)}
-            for i, d, m, e in zip(
-                got["ids"], got["documents"], got["metadatas"], got["embeddings"]
+        rows = []
+        for offset in range(0, total, self._PAGE):
+            got = self._collection.get(
+                include=["documents", "metadatas", "embeddings"],
+                limit=self._PAGE,
+                offset=offset,
             )
-        ]
+            rows.extend(
+                {"id": i, "text": d, "metadata": m, "embedding": list(e)}
+                for i, d, m, e in zip(
+                    got["ids"], got["documents"], got["metadatas"], got["embeddings"]
+                )
+            )
+        return rows
