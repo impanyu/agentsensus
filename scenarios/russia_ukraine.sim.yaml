@@ -4,7 +4,7 @@ agents:
 - id: putin
   kind: character
   brain: llm
-  profile: 俄罗斯总统
+  profile: Russian President
   status:
     location: moscow
   goals: []
@@ -12,7 +12,7 @@ agents:
 - id: zelenskyy
   kind: character
   brain: llm
-  profile: 乌克兰总统
+  profile: Ukrainian President
   status:
     location: kyiv
   goals: []
@@ -20,7 +20,7 @@ agents:
 - id: lavrov
   kind: character
   brain: llm
-  profile: 俄罗斯外交部长
+  profile: Russian Foreign Minister
   status:
     location: moscow
   goals: []
@@ -28,7 +28,7 @@ agents:
 - id: shoigu
   kind: character
   brain: llm
-  profile: 俄罗斯国防部长
+  profile: Russian Defense Minister
   status:
     location: moscow
   goals: []
@@ -36,7 +36,7 @@ agents:
 - id: peskov
   kind: character
   brain: llm
-  profile: 俄罗斯总统新闻秘书
+  profile: Russian Presidential Press Secretary
   status:
     location: moscow
   goals: []
@@ -44,7 +44,7 @@ agents:
 - id: pushilin
   kind: character
   brain: llm
-  profile: 顿涅茨克人民共和国领导人
+  profile: Leader of the Donetsk People's Republic
   status:
     location: donetsk
   goals: []
@@ -52,7 +52,7 @@ agents:
 - id: stremousov
   kind: character
   brain: llm
-  profile: 赫尔松州亲俄当局官员
+  profile: Pro-Russian Kherson Oblast official
   status: {}
   goals: []
   name: Kirill Stremousov
@@ -60,7 +60,7 @@ agents:
 - id: gladkov
   kind: character
   brain: llm
-  profile: 俄罗斯别尔哥罗德州州长
+  profile: Governor of Belgorod Oblast, Russia
   status:
     location: belgorod_oblast
   goals: []
@@ -68,7 +68,7 @@ agents:
 - id: sobyanin
   kind: character
   brain: llm
-  profile: 莫斯科市长
+  profile: Mayor of Moscow
   status:
     location: moscow
   goals: []
@@ -76,7 +76,7 @@ agents:
 - id: haidai
   kind: character
   brain: llm
-  profile: 乌克兰卢甘斯克州州长
+  profile: Governor of Luhansk Oblast, Ukraine
   status: {}
   goals: []
   name: Serhiy Haidai
@@ -84,7 +84,7 @@ agents:
 - id: zaluzhnyi
   kind: character
   brain: llm
-  profile: 乌克兰武装部队总司令
+  profile: Commander-in-Chief of the Armed Forces of Ukraine
   status:
     location: united_kingdom
   goals: []
@@ -92,7 +92,8 @@ agents:
 - id: syrskyi
   kind: character
   brain: llm
-  profile: 乌克兰陆军司令，后任乌克兰武装部队总司令
+  profile: Ukrainian Army Commander; later Commander-in-Chief of the Armed Forces
+    of Ukraine
   status:
     location: kyiv
   goals: []
@@ -100,7 +101,7 @@ agents:
 - id: reznikov
   kind: character
   brain: llm
-  profile: 乌克兰国防部长
+  profile: Ukrainian Defense Minister
   status: {}
   goals: []
   name: Oleksii Reznikov
@@ -108,7 +109,7 @@ agents:
 - id: klitschko
   kind: character
   brain: llm
-  profile: 基辅市长
+  profile: Mayor of Kyiv
   status:
     location: kyiv
   goals: []
@@ -116,7 +117,7 @@ agents:
 - id: podolyak
   kind: character
   brain: llm
-  profile: 乌克兰总统顾问
+  profile: Advisor to the Ukrainian President
   status:
     location: kyiv
   goals: []
@@ -124,7 +125,7 @@ agents:
 - id: yermak
   kind: character
   brain: llm
-  profile: 乌克兰总统办公室主任
+  profile: Head of the Office of the President of Ukraine
   status:
     location: kyiv
   goals: []
@@ -132,7 +133,7 @@ agents:
 - id: kuleba
   kind: character
   brain: llm
-  profile: 乌克兰外交部长
+  profile: Ukrainian Foreign Minister
   status: {}
   goals: []
   name: Dmytro Kuleba
@@ -140,7 +141,7 @@ agents:
 - id: kyrylenko
   kind: character
   brain: llm
-  profile: 乌克兰顿涅茨克州州长
+  profile: Governor of Donetsk Oblast, Ukraine
   status:
     location: kyiv
   goals: []
@@ -148,7 +149,7 @@ agents:
 - id: zhyvytskyi
   kind: character
   brain: llm
-  profile: 乌克兰苏梅州州长
+  profile: Governor of Sumy Oblast, Ukraine
   status: {}
   goals: []
   name: Dmytro Zhyvytskyi
@@ -156,7 +157,7 @@ agents:
 - id: erdogan
   kind: character
   brain: llm
-  profile: 土耳其总统
+  profile: President of Turkey
   status:
     location: turkey
   goals: []
@@ -164,7 +165,7 @@ agents:
 - id: reznich
   kind: character
   brain: llm
-  profile: 乌克兰第聂伯罗彼得罗夫斯克州州长
+  profile: Governor of Dnipropetrovsk Oblast, Ukraine
   status:
     location: dnipro
   goals: []
@@ -172,7 +173,7 @@ agents:
 - id: guterres
   kind: character
   brain: llm
-  profile: 联合国秘书长
+  profile: UN Secretary-General
   status:
     location: new_york
   goals: []
@@ -180,7 +181,7 @@ agents:
 - id: starovoyt
   kind: character
   brain: llm
-  profile: 俄罗斯库尔斯克州州长
+  profile: Governor of Kursk Oblast, Russia
   status: {}
   goals: []
   name: Roman Starovoyt
@@ -188,7 +189,7 @@ agents:
 - id: austin
   kind: character
   brain: llm
-  profile: 美国国防部长
+  profile: United States Secretary of Defense
   status: {}
   goals: []
   name: Lloyd Austin
@@ -196,7 +197,7 @@ agents:
 - id: johnson
   kind: character
   brain: llm
-  profile: 英国首相
+  profile: UK Prime Minister
   status: {}
   goals: []
   name: Boris Johnson
@@ -204,7 +205,7 @@ agents:
 - id: bogomaz
   kind: character
   brain: llm
-  profile: 俄罗斯布良斯克州州长
+  profile: Governor of Bryansk Oblast, Russia
   status:
     location: bryansk_oblast
   goals: []
@@ -212,7 +213,7 @@ agents:
 - id: radakin
   kind: character
   brain: llm
-  profile: 英国国防参谋长
+  profile: UK Chief of the Defence Staff
   status:
     location: united_kingdom
   goals: []
@@ -220,7 +221,7 @@ agents:
 - id: konashenkov
   kind: character
   brain: llm
-  profile: 俄罗斯国防部发言人
+  profile: Spokesperson for the Russian Ministry of Defence
   status:
     location: moscow
   goals: []
@@ -228,7 +229,7 @@ agents:
 - id: wallace
   kind: character
   brain: llm
-  profile: 英国国防大臣
+  profile: UK Defence Secretary
   status: {}
   goals: []
   name: Ben Wallace
@@ -236,7 +237,7 @@ agents:
 - id: grossi
   kind: character
   brain: llm
-  profile: 国际原子能机构总干事
+  profile: Director General, IAEA
   status:
     location: zaporizhzhia_npp
   goals: []
@@ -244,7 +245,7 @@ agents:
 - id: scholz
   kind: character
   brain: llm
-  profile: 德国总理
+  profile: Chancellor of Germany
   status: {}
   goals: []
   name: Olaf Scholz
@@ -252,7 +253,7 @@ agents:
 - id: biden
   kind: character
   brain: llm
-  profile: 美国总统
+  profile: President of the United States
   status: {}
   goals: []
   name: Joe Biden
@@ -260,7 +261,7 @@ agents:
 - id: stoltenberg
   kind: character
   brain: llm
-  profile: 北约秘书长
+  profile: NATO Secretary-General
   status:
     location: brussels
   goals: []
@@ -268,7 +269,7 @@ agents:
 - id: kirby_john
   kind: character
   brain: llm
-  profile: 美国国家安全委员会战略沟通协调员
+  profile: US National Security Council Coordinator for Strategic Communications
   status: {}
   goals: []
   name: John Kirby
@@ -276,7 +277,7 @@ agents:
 - id: patriarch_kirill
   kind: character
   brain: llm
-  profile: 俄罗斯东正教大牧首
+  profile: Patriarch of the Russian Orthodox Church
   status:
     location: moscow
   goals: []
@@ -284,7 +285,7 @@ agents:
 - id: gerasimov
   kind: character
   brain: llm
-  profile: 俄罗斯武装力量总参谋长
+  profile: Chief of the General Staff of the Russian Armed Forces
   status:
     location: moscow
   goals: []
@@ -292,7 +293,7 @@ agents:
 - id: pistorius
   kind: character
   brain: llm
-  profile: 德国国防部长
+  profile: German Defense Minister
   status:
     location: germany
   goals: []
@@ -300,7 +301,7 @@ agents:
 - id: sunak
   kind: character
   brain: llm
-  profile: 英国首相
+  profile: UK Prime Minister
   status: {}
   goals: []
   name: Rishi Sunak
@@ -308,7 +309,7 @@ agents:
 - id: aksyonov
   kind: character
   brain: llm
-  profile: 俄罗斯任命的克里米亚领导人
+  profile: Russia-appointed leader of Crimea
   status:
     location: crimea
   goals: []
@@ -316,7 +317,7 @@ agents:
 - id: prokudin
   kind: character
   brain: llm
-  profile: 乌克兰赫尔松州州长
+  profile: Governor of Kherson Oblast, Ukraine
   status:
     location: kherson_oblast
   goals: []
@@ -324,7 +325,7 @@ agents:
 - id: razvozhayev
   kind: character
   brain: llm
-  profile: 俄罗斯任命的塞瓦斯托波尔市长
+  profile: Russian-appointed mayor of Sevastopol
   status:
     location: sevastopol
   goals: []
@@ -332,7 +333,7 @@ agents:
 - id: syniehubov
   kind: character
   brain: llm
-  profile: 乌克兰哈尔科夫州州长
+  profile: Governor of Kharkiv Oblast, Ukraine
   status:
     location: kharkiv
   goals: []
@@ -340,7 +341,7 @@ agents:
 - id: klymenko
   kind: character
   brain: llm
-  profile: 乌克兰内政部长
+  profile: Ukrainian Interior Minister
   status:
     location: kyiv
   goals: []
@@ -348,7 +349,7 @@ agents:
 - id: budanov
   kind: character
   brain: llm
-  profile: 乌克兰国防部情报总局局长
+  profile: Head of Ukraine's Defense Ministry Intelligence Directorate
   status:
     location: kyiv
   goals: []
@@ -356,7 +357,7 @@ agents:
 - id: oleshchuk
   kind: character
   brain: llm
-  profile: 乌克兰空军司令
+  profile: Commander of the Ukrainian Air Force
   status:
     location: kyiv
   goals: []
@@ -364,363 +365,365 @@ agents:
 - id: kyiv
   kind: environment
   brain: rule
-  profile: 乌克兰首都
+  profile: Capital of Ukraine
   name: Kyiv
 - id: kharkiv
   kind: environment
   brain: rule
-  profile: 乌克兰哈尔科夫州首府
+  profile: Capital of Kharkiv Oblast, Ukraine
   name: Kharkiv
 - id: mariupol
   kind: environment
   brain: rule
-  profile: 乌克兰顿涅茨克州城市
+  profile: City in Donetsk Oblast, Ukraine
   name: Mariupol
 - id: odesa
   kind: environment
   brain: rule
-  profile: 乌克兰黑海沿岸港口城市
+  profile: Ukrainian Black Sea port city
   name: Odesa
 - id: mykolaiv
   kind: environment
   brain: rule
-  profile: 乌克兰南部城市
+  profile: Southern Ukrainian city
   name: Mykolaiv
 - id: kherson
   kind: environment
   brain: rule
-  profile: 乌克兰南部城市
+  profile: Southern Ukrainian city
   name: Kherson
 - id: lviv
   kind: environment
   brain: rule
-  profile: 乌克兰西部城市
+  profile: Western Ukrainian city
   name: Lviv
 - id: dnipro
   kind: environment
   brain: rule
-  profile: 乌克兰中部城市
+  profile: Central Ukrainian city
   name: Dnipro
 - id: zaporizhzhia
   kind: environment
   brain: rule
-  profile: 乌克兰东南部城市
+  profile: Southeastern Ukrainian city
   name: Zaporizhzhia
 - id: donetsk
   kind: environment
   brain: rule
-  profile: 乌克兰东部城市，顿涅茨克州首府
+  profile: Eastern Ukrainian city, capital of Donetsk Oblast
   name: Donetsk
 - id: luhansk
   kind: environment
   brain: rule
-  profile: 乌克兰东部城市，卢甘斯克州首府
+  profile: Eastern Ukrainian city, capital of Luhansk Oblast
   name: Luhansk
 - id: sevastopol
   kind: environment
   brain: rule
-  profile: 克里米亚港口城市
+  profile: Crimean port city
   name: Sevastopol
 - id: moscow
   kind: environment
   brain: rule
-  profile: 俄罗斯首都
+  profile: Capital of Russia
   name: Moscow
 - id: belgorod
   kind: environment
   brain: rule
-  profile: 俄罗斯别尔哥罗德州首府
+  profile: Administrative center of Belgorod Oblast, Russia
   name: Belgorod
 - id: poland
   kind: environment
   brain: rule
-  profile: 国家
+  profile: Country
   name: Poland
 - id: united_states
   kind: environment
   brain: rule
-  profile: 国家
+  profile: Country
   name: United States
 - id: germany
   kind: environment
   brain: rule
-  profile: 国家
+  profile: Country
   name: Germany
 - id: turkey
   kind: environment
   brain: rule
-  profile: 国家
+  profile: Country
   name: Turkey
 - id: united_kingdom
   kind: environment
   brain: rule
-  profile: 国家
+  profile: Country
   name: United Kingdom
 - id: ukraine
   kind: environment
   brain: rule
-  profile: 国家
+  profile: Country
   name: Ukraine
 - id: russia
   kind: environment
   brain: rule
-  profile: 国家
+  profile: Country
   name: Russia
 - id: crimea
   kind: environment
   brain: rule
-  profile: 克里米亚半岛
+  profile: Crimean Peninsula
   name: Crimea
 - id: donbas
   kind: environment
   brain: rule
-  profile: 顿巴斯地区
+  profile: Donbas region
   name: Donbas
 - id: black_sea
   kind: environment
   brain: rule
-  profile: 黑海
+  profile: Black Sea
   name: Black Sea
 - id: dnieper_river
   kind: environment
   brain: rule
-  profile: 第聂伯河
+  profile: Dnieper River
   name: Dnieper River
 - id: sumy_oblast
   kind: environment
   brain: rule
-  profile: 乌克兰苏梅州
+  profile: Sumy Oblast, Ukraine
   name: Sumy Oblast
 - id: zaporizhzhia_npp
   kind: environment
   brain: rule
-  profile: 乌克兰扎波罗热核电站
+  profile: Zaporizhzhia Nuclear Power Plant, Ukraine
   name: Zaporizhzhia Nuclear Power Plant
 - id: antalya
   kind: environment
   brain: rule
-  profile: 土耳其城市
+  profile: Turkish city
   name: Antalya
 - id: kherson_oblast
   kind: environment
   brain: rule
-  profile: 乌克兰赫尔松州
+  profile: Kherson Oblast, Ukraine
   name: Kherson Oblast
 - id: chernihiv
   kind: environment
   brain: rule
-  profile: 乌克兰北部城市
+  profile: Northern Ukrainian city
   name: Chernihiv
 - id: sumy
   kind: environment
   brain: rule
-  profile: 乌克兰苏梅州首府
+  profile: Capital of Sumy Oblast, Ukraine
   name: Sumy
 - id: berdiansk
   kind: environment
   brain: rule
-  profile: 乌克兰扎波罗热州港口城市
+  profile: Port city in Zaporizhzhia Oblast, Ukraine
   name: Berdiansk
 - id: kremenchuk
   kind: environment
   brain: rule
-  profile: 乌克兰波尔塔瓦州城市
+  profile: City in Poltava Oblast, Ukraine
   name: Kremenchuk
 - id: kramatorsk
   kind: environment
   brain: rule
-  profile: 乌克兰顿涅茨克州城市
+  profile: City in Donetsk Oblast, Ukraine
   name: Kramatorsk
 - id: azovstal
   kind: environment
   brain: rule
-  profile: 乌克兰马里乌波尔亚速钢铁厂
+  profile: Azovstal steel plant in Mariupol, Ukraine
   name: Azovstal Iron and Steel Works
 - id: sievierodonetsk
   kind: environment
   brain: rule
-  profile: 乌克兰卢甘斯克州城市
+  profile: City in Luhansk Oblast, Ukraine
   name: Sievierodonetsk
 - id: sloviansk
   kind: environment
   brain: rule
-  profile: 乌克兰顿涅茨克州城市
+  profile: City in Donetsk Oblast, Ukraine
   name: Sloviansk
 - id: lyman
   kind: environment
   brain: rule
-  profile: 乌克兰顿涅茨克州城市
+  profile: City in Donetsk Oblast, Ukraine
   name: Lyman
 - id: luhansk_oblast
   kind: environment
   brain: rule
-  profile: 乌克兰卢甘斯克州
+  profile: Luhansk Oblast, Ukraine
   name: Luhansk Oblast
 - id: kharkiv_oblast
   kind: environment
   brain: rule
-  profile: 乌克兰哈尔科夫州
+  profile: Kharkiv Oblast, Ukraine
   name: Kharkiv Oblast
 - id: bryansk_oblast
   kind: environment
   brain: rule
-  profile: 俄罗斯布良斯克州
+  profile: Bryansk Oblast, Russia
   name: Bryansk Oblast
 - id: donetsk_oblast
   kind: environment
   brain: rule
-  profile: 乌克兰顿涅茨克州
+  profile: Donetsk Oblast, Ukraine
   name: Donetsk Oblast
 - id: odesa_oblast
   kind: environment
   brain: rule
-  profile: 乌克兰敖德萨州
+  profile: Odesa Oblast, Ukraine
   name: Odesa Oblast
 - id: dnipropetrovsk_oblast
   kind: environment
   brain: rule
-  profile: 乌克兰第聂伯罗彼得罗夫斯克州
+  profile: Dnipropetrovsk Oblast, Ukraine
   name: Dnipropetrovsk Oblast
 - id: bakhmut
   kind: environment
   brain: rule
-  profile: 乌克兰顿涅茨克州城市
+  profile: City in Donetsk Oblast, Ukraine
   name: Bakhmut
 - id: eastern_ukraine
   kind: environment
   brain: rule
-  profile: 乌克兰东部地区
+  profile: Eastern Ukraine
   name: eastern Ukraine
 - id: vovchansk
   kind: environment
   brain: rule
-  profile: 乌克兰哈尔科夫州城市
+  profile: City in Kharkiv Oblast, Ukraine
   name: Vovchansk
 - id: nikopol
   kind: environment
   brain: rule
-  profile: 乌克兰第聂伯罗彼得罗夫斯克州城市
+  profile: City in Dnipropetrovsk Oblast, Ukraine
   name: Nikopol
 - id: crimean_bridge
   kind: environment
   brain: rule
-  profile: 克里米亚大桥
+  profile: Crimean Bridge
   name: Crimean Bridge
 - id: kursk_oblast
   kind: environment
   brain: rule
-  profile: 俄罗斯库尔斯克州
+  profile: Kursk Oblast, Russia
   name: Kursk Oblast
 - id: melitopol
   kind: environment
   brain: rule
-  profile: 乌克兰扎波罗热州城市
+  profile: City in Zaporizhzhia Oblast, Ukraine
   name: Melitopol
 - id: kryvyi_rih
   kind: environment
   brain: rule
-  profile: 乌克兰第聂伯罗彼得罗夫斯克州城市
+  profile: City in Dnipropetrovsk Oblast, Ukraine
   name: Kryvyi Rih
 - id: belgorod_oblast
   kind: environment
   brain: rule
-  profile: 俄罗斯别尔哥罗德州
+  profile: Belgorod Oblast, Russia
   name: Belgorod Oblast
 - id: zaporizhzhia_oblast
   kind: environment
   brain: rule
-  profile: 乌克兰扎波罗热州
+  profile: Zaporizhzhia Oblast, Ukraine
   name: Zaporizhzhia Oblast
 - id: hungary
   kind: environment
   brain: rule
-  profile: 匈牙利
+  profile: Hungary
   name: Hungary
 - id: pokrovsk
   kind: environment
   brain: rule
-  profile: 乌克兰顿涅茨克州城市
+  profile: City in Donetsk Oblast, Ukraine
   name: Pokrovsk
 - id: khmelnytskyi_oblast
   kind: environment
   brain: rule
-  profile: 乌克兰赫梅利尼茨基州
+  profile: Khmelnytskyi Oblast, Ukraine
   name: Khmelnytskyi Oblast
 - id: avdiivka
   kind: environment
   brain: rule
-  profile: 乌克兰顿涅茨克州城市
+  profile: City in Donetsk Oblast, Ukraine
   name: Avdiivka
 - id: vnukovo_airport
   kind: environment
   brain: rule
-  profile: 俄罗斯莫斯科伏努科沃国际机场
+  profile: Vnukovo International Airport, Moscow, Russia
   name: Vnukovo International Airport
 - id: rostov_oblast
   kind: environment
   brain: rule
-  profile: 俄罗斯罗斯托夫州
+  profile: Rostov Oblast, Russia
   name: Rostov Oblast
 - id: domodedovo_airport
   kind: environment
   brain: rule
-  profile: 莫斯科多莫杰多沃机场
+  profile: Domodedovo Airport, Moscow, Russia
   name: Domodedovo airports
 - id: sheremetyevo_airport
   kind: environment
   brain: rule
-  profile: 莫斯科谢列梅捷沃机场
+  profile: Sheremetyevo Airport, Moscow, Russia
   name: Sheremetyevo
 - id: zhunovsky_airport
   kind: environment
   brain: rule
-  profile: 莫斯科茹科夫斯基机场
+  profile: Zhukovsky Airport, Moscow, Russia
   name: Zhunovsky airports
 - id: mykolaiv_oblast
   kind: environment
   brain: rule
-  profile: 乌克兰尼古拉耶夫州
+  profile: Mykolaiv Oblast, Ukraine
   name: Mykolaiv Oblast
 - id: kyiv_oblast
   kind: environment
   brain: rule
-  profile: 乌克兰基辅州
+  profile: Kyiv Oblast, Ukraine
   name: Kyiv Oblast
 - id: moscow_oblast
   kind: environment
   brain: rule
-  profile: 俄罗斯莫斯科州
+  profile: Moscow Oblast, Russia
   name: Moscow Oblast
 - id: krasnodar_krai
   kind: environment
   brain: rule
-  profile: 俄罗斯克拉斯诺达尔边疆区
+  profile: Krasnodar Krai, Russia
   name: Krasnodar Krai
 - id: nestryha_island
   kind: environment
   brain: rule
-  profile: 乌克兰第聂伯河三角洲岛屿
+  profile: Island in the Dnipro River delta, Ukraine
   name: Nestryha Island
 - id: brussels
   kind: environment
   brain: rule
   name: Brussels
-  profile: 比利时首都,北约与欧盟总部所在地
+  profile: Capital of Belgium; location of NATO and EU headquarters
 - id: new_york
   kind: environment
   brain: rule
   name: New York
-  profile: 联合国总部所在地
+  profile: Location of the United Nations headquarters
 - id: vienna
   kind: environment
   brain: rule
   name: Vienna
-  profile: 奥地利首都,国际原子能机构总部所在地
+  profile: Capital of Austria; location of the International Atomic Energy Agency
+    headquarters
 - id: russian_forces
   kind: character
   brain: llm
   name: Russian Armed Forces
-  profile: 俄罗斯武装力量:俄军(陆海空天)整体,执行入侵作战、导弹与无人机打击
+  profile: 'Russian Armed Forces: all service branches (land, sea, air, space); invasion
+    operations, missile and drone strikes'
   goals: []
   status:
     location: russia
@@ -728,7 +731,7 @@ agents:
   kind: character
   brain: llm
   name: Russian Ministry of Defence
-  profile: 俄罗斯国防部:战况通报与军事决策
+  profile: 'Russian Ministry of Defence: military reporting and decision-making'
   goals: []
   status:
     location: moscow
@@ -736,7 +739,8 @@ agents:
   kind: character
   brain: llm
   name: Kremlin
-  profile: 克里姆林宫/俄联邦政府:政治决策中枢(动员令、并吞、谈判立场)
+  profile: 'The Kremlin / Russian government: political decision-making center (mobilization
+    orders, annexation, negotiation positions)'
   goals: []
   status:
     location: moscow
@@ -744,7 +748,7 @@ agents:
   kind: character
   brain: llm
   name: Russian Black Sea Fleet
-  profile: 俄黑海舰队:黑海作战与封锁(莫斯科号、塞瓦斯托波尔)
+  profile: 'Russian Black Sea Fleet: Black Sea operations and blockade (Moskva, Sevastopol)'
   goals: []
   status:
     location: sevastopol
@@ -752,7 +756,7 @@ agents:
   kind: character
   brain: llm
   name: Wagner Group
-  profile: 瓦格纳雇佣兵集团:巴赫穆特攻坚、2023-06 兵变
+  profile: 'Wagner Group: Bakhmut assault, June 2023 mutiny'
   goals: []
   status: {}
   archived: true
@@ -760,7 +764,8 @@ agents:
   kind: character
   brain: llm
   name: FSB
-  profile: 俄联邦安全局:情报与国内安全(克里米亚大桥调查、抓捕)
+  profile: 'FSB (Federal Security Service): intelligence and domestic security (Crimean
+    Bridge investigation, arrests)'
   goals: []
   status:
     location: russia
@@ -768,7 +773,8 @@ agents:
   kind: character
   brain: llm
   name: Armed Forces of Ukraine
-  profile: 乌克兰武装部队:防御反攻、防空拦截、战报主体
+  profile: 'Ukrainian Armed Forces: defense and counteroffensive, air defense interceptions,
+    primary combat reporting'
   goals: []
   status:
     location: nestryha_island
@@ -776,7 +782,7 @@ agents:
   kind: character
   brain: llm
   name: Ministry of Defence of Ukraine
-  profile: 乌克兰国防部:军事政策与战况通报
+  profile: 'Ukrainian Ministry of Defense: military policy and situation reports'
   goals: []
   status:
     location: kyiv
@@ -784,7 +790,8 @@ agents:
   kind: character
   brain: llm
   name: Government of Ukraine
-  profile: 乌克兰政府:民事决策(戒严、外交、重建、求援)
+  profile: 'Ukrainian Government: civil decisions (martial law, diplomacy, reconstruction,
+    appeals for aid)'
   goals: []
   status:
     location: kyiv
@@ -792,7 +799,8 @@ agents:
   kind: character
   brain: llm
   name: Defence Intelligence of Ukraine (GUR)
-  profile: 乌国防情报总局:军事情报与特种行动
+  profile: 'GUR (Main Directorate of Intelligence): military intelligence and special
+    operations'
   goals: []
   status:
     location: kyiv
@@ -800,7 +808,7 @@ agents:
   kind: character
   brain: llm
   name: Security Service of Ukraine (SBU)
-  profile: 乌克兰安全局:反谍与安全行动
+  profile: 'SBU (Security Service of Ukraine): counterintelligence and security operations'
   goals: []
   status:
     location: kyiv
@@ -808,7 +816,7 @@ agents:
   kind: character
   brain: llm
   name: Azov Regiment
-  profile: 亚速团:马里乌波尔/亚速钢铁厂防御战当事部队
+  profile: 'Azov Regiment: Mariupol/Azovstal defense force'
   goals: []
   status:
     location: donetsk_oblast
@@ -816,7 +824,8 @@ agents:
   kind: character
   brain: llm
   name: NATO
-  profile: 北约:军援协调、东翼增兵、瑞典芬兰入盟进程
+  profile: 'NATO: military aid coordination, Eastern flank reinforcement, Sweden/Finland
+    accession process'
   goals: []
   status:
     location: brussels
@@ -824,7 +833,7 @@ agents:
   kind: character
   brain: llm
   name: European Union
-  profile: 欧盟:制裁方案、财政援助、候选国地位
+  profile: 'EU: sanctions packages, financial aid, candidate country status'
   goals: []
   status:
     location: brussels
@@ -832,7 +841,7 @@ agents:
   kind: character
   brain: llm
   name: United Nations
-  profile: 联合国:决议、黑海粮食协议斡旋、人道通道
+  profile: 'UN: resolutions, Black Sea grain deal mediation, humanitarian corridors'
   goals: []
   status:
     location: new_york
@@ -840,7 +849,7 @@ agents:
   kind: character
   brain: llm
   name: IAEA
-  profile: 国际原子能机构:扎波罗热核电站安全危机核心机构
+  profile: 'IAEA: central agency for the Zaporizhzhia nuclear power plant safety crisis'
   goals: []
   status:
     location: vienna

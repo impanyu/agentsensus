@@ -264,8 +264,14 @@ async def generate_screenplay(
     user_template = _USER_TEMPLATE.get(language, _USER_TEMPLATE["en"])
     constraint_template = _CONSTRAINT_TEMPLATE.get(language, _CONSTRAINT_TEMPLATE["en"])
 
+    # A run's event log can be mixed-language (see the content-language note in
+    # society/brains/llm_brain.py): runs made before that directive existed
+    # contain memories in a language other than the scenario's. Rendering a
+    # screenplay in the scenario's own language is therefore also a
+    # normalization step, so the instruction applies whenever a target language
+    # is named -- including when it equals `language`.
     target_instruction = ""
-    if target_language and target_language != language:
+    if target_language:
         target_instruction = (
             _TARGET_LANGUAGE_INSTRUCTION.get(
                 target_language, _TARGET_LANGUAGE_INSTRUCTION["en"]

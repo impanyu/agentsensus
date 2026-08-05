@@ -8,6 +8,29 @@ SKILL_DIR = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "skil
 
 _MAX_ATTEMPTS = 3
 
+# Content-language directive. Without it the language of an agent's speech and
+# memories is only implicit -- it follows whatever the profile and the recalled
+# memories happen to be written in -- which drifts when the two disagree (a
+# Chinese profile over an English sediment produced 62% Chinese memories in the
+# English Hamlet scenario, and Russian-language memories in Russia-Ukraine as
+# agents adopted their character's national language). The action-format block
+# below governs the JSON envelope only; this one governs the content inside it.
+_LANGUAGE_INSTRUCTIONS = {
+    "zh": (
+        "\n\n## 内容语言(严格遵守)\n"
+        "所有内容——对白、记忆文本、动作描述、给他人的消息——一律用中文书写,"
+        "即使检索到的记忆或角色设定中出现其他语言。专有名词保持中文表述。\n"
+    ),
+    "en": (
+        "\n\n## Content Language (follow strictly)\n"
+        "Write ALL content — speech, memory text, action descriptions, "
+        "messages to others — in English, even when retrieved memories or "
+        "your profile appear in another language, and regardless of your "
+        "character's own nationality. Keep names in their standard English "
+        "or romanized form.\n"
+    ),
+}
+
 _FORMAT_INSTRUCTIONS = {
     "zh": (
         "\n\n## 输出格式(严格遵守)\n"
@@ -69,10 +92,17 @@ class LLMBrain(Brain):
 
     def _build_system_prompt(self) -> str:
         format_instructions = _FORMAT_INSTRUCTIONS.get(self.language, _FORMAT_INSTRUCTIONS["en"])
+        language_instructions = _LANGUAGE_INSTRUCTIONS.get(
+            self.language, _LANGUAGE_INSTRUCTIONS["en"]
+        )
         parts = [self.profile, self._skill_text]
         if self.extra_skill:
             parts.append(self.extra_skill)
-        return "\n\n".join(p for p in parts if p) + format_instructions
+        return (
+            "\n\n".join(p for p in parts if p)
+            + language_instructions
+            + format_instructions
+        )
 
     @staticmethod
     def _extract_json_obj(text: str) -> dict:

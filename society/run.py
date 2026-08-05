@@ -330,6 +330,9 @@ def main(argv=None):
             if a.get("id")
         }
         events = EventLog.load(os.path.join(args.out, "events.jsonl"))
+        # Pass the scenario language as the target as well: the event log may
+        # be mixed-language, and the screenplay is the scenario's canonical
+        # rendering, so it is always normalized to that one language.
         asyncio.run(
             generate_screenplay(
                 events,
@@ -337,6 +340,7 @@ def main(argv=None):
                 out_path=os.path.join(args.out, "screenplay.md"),
                 language=language,
                 names=names,
+                target_language=language,
             )
         )
         if args.screenplay_lang and args.screenplay_lang != language:
