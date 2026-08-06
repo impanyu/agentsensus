@@ -26,11 +26,11 @@ FIGS = {
     "rc_growth": "runs/paper_figs_rc40/growth_q.png",
     "rc_latency": "runs/paper_figs_rc40/latency_q.png",
     "rc_relpanels": "runs/rc40full_consensus/case_study/relationship_panels_q.png",
-    "hl_simfoot": "runs/paper_figs_hl20/sim_footprint_q.png",
-    "hl_structure": "runs/paper_figs_hl20/structure_q.png",
-    "hl_growth": "runs/paper_figs_hl20/growth_q.png",
-    "hl_latency": "runs/paper_figs_hl20/latency_q.png",
-    "hl_relpanels": "runs/hl20_consensus/case_study/relationship_panels_q.png",
+    "hl_simfoot": "runs/paper_figs_hl30/sim_footprint_q.png",
+    "hl_structure": "runs/paper_figs_hl30/structure_q.png",
+    "hl_growth": "runs/paper_figs_hl30/growth_q.png",
+    "hl_latency": "runs/paper_figs_hl30/latency_q.png",
+    "hl_relpanels": "runs/hl30full_consensus/case_study/relationship_panels_q.png",
 }
 IMG = {k: "data:image/png;base64," + base64.b64encode(open(v, "rb").read()).decode()
        for k, v in FIGS.items()}
@@ -52,7 +52,7 @@ RUC = RU["consensus"]; RUR = RU["relations"]; RUE = RU["auto_expand"]
 RC = _scrub(json.load(open("runs/paper_stats_rc40.json", encoding="utf-8")))
 RCC = RC["consensus"]; RCR = RC["relations"]; RCE = RC["auto_expand"]
 rc_mex = RC["merge_examples"]
-HL = _scrub(json.load(open("runs/paper_stats_hl20.json", encoding="utf-8")))
+HL = _scrub(json.load(open("runs/paper_stats_hl30.json", encoding="utf-8")))
 HLC = HL["consensus"]; HLR = HL["relations"]; HLE = HL["auto_expand"]
 hl_mex = HL["merge_examples"]
 Q = json.load(open("runs/results_g40.json", encoding="utf-8"))  # quality scored at the 40-tick checkpoint
@@ -73,7 +73,7 @@ def _slim_graphs(path):
 GRAPHS_JSON = _slim_graphs("runs/g80full_consensus/case_study/graphs.json")
 GRAPHS_RU_JSON = _slim_graphs("runs/ru40full_consensus/case_study/graphs.json")
 GRAPHS_RC_JSON = _slim_graphs("runs/rc40full_consensus/case_study/graphs.json")
-GRAPHS_HL_JSON = _slim_graphs("runs/hl20_consensus/case_study/graphs.json")
+GRAPHS_HL_JSON = _slim_graphs("runs/hl30full_consensus/case_study/graphs.json")
 
 def cell(k, key):
     a = Q[k]["agg"][key]
@@ -201,7 +201,7 @@ HTML = CSS + f"""
 <h1>Agentsensus: Consensus-Compressed Shared Memory for<br>Multi-Agent Story-World Simulation</h1>
 <p class="sub">A shared long-term memory that merges agents&rsquo; equivalent memories into multi-witness records and self-organizes into a navigable memory graph.</p>
 <div class="byline">
-  <span><b>Scenarios</b> 三国演义 (80 ticks, 33 active agents) &middot; Russia&ndash;Ukraine (40 ticks, 47 active) &middot; 红楼梦 (40 ticks, 34 active) &middot; Hamlet (20 ticks, 16 active)</span>
+  <span><b>Scenarios</b> 三国演义 (80 ticks, 33 active agents) &middot; Russia&ndash;Ukraine (40 ticks, 47 active) &middot; 红楼梦 (40 ticks, 34 active) &middot; Hamlet (30 ticks, 16 active)</span>
   <span><b>Checkpointing</b> every 20 ticks</span>
   <span><b>Model</b> gpt-5-mini</span>
 </div>
@@ -269,7 +269,7 @@ HTML = CSS + f"""
 
 <p>The third scenario returns to fiction in a different register: <b>红楼梦</b> (<i>Dream of the Red Chamber</i>), chapters 1&ndash;40 sedimented onto 152 registry characters (6,506 consensus events; chapters 41&ndash;80 held out). The active cast is the 37 characters above the memory threshold (34 living; 秦可卿, 贾瑞 and 秦钟, dead by chapter 40, stay archived owners), and the boundary state is a freeze-frame of chapter 40&rsquo;s garden banquet &mdash; 贾母 and 刘姥姥 at 大观楼, the touring party at 蘅芜苑, the musicians at 藕香榭 &mdash; grounded per character in the sediment and manually verified. Where 三国 is war and statecraft among factions, 红楼 is dense domestic society &mdash; one household, fine-grained relationships &mdash; a different social topology for the same mechanisms. All four backends run the same 40-tick simulation under the identical fairness protocol.</p>
 
-<p>The fourth scenario is deliberately the smallest: <b>Hamlet</b>, Acts&nbsp;1&ndash;3 sedimented onto a 22-character registry (1,135 consensus events; Acts&nbsp;4&ndash;5 held out). Sixteen characters pass the memory threshold, plus Fortinbras, who owns no sediment memories at all &mdash; he never appears on stage before Act&nbsp;4 &mdash; but is retained because the continuation is his; England is likewise retained as an environment because it is where the sealed commission leads. Two characters are archived at the boundary: Polonius, killed behind the arras in 3.4, and the Ghost, absent from the canon after that scene. Where the other three worlds have dozens of agents spread over a map, Hamlet is a chamber drama &mdash; sixteen agents in one castle, most scenes a two-person exchange &mdash; which makes it the sharpest test of whether the mechanisms need scale to show anything. All four backends run the same 20-tick simulation under the identical fairness protocol.</p>
+<p>The fourth scenario is deliberately the smallest: <b>Hamlet</b>, Acts&nbsp;1&ndash;3 sedimented onto a 22-character registry (1,135 consensus events; Acts&nbsp;4&ndash;5 held out). Sixteen characters pass the memory threshold, plus Fortinbras, who owns no sediment memories at all &mdash; he never appears on stage before Act&nbsp;4 &mdash; but is retained because the continuation is his; England is likewise retained as an environment because it is where the sealed commission leads. Two characters are archived at the boundary: Polonius, killed behind the arras in 3.4, and the Ghost, absent from the canon after that scene. Where the other three worlds have dozens of agents spread over a map, Hamlet is a chamber drama &mdash; sixteen agents in one castle, most scenes a two-person exchange &mdash; which makes it the sharpest test of whether the mechanisms need scale to show anything. All four backends run the same 30-tick simulation under the identical fairness protocol.</p>
 
 <h3>4.2 &nbsp;Baselines</h3>
 <ul class="body">
@@ -314,7 +314,7 @@ HTML = CSS + f"""
 <tr><td>generative-agents</td><td>{RC['generative_agents']['sim_new']}</td><td>0</td><td>0</td></tr>
 <tr><td>g-memory</td><td>{RC['g_memory']['sim_new']}</td><td>0</td><td>0</td></tr>
 <tr><td>collaborative</td><td>{RC['collaborative']['sim_new']}</td><td>0</td><td>0</td></tr>
-<tr class="grp"><td colspan="4">Hamlet &mdash; fiction, 20 ticks</td></tr>
+<tr class="grp"><td colspan="4">Hamlet &mdash; fiction, 30 ticks</td></tr>
 <tr class="hi"><td>consensus</td><td class="best">{HLC['sim_new']}</td><td class="best">{HLC['multi_owner']} ({HLC['sh_pct']}%)</td><td class="best">{HLC['aff_pct']}%</td></tr>
 <tr><td>generative-agents</td><td>{HL['generative_agents']['sim_new']}</td><td>0</td><td>0</td></tr>
 <tr><td>g-memory</td><td>{HL['g_memory']['sim_new']}</td><td>0</td><td>0</td></tr>
@@ -362,9 +362,9 @@ HTML = CSS + f"""
 <figure class="two">
   <img src="{IMG['hl_simfoot']}" alt="HL sim footprint">
   <img src="{IMG['hl_structure']}" alt="HL memory structure">
-  <figcaption><b>Figure 5. Footprint and structure &mdash; Hamlet (20 ticks).</b> Same panels as Figures 2&ndash;4 on the smallest world: entries written under identical atomization (left) and the share of each backend&rsquo;s sim memories that are shared and linked (right).</figcaption>
+  <figcaption><b>Figure 5. Footprint and structure &mdash; Hamlet (30 ticks).</b> Same panels as Figures 2&ndash;4 on the smallest world: entries written under identical atomization (left) and the share of each backend&rsquo;s sim memories that are shared and linked (right).</figcaption>
 </figure>
-<p><b>Discussion.</b> Sixteen agents and twenty ticks are enough: consensus writes {HLC['sim_new']} entries against {HL['generative_agents']['sim_new']}&ndash;{HL['g_memory']['sim_new']}, and its structural columns land at {HLC['sh_pct']}% shared and {HLC['aff_pct']}% linked &mdash; within a point of 三国&rsquo;s 80-tick figures, in a world two orders of magnitude smaller in sediment. What the chamber drama changes is not whether merges happen but how <i>deep</i> they go: every merge here joins exactly two witnesses ({HL['n_3plus']} entries with three or more, against {S['n_3plus']} in 三国 and {RC['n_3plus']} in 红楼), because Shakespeare stages the play as a sequence of two-person exchanges &mdash; the sentinels on the battlements, Laertes and Polonius, Rosencrantz with Guildenstern. Merge depth tracks how many people the world puts in a room together, not the mechanism&rsquo;s reach.</p>
+<p><b>Discussion.</b> Sixteen agents are enough. Consensus writes {HLC['sim_new']} entries against {HL['generative_agents']['sim_new']}&ndash;{HL['g_memory']['sim_new']}, with {HLC['sh_pct']}% shared and {HLC['aff_pct']}% linked &mdash; the highest sharing rate of any world at any horizon, in the smallest one tested. The extension from twenty ticks to thirty shows the same compounding the other worlds display: sharing rose 19%&rarr;{HLC['sh_pct']}% and the first three-witness merge appeared (the players' troupe beginning the performance, owned by the First Player, the Prologue, and Guildenstern together), where every merge at twenty ticks had been a strict pair. Depth still lags the larger worlds ({HL['n_3plus']} entry with three or more witnesses, against {S['n_3plus']} in 三国 and {RC['n_3plus']} in 红楼), and the reason is the play's staging rather than the mechanism's reach: Shakespeare writes in two-person exchanges &mdash; the sentinels on the battlements, Laertes and Polonius, Rosencrantz with Guildenstern &mdash; and merge depth tracks how many people the world puts in a room together. The play-within-a-play is the one scene that assembles an audience, and it is exactly where the three-way merge appears.</p>
 <p>The pairs the mechanism finds are the play&rsquo;s own dyads:</p>
 <div class="quote">""" + "<br>\n".join(
     f"<b>owners = [{owners_zh(e['owners'])}]</b> &nbsp;&ldquo;{e['text']}&rdquo;" for e in hl_mex[:3]
@@ -412,13 +412,13 @@ HTML = CSS + f"""
 <h4>5.2.4 &nbsp;Hamlet</h4>
 <figure>
   <img src="{IMG['hl_growth']}" alt="HL memory growth">
-  <figcaption><b>Figure 12. Memory growth &mdash; Hamlet (20 ticks).</b> Left: cumulative sim-generated entries per tick for all four backends under the same sim-only accounting as Table 1. Right: per-agent owned memories per tick in the consensus run (top agents labeled; the rest gray).</figcaption>
+  <figcaption><b>Figure 12. Memory growth &mdash; Hamlet (30 ticks).</b> Left: cumulative sim-generated entries per tick for all four backends under the same sim-only accounting as Table 1. Right: per-agent owned memories per tick in the consensus run (top agents labeled; the rest gray).</figcaption>
 </figure>
 <figure>
   <img src="{IMG['hl_latency']}" alt="HL memory-operation latency">
-  <figcaption><b>Figure 13. Memory-operation latency &mdash; Hamlet (20 ticks).</b> Mean wall-clock seconds per <code>remember</code> (left) and <code>recall</code> (right) call, 2-tick bins, all four backends; every tick is instrumented live in the kernel.</figcaption>
+  <figcaption><b>Figure 13. Memory-operation latency &mdash; Hamlet (30 ticks).</b> Mean wall-clock seconds per <code>remember</code> (left) and <code>recall</code> (right) call, 2-tick bins, all four backends; every tick is instrumented live in the kernel.</figcaption>
 </figure>
-<p><b>Discussion.</b> The smallest world writes at a rate between the other two fictions (~{HLC['sim_new']//20} consensus entries per tick), and the four curves separate early with consensus lowest &mdash; at this cast size a merge is a large fraction of a tick&rsquo;s writes, so the gap opens without the compounding 红楼 needed. Latency is dominated by per-call LLM cost exactly as elsewhere; with only {HLE['recalls']} recalls over the run the read-side curves are too sparse to rank backends, and we do not read anything into their ordering here.</p>
+<p><b>Discussion.</b> The smallest world writes at a rate between the other two fictions (~{HLC['sim_new']//30} consensus entries per tick), and the four curves separate early with consensus lowest &mdash; at this cast size a single merge is a large fraction of a tick's writes, so the gap opens without the compounding 红楼 needed. Latency is dominated by per-call LLM cost exactly as elsewhere; with only {HLE['recalls']} recalls over the whole run the read-side curves are too sparse to rank backends, and we read nothing into their ordering here.</p>
 
 <h3>5.3 &nbsp;Continuation quality</h3>
 <p>Compression does not cost judged quality in either world. In 三国, consensus scores highest on narrative and is competitive elsewhere; in Russia&ndash;Ukraine all four backends land within overlapping error bars on every metric, with consensus tied-best on grounding and trajectory. The structural gaps of &sect;5.1 do not translate into behavioral penalties.</p>
@@ -441,7 +441,7 @@ HTML = CSS + f"""
 <p>Not scored yet: the 红楼 runs now reach the same 40-tick horizon as both scored worlds, so the protocol of &sect;5.3.1&ndash;5.3.2 applies unchanged; the scoring pass is pending and will be reported alongside the other two worlds.</p>
 
 <h4>5.3.4 &nbsp;Hamlet</h4>
-<p>Not scored: at 20 ticks Hamlet is below the 40-tick horizon used by both scored worlds, and its held-out reference (Acts&nbsp;4&ndash;5) is short enough that arc extraction would rest on very few events. Scoring follows if the run is extended.</p>
+<p>Not scored: at 30 ticks Hamlet remains below the 40-tick horizon used by both scored worlds, and its held-out reference (Acts&nbsp;4&ndash;5) is short enough that arc extraction would rest on very few events. Scoring follows if the run is extended.</p>
 
 <h3>5.4 &nbsp;Case study: three graphs over each world</h3>
 <p>Each world&rsquo;s consensus run induces the same three graphs: the <b>interaction graph</b> (who talks to whom), the <b>affiliation graph</b> (which memories are linked), and the <b>ownership relation</b> (who owns which memories). For each scenario we show the three layers, then all three in one view, then quantify their pairwise alignment.</p>
@@ -547,7 +547,7 @@ HTML = CSS + f"""
 <h5>The three layers <span style="font-family:var(--sans);font-size:12px;color:var(--faint);font-weight:400">&mdash; interactive: drag to pan, scroll to zoom, hover for details, drag nodes to rearrange</span></h5>
 <figure>
   <div class="ig" id="ig-hl-interaction" style="height:440px"></div>
-  <figcaption><b>Figure 25a. The interaction graph (interactive) &mdash; Hamlet.</b> 16 characters, 21 conversing pairs &mdash; the whole court in one castle. At this size the graph is the cast list rather than a community structure to be recovered.</figcaption>
+  <figcaption><b>Figure 25a. The interaction graph (interactive) &mdash; Hamlet.</b> 15 conversing characters, 22 pairs &mdash; the whole court in one castle. At this size the graph is the cast list rather than a community structure to be recovered.</figcaption>
 </figure>
 <figure>
   <div class="ig" id="ig-hl-affiliation" style="height:480px"></div>
@@ -564,11 +564,11 @@ HTML = CSS + f"""
 </figure>
 <h5>Pairwise alignment of the layers</h5>
 <div class="rel"><h4><span class="rx">A&harr;O</span> Agents who talk own overlapping memories <span class="stat">({HLR['AO']['talk_mean']:.3f} vs {HLR['AO']['non_mean']:.4f}, {HLR['AO']['talk_mean']/max(HLR['AO']['non_mean'],1e-9):.0f}&times;)</span></h4>
-<p>The weakest separation of the four worlds, and for a structural reason: a single castle with sixteen residents has few genuinely non-interacting pairs, so the &ldquo;without&rdquo; baseline is contaminated by people who simply have not spoken <i>yet</i>.</p></div>
+<p>Still the weakest separation of the four worlds, and for a structural reason: a single castle with sixteen residents has few genuinely non-interacting pairs, so the &ldquo;without&rdquo; baseline is contaminated by people who simply have not spoken <i>yet</i> &mdash; though ten more ticks widened it from 5&times; to {HLR['AO']['talk_mean']/max(HLR['AO']['non_mean'],1e-9):.0f}&times; as those pairs met.</p></div>
 <div class="rel"><h4><span class="rx">M&harr;O</span> Linked memories have the same witnesses <span class="stat">({HLR['MO']['link_mean']:.2f} vs {HLR['MO']['non_mean']:.2f})</span></h4>
-<p>The strongest alignment measured in any world &mdash; {HLR['MO']['link_mean']:.2f} against {HLR['MO']['non_mean']:.2f} for random pairs &mdash; because two-person scenes give affiliated memories nearly identical owner sets.</p></div>
+<p>Affiliated pairs share owners at Jaccard {HLR['MO']['link_mean']:.2f} against {HLR['MO']['non_mean']:.2f} for random pairs &mdash; the two-person scene keeps affiliated memories on nearly identical owner sets.</p></div>
 <div class="rel"><h4><span class="rx">A&harr;M</span> Cross-agent memory links follow conversations <span class="stat">({HLR['AM']['talk_mean']:.2f} vs {HLR['AM']['non_mean']:.2f} edges)</span></h4>
-<p>Talking pairs average {HLR['AM']['talk_mean']:.2f} affiliated edges between their memory sets against {HLR['AM']['non_mean']:.2f} for non-talking pairs &mdash; the same direction as the larger worlds at a tenth of the scale.</p></div>
+<p>Talking pairs average {HLR['AM']['talk_mean']:.2f} affiliated edges between their memory sets against {HLR['AM']['non_mean']:.2f} for non-talking pairs &mdash; the same direction as the larger worlds at a tenth of the scale, and four times sharper than at twenty ticks.</p></div>
 <figure>
   <img src="{IMG['hl_relpanels']}" alt="HL relationship panels">
   <figcaption><b>Figure 27. Each pairwise relation as a with/without pair of distributions &mdash; Hamlet</b> (same format as Figure 18). The signature survives at the smallest scale tested, with the A&harr;O panel visibly the noisiest.</figcaption>
