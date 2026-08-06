@@ -21,11 +21,11 @@ FIGS = {
     "ru_latency": "runs/paper_figs_ru40/latency_q.png",
     "ru_relpanels": "runs/ru40full_consensus/case_study/relationship_panels_q.png",
     "ru_quality": "runs/paper_figs_ru40/quality_q.png",
-    "rc_simfoot": "runs/paper_figs_rc60/sim_footprint_q.png",
-    "rc_structure": "runs/paper_figs_rc60/structure_q.png",
-    "rc_growth": "runs/paper_figs_rc60/growth_q.png",
-    "rc_latency": "runs/paper_figs_rc60/latency_q.png",
-    "rc_relpanels": "runs/rc60full_consensus/case_study/relationship_panels_q.png",
+    "rc_simfoot": "runs/paper_figs_rc80/sim_footprint_q.png",
+    "rc_structure": "runs/paper_figs_rc80/structure_q.png",
+    "rc_growth": "runs/paper_figs_rc80/growth_q.png",
+    "rc_latency": "runs/paper_figs_rc80/latency_q.png",
+    "rc_relpanels": "runs/rc80full_consensus/case_study/relationship_panels_q.png",
     "hl_simfoot": "runs/paper_figs_hl30/sim_footprint_q.png",
     "hl_structure": "runs/paper_figs_hl30/structure_q.png",
     "hl_growth": "runs/paper_figs_hl30/growth_q.png",
@@ -49,7 +49,7 @@ def _scrub(o):
 S = _scrub(json.load(open("runs/paper_stats_g80.json", encoding="utf-8")))
 RU = _scrub(json.load(open("runs/paper_stats_ru40.json", encoding="utf-8")))
 RUC = RU["consensus"]; RUR = RU["relations"]; RUE = RU["auto_expand"]
-RC = _scrub(json.load(open("runs/paper_stats_rc60.json", encoding="utf-8")))
+RC = _scrub(json.load(open("runs/paper_stats_rc80.json", encoding="utf-8")))
 RCC = RC["consensus"]; RCR = RC["relations"]; RCE = RC["auto_expand"]
 rc_mex = RC["merge_examples"]
 HL = _scrub(json.load(open("runs/paper_stats_hl30.json", encoding="utf-8")))
@@ -72,7 +72,7 @@ def _slim_graphs(path):
 
 GRAPHS_JSON = _slim_graphs("runs/g80full_consensus/case_study/graphs.json")
 GRAPHS_RU_JSON = _slim_graphs("runs/ru40full_consensus/case_study/graphs.json")
-GRAPHS_RC_JSON = _slim_graphs("runs/rc60full_consensus/case_study/graphs.json")
+GRAPHS_RC_JSON = _slim_graphs("runs/rc80full_consensus/case_study/graphs.json")
 GRAPHS_HL_JSON = _slim_graphs("runs/hl30full_consensus/case_study/graphs.json")
 
 def cell(k, key):
@@ -201,7 +201,7 @@ HTML = CSS + f"""
 <h1>Agentsensus: Consensus-Compressed Shared Memory for<br>Multi-Agent Story-World Simulation</h1>
 <p class="sub">A shared long-term memory that merges agents&rsquo; equivalent memories into multi-witness records and self-organizes into a navigable memory graph.</p>
 <div class="byline">
-  <span><b>Scenarios</b> 三国演义 (80 ticks, 33 active agents) &middot; Russia&ndash;Ukraine (40 ticks, 47 active) &middot; 红楼梦 (60 ticks, 34 active) &middot; Hamlet (30 ticks, 16 active)</span>
+  <span><b>Scenarios</b> 三国演义 (80 ticks, 33 active agents) &middot; Russia&ndash;Ukraine (40 ticks, 47 active) &middot; 红楼梦 (80 ticks, 34 active) &middot; Hamlet (30 ticks, 16 active)</span>
   <span><b>Checkpointing</b> every 20 ticks</span>
   <span><b>Model</b> gpt-5-mini</span>
 </div>
@@ -267,7 +267,7 @@ HTML = CSS + f"""
 <p>三国演义 chapters 1&ndash;40 are sedimented onto 191 canonical characters (33 active at the boundary, the rest archived as dead; ~6,000 consensus events). All four backends then run the <i>same</i> 80-tick simulation &mdash; same scenario file, same action repertoire, same model (<code>gpt-5-mini</code>; embeddings <code>text-embedding-3-small</code>) &mdash; in four checkpointed 20-tick stages.</p>
 <p>To test that the mechanisms are not an artifact of one fictional world, the second scenario is <b>real-world</b>: a timeline of the Russia&ndash;Ukraine conflict sedimented through 2026-07 (1,533 events over 170 entities). Real-world boundary semantics replace the novel&rsquo;s: a figure is archived if, by the boundary, they are dead <i>or out of the conflict&rsquo;s stage</i> (out of office, dismissed, disbanded), with placements grounded in the timeline or, failing that, the person&rsquo;s workplace/role (final cast: 47 active, 14 archived, manually verified). All four backends run the same 40-tick simulation under the identical fairness protocol.</p>
 
-<p>The third scenario returns to fiction in a different register: <b>红楼梦</b> (<i>Dream of the Red Chamber</i>), chapters 1&ndash;40 sedimented onto 152 registry characters (6,506 consensus events; chapters 41&ndash;80 held out). The active cast is the 37 characters above the memory threshold (34 living; 秦可卿, 贾瑞 and 秦钟, dead by chapter 40, stay archived owners), and the boundary state is a freeze-frame of chapter 40&rsquo;s garden banquet &mdash; 贾母 and 刘姥姥 at 大观楼, the touring party at 蘅芜苑, the musicians at 藕香榭 &mdash; grounded per character in the sediment and manually verified. Where 三国 is war and statecraft among factions, 红楼 is dense domestic society &mdash; one household, fine-grained relationships &mdash; a different social topology for the same mechanisms. All four backends run the same 60-tick simulation under the identical fairness protocol.</p>
+<p>The third scenario returns to fiction in a different register: <b>红楼梦</b> (<i>Dream of the Red Chamber</i>), chapters 1&ndash;40 sedimented onto 152 registry characters (6,506 consensus events; chapters 41&ndash;80 held out). The active cast is the 37 characters above the memory threshold (34 living; 秦可卿, 贾瑞 and 秦钟, dead by chapter 40, stay archived owners), and the boundary state is a freeze-frame of chapter 40&rsquo;s garden banquet &mdash; 贾母 and 刘姥姥 at 大观楼, the touring party at 蘅芜苑, the musicians at 藕香榭 &mdash; grounded per character in the sediment and manually verified. Where 三国 is war and statecraft among factions, 红楼 is dense domestic society &mdash; one household, fine-grained relationships &mdash; a different social topology for the same mechanisms. All four backends run the same 80-tick simulation under the identical fairness protocol.</p>
 
 <p>The fourth scenario is deliberately the smallest: <b>Hamlet</b>, Acts&nbsp;1&ndash;3 sedimented onto a 22-character registry (1,135 consensus events; Acts&nbsp;4&ndash;5 held out). Sixteen characters pass the memory threshold, plus Fortinbras, who owns no sediment memories at all &mdash; he never appears on stage before Act&nbsp;4 &mdash; but is retained because the continuation is his; England is likewise retained as an environment because it is where the sealed commission leads. Two characters are archived at the boundary: Polonius, killed behind the arras in 3.4, and the Ghost, absent from the canon after that scene. Where the other three worlds have dozens of agents spread over a map, Hamlet is a chamber drama &mdash; sixteen agents in one castle, most scenes a two-person exchange &mdash; which makes it the sharpest test of whether the mechanisms need scale to show anything. All four backends run the same 30-tick simulation under the identical fairness protocol.</p>
 
@@ -309,7 +309,7 @@ HTML = CSS + f"""
 <tr><td>generative-agents</td><td>{RU['generative_agents']['sim_new']}</td><td>0</td><td>0</td></tr>
 <tr><td>g-memory</td><td>{RU['g_memory']['sim_new']}</td><td>0</td><td>0</td></tr>
 <tr><td>collaborative</td><td>{RU['collaborative']['sim_new']}</td><td>0</td><td>0</td></tr>
-<tr class="grp"><td colspan="4">红楼梦 &mdash; fiction, 60 ticks</td></tr>
+<tr class="grp"><td colspan="4">红楼梦 &mdash; fiction, 80 ticks</td></tr>
 <tr class="hi"><td>consensus</td><td class="best">{RCC['sim_new']}</td><td class="best">{RCC['multi_owner']} ({RCC['sh_pct']}%)</td><td class="best">{RCC['aff_pct']}%</td></tr>
 <tr><td>generative-agents</td><td>{RC['generative_agents']['sim_new']}</td><td>0</td><td>0</td></tr>
 <tr><td>g-memory</td><td>{RC['g_memory']['sim_new']}</td><td>0</td><td>0</td></tr>
@@ -349,9 +349,9 @@ HTML = CSS + f"""
 <figure class="two">
   <img src="{IMG['rc_simfoot']}" alt="RC sim footprint">
   <img src="{IMG['rc_structure']}" alt="RC memory structure">
-  <figcaption><b>Figure 4. Footprint and structure &mdash; 红楼梦 (60 ticks).</b> Same panels as Figures 2&ndash;3: entries written under identical atomization (left) and the share of each backend&rsquo;s sim memories that are shared and linked (right).</figcaption>
+  <figcaption><b>Figure 4. Footprint and structure &mdash; 红楼梦 (80 ticks).</b> Same panels as Figures 2&ndash;3: entries written under identical atomization (left) and the share of each backend&rsquo;s sim memories that are shared and linked (right).</figcaption>
 </figure>
-<p><b>Discussion.</b> 红楼 is where the two claims of &sect;5.1 can be watched separating in time, because it was run at three horizons. Structure was already complete at ten ticks (13% shared, 87% linked, baselines 0%); footprint was not &mdash; the four backends then sat at 62&ndash;98 entries with consensus not the smallest, within run-to-run variance. By forty ticks consensus was lowest (216 vs 379&ndash;492), and at sixty the gap has widened again: {RCC['sim_new']} entries against {RC['generative_agents']['sim_new']}&ndash;{RC['g_memory']['sim_new']}, a {round(100-100*RCC['sim_new']/RC['g_memory']['sim_new'])}% reduction against the largest. Sharing tracks the same curve &mdash; 13%&rarr;20%&rarr;{RCC['sh_pct']}% &mdash; and multi-witness merges deepen with it: {RC['n_3plus']} entries now carry three or more witnesses (nine at forty ticks, three at ten), the deepest still the banquet moment where 贾母 keeps 宝玉, 黛玉 and 宝钗 by her side, co-owned by {RC['max_owners']}. The ordering is the point: the structural properties are architectural and appear immediately, whereas the footprint advantage is a <i>compounding</i> effect that needs enough repeated witnessing to overcome noise. A household world reaches that point later than a war does, because fewer people witness each event.</p>
+<p><b>Discussion.</b> 红楼 is where the two claims of &sect;5.1 can be watched separating in time, because it was run at four horizons. Structure was already complete at ten ticks (13% shared, 87% linked, baselines 0%); footprint was not &mdash; the four backends then sat at 62&ndash;98 entries with consensus not the smallest, within run-to-run variance. From forty ticks on consensus is lowest and stays lowest, and the gap holds as both sides grow: 216 vs 379&ndash;492 at forty, 338 vs 625&ndash;683 at sixty, {RCC['sim_new']} vs {RC['generative_agents']['sim_new']}&ndash;{RC['g_memory']['sim_new']} at eighty &mdash; a {round(100-100*RCC['sim_new']/RC['g_memory']['sim_new'])}% reduction against the largest. Sharing rises along the same curve and flattens as it saturates &mdash; 13%&rarr;20%&rarr;23%&rarr;{RCC['sh_pct']}% &mdash; while multi-witness merges keep accumulating: {RC['n_3plus']} entries carry three or more witnesses (17 at sixty, nine at forty, three at ten), the deepest still the banquet where 贾母 keeps 宝玉, 黛玉 and 宝钗 by her side, co-owned by {RC['max_owners']}. The ordering is the point: the structural properties are architectural and appear immediately, whereas the footprint advantage is a <i>compounding</i> effect that needs enough repeated witnessing to overcome noise. A household world reaches that point later than a war does, because fewer people witness each event.</p>
 <p>Merged records in the household world fold family witnesses of one scene:</p>
 <div class="quote">""" + "<br>\n".join(
     f"<b>owners = [{owners_zh(e['owners'])}]</b> &nbsp;&ldquo;{e['text']}&rdquo;" for e in rc_mex[:3]
@@ -401,13 +401,13 @@ HTML = CSS + f"""
 <h4>5.2.3 &nbsp;红楼梦</h4>
 <figure>
   <img src="{IMG['rc_growth']}" alt="RC memory growth">
-  <figcaption><b>Figure 10. Memory growth &mdash; 红楼梦 (60 ticks).</b> Left: cumulative sim-generated entries per tick for all four backends under the same sim-only accounting as Table 1. Right: per-agent owned memories per tick in the consensus run (top agents labeled; the rest gray).</figcaption>
+  <figcaption><b>Figure 10. Memory growth &mdash; 红楼梦 (80 ticks).</b> Left: cumulative sim-generated entries per tick for all four backends under the same sim-only accounting as Table 1. Right: per-agent owned memories per tick in the consensus run (top agents labeled; the rest gray).</figcaption>
 </figure>
 <figure>
   <img src="{IMG['rc_latency']}" alt="RC memory-operation latency">
-  <figcaption><b>Figure 11. Memory-operation latency &mdash; 红楼梦 (60 ticks).</b> Mean wall-clock seconds per <code>remember</code> (left) and <code>recall</code> (right) call, 2-tick bins, all four backends; every tick is instrumented live in the kernel.</figcaption>
+  <figcaption><b>Figure 11. Memory-operation latency &mdash; 红楼梦 (80 ticks).</b> Mean wall-clock seconds per <code>remember</code> (left) and <code>recall</code> (right) call, 2-tick bins, all four backends; every tick is instrumented live in the kernel.</figcaption>
 </figure>
-<p><b>Discussion.</b> The domestic world writes more slowly than either other scenario (~{RCC['sim_new']//60} consensus entries per tick against ~20 in Russia&ndash;Ukraine) &mdash; garden conversation generates fewer memory-worthy events than a war &mdash; and the curves that interleaved through the first ten ticks separate cleanly thereafter, consensus lowest and the gap still widening at sixty, exactly as in Figures 6 and 8. Per-agent growth concentrates on the household&rsquo;s centers of gravity (贾母, 王熙凤, 贾宝玉 and the banquet guests). The read side reproduces both other worlds: consensus recall is cheapest despite auto-expansion returning &asymp;{RCE['items']//max(RCE['recalls'],1)} linked memories per call, while G-Memory&rsquo;s bi-level retrieval pays for graph traversal with extra vector queries.</p>
+<p><b>Discussion.</b> The domestic world writes more slowly than either other scenario (~{RCC['sim_new']//80} consensus entries per tick against ~20 in Russia&ndash;Ukraine) &mdash; garden conversation generates fewer memory-worthy events than a war &mdash; and the curves that interleaved through the first ten ticks separate cleanly thereafter, consensus lowest and the gap holding to eighty ticks, exactly as in Figures 6 and 8. Per-agent growth concentrates on the household&rsquo;s centers of gravity (贾母, 王熙凤, 贾宝玉 and the banquet guests). The read side reproduces both other worlds: consensus recall is cheapest despite auto-expansion returning &asymp;{RCE['items']//max(RCE['recalls'],1)} linked memories per call, while G-Memory&rsquo;s bi-level retrieval pays for graph traversal with extra vector queries.</p>
 
 <h4>5.2.4 &nbsp;Hamlet</h4>
 <figure>
@@ -438,7 +438,7 @@ HTML = CSS + f"""
 <p><b>Discussion.</b> The real-world replication is a wash &mdash; which is the point. Grounding is uniformly high ({min(QR[k]['agg']['grnd']['mean'] for k in QR):.2f}&ndash;{max(QR[k]['agg']['grnd']['mean'] for k in QR):.2f}: institutional actors reciting real capabilities rarely fabricate), trajectory is tied within error bars ({QR['consensus']['agg']['traj']['mean']:.2f} for consensus vs {min(QR[k]['agg']['traj']['mean'] for k in QR if k!='consensus'):.2f}&ndash;{max(QR[k]['agg']['traj']['mean'] for k in QR if k!='consensus'):.2f}), and narrative spreads {QR['g_memory']['agg']['narr']['mean']:.2f}&ndash;{QR['generative_agents']['agg']['narr']['mean']:.2f} with overlapping whiskers and no stable leader across scorings. As in 三国, the mechanisms separate on architecture (Figure 3), not on judged behavior: consensus deduplicates {RUC['sim_new']} entries against the baselines&rsquo; {RU['collaborative']['sim_new']}&ndash;{RU['generative_agents']['sim_new']} and builds all the structure &mdash; while giving none of it back in quality.</p>
 
 <h4>5.3.3 &nbsp;红楼梦</h4>
-<p>Not scored yet: at 60 ticks the 红楼 runs exceed the 40-tick horizon of both scored worlds, so the protocol of &sect;5.3.1&ndash;5.3.2 applies unchanged; the scoring pass is pending and will be reported alongside the other two worlds.</p>
+<p>Not scored yet: at 80 ticks the 红楼 runs match 三国&rsquo;s horizon and exceed the 40-tick checkpoint at which both scored worlds were judged, so the protocol of &sect;5.3.1&ndash;5.3.2 applies unchanged; the scoring pass is pending and will be reported alongside the other two worlds.</p>
 
 <h4>5.3.4 &nbsp;Hamlet</h4>
 <p>Not scored: at 30 ticks Hamlet remains below the 40-tick horizon used by both scored worlds, and its held-out reference (Acts&nbsp;4&ndash;5) is short enough that arc extraction would rest on very few events. Scoring follows if the run is extended.</p>
