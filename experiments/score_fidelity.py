@@ -40,7 +40,17 @@ ARC_CHARS = [
     "caocao", "sunquan", "zhouyu", "simayi", "xiahoudun",
 ]
 BACKENDS = ["consensus", "generative_agents", "g_memory", "collaborative"]
-PREFIX = os.environ.get("RUN_PREFIX", "fair2")
+# RUN_PREFIX is required: this script predates the per-scenario scorers
+# (experiments/score_g40.py, experiments/score_ru40.py), which judge a run's
+# rendered screenplay rather than its raw transcript. It used to default to
+# the "fair2" run series, which no longer exists, so an unset prefix now fails
+# loudly instead of chasing deleted data.
+PREFIX = os.environ.get("RUN_PREFIX")
+if not PREFIX:
+    raise SystemExit(
+        "RUN_PREFIX is required (e.g. RUN_PREFIX=g40). For the scenarios in "
+        "the paper, prefer experiments/score_g40.py or experiments/score_ru40.py."
+    )
 # FIDELITY_REPEAT>1 scores each backend N times (reusing the same gold) and
 # reports mean±std per metric -- the LLM answer/judge steps are nondeterministic
 # so a single run cannot rank backends (see the grounding variance finding).
