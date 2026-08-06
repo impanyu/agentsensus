@@ -1,5 +1,6 @@
 """Score the 40-tick 三国 runs (gpt-5-mini): grounding / trajectory / narrative
-over the FULL 40-tick transcript (g20 ticks 0-20 + g40 ticks 20-40).
+over the FULL 40-tick run, judged from its rendered screenplay (g20 + g40
+event logs).
 
 Usage: RUN_REPEAT=3 venv/bin/python experiments/score_g40.py
 """
@@ -9,23 +10,16 @@ from society import evaluation as ev
 from society.run import _build_llm_and_embed
 from experiments.score_grounding import grounding_rate
 from experiments.score_fidelity import reference_span, ARC_CHARS, _mean_std
+from experiments.screenplay_for_scoring import screenplay_text
 
 BACKENDS = ["consensus", "generative_agents", "g_memory", "collaborative"]
 REPEAT = int(os.environ.get("RUN_REPEAT", "3"))
 
 
-def combined_transcript(kind):
-    lines = []
-    for rd in (f"runs/g20_{kind}", f"runs/g40_{kind}"):
-        p = f"{rd}/events.jsonl"
-        if not os.path.exists(p):
-            continue
-        for line in open(p, encoding="utf-8"):
-            e = json.loads(line)
-            if e.get("kind") == "message" and e["message"].get("kind") in ("say", "gesture", "broadcast"):
-                m = e["message"]
-                lines.append(f"[t{e['tick']}] {m['sender']}: {m['content']}")
-    return "\n".join(lines)
+async def source_text(kind, llm):
+    """Scoring source: the run's screenplay, rendered in the scenario language
+    (see experiments/screenplay_for_scoring.py)."""
+    return await screenplay_text([f"runs/g20_{kind}", f"runs/g40_{kind}"], llm)
 
 
 async def main():
@@ -34,7 +28,7 @@ async def main():
     print(f"gold: {len(gold_arcs)} arcs | repeat={REPEAT}", flush=True)
     results = {}
     for k in BACKENDS:
-        tr = combined_transcript(k)
+        tr = await source_text(k, llm)
         entries = len(json.load(open(f"runs/g40_{k}/ltm_final.json", encoding="utf-8")))
         runs = []
         for _ in range(REPEAT):

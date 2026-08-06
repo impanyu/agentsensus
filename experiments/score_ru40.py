@@ -1,6 +1,6 @@
 """Score the 40-tick Russia-Ukraine runs: grounding / trajectory / narrative
-over the FULL 40-tick transcript (ru10 ticks 0-10 + ru20 10-20 + ru40 20-40),
-mirroring the 三国 protocol of score_g40.py.
+over the FULL 40-tick run, judged from its rendered screenplay (ru10 + ru20 +
+ru40 event logs), mirroring the 三国 protocol of score_g40.py.
 
 Gold arcs come from the held-out timeline continuation (2024-05 onward: the
 span after the sedimentation boundary). Grounding judges each sim event
@@ -13,6 +13,7 @@ os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))); sys.path.
 from society import evaluation as ev
 from society.run import _build_llm_and_embed
 from experiments.score_fidelity import _mean_std
+from experiments.screenplay_for_scoring import screenplay_text
 
 BACKENDS = ["consensus", "generative_agents", "g_memory", "collaborative"]
 REPEAT = int(os.environ.get("RUN_REPEAT", "3"))
@@ -34,38 +35,17 @@ def reference_span() -> str:
     return "\n".join(keep)
 
 
-MSG_CAP = int(os.environ.get("SCORE_MSG_CAP", "280"))       # chars kept per message
-CHAR_BUDGET = int(os.environ.get("SCORE_CHAR_BUDGET", "400000"))  # total transcript cap
+async def source_text(kind, llm):
+    """Scoring source: the run's screenplay, rendered in the scenario language.
 
-
-def combined_transcript(kind):
-    """40-tick transcript, compacted to fit the judge's context window.
-
-    The RU transcripts (47 verbose English agents) run to ~1.6M chars — far
-    past gpt-5-mini's input limit — so each message is truncated to MSG_CAP
-    chars and, if still over CHAR_BUDGET, lines are dropped evenly across the
-    run (temporal coverage is preserved; 三国 fits untruncated so its
-    protocol is unchanged).
+    Replaces the raw transcript (see experiments/screenplay_for_scoring.py):
+    the event log is mixed-language and ~1.6M chars, which previously forced
+    per-message truncation and line sampling; the screenplay is one language,
+    scene-organized, and small enough to judge whole.
     """
-    lines = []
-    for rd in (f"runs/ru10_{kind}", f"runs/ru20_{kind}", f"runs/ru40_{kind}"):
-        p = f"{rd}/events.jsonl"
-        if not os.path.exists(p):
-            continue
-        for line in open(p, encoding="utf-8"):
-            e = json.loads(line)
-            if e.get("kind") == "message" and e["message"].get("kind") in ("say", "gesture", "broadcast"):
-                m = e["message"]
-                c = m["content"]
-                if len(c) > MSG_CAP:
-                    c = c[:MSG_CAP] + "…"
-                lines.append(f"[t{e['tick']}] {m['sender']}: {c}")
-    total = sum(len(l) + 1 for l in lines)
-    if total > CHAR_BUDGET:
-        keep = max(1, int(len(lines) * CHAR_BUDGET / total))
-        step = len(lines) / keep
-        lines = [lines[int(i * step)] for i in range(keep)]
-    return "\n".join(lines)
+    return await screenplay_text(
+        [f"runs/ru10_{kind}", f"runs/ru20_{kind}", f"runs/ru40_{kind}"], llm
+    )
 
 
 async def _judge_one(et, judge):
@@ -107,7 +87,7 @@ async def main():
     print(f"gold: {len(gold_arcs)} arcs | repeat={REPEAT}", flush=True)
     results = {}
     for k in BACKENDS:
-        tr = combined_transcript(k)
+        tr = await source_text(k, llm)
         entries = len(json.load(open(f"runs/ru40_{k}/ltm_final.json", encoding="utf-8")))
         runs = []
         for _ in range(REPEAT):

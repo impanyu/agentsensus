@@ -10,6 +10,9 @@ Turns a run's raw event log into a readable markdown screenplay:
 4. Concatenate the per-scene markdown blocks into the final document.
 """
 
+import json
+import re
+
 _ACTION_BEAT_NAMES = {"say", "gesture", "think", "conclude", "move", "act_on"}
 _MESSAGE_BEAT_KINDS = {"say", "gesture"}
 
@@ -18,21 +21,76 @@ _CONTENT_PARAM_KEYS = ("content", "description", "question", "text")
 _SYSTEM_PROMPT = {
     "zh": (
         "你是一位经验丰富的编剧。给定一段按时间顺序排列的事件线索,"
-        "请从中挑选出具有叙事/文学价值的片段,并将其改写为剧本正文:"
-        "包含对话与舞台指示;think/conclude 类事件应渲染为内心独白或旁白"
-        "(用括号标注,如“(内心独白)”“(旁白)”)。"
-        "不需要保留所有事件,略去平淡、重复或无戏剧性的片段。"
+        "请将它们改写为剧本正文,同时满足两条同等重要的要求。\n"
+        "第一,完整:每一条事件都必须在剧本中有对应的落点——化为台词、"
+        "舞台指示、内心独白或旁白皆可,但不得遗漏、不得合并掉任何一条,"
+        "也不得改变其发生顺序。事件中的具体信息(人名、地点、器物、"
+        "数目、称谓、行动的对象与结果)必须原样保留,不可含糊带过。"
+        "think/conclude 类事件渲染为内心独白或旁白(括号标注,"
+        "如“(内心独白)”“(旁白)”)。\n"
+        "第二,文学性:在不增删事实的前提下写得像真正的剧本——"
+        "人物各有声口,台词符合其身份与处境,舞台指示简练而有画面感,"
+        "场面有起伏节奏。语言风格贴合该世界的时代与气质。\n"
+        "两者冲突时以完整优先:宁可朴素,不可漏事。"
         "直接输出剧本正文,不要输出解释、前后缀或 Markdown 标题。"
     ),
     "en": (
         "You are an experienced screenwriter. Given a chronological list of "
-        "events, select the beats with narrative/literary value and render "
-        "them as screenplay text: dialogue and stage directions; think/"
-        "conclude events should be rendered as inner monologue or "
-        "voice-over (marked in parentheses, e.g. \"(inner monologue)\" or "
-        "\"(voice-over)\"). You do not need to keep every event — drop flat, "
-        "repetitive, or undramatic beats. Output the screenplay text "
-        "directly, with no explanation, prefix, or Markdown heading."
+        "events, render them as screenplay text under two equally binding "
+        "requirements.\n"
+        "First, completeness: every single event must land somewhere in the "
+        "scene — as dialogue, a stage direction, inner monologue, or "
+        "voice-over — with none dropped, none merged away, and none "
+        "reordered. Concrete particulars carried by an event (names, places, "
+        "objects, numbers, titles, the target and outcome of an action) must "
+        "survive verbatim in substance; do not blur them into generalities. "
+        "think/conclude events become inner monologue or voice-over (marked "
+        "in parentheses, e.g. \"(inner monologue)\" or \"(voice-over)\").\n"
+        "Second, literary quality: without adding or removing any fact, write "
+        "it as a real screenplay — distinct voices per character, lines that "
+        "fit each speaker's station and situation, spare but vivid stage "
+        "directions, and a scene that builds rather than lists. Match the "
+        "register of the world the events come from.\n"
+        "When the two collide, completeness wins: plain is acceptable, "
+        "missing is not. Output the screenplay text directly, with no "
+        "explanation, prefix, or Markdown heading."
+    ),
+}
+
+# Coverage repair (used when `ensure_coverage` is on). The renderer is asked
+# to keep every beat, but a long scene can still lose one; these prompts run a
+# check-then-repair round so a dropped beat is caught here rather than showing
+# up later as a missing event in whatever consumes the screenplay.
+_COVERAGE_CHECK = {
+    "zh": (
+        "下面是一份事件列表和据其写成的剧本。请逐条检查:该事件的实质内容"
+        "(人物、动作、对象、结果)是否在剧本中有体现?只要有体现即算覆盖,"
+        "措辞不必相同。\n\n事件列表:\n{beats}\n\n剧本:\n{scene}\n\n"
+        '严格返回 JSON:{{"missing": [<未被覆盖的事件序号,从1开始>]}}。只返回 JSON。'
+    ),
+    "en": (
+        "Below are an event list and a screenplay written from it. For each "
+        "event, check whether its substance (who, the action, its target, its "
+        "outcome) appears in the screenplay. Any faithful rendering counts as "
+        "covered; the wording need not match.\n\nEvents:\n{beats}\n\n"
+        "Screenplay:\n{scene}\n\n"
+        'Return STRICT JSON: {{"missing": [<1-based indices of uncovered events>]}}. '
+        "Return ONLY the JSON."
+    ),
+}
+
+_COVERAGE_REPAIR = {
+    "zh": (
+        "以下剧本遗漏了这些事件:\n{missing}\n\n请重写整幕,把遗漏的事件"
+        "补进恰当的位置,保持已有内容的顺序与文学水准,不要新增任何事实。"
+        "直接输出重写后的剧本正文。\n\n原剧本:\n{scene}"
+    ),
+    "en": (
+        "The screenplay below is missing these events:\n{missing}\n\n"
+        "Rewrite the whole scene, working the missing events into their "
+        "proper places, preserving the order and the literary quality of what "
+        "is already there, and adding no new facts. Output the rewritten "
+        "screenplay text directly.\n\nCurrent screenplay:\n{scene}"
     ),
 }
 
@@ -221,6 +279,56 @@ def _format_cast(cast_ids: list[str], names: dict | None) -> str:
     return ", ".join(parts)
 
 
+async def _repair_coverage(rendered, beats, beat_lines, llm, language, system_prompt):
+    """Ask whether any beat is missing from `rendered`; if so, rewrite once.
+
+    One check call and at most one repair call per scene. A malformed or
+    unparseable check reply is treated as "nothing missing" -- the scene keeps
+    its original text rather than being rewritten on a guess.
+    """
+    check = _COVERAGE_CHECK.get(language, _COVERAGE_CHECK["en"]).format(
+        beats="\n".join(f"{i}. {line}" for i, line in
+                         enumerate(beat_lines.split("\n"), start=1)),
+        scene=rendered,
+    )
+    reply = await llm.chat(check, system=None, bucket="screenplay_coverage")
+    missing_idx = _parse_missing(reply, len(beats))
+    if not missing_idx:
+        return rendered
+
+    lines = beat_lines.split("\n")
+    missing_text = "\n".join(lines[i - 1] for i in missing_idx)
+    repair = _COVERAGE_REPAIR.get(language, _COVERAGE_REPAIR["en"]).format(
+        missing=missing_text, scene=rendered
+    )
+    repaired = await llm.chat(repair, system=system_prompt, bucket="screenplay_coverage")
+    return repaired.strip() or rendered
+
+
+def _parse_missing(reply, n_beats):
+    """1-based beat indices the coverage check reported as missing."""
+    text = (reply or "").strip()
+    if text.startswith("```"):
+        text = text.strip("`")
+        text = text[text.find("{"):] if "{" in text else text
+    try:
+        data = json.loads(text[text.index("{"):text.rindex("}") + 1])
+    except (ValueError, TypeError):
+        return []
+    raw = data.get("missing") if isinstance(data, dict) else None
+    if not isinstance(raw, list):
+        return []
+    out = []
+    for v in raw:
+        try:
+            i = int(v)
+        except (TypeError, ValueError):
+            continue
+        if 1 <= i <= n_beats:
+            out.append(i)
+    return sorted(set(out))
+
+
 async def generate_screenplay(
     events: list[dict],
     llm,
@@ -229,6 +337,7 @@ async def generate_screenplay(
     scene_gap: int = 5,
     names: dict | None = None,
     target_language: str | None = None,
+    ensure_coverage: bool = True,
 ) -> str:
     """Turn a run's event log into a markdown screenplay.
 
@@ -291,6 +400,10 @@ async def generate_screenplay(
             beats=beat_lines,
         )
         rendered = await llm.chat(prompt, system=system_prompt, bucket="screenplay")
+        if ensure_coverage:
+            rendered = await _repair_coverage(
+                rendered, scene["beats"], beat_lines, llm, language, system_prompt
+            )
 
         header = (
             f"## 第{i}幕 · {scene['location']} · "

@@ -21,7 +21,8 @@ async def test_scene_split_and_render(tmp_path):
         return f"（第{len(calls)}场渲染文本）"
     llm = FakeLLM(fn=fn)
     out = str(tmp_path / "sp.md")
-    md = await generate_screenplay(EVENTS, llm, out_path=out, scene_gap=5)
+    md = await generate_screenplay(EVENTS, llm, out_path=out, scene_gap=5,
+                                   ensure_coverage=False)
     assert len(calls) == 2                      # hall scene + garden scene (location change & gap)
     assert "第1幕" in md and "hall" in md and "garden" in md
     assert "（第1场渲染文本）" in md and open(out, encoding="utf-8").read() == md
@@ -125,3 +126,40 @@ async def test_screenplay_target_language_same_as_language_is_noop():
     )
 
     assert "English" not in calls[0]
+
+
+async def test_coverage_pass_no_repair_when_nothing_missing():
+    """One render + one check per scene; a clean check adds no repair call."""
+    calls = []
+    def fn(prompt, system=None):
+        calls.append(prompt)
+        return '{"missing": []}' if "missing" in prompt else "SCENE"
+    llm = FakeLLM(fn=fn)
+    md = await generate_screenplay(EVENTS, llm, scene_gap=5)
+    assert len(calls) == 4          # 2 scenes x (render + check), no repair
+    assert "SCENE" in md
+
+
+async def test_coverage_pass_repairs_a_dropped_beat():
+    """A beat reported missing triggers exactly one rewrite, which is kept."""
+    calls = []
+    def fn(prompt, system=None):
+        calls.append(prompt)
+        if '"missing"' in prompt:            # the coverage-check prompt
+            return '{"missing": [1]}'
+        if "遗漏" in prompt or "is missing these events" in prompt:
+            return "REPAIRED"
+        return "SCENE"
+    llm = FakeLLM(fn=fn)
+    md = await generate_screenplay(EVENTS[:2], llm, scene_gap=5)
+    assert "REPAIRED" in md and "SCENE" not in md
+    assert len(calls) == 3          # render + check + one repair
+
+
+async def test_unparseable_coverage_reply_keeps_original_scene():
+    """A garbled check reply must not trigger a speculative rewrite."""
+    def fn(prompt, system=None):
+        return "sorry, I cannot" if '"missing"' in prompt else "SCENE"
+    llm = FakeLLM(fn=fn)
+    md = await generate_screenplay(EVENTS[:2], llm, scene_gap=5)
+    assert "SCENE" in md
