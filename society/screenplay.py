@@ -279,6 +279,41 @@ def _format_cast(cast_ids: list[str], names: dict | None) -> str:
     return ", ".join(parts)
 
 
+def _utterance_key(event: dict):
+    """Identity of the utterance a beat represents, or None if it is unique.
+
+    The kernel logs one `say`/`gesture` as an action event AND one message
+    event per recipient, so a line spoken to three agents arrives as four
+    beats carrying the same words. They are the same story moment; feeding all
+    four to the screenwriter (which is instructed to give every beat a place)
+    would make it write the line four times.
+    """
+    tick = event.get("tick")
+    if event.get("kind") == "action":
+        action = event.get("action", {}) or {}
+        if action.get("name") not in _MESSAGE_BEAT_KINDS:
+            return None
+        params = action.get("params", {}) or {}
+        content = params.get("content") or params.get("description") or ""
+        return (tick, event.get("agent"), action.get("name"), str(content).strip())
+    message = event.get("message", {}) or {}
+    return (tick, message.get("sender"), message.get("kind"),
+            str(message.get("content") or "").strip())
+
+
+def _dedupe(beats: list[dict]) -> list[dict]:
+    """Drop repeat beats of one utterance, keeping the first occurrence."""
+    seen, out = set(), []
+    for e in beats:
+        key = _utterance_key(e)
+        if key is not None:
+            if key in seen:
+                continue
+            seen.add(key)
+        out.append(e)
+    return out
+
+
 async def _repair_coverage(rendered, beats, beat_lines, llm, language, system_prompt):
     """Ask whether any beat is missing from `rendered`; if so, rewrite once.
 
@@ -366,7 +401,7 @@ async def generate_screenplay(
     Returns:
         The full screenplay as a markdown string.
     """
-    beats = sorted((e for e in events if _is_beat(e)), key=_sort_key)
+    beats = _dedupe(sorted((e for e in events if _is_beat(e)), key=_sort_key))
     scenes = _split_scenes(beats, scene_gap)
 
     system_prompt = _SYSTEM_PROMPT.get(language, _SYSTEM_PROMPT["en"])

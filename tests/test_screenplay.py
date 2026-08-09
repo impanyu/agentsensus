@@ -163,3 +163,22 @@ async def test_unparseable_coverage_reply_keeps_original_scene():
     llm = FakeLLM(fn=fn)
     md = await generate_screenplay(EVENTS[:2], llm, scene_gap=5)
     assert "SCENE" in md
+
+
+async def test_one_utterance_is_one_beat():
+    """A say logged as an action plus one message per recipient is one beat.
+
+    The kernel emits both forms; feeding all of them to a screenwriter that is
+    told to place every beat would make it write the same line several times.
+    """
+    say = {"seq": 0, "tick": 3, "kind": "action", "agent": "amy", "location": "hall",
+           "action": {"name": "say", "params": {"targets": ["ben", "cid"], "content": "撤"}},
+           "result": {"ok": True}}
+    msg = lambda seq: {"seq": seq, "tick": 3, "kind": "message", "location": "hall",
+                       "message": {"kind": "say", "sender": "amy",
+                                   "recipients": ["ben", "cid"], "content": "撤"}}
+    evs = [say, msg(1), msg(2)]
+    prompts = []
+    llm = FakeLLM(fn=lambda p, s=None: prompts.append(p) or "SCENE")
+    await generate_screenplay(evs, llm, scene_gap=5, ensure_coverage=False)
+    assert prompts[0].count("撤") == 1
