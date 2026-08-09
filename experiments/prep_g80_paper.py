@@ -155,7 +155,7 @@ ax.bar([LBL[k] for k in KINDS], ys, color=cols)
 for i, y in enumerate(ys):
     ax.text(i, y + 15, str(y), ha="center", fontsize=9)
 ax.set_ylabel("sim-generated memory entries")
-ax.set_title("Sim-memory footprint, 80 ticks (uniform atomization)")
+ax.set_title("Sim-memory footprint, 80 rounds (uniform atomization)")
 ax.set_ylim(0, max(ys) * 1.22)
 plt.tight_layout(); plt.savefig("runs/paper_figs_g80/sim_footprint.png", dpi=140); plt.close()
 
@@ -181,7 +181,7 @@ for axp, key, title, color in [
     axp.plot(g["ticks"], g[key], marker="o", color=color, lw=2)
     for xx, yy in zip(g["ticks"], g[key]):
         axp.annotate(str(yy), (xx, yy), textcoords="offset points", xytext=(0, 7), ha="center", fontsize=8)
-    axp.set_xticks(g["ticks"]); axp.set_xlabel("tick"); axp.set_title(title, fontsize=9.5)
+    axp.set_xticks(g["ticks"]); axp.set_xlabel("round"); axp.set_title(title, fontsize=9.5)
     axp.set_ylim(0, max(g[key]) * 1.25)
 plt.tight_layout(); plt.savefig("runs/paper_figs_g80/growth.png", dpi=140); plt.close()
 print("figs -> runs/paper_figs_g80/ (sim_footprint, structure, growth)")

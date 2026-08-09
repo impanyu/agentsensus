@@ -141,7 +141,7 @@ ax.bar([LBL[k] for k in KINDS], ys, color=["#2563eb", "#9ca3af", "#9ca3af", "#9c
 for i, y in enumerate(ys):
     ax.text(i, y + max(ys) * 0.02, str(y), ha="center", fontsize=9)
 ax.set_ylabel("sim-generated memory entries")
-ax.set_title("Sim-memory footprint, 30 ticks (uniform atomization)")
+ax.set_title("Sim-memory footprint, 30 rounds (uniform atomization)")
 ax.set_ylim(0, max(ys) * 1.22)
 plt.tight_layout(); plt.savefig(f"{OUT}/sim_footprint.png", dpi=140); plt.close()
 quantize(f"{OUT}/sim_footprint.png")
@@ -174,7 +174,7 @@ for k in KINDS:
             t = min(max(int(mm.get("tick", 0) or 0), 0), T)
             curve[t:] += 1
     ax.plot(range(T + 1), curve, label=LBL[k], color=COL[k], lw=1.8)
-ax.set_xlabel("tick"); ax.set_ylabel("cumulative sim-generated entries")
+ax.set_xlabel("round"); ax.set_ylabel("cumulative sim-generated entries")
 ax.set_title("System memory growth (sim-only)")
 ax.legend(fontsize=8); ax.margins(x=0.01)
 
@@ -194,13 +194,13 @@ for aid, curve in finals:
         ax.plot(range(T + 1), curve, lw=1.7, label=aid)
     else:
         ax.plot(range(T + 1), curve, lw=0.6, color="#9ca3af", alpha=0.5)
-ax.set_xlabel("tick"); ax.set_ylabel("owned sim memories")
+ax.set_xlabel("round"); ax.set_ylabel("owned sim memories")
 ax.set_title("Per-agent growth (consensus; top 6 labeled)")
 ax.legend(fontsize=7, ncols=2); ax.margins(x=0.01)
 plt.tight_layout(); plt.savefig(f"{OUT}/growth.png", dpi=140); plt.close()
 quantize(f"{OUT}/growth.png")
 
-# ---- fig: latency (remember / recall, 2-tick bins, all live) ----
+# ---- fig: latency (remember / recall, 2-round bins, all live) ----
 BIN = 2
 fig, axes = plt.subplots(1, 2, figsize=(10.5, 3.1))
 for ax, op, title in [(axes[0], "remember", "remember latency"),
@@ -219,7 +219,7 @@ for ax, op, title in [(axes[0], "remember", "remember latency"),
         xs = sorted(acc)
         ax.plot([b * BIN + BIN / 2 for b in xs], [np.mean(acc[b]) for b in xs],
                 marker="o", ms=3.5, label=LBL[k], color=COL[k], lw=1.6)
-    ax.set_xlabel("tick"); ax.set_ylabel("mean seconds per call")
+    ax.set_xlabel("round"); ax.set_ylabel("mean seconds per call")
     ax.set_title(title, fontsize=10); ax.margins(x=0.02)
 axes[0].legend(fontsize=8)
 plt.tight_layout(); plt.savefig(f"{OUT}/latency.png", dpi=140); plt.close()
