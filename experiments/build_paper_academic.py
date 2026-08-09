@@ -242,67 +242,108 @@ HTML = CSS + f"""
 <p><b>Nothing reconciles the copies, and nothing connects them.</b> The ten records are ten independently-worded paraphrases that only diverge further as agents summarize and reflect. No record knows its counterparts exist; no edge links a courier&rsquo;s report to the battle it describes or to the order it triggered. The connective tissue of the story lives in the transcript, not in the memory, so retrieval returns one agent&rsquo;s partial view even when the collective already holds the whole.</p>
 <p><b>The interfaces that could fix this go unused.</b> Stream designs expose maintenance operations &mdash; link related records, revise stale ones, forget duplicates &mdash; and rely on agents to call them. Across two models and all four backends we measure <i>zero</i> such calls (&sect;5.6), with documentation, worked examples, and an id-free interface all in place. Any structure that depends on agent-side curation therefore never materializes.</p>
 <p>Agentsensus answers all three with one commitment: <b>the world&rsquo;s memory is a single store, and sharing is computed rather than assumed</b>. Three design decisions follow, and the rest of this section is their mechanics. <b>D1 &mdash; equivalence merging:</b> when two agents record the same event, the write path detects it and folds the records into one row whose owner-set is the union of its witnesses, so cost tracks events. <b>D2 &mdash; deposit-time graph:</b> the atoms split from one deposit are linked to each other as a side effect of writing, so the graph exists without anyone maintaining it. <b>D3 &mdash; structure inside <code>remember</code>/<code>recall</code>:</b> because agents demonstrably use only those two operations, every mechanism lives inside them; nothing is delegated to agent discretion.</p>
-<p>Figure&nbsp;1 makes the difference concrete on a single event.</p>
+<p>Figure&nbsp;1 shows the framework these decisions live in; Figure&nbsp;2 shows what they change inside the store.</p>
 
 <figure>
-<svg viewBox="0 0 840 330" role="img" aria-label="One event witnessed by four agents becomes four unlinked rows under per-agent designs and one four-owner linked row under consensus" style="max-width:100%;height:auto">
+<svg viewBox="0 0 840 560" role="img" aria-label="The framework shared by all four backends: a source text is sedimented into owner-tagged events that seed one long-term memory store, which every agent writes to and reads from, while characters also talk to each other through kernel-held threads" style="max-width:100%;height:auto">
   <defs>
-    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
-    </marker>
+    <marker id="f1a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker>
+    <marker id="f1b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/></marker>
+    <marker id="f1c" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--good)"/></marker>
   </defs>
   <g fill="none" stroke="currentColor" stroke-width="1.3" font-family="system-ui,sans-serif">
-    <rect x="250" y="14" width="340" height="34" rx="6"/>
-    <text x="420" y="36" text-anchor="middle" font-size="16.2" stroke="none" fill="currentColor">one event e, witnessed by A, B, C, D</text>
-    <line x1="120" y1="48" x2="120" y2="86" marker-end="url(#ar)"/>
-    <line x1="320" y1="48" x2="320" y2="86" marker-end="url(#ar)"/>
-    <line x1="520" y1="48" x2="520" y2="86" marker-end="url(#ar)"/>
-    <line x1="720" y1="48" x2="720" y2="86" marker-end="url(#ar)"/>
-    <text x="238" y="32" text-anchor="end" font-size="12.5" stroke="none" fill="currentColor" opacity=".75">deposit</text>
 
-    <text x="120" y="104" text-anchor="middle" font-size="15.6" stroke="none" fill="currentColor" font-weight="600">Generative-Agents</text>
-    <rect x="40" y="116" width="160" height="26" rx="4"/><text x="120" y="133" text-anchor="middle" font-size="13.8" stroke="none" fill="currentColor">e &nbsp;|&nbsp; owner A</text>
-    <rect x="40" y="148" width="160" height="26" rx="4"/><text x="120" y="165" text-anchor="middle" font-size="13.8" stroke="none" fill="currentColor">e &nbsp;|&nbsp; owner B</text>
-    <rect x="40" y="180" width="160" height="26" rx="4"/><text x="120" y="197" text-anchor="middle" font-size="13.8" stroke="none" fill="currentColor">e &nbsp;|&nbsp; owner C</text>
-    <rect x="40" y="212" width="160" height="26" rx="4"/><text x="120" y="229" text-anchor="middle" font-size="13.8" stroke="none" fill="currentColor">e &nbsp;|&nbsp; owner D</text>
-    <rect x="40" y="248" width="160" height="26" rx="4" stroke-dasharray="4 3"/><text x="120" y="265" text-anchor="middle" font-size="13.1" stroke="none" fill="currentColor" opacity=".8">reflection (own stream)</text>
-    <text x="120" y="296" text-anchor="middle" font-size="13.8" stroke="none" fill="currentColor" opacity=".8">4 rows, no cross-agent edge</text>
+    <text x="14" y="24" font-size="13.5" stroke="none" fill="currentColor" opacity=".6" font-weight="600">OFFLINE &mdash; sedimentation (&sect;3.4)</text>
+    <path d="M20 48 h60 a8 8 0 0 1 8 8 v62 a8 8 0 0 1 -8 8 h-60 z"/>
+    <line x1="31" y1="48" x2="31" y2="126"/>
+    <line x1="42" y1="70" x2="78" y2="70"/><line x1="42" y1="86" x2="78" y2="86"/><line x1="42" y1="102" x2="72" y2="102"/>
+    <text x="54" y="150" text-anchor="middle" font-size="14" stroke="none" fill="currentColor">source text</text>
+    <line x1="92" y1="87" x2="126" y2="87" marker-end="url(#f1a)"/>
+    <path d="M132 54 h74 l-23 29 v40 l-28 12 v-52 z"/>
+    <text x="169" y="150" text-anchor="middle" font-size="14" stroke="none" fill="currentColor">extract + attribute</text>
+    <line x1="212" y1="87" x2="246" y2="87" marker-end="url(#f1a)"/>
+    <rect x="250" y="56" width="96" height="19" rx="3"/><text x="298" y="70" text-anchor="middle" font-size="12" stroke="none" fill="currentColor">event | A, B</text>
+    <rect x="250" y="79" width="96" height="19" rx="3"/><text x="298" y="93" text-anchor="middle" font-size="12" stroke="none" fill="currentColor">event | C</text>
+    <rect x="250" y="102" width="96" height="19" rx="3"/><text x="298" y="116" text-anchor="middle" font-size="12" stroke="none" fill="currentColor">event | A, D</text>
+    <text x="298" y="150" text-anchor="middle" font-size="14" stroke="none" fill="currentColor">owner-tagged events</text>
+    <path d="M352 90 C 432 96 424 214 200 236" stroke="var(--accent)" marker-end="url(#f1b)"/>
+    <text x="398" y="150" font-size="13" stroke="none" fill="var(--accent)" font-weight="600">seed the store</text>
 
-    <text x="320" y="104" text-anchor="middle" font-size="15.6" stroke="none" fill="currentColor" font-weight="600">G-Memory</text>
-    <rect x="240" y="116" width="160" height="26" rx="4"/><text x="320" y="133" text-anchor="middle" font-size="13.8" stroke="none" fill="currentColor">e &nbsp;|&nbsp; owner A</text>
-    <rect x="240" y="148" width="160" height="26" rx="4"/><text x="320" y="165" text-anchor="middle" font-size="13.8" stroke="none" fill="currentColor">e &nbsp;|&nbsp; owner B</text>
-    <rect x="240" y="180" width="160" height="26" rx="4"/><text x="320" y="197" text-anchor="middle" font-size="13.8" stroke="none" fill="currentColor">e &nbsp;|&nbsp; owner C</text>
-    <rect x="240" y="212" width="160" height="26" rx="4"/><text x="320" y="229" text-anchor="middle" font-size="13.8" stroke="none" fill="currentColor">e &nbsp;|&nbsp; owner D</text>
-    <rect x="240" y="248" width="160" height="26" rx="4" stroke-dasharray="4 3"/><text x="320" y="265" text-anchor="middle" font-size="13.1" stroke="none" fill="currentColor" opacity=".8">insight node (per owner)</text>
-    <text x="320" y="296" text-anchor="middle" font-size="13.8" stroke="none" fill="currentColor" opacity=".8">4 rows + within-owner edges</text>
+    <line x1="14" y1="178" x2="826" y2="178" opacity=".25"/>
+    <text x="14" y="200" font-size="13.5" stroke="none" fill="currentColor" opacity=".6" font-weight="600">RUNTIME &mdash; one world, one store</text>
 
-    <text x="520" y="104" text-anchor="middle" font-size="15.6" stroke="none" fill="currentColor" font-weight="600">Collaborative</text>
-    <rect x="440" y="116" width="160" height="26" rx="4"/><text x="520" y="133" text-anchor="middle" font-size="13.8" stroke="none" fill="currentColor">e &nbsp;|&nbsp; acl A</text>
-    <rect x="440" y="148" width="160" height="26" rx="4"/><text x="520" y="165" text-anchor="middle" font-size="13.8" stroke="none" fill="currentColor">e &nbsp;|&nbsp; acl B</text>
-    <rect x="440" y="180" width="160" height="26" rx="4"/><text x="520" y="197" text-anchor="middle" font-size="13.8" stroke="none" fill="currentColor">e &nbsp;|&nbsp; acl C</text>
-    <rect x="440" y="212" width="160" height="26" rx="4"/><text x="520" y="229" text-anchor="middle" font-size="13.8" stroke="none" fill="currentColor">e &nbsp;|&nbsp; acl D</text>
-    <text x="520" y="296" text-anchor="middle" font-size="13.8" stroke="none" fill="currentColor" opacity=".8">4 rows, ACL-scoped reads</text>
+    <ellipse cx="120" cy="240" rx="62" ry="16" stroke="var(--accent)" stroke-width="1.7"/>
+    <path d="M58 240 v104 a62 16 0 0 0 124 0 v-104" stroke="var(--accent)" stroke-width="1.7"/>
+    <text x="120" y="286" text-anchor="middle" font-size="15" stroke="none" fill="var(--accent)" font-weight="700">long-term</text>
+    <text x="120" y="306" text-anchor="middle" font-size="15" stroke="none" fill="var(--accent)" font-weight="700">memory</text>
+    <text x="120" y="330" text-anchor="middle" font-size="12" stroke="none" fill="currentColor" opacity=".75">shared by all</text>
+    <text x="120" y="378" text-anchor="middle" font-size="12" stroke="none" fill="currentColor" opacity=".75">internal structure</text>
+    <text x="120" y="394" text-anchor="middle" font-size="12" stroke="none" fill="currentColor" opacity=".75">differs per backend</text>
+    <text x="120" y="410" text-anchor="middle" font-size="12" stroke="none" fill="var(--accent)" font-weight="600">&rarr; Figure 2</text>
 
-    <text x="720" y="104" text-anchor="middle" font-size="15.6" stroke="none" fill="var(--accent)" font-weight="700">Consensus (ours)</text>
-    <rect x="640" y="116" width="160" height="58" rx="4" stroke="var(--accent)" stroke-width="1.8"/>
-    <text x="720" y="139" text-anchor="middle" font-size="13.8" stroke="none" fill="currentColor">e</text>
-    <text x="720" y="158" text-anchor="middle" font-size="13.8" stroke="none" fill="var(--accent)" font-weight="600">owners A, B, C, D</text>
-    <line x1="720" y1="174" x2="720" y2="196" stroke="var(--accent)" marker-end="url(#ar)"/>
-    <text x="732" y="190" font-size="12.5" stroke="none" fill="currentColor" opacity=".8">affiliated</text>
-    <rect x="640" y="196" width="160" height="26" rx="4" stroke="var(--accent)"/>
-    <text x="720" y="213" text-anchor="middle" font-size="13.8" stroke="none" fill="currentColor">sibling atom of e</text>
-    <text x="720" y="296" text-anchor="middle" font-size="13.8" stroke="none" fill="var(--accent)" font-weight="600">1 row, 4 owners, linked</text>
+    <path d="M184 252 C 240 252 244 232 292 232" stroke="var(--accent)" marker-end="url(#f1b)"/>
+    <text x="238" y="224" text-anchor="middle" font-size="13" stroke="none" fill="var(--accent)" font-weight="600">recall</text>
+    <path d="M292 330 C 244 330 240 310 184 310" stroke="var(--accent)" marker-end="url(#f1b)"/>
+    <text x="238" y="348" text-anchor="middle" font-size="13" stroke="none" fill="var(--accent)" font-weight="600">remember</text>
+    <text x="238" y="364" text-anchor="middle" font-size="12" stroke="none" fill="currentColor" opacity=".7">both owner-scoped</text>
+
+    <rect x="300" y="196" width="526" height="234" rx="10" stroke-dasharray="5 4" opacity=".5"/>
+    <text x="816" y="216" text-anchor="end" font-size="12.5" stroke="none" fill="currentColor" opacity=".65">the society</text>
+
+    <g stroke="var(--accent)"><circle cx="392" cy="248" r="10"/><path d="M379 276 a13 15 0 0 1 26 0"/></g>
+    <text x="392" y="322" text-anchor="middle" font-size="13" stroke="none" fill="currentColor">character</text>
+
+    <g stroke="var(--accent)"><circle cx="566" cy="248" r="10"/><path d="M553 276 a13 15 0 0 1 26 0"/></g>
+    <text x="566" y="322" text-anchor="middle" font-size="13" stroke="none" fill="currentColor">character</text>
+
+    <g stroke="var(--accent)"><circle cx="392" cy="368" r="10"/><path d="M379 396 a13 15 0 0 1 26 0"/></g>
+    <text x="392" y="424" text-anchor="middle" font-size="13" stroke="none" fill="currentColor">character</text>
+
+    <line x1="406" y1="248" x2="552" y2="248" marker-end="url(#f1a)" marker-start="url(#f1a)"/>
+    <text x="479" y="240" text-anchor="middle" font-size="12" stroke="none" fill="currentColor" opacity=".85">say &middot; kernel-held thread</text>
+    <line x1="402" y1="352" x2="556" y2="266" marker-end="url(#f1a)"/>
+    <text x="500" y="300" text-anchor="middle" font-size="12" stroke="none" fill="currentColor" opacity=".85">delivery delayed by distance</text>
+
+    <g stroke="var(--good)"><path d="M700 244 a12 12 0 1 1 0.01 0"/><path d="M690 253 l10 22 l10 -22"/></g>
+    <text x="700" y="296" text-anchor="middle" font-size="13" stroke="none" fill="var(--good)">environment</text>
+    <text x="700" y="312" text-anchor="middle" font-size="12" stroke="none" fill="currentColor" opacity=".7">owns memories,</text>
+    <text x="700" y="326" text-anchor="middle" font-size="12" stroke="none" fill="currentColor" opacity=".7">never takes a turn</text>
+
+    <g stroke="var(--warn)"><path d="M676 356 h38 l12 12 v32 h-50 z"/><path d="M714 356 v12 h12"/>
+      <line x1="684" y1="380" x2="716" y2="380"/><line x1="684" y1="391" x2="710" y2="391"/></g>
+    <text x="701" y="420" text-anchor="middle" font-size="13" stroke="none" fill="var(--warn)">info carrier</text>
+
+    <line x1="584" y1="248" x2="672" y2="248" marker-end="url(#f1c)"/>
+    <text x="628" y="240" text-anchor="middle" font-size="12" stroke="none" fill="var(--good)">act_on</text>
+    <line x1="418" y1="376" x2="668" y2="376" marker-end="url(#f1c)"/>
+    <text x="540" y="368" text-anchor="middle" font-size="12" stroke="none" fill="var(--good)">read</text>
+
+    <line x1="14" y1="452" x2="826" y2="452" opacity=".25"/>
+    <text x="14" y="474" font-size="13" stroke="none" fill="currentColor" opacity=".9">A character emits <tspan font-weight="600">one action per tick</tspan>, from a single repertoire:</text>
+    <g font-size="12.5">
+      <rect x="14" y="486" width="40" height="22" rx="11"/><text x="34" y="501" text-anchor="middle" stroke="none" fill="currentColor">say</text>
+      <rect x="60" y="486" width="88" height="22" rx="11"/><text x="104" y="501" text-anchor="middle" stroke="none" fill="currentColor">read_thread</text>
+      <rect x="154" y="486" width="84" height="22" rx="11" stroke="var(--accent)"/><text x="196" y="501" text-anchor="middle" stroke="none" fill="var(--accent)" font-weight="600">remember</text>
+      <rect x="244" y="486" width="60" height="22" rx="11" stroke="var(--accent)"/><text x="274" y="501" text-anchor="middle" stroke="none" fill="var(--accent)" font-weight="600">recall</text>
+      <rect x="310" y="486" width="80" height="22" rx="11"/><text x="350" y="501" text-anchor="middle" stroke="none" fill="currentColor">push_goal</text>
+      <rect x="396" y="486" width="74" height="22" rx="11"/><text x="433" y="501" text-anchor="middle" stroke="none" fill="currentColor">pop_goal</text>
+      <rect x="476" y="486" width="52" height="22" rx="11" stroke="var(--good)"/><text x="502" y="501" text-anchor="middle" stroke="none" fill="var(--good)">move</text>
+      <rect x="534" y="486" width="78" height="22" rx="11" stroke="var(--good)"/><text x="573" y="501" text-anchor="middle" stroke="none" fill="var(--good)">observe</text>
+      <rect x="618" y="486" width="62" height="22" rx="11" stroke="var(--good)"/><text x="649" y="501" text-anchor="middle" stroke="none" fill="var(--good)">act_on</text>
+      <rect x="686" y="486" width="48" height="22" rx="11" stroke="var(--good)"/><text x="710" y="501" text-anchor="middle" stroke="none" fill="var(--good)">read</text>
+      <rect x="740" y="486" width="46" height="22" rx="11"/><text x="763" y="501" text-anchor="middle" stroke="none" fill="currentColor">wait</text>
+      <rect x="14" y="514" width="232" height="22" rx="11" stroke-dasharray="3 3" opacity=".5"/><text x="130" y="529" text-anchor="middle" stroke="none" fill="currentColor" opacity=".75">6 memory-management: never used</text>
+    </g>
+    <text x="262" y="522" font-size="12" stroke="none" fill="currentColor" opacity=".8">Blue actions touch long-term memory, green ones the world. Each tick freezes all views at the barrier,</text>
+    <text x="262" y="538" font-size="12" stroke="none" fill="currentColor" opacity=".8">decisions issue concurrently, then apply in a fixed order &mdash; event order is reproducible.</text>
   </g>
 </svg>
-<figcaption><b>Figure 1. What one event becomes in each design.</b> Four agents witness the same event and each deposits it. The three per-agent designs store four rows that no mechanism relates to one another; their internal structure (Generative-Agents reflections, G-Memory insight nodes) is built <i>within</i> one owner&rsquo;s records and never crosses agents. Consensus detects the equivalence at write time and keeps one row whose owner-set is the union of the witnesses, linked to the other atoms of the same deposit. The columns are the mechanisms&rsquo; outputs, not a storage-efficiency claim: &sect;5.1 measures what this does over a full run.</figcaption>
+<figcaption><b>Figure 1. The framework, identical for all four memory designs.</b> A source text is sedimented into atomic events tagged with the characters who witnessed them, and those events seed one long-term memory store (&sect;3.4). At run time every agent reaches the <i>same</i> store through two operations &mdash; <code>remember</code> and <code>recall</code>, both owner-scoped &mdash; while characters (blue) also talk to one another through kernel-held threads whose delivery is delayed by map distance; environments (green) and information carriers (amber) own memories and answer <code>act_on</code>/<code>read</code> but never take a turn. Each character additionally carries a small short-term state (action FIFO, goal stack) that is not part of the store. What the four backends change is only the internal structure of the cylinder, which Figure 2 opens up.</figcaption>
 </figure>
 
 <h3>3.2 &nbsp;System overview</h3>
-<p>Agentsensus is three subsystems. An offline <b>sedimentation pipeline</b> turns a source text into a memory-grounded initial world. A deterministic <b>tick-barrier kernel</b> schedules agents, routes messages, and snapshots the entire system. The <b>consensus shared memory</b> holds every agent&rsquo;s knowledge in one store, with D1&ndash;D3 implemented inside its write and read paths. Data flows left to right at start-up &mdash; sedimentation seeds both the store and the world state &mdash; and cycles between kernel and store at run time: Phase-2 action effects write into the store and into conversation threads, and both feed the next tick&rsquo;s agent views through owner-scoped recall and the conversation roster.</p>
-<figure>
-  <img src="{IMG['arch']}" alt="Agentsensus architecture">
-  <figcaption><b>Figure 2. System architecture.</b> Left: the offline sedimentation pipeline (novel &rarr; witnessed atomic events &rarr; per-backend ingest &rarr; boundary-state finalization &rarr; seeded world). Center: the tick-barrier kernel &mdash; numbered stages run each tick; conversation threads and the world map are kernel-held state; the checkpointer snapshots agents&rsquo; short-term state, kernel runtime, and the entire store every 20 ticks for bit-for-bit resumption. Right: the consensus shared memory &mdash; the row data model, the four-stage write path, the two-stage read path, query-addressed mutations, and the empirical design rule behind placing every mechanism inside <code>remember</code>/<code>recall</code>.</figcaption>
-</figure>
+<p>Agentsensus is three subsystems, all visible in Figure&nbsp;1. An offline <b>sedimentation pipeline</b> turns a source text into a memory-grounded initial world. A deterministic <b>tick-barrier kernel</b> schedules agents, routes messages, and snapshots the entire system. The <b>shared long-term memory</b> holds every agent&rsquo;s knowledge in one store, with D1&ndash;D3 implemented inside its write and read paths. Data flows left to right at start-up &mdash; sedimentation seeds both the store and the world state &mdash; and cycles between kernel and store at run time: Phase-2 action effects write into the store and into conversation threads, and both feed the next tick&rsquo;s agent views through owner-scoped recall and the conversation roster.</p>
+
 
 <h3>3.3 &nbsp;World model and tick-barrier kernel</h3>
 <p><b>Entities.</b> A world is a set of agents on a location map with pairwise travel distances. <b>Characters</b> are LLM-driven: each holds a persona, a goal stack, a status register, and a short-term FIFO of recent actions; each decision is one LLM call that receives a rendered view (tick, goals, status, FIFO, co-located agents, conversation roster, known locations, plus contextual hints) and returns one action as JSON. <b>Environments</b> and <b>information carriers</b> are passive: they own memories (deposited by sedimentation or by characters&rsquo; <code>act_on</code>) but never take turns &mdash; a character&rsquo;s <code>act_on</code>/<code>read</code> is served synchronously by the kernel against the target&rsquo;s own memories, costing no extra LLM calls and giving places and documents durable, queryable state.</p>
@@ -319,134 +360,130 @@ HTML = CSS + f"""
 <p><b>Read path.</b> <code>recall(query)</code> retrieves the top-k semantic matches <i>among rows the caller owns</i>, then follows each hit&rsquo;s affiliated edges one hop and appends linked rows the caller also owns, marked <code>via_affiliated</code>. A single recall therefore returns an event&rsquo;s scattered pieces together. Expansion is deliberately uncapped; its cost is measured in &sect;5.2.</p>
 <p><b>Cost placement.</b> The design pays at write time (one atomization call when a deposit is compound, one judge call when candidates pass the pre-filter) to keep the store small and structured; reads add only vector lookups. &sect;5.2&rsquo;s latency instrumentation quantifies both sides against the baselines.</p>
 
-<h3>3.6 &nbsp;The four designs, module by module</h3>
-<p>Figures&nbsp;3&ndash;6 draw the same picture four times: two agents deposit their accounts of one event on the left, the write path runs through the middle, the resulting store state sits on the right, and the read path is the return arrow along the bottom. Drawn this way the designs differ in exactly one structural respect &mdash; whether the two deposit lanes ever meet. In the three baselines they run in parallel to two separate rows; in consensus they converge at the equivalence judge. Everything else (atomization, embedding, owner-scoped reads) is held identical by the fairness protocol of &sect;4.3.</p>
+<h3>3.6 &nbsp;How the four designs differ</h3>
+<p>Everything above is shared by the four backends we compare: the same world model, the same sedimented events, the same two operations, the same atomization. They differ in one place only &mdash; the internal structure of the store in Figure&nbsp;1 &mdash; and Figure&nbsp;2 draws that structure for each. Read side by side, the three baselines differ in how much structure they build <i>within</i> a single owner&rsquo;s records, and consensus is the only one that builds structure <i>across</i> owners.</p>
 
 <figure>
-<svg viewBox="0 0 840 250" role="img" aria-label="Generative-Agents: two agents deposit into two private streams that never meet; a periodic reflection module summarizes within one stream" style="max-width:100%;height:auto">
-  <defs><marker id="ar1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
-  <g fill="none" stroke="currentColor" stroke-width="1.3" font-family="system-ui,sans-serif">
-    <rect x="14" y="42" width="86" height="36" rx="6"/><text x="57" y="65" text-anchor="middle" font-size="15" stroke="none" fill="currentColor">Agent A</text>
-    <rect x="14" y="132" width="86" height="36" rx="6"/><text x="57" y="155" text-anchor="middle" font-size="15" stroke="none" fill="currentColor">Agent B</text>
-    <line x1="100" y1="60" x2="146" y2="60" marker-end="url(#ar1)"/><text x="123" y="52" text-anchor="middle" font-size="12.5" stroke="none" fill="currentColor" opacity=".8">remember(e)</text>
-    <line x1="100" y1="150" x2="146" y2="150" marker-end="url(#ar1)"/><text x="123" y="142" text-anchor="middle" font-size="12.5" stroke="none" fill="currentColor" opacity=".8">remember(e)</text>
-    <rect x="148" y="42" width="104" height="36" rx="6"/><text x="200" y="65" text-anchor="middle" font-size="14.4" stroke="none" fill="currentColor">atomize</text>
-    <rect x="148" y="132" width="104" height="36" rx="6"/><text x="200" y="155" text-anchor="middle" font-size="14.4" stroke="none" fill="currentColor">atomize</text>
-    <line x1="252" y1="60" x2="292" y2="60" marker-end="url(#ar1)"/>
-    <line x1="252" y1="150" x2="292" y2="150" marker-end="url(#ar1)"/>
-    <rect x="294" y="42" width="128" height="36" rx="6"/><text x="358" y="59" text-anchor="middle" font-size="14.4" stroke="none" fill="currentColor">importance score</text><text x="358" y="72" text-anchor="middle" font-size="11.9" stroke="none" fill="currentColor" opacity=".75">1 LLM call per atom</text>
-    <rect x="294" y="132" width="128" height="36" rx="6"/><text x="358" y="149" text-anchor="middle" font-size="14.4" stroke="none" fill="currentColor">importance score</text><text x="358" y="162" text-anchor="middle" font-size="11.9" stroke="none" fill="currentColor" opacity=".75">1 LLM call per atom</text>
-    <line x1="422" y1="60" x2="470" y2="60" marker-end="url(#ar1)"/><text x="446" y="52" text-anchor="middle" font-size="12.5" stroke="none" fill="currentColor" opacity=".8">append</text>
-    <line x1="422" y1="150" x2="470" y2="150" marker-end="url(#ar1)"/><text x="446" y="142" text-anchor="middle" font-size="12.5" stroke="none" fill="currentColor" opacity=".8">append</text>
-    <rect x="472" y="30" width="170" height="60" rx="6"/><text x="557" y="49" text-anchor="middle" font-size="14.4" stroke="none" fill="currentColor" font-weight="600">A&rsquo;s private stream</text><text x="557" y="70" text-anchor="middle" font-size="13.8" stroke="none" fill="currentColor">e | owner A</text>
-    <rect x="472" y="120" width="170" height="60" rx="6"/><text x="557" y="139" text-anchor="middle" font-size="14.4" stroke="none" fill="currentColor" font-weight="600">B&rsquo;s private stream</text><text x="557" y="160" text-anchor="middle" font-size="13.8" stroke="none" fill="currentColor">e | owner B</text>
-    <rect x="672" y="60" width="150" height="90" rx="6" stroke-dasharray="4 3"/>
-    <text x="747" y="82" text-anchor="middle" font-size="14.4" stroke="none" fill="currentColor">reflection</text>
-    <text x="747" y="100" text-anchor="middle" font-size="11.9" stroke="none" fill="currentColor" opacity=".75">importance over</text>
-    <text x="747" y="113" text-anchor="middle" font-size="11.9" stroke="none" fill="currentColor" opacity=".75">threshold &rarr; synthesize</text>
-    <text x="747" y="131" text-anchor="middle" font-size="11.9" stroke="none" fill="currentColor" opacity=".75">stays inside one stream</text>
-    <line x1="642" y1="70" x2="670" y2="88" stroke-dasharray="4 3" marker-end="url(#ar1)"/>
-    <line x1="642" y1="140" x2="670" y2="122" stroke-dasharray="4 3" marker-end="url(#ar1)"/>
-    <line x1="640" y1="215" x2="60" y2="215" marker-end="url(#ar1)"/>
-    <text x="350" y="207" text-anchor="middle" font-size="13.1" stroke="none" fill="currentColor" opacity=".85">recall: kNN over the caller&rsquo;s own stream, scored by recency &times; importance &times; relevance</text>
-  </g>
-</svg>
-<figcaption><b>Figure 3. Generative-Agents memory.</b> Each agent&rsquo;s deposit is atomized, scored for importance by an LLM call, and appended to that agent&rsquo;s private stream. The two lanes never meet, so one event held by two witnesses is two rows. Reflection (dashed) is the only structure-building module, and it operates strictly within a single stream.</figcaption>
-</figure>
+<svg viewBox="0 0 840 660" role="img" aria-label="The long-term memory structure of the four backends: private streams with importance scores and a reflection tree; a two-tier interaction and insight graph walked by bi-level retrieval; one access-controlled store where sharing is a permission; and merged multi-owner rows inside an affiliation graph that recall expands one hop" style="max-width:100%;height:auto">
+  <defs>
+    <marker id="g2a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker>
+    <marker id="g2b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/></marker>
+  </defs>
+  <g fill="none" stroke="currentColor" stroke-width="1.2" font-family="system-ui,sans-serif">
 
-<figure>
-<svg viewBox="0 0 840 250" role="img" aria-label="G-Memory: per-owner interaction rows plus a periodic distillation into insight nodes with derived-from edges, read by bi-level retrieval" style="max-width:100%;height:auto">
-  <defs><marker id="ar2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
-  <g fill="none" stroke="currentColor" stroke-width="1.3" font-family="system-ui,sans-serif">
-    <rect x="14" y="42" width="86" height="36" rx="6"/><text x="57" y="65" text-anchor="middle" font-size="15" stroke="none" fill="currentColor">Agent A</text>
-    <rect x="14" y="132" width="86" height="36" rx="6"/><text x="57" y="155" text-anchor="middle" font-size="15" stroke="none" fill="currentColor">Agent B</text>
-    <line x1="100" y1="60" x2="146" y2="60" marker-end="url(#ar2)"/><text x="123" y="52" text-anchor="middle" font-size="12.5" stroke="none" fill="currentColor" opacity=".8">remember(e)</text>
-    <line x1="100" y1="150" x2="146" y2="150" marker-end="url(#ar2)"/><text x="123" y="142" text-anchor="middle" font-size="12.5" stroke="none" fill="currentColor" opacity=".8">remember(e)</text>
-    <rect x="148" y="42" width="104" height="36" rx="6"/><text x="200" y="65" text-anchor="middle" font-size="14.4" stroke="none" fill="currentColor">atomize</text>
-    <rect x="148" y="132" width="104" height="36" rx="6"/><text x="200" y="155" text-anchor="middle" font-size="14.4" stroke="none" fill="currentColor">atomize</text>
-    <line x1="252" y1="60" x2="300" y2="60" marker-end="url(#ar2)"/>
-    <line x1="252" y1="150" x2="300" y2="150" marker-end="url(#ar2)"/>
-    <rect x="302" y="30" width="170" height="60" rx="6"/><text x="387" y="49" text-anchor="middle" font-size="14.4" stroke="none" fill="currentColor" font-weight="600">interaction tier (A)</text><text x="387" y="70" text-anchor="middle" font-size="13.8" stroke="none" fill="currentColor">e | owner A</text>
-    <rect x="302" y="120" width="170" height="60" rx="6"/><text x="387" y="139" text-anchor="middle" font-size="14.4" stroke="none" fill="currentColor" font-weight="600">interaction tier (B)</text><text x="387" y="160" text-anchor="middle" font-size="13.8" stroke="none" fill="currentColor">e | owner B</text>
-    <rect x="512" y="72" width="130" height="66" rx="6" stroke-dasharray="4 3"/>
-    <text x="577" y="94" text-anchor="middle" font-size="14.4" stroke="none" fill="currentColor">distill</text>
-    <text x="577" y="110" text-anchor="middle" font-size="11.9" stroke="none" fill="currentColor" opacity=".75">every 20 deposits</text>
-    <text x="577" y="126" text-anchor="middle" font-size="11.9" stroke="none" fill="currentColor" opacity=".75">1 LLM call</text>
-    <line x1="472" y1="62" x2="510" y2="86" stroke-dasharray="4 3" marker-end="url(#ar2)"/>
-    <line x1="472" y1="148" x2="510" y2="124" stroke-dasharray="4 3" marker-end="url(#ar2)"/>
-    <rect x="672" y="42" width="150" height="36" rx="6"/><text x="747" y="65" text-anchor="middle" font-size="13.8" stroke="none" fill="currentColor">insight node (A)</text>
-    <rect x="672" y="132" width="150" height="36" rx="6"/><text x="747" y="155" text-anchor="middle" font-size="13.8" stroke="none" fill="currentColor">insight node (B)</text>
-    <line x1="642" y1="92" x2="670" y2="72" marker-end="url(#ar2)"/>
-    <line x1="642" y1="118" x2="670" y2="138" marker-end="url(#ar2)"/>
-    <text x="700" y="105" text-anchor="middle" font-size="11.9" stroke="none" fill="currentColor" opacity=".8">derived_from</text>
-    <line x1="820" y1="215" x2="60" y2="215" marker-end="url(#ar2)"/>
-    <text x="430" y="207" text-anchor="middle" font-size="13.1" stroke="none" fill="currentColor" opacity=".85">recall: query the insight tier, then walk derived_from edges down to the caller&rsquo;s interaction rows</text>
-  </g>
-</svg>
-<figcaption><b>Figure 4. G-Memory.</b> Deposits land as interaction rows in the depositing agent&rsquo;s tier; a periodic distillation pass (dashed) synthesizes insight nodes and links them to their sources with <code>derived_from</code> edges, which bi-level retrieval then walks. The graph is real but grows <i>within</i> an owner: the two lanes remain separate rows, and no edge crosses from A&rsquo;s record of the event to B&rsquo;s.</figcaption>
-</figure>
+  <!-- (a) Generative-Agents -->
+  <text x="14" y="22" font-size="14.5" stroke="none" fill="currentColor" font-weight="700">(a) Generative-Agents &mdash; private streams + reflection tree</text>
+  <rect x="14" y="32" width="396" height="264" rx="9" opacity=".45" stroke-dasharray="5 4"/>
+  <g stroke="var(--accent)"><circle cx="64" cy="60" r="8"/><path d="M53 80 a11 12 0 0 1 22 0"/></g>
+  <text x="64" y="98" text-anchor="middle" font-size="13.5" stroke="none" fill="currentColor">A</text>
+  <g stroke="var(--accent)"><circle cx="212" cy="60" r="8"/><path d="M201 80 a11 12 0 0 1 22 0"/></g>
+  <text x="212" y="98" text-anchor="middle" font-size="13.5" stroke="none" fill="currentColor">B</text>
+  <rect x="24" y="110" width="80" height="22" rx="3"/><text x="46" y="125" text-anchor="middle" font-size="13.4" stroke="none" fill="currentColor">e</text>
+  <text x="88" y="125" text-anchor="middle" font-size="13.4" stroke="none" fill="currentColor" opacity=".7">.8</text>
+  <rect x="24" y="136" width="80" height="22" rx="3"/><text x="88" y="151" text-anchor="middle" font-size="13.4" stroke="none" fill="currentColor" opacity=".7">.4</text>
+  <rect x="24" y="162" width="80" height="22" rx="3"/><text x="88" y="177" text-anchor="middle" font-size="13.4" stroke="none" fill="currentColor" opacity=".7">.9</text>
+  <rect x="172" y="110" width="80" height="22" rx="3"/><text x="194" y="125" text-anchor="middle" font-size="13.4" stroke="none" fill="currentColor">e</text>
+  <text x="236" y="125" text-anchor="middle" font-size="13.4" stroke="none" fill="currentColor" opacity=".7">.7</text>
+  <rect x="172" y="136" width="80" height="22" rx="3"/><text x="236" y="151" text-anchor="middle" font-size="13.4" stroke="none" fill="currentColor" opacity=".7">.5</text>
+  <rect x="172" y="162" width="80" height="22" rx="3"/><text x="236" y="177" text-anchor="middle" font-size="13.4" stroke="none" fill="currentColor" opacity=".7">.6</text>
+  <text x="132" y="104" text-anchor="middle" font-size="13.4" stroke="none" fill="currentColor" opacity=".7">importance</text>
+  <rect x="24" y="204" width="80" height="24" rx="3" stroke-dasharray="4 3"/><text x="64" y="220" text-anchor="middle" font-size="13.4" stroke="none" fill="currentColor" opacity=".9">reflection</text>
+  <rect x="24" y="248" width="80" height="24" rx="3" stroke-dasharray="4 3"/><text x="64" y="264" text-anchor="middle" font-size="13.4" stroke="none" fill="currentColor" opacity=".9">reflection&sup2;</text>
+  <path d="M34 186 L46 202" stroke-dasharray="3 3" marker-end="url(#g2a)"/>
+  <path d="M94 186 L78 202" stroke-dasharray="3 3" marker-end="url(#g2a)"/>
+  <line x1="64" y1="228" x2="64" y2="246" stroke-dasharray="3 3" marker-end="url(#g2a)"/>
+  <text x="120" y="216" font-size="13.4" stroke="none" fill="currentColor" opacity=".75">evidence links,</text>
+  <text x="120" y="232" font-size="13.4" stroke="none" fill="currentColor" opacity=".75">reflections stack</text>
+  <text x="120" y="262" font-size="13.4" stroke="none" fill="currentColor" opacity=".75">&mdash; all inside one lane</text>
+  <text x="330" y="130" text-anchor="middle" font-size="13.4" stroke="none" fill="currentColor" opacity=".8">recall scores</text>
+  <text x="330" y="146" text-anchor="middle" font-size="13.4" stroke="none" fill="currentColor" opacity=".8">recency &times;</text>
+  <text x="330" y="162" text-anchor="middle" font-size="13.4" stroke="none" fill="currentColor" opacity=".8">importance &times;</text>
+  <text x="330" y="178" text-anchor="middle" font-size="13.4" stroke="none" fill="currentColor" opacity=".8">relevance</text>
+  <text x="212" y="288" text-anchor="middle" font-size="13.4" stroke="none" fill="currentColor" opacity=".9">event <tspan font-style="italic">e</tspan> stored once per witness; no edge crosses lanes</text>
 
-<figure>
-<svg viewBox="0 0 840 210" role="img" aria-label="Collaborative memory: deposits become access-controlled fragments read back through server-side ACL filtering" style="max-width:100%;height:auto">
-  <defs><marker id="ar3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
-  <g fill="none" stroke="currentColor" stroke-width="1.3" font-family="system-ui,sans-serif">
-    <rect x="14" y="34" width="86" height="36" rx="6"/><text x="57" y="57" text-anchor="middle" font-size="15" stroke="none" fill="currentColor">Agent A</text>
-    <rect x="14" y="112" width="86" height="36" rx="6"/><text x="57" y="135" text-anchor="middle" font-size="15" stroke="none" fill="currentColor">Agent B</text>
-    <line x1="100" y1="52" x2="146" y2="52" marker-end="url(#ar3)"/><text x="123" y="44" text-anchor="middle" font-size="12.5" stroke="none" fill="currentColor" opacity=".8">remember(e)</text>
-    <line x1="100" y1="130" x2="146" y2="130" marker-end="url(#ar3)"/><text x="123" y="122" text-anchor="middle" font-size="12.5" stroke="none" fill="currentColor" opacity=".8">remember(e)</text>
-    <rect x="148" y="34" width="104" height="36" rx="6"/><text x="200" y="57" text-anchor="middle" font-size="14.4" stroke="none" fill="currentColor">atomize</text>
-    <rect x="148" y="112" width="104" height="36" rx="6"/><text x="200" y="135" text-anchor="middle" font-size="14.4" stroke="none" fill="currentColor">atomize</text>
-    <line x1="252" y1="52" x2="300" y2="52" marker-end="url(#ar3)"/><text x="276" y="44" text-anchor="middle" font-size="12.5" stroke="none" fill="currentColor" opacity=".8">tag acl</text>
-    <line x1="252" y1="130" x2="300" y2="130" marker-end="url(#ar3)"/><text x="276" y="122" text-anchor="middle" font-size="12.5" stroke="none" fill="currentColor" opacity=".8">tag acl</text>
-    <rect x="302" y="22" width="200" height="60" rx="6"/><text x="402" y="41" text-anchor="middle" font-size="14.4" stroke="none" fill="currentColor" font-weight="600">fragment</text><text x="402" y="62" text-anchor="middle" font-size="13.8" stroke="none" fill="currentColor">e | acl A</text>
-    <rect x="302" y="100" width="200" height="60" rx="6"/><text x="402" y="119" text-anchor="middle" font-size="14.4" stroke="none" fill="currentColor" font-weight="600">fragment</text><text x="402" y="140" text-anchor="middle" font-size="13.8" stroke="none" fill="currentColor">e | acl B</text>
-    <rect x="562" y="60" width="260" height="62" rx="6"/>
-    <text x="692" y="82" text-anchor="middle" font-size="14.4" stroke="none" fill="currentColor" font-weight="600">shared collection</text>
-    <text x="692" y="102" text-anchor="middle" font-size="12.5" stroke="none" fill="currentColor" opacity=".8">one physical store, ACL-partitioned reads</text>
-    <line x1="502" y1="52" x2="560" y2="76" marker-end="url(#ar3)"/>
-    <line x1="502" y1="130" x2="560" y2="106" marker-end="url(#ar3)"/>
-    <line x1="690" y1="178" x2="60" y2="178" marker-end="url(#ar3)"/>
-    <text x="375" y="170" text-anchor="middle" font-size="13.1" stroke="none" fill="currentColor" opacity=".85">recall: kNN filtered server-side to fragments whose ACL admits the caller</text>
-  </g>
-</svg>
-<figcaption><b>Figure 5. Collaborative memory.</b> Deposits become access-controlled fragments in one physical collection, and reads are ACL-filtered at the server. Sharing here is a <i>permission</i>, not a merge: A and B can be granted access to each other&rsquo;s fragments, but their two accounts of one event remain two rows, and nothing links them.</figcaption>
-</figure>
+  <!-- (b) G-Memory -->
+  <text x="430" y="22" font-size="14.5" stroke="none" fill="currentColor" font-weight="700">(b) G-Memory &mdash; two-tier graph, per owner</text>
+  <rect x="430" y="32" width="396" height="264" rx="9" opacity=".45" stroke-dasharray="5 4"/>
+  <g stroke="var(--accent)"><circle cx="480" cy="60" r="8"/><path d="M469 80 a11 12 0 0 1 22 0"/></g>
+  <text x="480" y="98" text-anchor="middle" font-size="13.5" stroke="none" fill="currentColor">A</text>
+  <g stroke="var(--accent)"><circle cx="690" cy="60" r="8"/><path d="M679 80 a11 12 0 0 1 22 0"/></g>
+  <text x="690" y="98" text-anchor="middle" font-size="13.5" stroke="none" fill="currentColor">B</text>
+  <text x="440" y="120" font-size="13.4" stroke="none" fill="currentColor" opacity=".7">insight tier</text>
+  <text x="440" y="238" font-size="13.4" stroke="none" fill="currentColor" opacity=".7">interaction tier</text>
+  <line x1="440" y1="168" x2="816" y2="168" opacity=".25" stroke-dasharray="2 4"/>
+  <ellipse cx="530" cy="134" rx="38" ry="18" stroke-dasharray="4 3"/><text x="530" y="139" text-anchor="middle" font-size="13.4" stroke="none" fill="currentColor">insight</text>
+  <ellipse cx="716" cy="134" rx="38" ry="18" stroke-dasharray="4 3"/><text x="716" y="139" text-anchor="middle" font-size="13.4" stroke="none" fill="currentColor">insight</text>
+  <rect x="490" y="192" width="34" height="22" rx="3"/><text x="507" y="207" text-anchor="middle" font-size="13.4" stroke="none" fill="currentColor">e</text>
+  <rect x="530" y="192" width="34" height="22" rx="3"/>
+  <rect x="570" y="192" width="34" height="22" rx="3"/>
+  <rect x="676" y="192" width="34" height="22" rx="3"/><text x="693" y="207" text-anchor="middle" font-size="13.4" stroke="none" fill="currentColor">e</text>
+  <rect x="716" y="192" width="34" height="22" rx="3"/>
+  <rect x="756" y="192" width="34" height="22" rx="3"/>
+  <line x1="512" y1="152" x2="507" y2="190" marker-end="url(#g2a)"/>
+  <line x1="530" y1="152" x2="547" y2="190" marker-end="url(#g2a)"/>
+  <line x1="548" y1="152" x2="587" y2="190" marker-end="url(#g2a)"/>
+  <line x1="698" y1="152" x2="693" y2="190" marker-end="url(#g2a)"/>
+  <line x1="716" y1="152" x2="733" y2="190" marker-end="url(#g2a)"/>
+  <line x1="734" y1="152" x2="773" y2="190" marker-end="url(#g2a)"/>
+  <text x="604" y="166" font-size="13.4" stroke="none" fill="currentColor" opacity=".75">derived_from</text>
+  <text x="624" y="120" text-anchor="middle" font-size="13.4" stroke="none" fill="currentColor" opacity=".7">distilled every 20</text>
+  <path d="M600 240 L556 220" stroke="var(--accent)" marker-end="url(#g2b)"/>
+  <path d="M600 240 C 580 200 548 176 542 156" stroke="var(--accent)" marker-end="url(#g2b)"/>
+  <text x="612" y="246" font-size="13.4" stroke="none" fill="var(--accent)" font-weight="600">bi-level recall:</text>
+  <text x="612" y="264" font-size="13.4" stroke="none" fill="currentColor" opacity=".8">hit both tiers, then</text>
+  <text x="612" y="280" font-size="13.4" stroke="none" fill="currentColor" opacity=".8">walk derived_from</text>
+  <text x="628" y="306" text-anchor="middle" font-size="13.4" stroke="none" fill="currentColor" opacity=".9">a real graph &mdash; never across owners</text>
 
-<figure>
-<svg viewBox="0 0 840 270" role="img" aria-label="Consensus memory: both agents' deposits converge at a pre-filter and an LLM equivalence judge that merges them into one row with a union owner-set, plus auto-affiliation and one-hop expanding recall" style="max-width:100%;height:auto">
-  <defs><marker id="ar4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker>
-  <marker id="ar4a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/></marker></defs>
-  <g fill="none" stroke="currentColor" stroke-width="1.3" font-family="system-ui,sans-serif">
-    <rect x="8" y="42" width="78" height="36" rx="6"/><text x="47" y="65" text-anchor="middle" font-size="15" stroke="none" fill="currentColor">Agent A</text>
-    <rect x="8" y="132" width="78" height="36" rx="6"/><text x="47" y="155" text-anchor="middle" font-size="15" stroke="none" fill="currentColor">Agent B</text>
-    <line x1="86" y1="60" x2="122" y2="60" marker-end="url(#ar4)"/><text x="104" y="52" text-anchor="middle" font-size="12.5" stroke="none" fill="currentColor" opacity=".8">remember(e)</text>
-    <line x1="86" y1="150" x2="122" y2="150" marker-end="url(#ar4)"/><text x="104" y="142" text-anchor="middle" font-size="12.5" stroke="none" fill="currentColor" opacity=".8">remember(e)</text>
-    <rect x="124" y="40" width="134" height="40" rx="6"/><text x="191" y="58" text-anchor="middle" font-size="14.4" stroke="none" fill="currentColor">atomize + embed</text><text x="191" y="73" text-anchor="middle" font-size="11.9" stroke="none" fill="currentColor" opacity=".75">self-contained</text>
-    <rect x="124" y="130" width="134" height="40" rx="6"/><text x="191" y="148" text-anchor="middle" font-size="14.4" stroke="none" fill="currentColor">atomize + embed</text><text x="191" y="163" text-anchor="middle" font-size="11.9" stroke="none" fill="currentColor" opacity=".75">self-contained</text>
-    <line x1="258" y1="62" x2="290" y2="88" stroke="var(--accent)" marker-end="url(#ar4a)"/>
-    <line x1="258" y1="148" x2="290" y2="122" stroke="var(--accent)" marker-end="url(#ar4a)"/>
-    <rect x="292" y="84" width="152" height="42" rx="6" stroke="var(--accent)" stroke-width="1.7"/>
-    <text x="368" y="103" text-anchor="middle" font-size="14.4" stroke="none" fill="currentColor">pre-filter</text>
-    <text x="368" y="118" text-anchor="middle" font-size="11.9" stroke="none" fill="currentColor" opacity=".75">cosine &ge; 0.70, all rows</text>
-    <line x1="444" y1="105" x2="472" y2="105" stroke="var(--accent)" marker-end="url(#ar4a)"/>
-    <rect x="474" y="84" width="152" height="42" rx="6" stroke="var(--accent)" stroke-width="1.7"/>
-    <text x="550" y="103" text-anchor="middle" font-size="14.4" stroke="none" fill="currentColor">equivalence judge</text>
-    <text x="550" y="118" text-anchor="middle" font-size="11.9" stroke="none" fill="currentColor" opacity=".75">1 LLM call: same event?</text>
-    <line x1="626" y1="105" x2="654" y2="105" stroke="var(--accent)" marker-end="url(#ar4a)"/>
-    <text x="640" y="97" text-anchor="middle" font-size="11.9" stroke="none" fill="currentColor" opacity=".8">yes</text>
-    <rect x="656" y="80" width="176" height="52" rx="6" stroke="var(--accent)" stroke-width="1.8"/>
-    <text x="744" y="99" text-anchor="middle" font-size="14.4" stroke="none" fill="currentColor" font-weight="600">one row</text>
-    <text x="744" y="119" text-anchor="middle" font-size="13.1" stroke="none" fill="var(--accent)" font-weight="600">e | owners A, B</text>
-    <line x1="550" y1="126" x2="550" y2="166" marker-end="url(#ar4)"/>
-    <text x="562" y="150" font-size="11.9" stroke="none" fill="currentColor" opacity=".8">no &rarr; insert new row</text>
-    <rect x="656" y="152" width="176" height="36" rx="6" stroke-dasharray="4 3"/>
-    <text x="744" y="174" text-anchor="middle" font-size="12.5" stroke="none" fill="currentColor" opacity=".85">auto-affiliate siblings</text>
-    <line x1="744" y1="132" x2="744" y2="150" marker-end="url(#ar4)"/>
-    <line x1="830" y1="238" x2="50" y2="238" stroke="var(--accent)" marker-end="url(#ar4a)"/>
-    <text x="440" y="228" text-anchor="middle" font-size="12.5" stroke="none" fill="currentColor" opacity=".85">recall: owner-scoped kNN, then one hop along affiliated edges</text>
+  <!-- (c) Collaborative -->
+  <text x="14" y="346" font-size="14.5" stroke="none" fill="currentColor" font-weight="700">(c) Collaborative &mdash; one store, ACL-partitioned</text>
+  <rect x="14" y="356" width="396" height="264" rx="9" opacity=".45" stroke-dasharray="5 4"/>
+  <g stroke="var(--accent)"><circle cx="70" cy="384" r="8"/><path d="M59 404 a11 12 0 0 1 22 0"/></g>
+  <text x="70" y="422" text-anchor="middle" font-size="13.5" stroke="none" fill="currentColor">A</text>
+  <g stroke="var(--accent)"><circle cx="210" cy="384" r="8"/><path d="M199 404 a11 12 0 0 1 22 0"/></g>
+  <text x="210" y="422" text-anchor="middle" font-size="13.5" stroke="none" fill="currentColor">B</text>
+  <rect x="26" y="440" width="372" height="128" rx="7"/>
+  <text x="212" y="458" text-anchor="middle" font-size="13.4" stroke="none" fill="currentColor" opacity=".7">one physical collection, no merge</text>
+  <rect x="42" y="470" width="164" height="26" rx="3"/><text x="124" y="487" text-anchor="middle" font-size="13.4" stroke="none" fill="currentColor">e &nbsp;&middot;&nbsp; acl {{A}}</text>
+  <rect x="42" y="502" width="164" height="26" rx="3"/><text x="124" y="519" text-anchor="middle" font-size="13.4" stroke="none" fill="currentColor">&hellip; &nbsp;&middot;&nbsp; acl {{A}}</text>
+  <rect x="222" y="470" width="164" height="26" rx="3"/><text x="304" y="487" text-anchor="middle" font-size="13.4" stroke="none" fill="currentColor">e &nbsp;&middot;&nbsp; acl {{A, B}}</text>
+  <rect x="222" y="502" width="164" height="26" rx="3"/><text x="304" y="519" text-anchor="middle" font-size="13.4" stroke="none" fill="currentColor">&hellip; &nbsp;&middot;&nbsp; acl {{B}}</text>
+  <line x1="70" y1="430" x2="100" y2="466" marker-end="url(#g2a)"/>
+  <line x1="210" y1="430" x2="270" y2="466" marker-end="url(#g2a)"/>
+  <path d="M304 496 C 240 512 160 500 130 496" stroke-dasharray="4 3"/>
+  <text x="212" y="586" text-anchor="middle" font-size="13.4" stroke="none" fill="currentColor" opacity=".75">B may be granted access to A&rsquo;s copy; the copy remains</text>
+  <text x="212" y="608" text-anchor="middle" font-size="13.4" stroke="none" fill="currentColor" opacity=".9">sharing is a <tspan font-style="italic">permission</tspan>, not a merge</text>
+
+  <!-- (d) Consensus -->
+  <text x="430" y="346" font-size="14.5" stroke="none" fill="var(--accent)" font-weight="700">(d) Consensus (ours) &mdash; merged rows in a graph</text>
+  <rect x="430" y="356" width="396" height="264" rx="9" stroke="var(--accent)" stroke-dasharray="5 4" opacity=".75"/>
+  <g stroke="var(--accent)"><circle cx="490" cy="384" r="8"/><path d="M479 404 a11 12 0 0 1 22 0"/></g>
+  <text x="490" y="422" text-anchor="middle" font-size="13.5" stroke="none" fill="currentColor">A</text>
+  <g stroke="var(--accent)"><circle cx="620" cy="384" r="8"/><path d="M609 404 a11 12 0 0 1 22 0"/></g>
+  <text x="620" y="422" text-anchor="middle" font-size="13.5" stroke="none" fill="currentColor">B</text>
+  <g stroke="var(--accent)"><circle cx="750" cy="384" r="8"/><path d="M739 404 a11 12 0 0 1 22 0"/></g>
+  <text x="750" y="422" text-anchor="middle" font-size="13.5" stroke="none" fill="currentColor">C</text>
+  <line x1="490" y1="430" x2="576" y2="454" stroke="var(--accent)" marker-end="url(#g2b)"/>
+  <line x1="620" y1="430" x2="620" y2="454" stroke="var(--accent)" marker-end="url(#g2b)"/>
+  <line x1="750" y1="430" x2="664" y2="454" stroke="var(--accent)" marker-end="url(#g2b)"/>
+  <rect x="532" y="456" width="176" height="44" rx="5" stroke="var(--accent)" stroke-width="1.8"/>
+  <text x="620" y="474" text-anchor="middle" font-size="13.4" stroke="none" fill="currentColor">e</text>
+  <text x="620" y="492" text-anchor="middle" font-size="13.4" stroke="none" fill="var(--accent)" font-weight="700">owners {{A, B, C}}</text>
+  <rect x="452" y="524" width="150" height="30" rx="4" stroke="var(--accent)"/>
+  <text x="527" y="543" text-anchor="middle" font-size="13.4" stroke="none" fill="currentColor">sibling &middot; {{A, B}}</text>
+  <rect x="638" y="524" width="150" height="30" rx="4" stroke="var(--accent)"/>
+  <text x="713" y="543" text-anchor="middle" font-size="13.4" stroke="none" fill="currentColor">sibling &middot; {{C}}</text>
+  <line x1="570" y1="500" x2="540" y2="522" stroke="var(--accent)"/>
+  <line x1="670" y1="500" x2="700" y2="522" stroke="var(--accent)"/>
+  <line x1="602" y1="539" x2="636" y2="539" stroke="var(--accent)" stroke-dasharray="3 3"/>
+  <text x="620" y="516" text-anchor="middle" font-size="13.4" stroke="none" fill="currentColor" opacity=".8">affiliated</text>
+  <text x="620" y="576" text-anchor="middle" font-size="13.4" stroke="none" fill="currentColor" opacity=".8">recall: rows you own, then one hop along these edges</text>
+  <text x="628" y="600" text-anchor="middle" font-size="13.4" stroke="none" fill="var(--accent)" font-weight="600">one row per event, owned by all witnesses</text>
+
+  <line x1="14" y1="634" x2="826" y2="634" opacity=".3"/>
+  <text x="14" y="650" font-size="13.4" stroke="none" fill="currentColor" opacity=".75">Same event <tspan font-style="italic">e</tspan> in every panel &middot; person = owner &middot; solid box = stored row &middot; dashed = mechanism-generated</text>
   </g>
 </svg>
-<figcaption><b>Figure 6. Consensus shared memory (ours).</b> The two deposit lanes converge: every atom is matched against the <i>whole</i> store, and an LLM judge decides whether it describes an event already recorded. On a match the rows fold into one whose owner-set is the union of the witnesses (D1); the atoms split from one deposit are linked to each other on the way in (D2); recall expands one hop along those links (D3). Accent marks the path that exists in no baseline.</figcaption>
+<figcaption><b>Figure 2. What the long-term memory looks like inside, per backend.</b> The same event <i>e</i>, witnessed by several agents, is drawn in all four stores. <b>(a)</b> Generative-Agents keeps one append-only stream per agent, each row carrying an LLM-assigned importance score that recall combines with recency and relevance; reflections are synthesized from high-importance windows, link back to the evidence they summarize, and stack into a tree &mdash; all within one lane. <b>(b)</b> G-Memory adds a second tier: every 20 deposits a distillation pass writes an insight node and connects it to its source interactions with <code>derived_from</code> edges, and bi-level retrieval hits both tiers and then walks those edges. It is a genuine graph, and it is built inside one owner&rsquo;s records. (The paper&rsquo;s third, query tier is defined in our port but never written, since traversal is seeded from insight and interaction hits.) <b>(c)</b> Collaborative memory puts everything in one physical collection and partitions reads by access control; an ACL may name several principals, so B can be granted access to A&rsquo;s copy &mdash; but the copy remains, because permission is not merging. <b>(d)</b> Consensus stores one row per event whose owner-set is the union of its witnesses, links the atoms split from one deposit into an affiliation graph, and expands recall one hop along it. The distinction the figure is drawn to make: (a)&ndash;(c) differ in how much structure they build <i>within</i> an owner; only (d) puts structure <i>across</i> owners.</figcaption>
 </figure>
 
 <h3>3.7 &nbsp;Query-addressed operations and the design rule</h3>
@@ -516,7 +553,7 @@ HTML = CSS + f"""
 <figure class="two">
   <img src="{IMG['simfoot']}" alt="Sim footprint">
   <img src="{IMG['structure']}" alt="Memory structure">
-  <figcaption><b>Figure 7. Footprint and structure &mdash; 三国演义 (80 ticks).</b> Left: entries written by each backend under identical atomization; consensus is lowest because equivalent records from different witnesses merge into one. Right: percentage of each backend&rsquo;s sim memories that are shared (multi-owner) and linked (affiliated); both properties exist only under consensus &mdash; per-agent stores have nothing to merge or link across.</figcaption>
+  <figcaption><b>Figure 3. Footprint and structure &mdash; 三国演义 (80 ticks).</b> Left: entries written by each backend under identical atomization; consensus is lowest because equivalent records from different witnesses merge into one. Right: percentage of each backend&rsquo;s sim memories that are shared (multi-owner) and linked (affiliated); both properties exist only under consensus &mdash; per-agent stores have nothing to merge or link across.</figcaption>
 </figure>
 <p><b>Discussion.</b> Two readings matter here. First, the footprint gap is <i>mechanistic</i>, not behavioral: all four backends receive the same actions and atomize identically, so the 481-entry spread between consensus and the largest baseline is exactly the number of times the equivalence judge folded one agent&rsquo;s record into another&rsquo;s &mdash; each fold is a deduplicated witness (P1). Second, the structural columns are all-or-nothing by design: per-agent stores have no cross-agent rows to merge and no deposit-siblings to link, so the 19% / 97% columns measure capabilities the baselines lack architecturally, not parameters they tuned differently.</p>
 <p>Merged records are precisely the cross-viewpoint deduplication the mechanism targets &mdash; {S['n_3plus']} memories carry three or more witnesses (maximum {S['max_owners']}):</p>
@@ -528,7 +565,7 @@ HTML = CSS + f"""
 <figure class="two">
   <img src="{IMG['ru_simfoot']}" alt="RU sim footprint">
   <img src="{IMG['ru_structure']}" alt="RU memory structure">
-  <figcaption><b>Figure 8. Footprint and structure &mdash; Russia&ndash;Ukraine (40 ticks).</b> Same panels as Figure 7: entries written under identical atomization (left) and the share of each backend&rsquo;s sim memories that are shared and linked (right).</figcaption>
+  <figcaption><b>Figure 4. Footprint and structure &mdash; Russia&ndash;Ukraine (40 ticks).</b> Same panels as Figure 3: entries written under identical atomization (left) and the share of each backend&rsquo;s sim memories that are shared and linked (right).</figcaption>
 </figure>
 <p><b>Discussion.</b> The same two readings hold at one eighth the horizon: the 19&ndash;30% footprint gap is again exactly the number of equivalence-judge folds, and the structural columns remain all-or-nothing &mdash; 0% for every per-agent baseline. What is new is the real-world flavor of the folds: equivalence merges a <i>person&rsquo;s</i> record into their <i>institution&rsquo;s</i> &mdash; the same mechanism that fuses two officers&rsquo; views of one battle fuses a spokesperson&rsquo;s statement with its organization&rsquo;s record of it.</p>
 <p>Merged records again pair one event seen from two sides &mdash; characteristically a person and their institution:</p>
@@ -540,7 +577,7 @@ HTML = CSS + f"""
 <figure class="two">
   <img src="{IMG['rc_simfoot']}" alt="RC sim footprint">
   <img src="{IMG['rc_structure']}" alt="RC memory structure">
-  <figcaption><b>Figure 9. Footprint and structure &mdash; 红楼梦 (80 ticks).</b> Same panels as Figures 7&ndash;8: entries written under identical atomization (left) and the share of each backend&rsquo;s sim memories that are shared and linked (right).</figcaption>
+  <figcaption><b>Figure 5. Footprint and structure &mdash; 红楼梦 (80 ticks).</b> Same panels as Figures 3&ndash;4: entries written under identical atomization (left) and the share of each backend&rsquo;s sim memories that are shared and linked (right).</figcaption>
 </figure>
 <p><b>Discussion.</b> 红楼 is where the two claims of &sect;5.1 can be watched separating in time, because it was run at four horizons. Structure was already complete at ten ticks (13% shared, 87% linked, baselines 0%); footprint was not &mdash; the four backends then sat at 62&ndash;98 entries with consensus not the smallest, within run-to-run variance. From forty ticks on consensus is lowest and stays lowest, and the gap holds as both sides grow: 216 vs 379&ndash;492 at forty, 338 vs 625&ndash;683 at sixty, {RCC['sim_new']} vs {RC['generative_agents']['sim_new']}&ndash;{RC['g_memory']['sim_new']} at eighty &mdash; a {round(100-100*RCC['sim_new']/RC['g_memory']['sim_new'])}% reduction against the largest. Sharing rises along the same curve and flattens as it saturates &mdash; 13%&rarr;20%&rarr;23%&rarr;{RCC['sh_pct']}% &mdash; while multi-witness merges keep accumulating: {RC['n_3plus']} entries carry three or more witnesses (17 at sixty, nine at forty, three at ten), the deepest still the banquet where 贾母 keeps 宝玉, 黛玉 and 宝钗 by her side, co-owned by {RC['max_owners']}. The ordering is the point: the structural properties are architectural and appear immediately, whereas the footprint advantage is a <i>compounding</i> effect that needs enough repeated witnessing to overcome noise. A household world reaches that point later than a war does, because fewer people witness each event.</p>
 <p>Merged records in the household world fold family witnesses of one scene:</p>
@@ -553,7 +590,7 @@ HTML = CSS + f"""
 <figure class="two">
   <img src="{IMG['hl_simfoot']}" alt="HL sim footprint">
   <img src="{IMG['hl_structure']}" alt="HL memory structure">
-  <figcaption><b>Figure 10. Footprint and structure &mdash; Hamlet (30 ticks).</b> Same panels as Figures 7&ndash;9 on the smallest world: entries written under identical atomization (left) and the share of each backend&rsquo;s sim memories that are shared and linked (right).</figcaption>
+  <figcaption><b>Figure 6. Footprint and structure &mdash; Hamlet (30 ticks).</b> Same panels as Figures 3&ndash;5 on the smallest world: entries written under identical atomization (left) and the share of each backend&rsquo;s sim memories that are shared and linked (right).</figcaption>
 </figure>
 <p><b>Discussion.</b> Sixteen agents are enough. Consensus writes {HLC['sim_new']} entries against {HL['generative_agents']['sim_new']}&ndash;{HL['g_memory']['sim_new']}, with {HLC['sh_pct']}% shared and {HLC['aff_pct']}% linked &mdash; the highest sharing rate of any world at any horizon, in the smallest one tested. The extension from twenty ticks to thirty shows the same compounding the other worlds display: sharing rose 19%&rarr;{HLC['sh_pct']}% and the first three-witness merge appeared (the players' troupe beginning the performance, owned by the First Player, the Prologue, and Guildenstern together), where every merge at twenty ticks had been a strict pair. Depth still lags the larger worlds ({HL['n_3plus']} entry with three or more witnesses, against {S['n_3plus']} in 三国 and {RC['n_3plus']} in 红楼), and the reason is the play's staging rather than the mechanism's reach: Shakespeare writes in two-person exchanges &mdash; the sentinels on the battlements, Laertes and Polonius, Rosencrantz with Guildenstern &mdash; and merge depth tracks how many people the world puts in a room together. The play-within-a-play is the one scene that assembles an audience, and it is exactly where the three-way merge appears.</p>
 <p>The pairs the mechanism finds are the play&rsquo;s own dyads:</p>
@@ -568,46 +605,46 @@ HTML = CSS + f"""
 <figure class="two">
   <img src="{IMG['gtotal']}" alt="System memory growth per tick">
   <img src="{IMG['gagents']}" alt="Per-agent memory growth per tick">
-  <figcaption><b>Figure 11. Memory growth &mdash; 三国演义 (80 ticks).</b> Left: cumulative sim-generated entries per tick for all four backends (reconstructed from each entry&rsquo;s creation tick under the same sim-only accounting as Table 1) &mdash; consensus stays lowest throughout and the gap widens with horizon, the per-tick view of the merge folding witnesses together. Right: per-agent owned memories per tick in the consensus run (top 6 agents labeled; the rest gray) &mdash; memory concentrates on the characters carrying the active plotlines (徐庶 leads with 132), while merges let one event&rsquo;s record count toward every witness&rsquo;s curve.</figcaption>
+  <figcaption><b>Figure 7. Memory growth &mdash; 三国演义 (80 ticks).</b> Left: cumulative sim-generated entries per tick for all four backends (reconstructed from each entry&rsquo;s creation tick under the same sim-only accounting as Table 1) &mdash; consensus stays lowest throughout and the gap widens with horizon, the per-tick view of the merge folding witnesses together. Right: per-agent owned memories per tick in the consensus run (top 6 agents labeled; the rest gray) &mdash; memory concentrates on the characters carrying the active plotlines (徐庶 leads with 132), while merges let one event&rsquo;s record count toward every witness&rsquo;s curve.</figcaption>
 </figure>
 <p><b>Discussion.</b> The system-level curves separate almost from the start and diverge steadily &mdash; the merge saves entries at a roughly constant <i>rate</i>, so its absolute savings compound with horizon rather than saturating; there is no sign of the gap closing by tick 80. The per-agent curves show the same mechanism from the individual&rsquo;s side: growth is stair-stepped (a burst when a character is at the center of a plotline, plateaus when off-stage), and the ranking tracks narrative centrality rather than raw talkativeness &mdash; 徐庶 leads because the 徐庶-recruitment arc dominates the middle game, and every merge credits a shared event to all of its witnesses&rsquo; curves at once.</p>
 
 <figure>
   <img src="{IMG['latency']}" alt="Memory-operation latency vs tick">
-  <figcaption><b>Figure 12. Memory-operation latency &mdash; 三国演义 (80 ticks).</b> Mean wall-clock seconds per <code>remember</code> (left) and <code>recall</code> (right) call, 5-tick bins, all four backends. Ticks 61&ndash;80 are instrumented live in the kernel; ticks 1&ndash;60 are measured by replaying each stage&rsquo;s logged operations (same agent, text/query, and order) against the exact store state that stage started from &mdash; a measurement of the same workload, not a synthesis (dotted line marks the boundary; first-stage GA/G-Memory replay stores lack their prime by-products, &asymp;3&ndash;5% of rows).</figcaption>
+  <figcaption><b>Figure 8. Memory-operation latency &mdash; 三国演义 (80 ticks).</b> Mean wall-clock seconds per <code>remember</code> (left) and <code>recall</code> (right) call, 5-tick bins, all four backends. Ticks 61&ndash;80 are instrumented live in the kernel; ticks 1&ndash;60 are measured by replaying each stage&rsquo;s logged operations (same agent, text/query, and order) against the exact store state that stage started from &mdash; a measurement of the same workload, not a synthesis (dotted line marks the boundary; first-stage GA/G-Memory replay stores lack their prime by-products, &asymp;3&ndash;5% of rows).</figcaption>
 </figure>
 <p><b>Discussion.</b> The two panels show where each design pays. <i>Writes are LLM-bound:</i> every backend pays the shared atomization call, on top of which Generative-Agents adds a per-atom importance call (the most expensive line, 35&ndash;75s) and consensus adds the equivalence judge (26&ndash;57s), while G-Memory and collaborative write for 10&ndash;25s with no per-deposit reasoning beyond atomization. <i>Reads are vector-bound and cheap everywhere</i> (&le;1.4s), and &mdash; notably &mdash; consensus recall is the <b>cheapest</b> of the four (&asymp;0.35s) despite returning &asymp;28 additional linked memories per call: auto-expansion is plain row lookup, whereas G-Memory&rsquo;s bi-level retrieval pays for graph traversal with extra vector queries (0.7&ndash;1.1s). Neither panel trends upward over 80 ticks: at this scale, store growth (&asymp;7k&ndash;22k rows) does not yet move per-call latency, so the consensus premium is a roughly constant per-write tax &mdash; the price of P1&rsquo;s deduplication &mdash; paid where agents are least latency-sensitive.</p>
 
 <h4>5.2.2 &nbsp;Russia&ndash;Ukraine</h4>
 <figure>
   <img src="{IMG['ru_growth']}" alt="RU memory growth">
-  <figcaption><b>Figure 13. Memory growth &mdash; Russia&ndash;Ukraine (40 ticks).</b> Left: cumulative sim-generated entries per tick for all four backends under the same sim-only accounting as Table 1. Right: per-agent owned memories per tick in the consensus run (top agents labeled; the rest gray).</figcaption>
+  <figcaption><b>Figure 9. Memory growth &mdash; Russia&ndash;Ukraine (40 ticks).</b> Left: cumulative sim-generated entries per tick for all four backends under the same sim-only accounting as Table 1. Right: per-agent owned memories per tick in the consensus run (top agents labeled; the rest gray).</figcaption>
 </figure>
 <figure>
   <img src="{IMG['ru_latency']}" alt="RU memory-operation latency">
-  <figcaption><b>Figure 14. Memory-operation latency &mdash; Russia&ndash;Ukraine (40 ticks).</b> Mean wall-clock seconds per <code>remember</code> (left) and <code>recall</code> (right) call, 2-tick bins, all four backends; every tick is instrumented live in the kernel.</figcaption>
+  <figcaption><b>Figure 10. Memory-operation latency &mdash; Russia&ndash;Ukraine (40 ticks).</b> Mean wall-clock seconds per <code>remember</code> (left) and <code>recall</code> (right) call, 2-tick bins, all four backends; every tick is instrumented live in the kernel.</figcaption>
 </figure>
-<p><b>Discussion.</b> Both figures replay the 三国 dynamics at a shorter horizon. The system curves separate from tick ~3 with consensus lowest and the gap widening, and per-agent growth again concentrates on the situation&rsquo;s protagonists. The latency ordering of Figure 12 reproduces: writes are LLM-bound (Generative-Agents&rsquo; per-atom importance calls most expensive, consensus paying the equivalence-judge tax), while reads are vector-bound and sub-second for all four backends, with consensus recall cheapest despite auto-expansion.</p>
+<p><b>Discussion.</b> Both figures replay the 三国 dynamics at a shorter horizon. The system curves separate from tick ~3 with consensus lowest and the gap widening, and per-agent growth again concentrates on the situation&rsquo;s protagonists. The latency ordering of Figure 8 reproduces: writes are LLM-bound (Generative-Agents&rsquo; per-atom importance calls most expensive, consensus paying the equivalence-judge tax), while reads are vector-bound and sub-second for all four backends, with consensus recall cheapest despite auto-expansion.</p>
 
 <h4>5.2.3 &nbsp;红楼梦</h4>
 <figure>
   <img src="{IMG['rc_growth']}" alt="RC memory growth">
-  <figcaption><b>Figure 15. Memory growth &mdash; 红楼梦 (80 ticks).</b> Left: cumulative sim-generated entries per tick for all four backends under the same sim-only accounting as Table 1. Right: per-agent owned memories per tick in the consensus run (top agents labeled; the rest gray).</figcaption>
+  <figcaption><b>Figure 11. Memory growth &mdash; 红楼梦 (80 ticks).</b> Left: cumulative sim-generated entries per tick for all four backends under the same sim-only accounting as Table 1. Right: per-agent owned memories per tick in the consensus run (top agents labeled; the rest gray).</figcaption>
 </figure>
 <figure>
   <img src="{IMG['rc_latency']}" alt="RC memory-operation latency">
-  <figcaption><b>Figure 16. Memory-operation latency &mdash; 红楼梦 (80 ticks).</b> Mean wall-clock seconds per <code>remember</code> (left) and <code>recall</code> (right) call, 2-tick bins, all four backends; every tick is instrumented live in the kernel.</figcaption>
+  <figcaption><b>Figure 12. Memory-operation latency &mdash; 红楼梦 (80 ticks).</b> Mean wall-clock seconds per <code>remember</code> (left) and <code>recall</code> (right) call, 2-tick bins, all four backends; every tick is instrumented live in the kernel.</figcaption>
 </figure>
-<p><b>Discussion.</b> The domestic world writes more slowly than either other scenario (~{RCC['sim_new']//80} consensus entries per tick against ~20 in Russia&ndash;Ukraine) &mdash; garden conversation generates fewer memory-worthy events than a war &mdash; and the curves that interleaved through the first ten ticks separate cleanly thereafter, consensus lowest and the gap holding to eighty ticks, exactly as in Figures 11 and 13. Per-agent growth concentrates on the household&rsquo;s centers of gravity (贾母, 王熙凤, 贾宝玉 and the banquet guests). The read side reproduces both other worlds: consensus recall is cheapest despite auto-expansion returning &asymp;{RCE['items']//max(RCE['recalls'],1)} linked memories per call, while G-Memory&rsquo;s bi-level retrieval pays for graph traversal with extra vector queries.</p>
+<p><b>Discussion.</b> The domestic world writes more slowly than either other scenario (~{RCC['sim_new']//80} consensus entries per tick against ~20 in Russia&ndash;Ukraine) &mdash; garden conversation generates fewer memory-worthy events than a war &mdash; and the curves that interleaved through the first ten ticks separate cleanly thereafter, consensus lowest and the gap holding to eighty ticks, exactly as in Figures 7 and 9. Per-agent growth concentrates on the household&rsquo;s centers of gravity (贾母, 王熙凤, 贾宝玉 and the banquet guests). The read side reproduces both other worlds: consensus recall is cheapest despite auto-expansion returning &asymp;{RCE['items']//max(RCE['recalls'],1)} linked memories per call, while G-Memory&rsquo;s bi-level retrieval pays for graph traversal with extra vector queries.</p>
 
 <h4>5.2.4 &nbsp;Hamlet</h4>
 <figure>
   <img src="{IMG['hl_growth']}" alt="HL memory growth">
-  <figcaption><b>Figure 17. Memory growth &mdash; Hamlet (30 ticks).</b> Left: cumulative sim-generated entries per tick for all four backends under the same sim-only accounting as Table 1. Right: per-agent owned memories per tick in the consensus run (top agents labeled; the rest gray).</figcaption>
+  <figcaption><b>Figure 13. Memory growth &mdash; Hamlet (30 ticks).</b> Left: cumulative sim-generated entries per tick for all four backends under the same sim-only accounting as Table 1. Right: per-agent owned memories per tick in the consensus run (top agents labeled; the rest gray).</figcaption>
 </figure>
 <figure>
   <img src="{IMG['hl_latency']}" alt="HL memory-operation latency">
-  <figcaption><b>Figure 18. Memory-operation latency &mdash; Hamlet (30 ticks).</b> Mean wall-clock seconds per <code>remember</code> (left) and <code>recall</code> (right) call, 2-tick bins, all four backends; every tick is instrumented live in the kernel.</figcaption>
+  <figcaption><b>Figure 14. Memory-operation latency &mdash; Hamlet (30 ticks).</b> Mean wall-clock seconds per <code>remember</code> (left) and <code>recall</code> (right) call, 2-tick bins, all four backends; every tick is instrumented live in the kernel.</figcaption>
 </figure>
 <p><b>Discussion.</b> The smallest world writes at a rate between the other two fictions (~{HLC['sim_new']//30} consensus entries per tick), and the four curves separate early with consensus lowest &mdash; at this cast size a single merge is a large fraction of a tick's writes, so the gap opens without the compounding 红楼 needed. Latency is dominated by per-call LLM cost exactly as elsewhere; with only {HLE['recalls']} recalls over the whole run the read-side curves are too sparse to rank backends, and we read nothing into their ordering here.</p>
 
@@ -617,16 +654,16 @@ HTML = CSS + f"""
 <h4>5.3.1 &nbsp;三国演义</h4>
 <figure>
   <img src="{IMG['quality']}" alt="Continuation quality comparison">
-  <figcaption><b>Figure 19. Continuation quality &mdash; 三国演义 (40-tick checkpoint).</b> Grounding (fraction of the sim&rsquo;s own events judged canon-consistent), trajectory (agreement of character arcs with reference arcs from held-out chapters 41&ndash;60), and narrative (judged coherence/drama/fidelity, 1&ndash;5), scored at the 40-tick checkpoint of the same continuously-resumed runs; bars are means over 3 independent LLM scorings, whiskers &plusmn;1 std. Consensus scores highest on narrative and is competitive on trajectory; grounding sits mid-pack (GA/collaborative slightly higher).</figcaption>
+  <figcaption><b>Figure 15. Continuation quality &mdash; 三国演义 (40-tick checkpoint).</b> Grounding (fraction of the sim&rsquo;s own events judged canon-consistent), trajectory (agreement of character arcs with reference arcs from held-out chapters 41&ndash;60), and narrative (judged coherence/drama/fidelity, 1&ndash;5), scored at the 40-tick checkpoint of the same continuously-resumed runs; bars are means over 3 independent LLM scorings, whiskers &plusmn;1 std. Consensus scores highest on narrative and is competitive on trajectory; grounding sits mid-pack (GA/collaborative slightly higher).</figcaption>
 </figure>
-<p><b>Discussion.</b> The quality profile is consistent with what compression should and should not affect. Narrative coherence benefits from consensus (4.25, the clear leader): agents recalling one shared record of an event act on consistent premises, where baseline agents can act on N drifting paraphrases of it. Trajectory sits in the pack (0.68 vs 0.59&ndash;0.72): arc-following depends mostly on the persona and goal machinery all backends share. Grounding is mid-pack (0.86 vs 0.83&ndash;0.92, overlapping error bars): merging keeps the <i>shorter</i> of two equivalent texts, which occasionally discards a viewpoint detail a canon-consistency judge rewards. None of the differences approach the structural gaps of Figure 7 &mdash; the mechanisms separate on architecture, not on judged behavior.</p>
+<p><b>Discussion.</b> The quality profile is consistent with what compression should and should not affect. Narrative coherence benefits from consensus (4.25, the clear leader): agents recalling one shared record of an event act on consistent premises, where baseline agents can act on N drifting paraphrases of it. Trajectory sits in the pack (0.68 vs 0.59&ndash;0.72): arc-following depends mostly on the persona and goal machinery all backends share. Grounding is mid-pack (0.86 vs 0.83&ndash;0.92, overlapping error bars): merging keeps the <i>shorter</i> of two equivalent texts, which occasionally discards a viewpoint detail a canon-consistency judge rewards. None of the differences approach the structural gaps of Figure 3 &mdash; the mechanisms separate on architecture, not on judged behavior.</p>
 
 <h4>5.3.2 &nbsp;Russia&ndash;Ukraine</h4>
 <figure>
   <img src="{IMG['ru_quality']}" alt="RU continuation quality comparison">
-  <figcaption><b>Figure 20. Continuation quality &mdash; Russia&ndash;Ukraine (40 ticks).</b> Same protocol as Figure 19 at the same horizon: grounding judges each sim event against the real conflict&rsquo;s world (real entities, correct roles/allegiances, plausible dynamics), trajectory compares ten principals&rsquo; arcs against arcs extracted from the held-out timeline (2024-05 onward), narrative is the same 4-dimension rubric; bars are means over 3 independent LLM scorings, whiskers &plusmn;1 std.</figcaption>
+  <figcaption><b>Figure 16. Continuation quality &mdash; Russia&ndash;Ukraine (40 ticks).</b> Same protocol as Figure 15 at the same horizon: grounding judges each sim event against the real conflict&rsquo;s world (real entities, correct roles/allegiances, plausible dynamics), trajectory compares ten principals&rsquo; arcs against arcs extracted from the held-out timeline (2024-05 onward), narrative is the same 4-dimension rubric; bars are means over 3 independent LLM scorings, whiskers &plusmn;1 std.</figcaption>
 </figure>
-<p><b>Discussion.</b> The real-world replication is a wash &mdash; which is the point. Grounding is uniformly high ({min(QR[k]['agg']['grnd']['mean'] for k in QR):.2f}&ndash;{max(QR[k]['agg']['grnd']['mean'] for k in QR):.2f}: institutional actors reciting real capabilities rarely fabricate), trajectory is tied within error bars ({QR['consensus']['agg']['traj']['mean']:.2f} for consensus vs {min(QR[k]['agg']['traj']['mean'] for k in QR if k!='consensus'):.2f}&ndash;{max(QR[k]['agg']['traj']['mean'] for k in QR if k!='consensus'):.2f}), and narrative spreads {QR['g_memory']['agg']['narr']['mean']:.2f}&ndash;{QR['generative_agents']['agg']['narr']['mean']:.2f} with overlapping whiskers and no stable leader across scorings. As in 三国, the mechanisms separate on architecture (Figure 8), not on judged behavior: consensus deduplicates {RUC['sim_new']} entries against the baselines&rsquo; {RU['collaborative']['sim_new']}&ndash;{RU['generative_agents']['sim_new']} and builds all the structure &mdash; while giving none of it back in quality.</p>
+<p><b>Discussion.</b> The real-world replication is a wash &mdash; which is the point. Grounding is uniformly high ({min(QR[k]['agg']['grnd']['mean'] for k in QR):.2f}&ndash;{max(QR[k]['agg']['grnd']['mean'] for k in QR):.2f}: institutional actors reciting real capabilities rarely fabricate), trajectory is tied within error bars ({QR['consensus']['agg']['traj']['mean']:.2f} for consensus vs {min(QR[k]['agg']['traj']['mean'] for k in QR if k!='consensus'):.2f}&ndash;{max(QR[k]['agg']['traj']['mean'] for k in QR if k!='consensus'):.2f}), and narrative spreads {QR['g_memory']['agg']['narr']['mean']:.2f}&ndash;{QR['generative_agents']['agg']['narr']['mean']:.2f} with overlapping whiskers and no stable leader across scorings. As in 三国, the mechanisms separate on architecture (Figure 4), not on judged behavior: consensus deduplicates {RUC['sim_new']} entries against the baselines&rsquo; {RU['collaborative']['sim_new']}&ndash;{RU['generative_agents']['sim_new']} and builds all the structure &mdash; while giving none of it back in quality.</p>
 
 <h4>5.3.3 &nbsp;红楼梦</h4>
 <p>Not scored yet: at 80 ticks the 红楼 runs match 三国&rsquo;s horizon and exceed the 40-tick checkpoint at which both scored worlds were judged, so the protocol of &sect;5.3.1&ndash;5.3.2 applies unchanged; the scoring pass is pending and will be reported alongside the other two worlds.</p>
@@ -642,21 +679,21 @@ HTML = CSS + f"""
 <h5>The three layers <span style="font-family:var(--sans);font-size:12px;color:var(--faint);font-weight:400">&mdash; interactive: drag to pan, scroll to zoom, hover for details, drag nodes to rearrange</span></h5>
 <figure>
   <div class="ig" id="ig-interaction" style="height:520px"></div>
-  <figcaption><b>Figure 21a. The interaction graph (interactive) &mdash; 三国演义.</b> Nodes are the complete active-character roster (silent characters parked on the bottom row); edge width is conversation frequency; colors are detected communities, which recover the canonical factions without being told about them. Hover a character for its name, community, and conversation volume; click to highlight its neighbourhood.</figcaption>
+  <figcaption><b>Figure 17a. The interaction graph (interactive) &mdash; 三国演义.</b> Nodes are the complete active-character roster (silent characters parked on the bottom row); edge width is conversation frequency; colors are detected communities, which recover the canonical factions without being told about them. Hover a character for its name, community, and conversation volume; click to highlight its neighbourhood.</figcaption>
 </figure>
 <figure>
   <div class="ig" id="ig-affiliation" style="height:600px"></div>
-  <figcaption><b>Figure 21b. The full memory-affiliation graph (interactive) &mdash; 三国演义.</b> Every sim-generated memory is a node ({R['MO']['link_n']} affiliated edges; components colored, singletons gray; shared multi-owner memories drawn larger with a red ring). <b>Hover any node to read the memory&rsquo;s full text and its owners</b> &mdash; each cluster is one plotline&rsquo;s linked pieces, assembled bottom-up by auto-affiliation and merging.</figcaption>
+  <figcaption><b>Figure 17b. The full memory-affiliation graph (interactive) &mdash; 三国演义.</b> Every sim-generated memory is a node ({R['MO']['link_n']} affiliated edges; components colored, singletons gray; shared multi-owner memories drawn larger with a red ring). <b>Hover any node to read the memory&rsquo;s full text and its owners</b> &mdash; each cluster is one plotline&rsquo;s linked pieces, assembled bottom-up by auto-affiliation and merging.</figcaption>
 </figure>
 <figure>
   <div class="ig" id="ig-heatmap" style="height:620px"></div>
-  <figcaption><b>Figure 21. The ownership layer (interactive) &mdash; 三国演义.</b> Pairwise co-owned memory counts over the complete roster, ordered by interaction community. Hover a cell for the pair and its count. Non-zero cells concentrate in the diagonal blocks &mdash; agents share memories with their own faction &mdash; and each strong cell corresponds to consensus merges of jointly experienced events.</figcaption>
+  <figcaption><b>Figure 17. The ownership layer (interactive) &mdash; 三国演义.</b> Pairwise co-owned memory counts over the complete roster, ordered by interaction community. Hover a cell for the pair and its count. Non-zero cells concentrate in the diagonal blocks &mdash; agents share memories with their own faction &mdash; and each strong cell corresponds to consensus merges of jointly experienced events.</figcaption>
 </figure>
 
 <h5>All three layers in one view</h5>
 <figure>
   <div class="ig" id="ig-trilayer" style="height:560px"></div>
-  <figcaption><b>Figure 22. All three layers in one view (interactive) &mdash; 三国演义.</b> Agents on the top row (circles = characters, squares = passive memory owners) with conversation arcs above (blue; width = frequency); memories on the bottom row with affiliation arcs below (green when the linked memories share a witness, gray when disjoint); ownership as vertical lines, red when the memory is shared. <b>Hover an agent</b> to isolate its conversations and owned memories; <b>hover a memory</b> (&starf; = merged multi-owner) to read its text and see its links. Shared structure sits where conversation sits.</figcaption>
+  <figcaption><b>Figure 18. All three layers in one view (interactive) &mdash; 三国演义.</b> Agents on the top row (circles = characters, squares = passive memory owners) with conversation arcs above (blue; width = frequency); memories on the bottom row with affiliation arcs below (green when the linked memories share a witness, gray when disjoint); ownership as vertical lines, red when the memory is shared. <b>Hover an agent</b> to isolate its conversations and owned memories; <b>hover a memory</b> (&starf; = merged multi-owner) to read its text and see its links. Shared structure sits where conversation sits.</figcaption>
 </figure>
 
 <h5>Pairwise alignment of the layers</h5>
@@ -668,7 +705,7 @@ HTML = CSS + f"""
 <p>Affiliated edges running between two agents&rsquo; memory sets: talking pairs average {R['AM']['talk_mean']:.1f}; non-talking pairs {R['AM']['non_mean']:.2f}. The memory graph bridges exactly the agents the conversation graph connects.</p></div>
 <figure>
   <img src="{IMG['relpanels']}" alt="Three pairwise relationships">
-  <figcaption><b>Figure 23. Each pairwise relation as a with/without pair of distributions &mdash; 三国演义</b> (columns share x and y axes; log density so tails read against the mass at zero; top row = pairs with the relation, bottom = without). Left: owned-memory-set Jaccard for talking vs non-talking agent pairs. Middle: owner-set Jaccard for memory pairs with vs without an affiliated edge. Right: cross-set affiliated-edge counts for talking vs non-talking agent pairs. In all three, the without-group concentrates at zero and the with-group carries the entire tail.</figcaption>
+  <figcaption><b>Figure 19. Each pairwise relation as a with/without pair of distributions &mdash; 三国演义</b> (columns share x and y axes; log density so tails read against the mass at zero; top row = pairs with the relation, bottom = without). Left: owned-memory-set Jaccard for talking vs non-talking agent pairs. Middle: owner-set Jaccard for memory pairs with vs without an affiliated edge. Right: cross-set affiliated-edge counts for talking vs non-talking agent pairs. In all three, the without-group concentrates at zero and the with-group carries the entire tail.</figcaption>
 </figure>
 <p><b>Synthesis.</b> The three alignments are not three separate facts but one: the consensus mechanisms transcribe the story&rsquo;s social structure into the memory substrate. Conversations are where shared experience happens, so merges (ownership overlap) land on talking pairs; deposits narrate the conversation an agent just had, so affiliation clusters coincide with events and their witnesses; and cross-agent links therefore run along conversation edges. In a per-agent store all three relations are identically zero &mdash; the substrate cannot express them &mdash; which is why the case study is run on the consensus backend alone.</p>
 
@@ -676,20 +713,20 @@ HTML = CSS + f"""
 <h5>The three layers <span style="font-family:var(--sans);font-size:12px;color:var(--faint);font-weight:400">&mdash; interactive: drag to pan, scroll to zoom, hover for details, drag nodes to rearrange</span></h5>
 <figure>
   <div class="ig" id="ig-ru-interaction" style="height:480px"></div>
-  <figcaption><b>Figure 24a. The interaction graph (interactive) &mdash; Russia&ndash;Ukraine.</b> 65 entities; community detection recovers the conflict&rsquo;s blocs &mdash; the Kyiv government cluster, the Moscow cluster, and the international mediators &mdash; without being told about them.</figcaption>
+  <figcaption><b>Figure 20a. The interaction graph (interactive) &mdash; Russia&ndash;Ukraine.</b> 65 entities; community detection recovers the conflict&rsquo;s blocs &mdash; the Kyiv government cluster, the Moscow cluster, and the international mediators &mdash; without being told about them.</figcaption>
 </figure>
 <figure>
   <div class="ig" id="ig-ru-affiliation" style="height:520px"></div>
-  <figcaption><b>Figure 24b. The full memory-affiliation graph (interactive) &mdash; Russia&ndash;Ukraine.</b> {RUC['sim_new']} sim memories, {RUR['MO']['link_n']} affiliated edges; hover any node to read the memory and its owners. Clusters are single storylines (a strike wave, a negotiation) assembled by auto-affiliation.</figcaption>
+  <figcaption><b>Figure 20b. The full memory-affiliation graph (interactive) &mdash; Russia&ndash;Ukraine.</b> {RUC['sim_new']} sim memories, {RUR['MO']['link_n']} affiliated edges; hover any node to read the memory and its owners. Clusters are single storylines (a strike wave, a negotiation) assembled by auto-affiliation.</figcaption>
 </figure>
 <figure>
   <div class="ig" id="ig-ru-heatmap" style="height:560px"></div>
-  <figcaption><b>Figure 24. The ownership layer (interactive) &mdash; Russia&ndash;Ukraine.</b> Pairwise co-owned memory counts over the Russia&ndash;Ukraine roster, ordered by interaction community. Hover a cell for the pair and its count. As in Figure 21, non-zero cells sit on pairs that jointly experienced events &mdash; here the strongest cells are spokesperson&harr;institution pairs, the real-world counterpart of faction comrades.</figcaption>
+  <figcaption><b>Figure 20. The ownership layer (interactive) &mdash; Russia&ndash;Ukraine.</b> Pairwise co-owned memory counts over the Russia&ndash;Ukraine roster, ordered by interaction community. Hover a cell for the pair and its count. As in Figure 17, non-zero cells sit on pairs that jointly experienced events &mdash; here the strongest cells are spokesperson&harr;institution pairs, the real-world counterpart of faction comrades.</figcaption>
 </figure>
 <h5>All three layers in one view</h5>
 <figure>
   <div class="ig" id="ig-ru-trilayer" style="height:520px"></div>
-  <figcaption><b>Figure 25. All three layers in one view (interactive) &mdash; Russia&ndash;Ukraine.</b> Conversations above, ownership between, affiliation below; merged memories (&starf;) hang between the parties that share them.</figcaption>
+  <figcaption><b>Figure 21. All three layers in one view (interactive) &mdash; Russia&ndash;Ukraine.</b> Conversations above, ownership between, affiliation below; merged memories (&starf;) hang between the parties that share them.</figcaption>
 </figure>
 <h5>Pairwise alignment of the layers</h5>
 <div class="rel"><h4><span class="rx">A&harr;O</span> Agents who talk own overlapping memories <span class="stat">({RUR['AO']['talk_mean']:.3f} vs {RUR['AO']['non_mean']:.4f}, {RUR['AO']['talk_mean']/max(RUR['AO']['non_mean'],1e-9):.0f}&times;)</span></h4>
@@ -700,27 +737,27 @@ HTML = CSS + f"""
 <p>Talking pairs average {RUR['AM']['talk_mean']:.2f} affiliated edges between their memory sets; non-talking pairs essentially none.</p></div>
 <figure>
   <img src="{IMG['ru_relpanels']}" alt="RU relationship panels">
-  <figcaption><b>Figure 26. Each pairwise relation as a with/without pair of distributions &mdash; Russia&ndash;Ukraine</b> (same format as Figure 23). The structural signature transfers intact to a real-world scenario at one eighth the horizon.</figcaption>
+  <figcaption><b>Figure 22. Each pairwise relation as a with/without pair of distributions &mdash; Russia&ndash;Ukraine</b> (same format as Figure 19). The structural signature transfers intact to a real-world scenario at one eighth the horizon.</figcaption>
 </figure>
 
 <h4>5.4.3 &nbsp;红楼梦</h4>
 <h5>The three layers <span style="font-family:var(--sans);font-size:12px;color:var(--faint);font-weight:400">&mdash; interactive: drag to pan, scroll to zoom, hover for details, drag nodes to rearrange</span></h5>
 <figure>
   <div class="ig" id="ig-rc-interaction" style="height:480px"></div>
-  <figcaption><b>Figure 27a. The interaction graph (interactive) &mdash; 红楼梦.</b> 31 conversing characters; community detection recovers the household&rsquo;s social circles &mdash; the 贾母 banquet orbit, the young poets&rsquo; circle, and the stewards &mdash; without being told about them.</figcaption>
+  <figcaption><b>Figure 23a. The interaction graph (interactive) &mdash; 红楼梦.</b> 31 conversing characters; community detection recovers the household&rsquo;s social circles &mdash; the 贾母 banquet orbit, the young poets&rsquo; circle, and the stewards &mdash; without being told about them.</figcaption>
 </figure>
 <figure>
   <div class="ig" id="ig-rc-affiliation" style="height:520px"></div>
-  <figcaption><b>Figure 27b. The full memory-affiliation graph (interactive) &mdash; 红楼梦.</b> {RCC['sim_new']} sim memories, {RCR['MO']['link_n']} affiliated edges; hover any node to read the memory and its owners. Clusters are single storylines assembled by auto-affiliation.</figcaption>
+  <figcaption><b>Figure 23b. The full memory-affiliation graph (interactive) &mdash; 红楼梦.</b> {RCC['sim_new']} sim memories, {RCR['MO']['link_n']} affiliated edges; hover any node to read the memory and its owners. Clusters are single storylines assembled by auto-affiliation.</figcaption>
 </figure>
 <figure>
   <div class="ig" id="ig-rc-heatmap" style="height:560px"></div>
-  <figcaption><b>Figure 27. The ownership layer (interactive) &mdash; 红楼梦.</b> Pairwise co-owned memory counts over the 红楼 roster, ordered by interaction community. Hover a cell for the pair and its count. As in Figure 21, non-zero cells sit on pairs that jointly experienced scenes &mdash; here the strongest cells are kin who attended the same banquet, the domestic counterpart of faction comrades.</figcaption>
+  <figcaption><b>Figure 23. The ownership layer (interactive) &mdash; 红楼梦.</b> Pairwise co-owned memory counts over the 红楼 roster, ordered by interaction community. Hover a cell for the pair and its count. As in Figure 17, non-zero cells sit on pairs that jointly experienced scenes &mdash; here the strongest cells are kin who attended the same banquet, the domestic counterpart of faction comrades.</figcaption>
 </figure>
 <h5>All three layers in one view</h5>
 <figure>
   <div class="ig" id="ig-rc-trilayer" style="height:520px"></div>
-  <figcaption><b>Figure 28. All three layers in one view (interactive) &mdash; 红楼梦.</b> Conversations above, ownership between, affiliation below; merged memories (&starf;) hang between the parties that share them.</figcaption>
+  <figcaption><b>Figure 24. All three layers in one view (interactive) &mdash; 红楼梦.</b> Conversations above, ownership between, affiliation below; merged memories (&starf;) hang between the parties that share them.</figcaption>
 </figure>
 <h5>Pairwise alignment of the layers</h5>
 <div class="rel"><h4><span class="rx">A&harr;O</span> Agents who talk own overlapping memories <span class="stat">({RCR['AO']['talk_mean']:.3f} vs {RCR['AO']['non_mean']:.4f}, {RCR['AO']['talk_mean']/max(RCR['AO']['non_mean'],1e-9):.0f}&times;)</span></h4>
@@ -731,27 +768,27 @@ HTML = CSS + f"""
 <p>Talking pairs average {RCR['AM']['talk_mean']:.2f} affiliated edges between their memory sets against {RCR['AM']['non_mean']:.3f} for non-talking pairs &mdash; the separation sharpens with the horizon (2.09 vs 0.15 at ten ticks).</p></div>
 <figure>
   <img src="{IMG['rc_relpanels']}" alt="RC relationship panels">
-  <figcaption><b>Figure 29. Each pairwise relation as a with/without pair of distributions &mdash; 红楼梦</b> (same format as Figure 23). The structural signature holds in a third world with a markedly different social topology.</figcaption>
+  <figcaption><b>Figure 25. Each pairwise relation as a with/without pair of distributions &mdash; 红楼梦</b> (same format as Figure 19). The structural signature holds in a third world with a markedly different social topology.</figcaption>
 </figure>
 
 <h4>5.4.4 &nbsp;Hamlet</h4>
 <h5>The three layers <span style="font-family:var(--sans);font-size:12px;color:var(--faint);font-weight:400">&mdash; interactive: drag to pan, scroll to zoom, hover for details, drag nodes to rearrange</span></h5>
 <figure>
   <div class="ig" id="ig-hl-interaction" style="height:440px"></div>
-  <figcaption><b>Figure 30a. The interaction graph (interactive) &mdash; Hamlet.</b> 15 conversing characters, 22 pairs &mdash; the whole court in one castle. At this size the graph is the cast list rather than a community structure to be recovered.</figcaption>
+  <figcaption><b>Figure 26a. The interaction graph (interactive) &mdash; Hamlet.</b> 15 conversing characters, 22 pairs &mdash; the whole court in one castle. At this size the graph is the cast list rather than a community structure to be recovered.</figcaption>
 </figure>
 <figure>
   <div class="ig" id="ig-hl-affiliation" style="height:480px"></div>
-  <figcaption><b>Figure 30b. The full memory-affiliation graph (interactive) &mdash; Hamlet.</b> {HLC['sim_new']} sim memories, {HLR['MO']['link_n']} affiliated edges; hover any node to read the memory and its owners. Clusters are single scenes assembled by auto-affiliation.</figcaption>
+  <figcaption><b>Figure 26b. The full memory-affiliation graph (interactive) &mdash; Hamlet.</b> {HLC['sim_new']} sim memories, {HLR['MO']['link_n']} affiliated edges; hover any node to read the memory and its owners. Clusters are single scenes assembled by auto-affiliation.</figcaption>
 </figure>
 <figure>
   <div class="ig" id="ig-hl-heatmap" style="height:520px"></div>
-  <figcaption><b>Figure 30. The ownership layer (interactive) &mdash; Hamlet.</b> Pairwise co-owned memory counts over the Hamlet roster, ordered by interaction community. Every non-zero cell is a two-person scene; the densest are the play&rsquo;s standing pairs.</figcaption>
+  <figcaption><b>Figure 26. The ownership layer (interactive) &mdash; Hamlet.</b> Pairwise co-owned memory counts over the Hamlet roster, ordered by interaction community. Every non-zero cell is a two-person scene; the densest are the play&rsquo;s standing pairs.</figcaption>
 </figure>
 <h5>All three layers in one view</h5>
 <figure>
   <div class="ig" id="ig-hl-trilayer" style="height:480px"></div>
-  <figcaption><b>Figure 31. All three layers in one view (interactive) &mdash; Hamlet.</b> Conversations above, ownership between, affiliation below; merged memories (&starf;) hang between the parties that share them.</figcaption>
+  <figcaption><b>Figure 27. All three layers in one view (interactive) &mdash; Hamlet.</b> Conversations above, ownership between, affiliation below; merged memories (&starf;) hang between the parties that share them.</figcaption>
 </figure>
 <h5>Pairwise alignment of the layers</h5>
 <div class="rel"><h4><span class="rx">A&harr;O</span> Agents who talk own overlapping memories <span class="stat">({HLR['AO']['talk_mean']:.3f} vs {HLR['AO']['non_mean']:.4f}, {HLR['AO']['talk_mean']/max(HLR['AO']['non_mean'],1e-9):.0f}&times;)</span></h4>
@@ -762,7 +799,7 @@ HTML = CSS + f"""
 <p>Talking pairs average {HLR['AM']['talk_mean']:.2f} affiliated edges between their memory sets against {HLR['AM']['non_mean']:.2f} for non-talking pairs &mdash; the same direction as the larger worlds at a tenth of the scale, and four times sharper than at twenty ticks.</p></div>
 <figure>
   <img src="{IMG['hl_relpanels']}" alt="HL relationship panels">
-  <figcaption><b>Figure 32. Each pairwise relation as a with/without pair of distributions &mdash; Hamlet</b> (same format as Figure 23). The signature survives at the smallest scale tested, with the A&harr;O panel visibly the noisiest.</figcaption>
+  <figcaption><b>Figure 28. Each pairwise relation as a with/without pair of distributions &mdash; Hamlet</b> (same format as Figure 19). The signature survives at the smallest scale tested, with the A&harr;O panel visibly the noisiest.</figcaption>
 </figure>
 
 <h3>5.5 &nbsp;Structure compounds with horizon</h3>
@@ -771,7 +808,7 @@ HTML = CSS + f"""
 <h4>5.5.1 &nbsp;三国演义</h4>
 <figure>
   <img src="{IMG['growth']}" alt="Growth across horizon">
-  <figcaption><b>Figure 33. Consensus structure across the horizon &mdash; 三国演义.</b> Sim-memory count (left), shared multi-owner memories (middle), and affiliated edges (right) at the 20/40/60/80-tick checkpoints of the same continuously-resumed run. All three grow super-linearly in usefulness even where counts grow linearly: each new shared memory raises the chance that a future deposit finds a merge partner, and each new edge widens what a single auto-expanding recall can surface.</figcaption>
+  <figcaption><b>Figure 29. Consensus structure across the horizon &mdash; 三国演义.</b> Sim-memory count (left), shared multi-owner memories (middle), and affiliated edges (right) at the 20/40/60/80-tick checkpoints of the same continuously-resumed run. All three grow super-linearly in usefulness even where counts grow linearly: each new shared memory raises the chance that a future deposit finds a merge partner, and each new edge widens what a single auto-expanding recall can surface.</figcaption>
 </figure>
 
 <h4>5.5.2 &nbsp;Russia&ndash;Ukraine</h4>
@@ -866,29 +903,59 @@ HTML = CSS + f"""
 <p><b>Reading.</b> Three things stand out. First, the memory interface agents do use is exactly two calls wide: <code>remember</code> (168&ndash;181 per backend) and <code>recall</code> (8&ndash;24), and nothing else &mdash; every one of the six discretionary memory-management actions sits at zero for every backend. This is the empirical basis for D3: a mechanism placed behind <code>add_affiliated</code> would never run. Second, the distribution is nearly identical across backends, which is what the fairness protocol wants: the backends differ in what <code>remember</code> and <code>recall</code> <i>do</i>, not in how often agents call them. Third, the ratio of writes to reads is roughly 9:1 &mdash; agents deposit far more than they retrieve &mdash; which is why the cost analysis of &sect;5.2 treats the write path as the one that matters.</p>
 
 <h3>A.3 &nbsp;Transcript excerpts</h3>
-<p>The excerpts below are consecutive <code>say</code> messages from the 三国 run at ticks 60&ndash;64, one block per backend, chosen by length so that a block fits here (40&ndash;150 characters). They are unedited apart from truncation of the recipient list. Their purpose is not to show that one backend writes better prose &mdash; &sect;5.3 measures that, and finds the backends within error bars of one another &mdash; but to show what the memory mechanism looks like from the outside.</p>
+<p>One deduplicated <code>say</code> message per backend, from each world&rsquo;s final stage, chosen by length so a block fits here; only the recipient list is abridged. The two Chinese worlds are given in the original with an English rendering beneath; the two English worlds are given as written. The point of the comparison is not prose quality &mdash; &sect;5.3 measures that and finds the backends within error bars of one another &mdash; but what a memory design looks like from the outside.</p>
 
-<div class="quote"><b>consensus</b><br>
-[t61] 程昱 &rarr; 乐进: &ldquo;乐进：今夜子时于许昌城东取徐母家书之事，今以何时为准？仍按子时取回，还是改为明日午后三刻于馆驿交接？请速回禀。&rdquo;<br>
-[t62] 张昭 &rarr; 程普, 太史慈: &ldquo;程公、太史慈：拟于明日将荐表呈于主公。烦二子明示：一、是否坚持先由吾引见以正名分，抑或准吾先呈表并颁行路引以便速发？&hellip;&rdquo;<br>
-[t63] 糜竺 &rarr; 孙乾: &ldquo;孙乾，盘点单现在可交否？若在途中请报预计到达确时；若已在手，请当面将盘点原件呈于我&hellip;&rdquo;</div>
+<h4>三国演义 (80 ticks, Chinese)</h4>
+<div class="quote"><b>consensus</b> &nbsp;[t61] 程昱 &rarr; 乐进<br>
+&ldquo;乐进：今夜子时于许昌城东取徐母家书之事，今以何时为准？仍按子时取回，还是改为明日午后三刻于馆驿交接？请速回禀。&rdquo;<br>
+<i>&ldquo;Yue Jin: regarding tonight&rsquo;s midnight collection of Xu Shu&rsquo;s mother&rsquo;s letter east of Xuchang &mdash; which timing now stands? Still midnight, or moved to the third quarter after noon tomorrow at the post-house? Report back at once.&rdquo;</i></div>
+<div class="quote"><b>generative-agents</b> &nbsp;[t61] 糜竺 &rarr; 刘备, 关羽, 孙乾<br>
+&ldquo;回禀主公：承受圣裁。兵数仍定为三百，准用樊城抽拨之三日口粮；我即刻领发粮草并督樊城粮官封存登记&hellip;&rdquo;<br>
+<i>&ldquo;Reporting to my lord: the ruling is received. The force stands at three hundred; three days&rsquo; rations drawn from Fancheng are approved; I will issue the supplies at once and have the Fancheng grain officer seal and register them&hellip;&rdquo;</i></div>
+<div class="quote"><b>g-memory</b> &nbsp;[t62] 夏侯渊 &rarr; 荀彧<br>
+&ldquo;荀公：于禁、乐进已携册赴府衙呈上，臣亦已将斥候回报摘要与各营点验簿整理成册&hellip;能否按议于三刻内汇整为摘要上奏陛下？&rdquo;<br>
+<i>&ldquo;Lord Xun: Yu Jin and Yue Jin have carried the registers to the yamen; I have also compiled the scouts&rsquo; summaries and the camp inspection books&hellip; can it be consolidated into a memorial to His Majesty within three quarters, as agreed?&rdquo;</i></div>
+<div class="quote"><b>collaborative</b> &nbsp;[t61] 许褚 &rarr; 关羽, 诸葛亮, 赵云<br>
+&ldquo;白狼山侦察已毕。沿山脊侦望，未见敌军主力，仅见零星侦骑与少数可疑营帐、营火。已设回报信号，现按原路返营，预计一小时内抵达。&rdquo;<br>
+<i>&ldquo;Reconnaissance of Mount Bailang is complete. Observing along the ridge, no main enemy force was seen &mdash; only scattered scout riders and a few suspicious tents and campfires. Signals are set; returning by the same route, arrival expected within the hour.&rdquo;</i></div>
 
-<div class="quote"><b>generative-agents</b><br>
-[t60] 乐进 &rarr; 徐庶: &ldquo;徐公，奉陛下与张督之令，烦请私札将你所辖各营、各仓当前粮草存量&hellip;及各处可出动预备队人数&hellip;呈报于臣&rdquo;<br>
-[t61] 糜竺 &rarr; 刘备, 关羽, 孙乾: &ldquo;回禀主公：承受圣裁。兵数仍定为三百，准用樊城抽拨之三日口粮；我即刻领发粮草并督樊城粮官封存登记&hellip;&rdquo;<br>
-[t62] 曹操 &rarr; 陈登: &ldquo;陈登收：得报，照准。吾将预备骑兵一千、步卒若干与工匠若干，备粮一月以待调度&hellip;联络暗号仍按汝所拟&rdquo;</div>
+<h4>红楼梦 (80 ticks, Chinese)</h4>
+<div class="quote"><b>consensus</b> &nbsp;[t60] 贾宝玉 &rarr; 贾母, 贾珍, 王熙凤<br>
+&ldquo;外祖母、贾珍、凤姐、宝钗，晚辈已在此恭候。请问外祖母现在是要我先近前到贾母身侧就座陪侍，还是等林姑娘到齐再并列就座？&rdquo;<br>
+<i>&ldquo;Grandmother, Jia Zhen, Sister Feng, Baochai &mdash; I am waiting here. Does Grandmother wish me to come up and sit beside her now, or to wait until Miss Lin arrives and be seated together?&rdquo;</i></div>
+<div class="quote"><b>generative-agents</b> &nbsp;[t60] 贾琏 &rarr; 板儿, 尤氏<br>
+&ldquo;板儿，请将你与姥姥的姓名、来意及是否带有介绍信或能证明身份的凭证一并禀明；尤氏，请差小厮将板儿与刘姥姥领到厅上等候，不可四处走动&hellip;&rdquo;<br>
+<i>&ldquo;Ban&rsquo;er, state your name and Granny&rsquo;s, your business, and whether you carry a letter of introduction or any proof of identity; You-shi, have a page bring Ban&rsquo;er and Granny Liu to the hall to wait, and let them not wander&hellip;&rdquo;</i></div>
+<div class="quote"><b>g-memory</b> &nbsp;[t60] 贾探春 &rarr; 李纨<br>
+&ldquo;李姐姐，承你所托，探春已于席间为社中示范一首（海棠初绽露凝香……）且湘云已和唱，诸位正依次应和&hellip;关于本月轮主，惜春愿任一任。&rdquo;<br>
+<i>&ldquo;Sister Li, as you asked, I have offered the club a model verse at the table (&lsquo;the crab-apple newly opened, dew holding its scent&hellip;&rsquo;), Xiangyun has answered it, and the others are responding in turn&hellip; as for this month&rsquo;s host, Xichun is willing to take a turn.&rdquo;</i></div>
+<div class="quote"><b>collaborative</b> &nbsp;[t60] 晴雯 &rarr; 贾芸, 小红<br>
+&ldquo;贾芸，你刚才可曾拿着一方白底绣花、角上有绣字的绢子？小红说那是她的，若你有请拿出来让小红看；若没有请直言。&rdquo;<br>
+<i>&ldquo;Jia Yun, were you just now holding a white embroidered handkerchief with a word stitched in the corner? Xiaohong says it is hers. If you have it, produce it for her to see; if not, say so plainly.&rdquo;</i></div>
 
-<div class="quote"><b>g-memory</b><br>
-[t61] 荀彧 &rarr; 汉献帝: &ldquo;陛下启奏：臣今将《许昌局势摘要》暨各将书面条陈与斥候所获之证物一并呈上&hellip;&rdquo;<br>
-[t62] 夏侯渊 &rarr; 荀彧: &ldquo;荀公：于禁、乐进已携册赴府衙呈上，臣亦已将斥候回报摘要与各营点验簿整理成册&hellip;能否按议于三刻内汇整为摘要上奏陛下？&rdquo;<br>
-[t62] 赵云 &rarr; 张飞, 诸葛亮, 许褚: &ldquo;张将军，承你勇意。但依诸葛丞相与许将军所令，城中首务当以灭火固守三门为先&hellip;&rdquo;</div>
+<h4>Russia&ndash;Ukraine (40 ticks, English)</h4>
+<div class="quote"><b>consensus</b> &nbsp;[t24] un &rarr; guterres<br>
+&ldquo;Rosemary DiCarlo, please begin your 5-minute brief now and name the DPA drafting lead for the Security Council text.&rdquo;</div>
+<div class="quote"><b>generative-agents</b> &nbsp;[t24] iaea &rarr; grossi<br>
+&ldquo;Director General IAEA requests immediate confirmation of the current status at Zaporizhzhia NPP. Please secure safe, unimpeded access for an IAEA expert mission, coordinate with Energoatom&hellip;&rdquo;</div>
+<div class="quote"><b>g-memory</b> &nbsp;[t24] zaluzhnyi &rarr; radakin<br>
+&ldquo;Brigadier Foster &mdash; I am transmitting Colonel Andriy Kovalenko&rsquo;s secure contact details and the prioritized spreadsheet to you and the UK team now via the agreed secure channel&hellip;&rdquo;</div>
+<div class="quote"><b>collaborative</b> &nbsp;[t33] un &rarr; guterres<br>
+&ldquo;Secretary-General, DPO has not yet delivered its update. Shall OCHA proceed now with its five-minute update on civilian needs and corridor routes, or wait a moment longer for DPO?&rdquo;</div>
+<p style="font-size:14px;color:var(--muted);max-width:68ch">These are English-language excerpts, but not every message in this world was English: 12% of the run&rsquo;s memories are Chinese and 2% Russian (Table&nbsp;A4), the latter because agents adopted the language of the character they were playing.</p>
 
-<div class="quote"><b>collaborative</b><br>
-[t61] 程普 &rarr; 太史慈, 张昭: &ldquo;承二位之言，属下今即前往长史署内候見，烦请张長史代為轉呈主上&hellip;&rdquo;<br>
-[t61] 许褚 &rarr; 关羽, 诸葛亮, 赵云: &ldquo;白狼山侦察已毕。沿山脊侦望，未见敌军主力，仅见零星侦骑与少数可疑营帐、营火。已设回报信号，现按原路返营&hellip;&rdquo;<br>
-[t64] 伏皇后 &rarr; 孙乾: &ldquo;孙乾，已派骑卒与信使往大阳探查。你在荆州暂为主事：即刻整备近卫三百人、粮草与马匹，随时待命增援&hellip;&rdquo;</div>
+<h4>Hamlet (30 ticks, English)</h4>
+<div class="quote"><b>consensus</b> &nbsp;[t24] fortinbras &rarr; marcellus<br>
+&ldquo;Marcellus, report the current troop and weapon counts on the battlements, and prepare to escort me to the Great Hall so we can inventory arms and gather grain.&rdquo;</div>
+<div class="quote"><b>generative-agents</b> &nbsp;[t20] marcellus &rarr; barnardo<br>
+&ldquo;Barnardo &mdash; go wake Horatio at once and tell him to come to the battlements immediately. Do not go alone; wait here until he arrives.&rdquo;</div>
+<div class="quote"><b>g-memory</b> &nbsp;[t28] barnardo &rarr; horatio<br>
+&ldquo;Horatio, Marcellus and I just saw a ghost on the battlements.&rdquo;</div>
+<div class="quote"><b>collaborative</b> &nbsp;[t20] first_player &rarr; rosencrantz<br>
+&ldquo;Thank you, Rosencrantz. I&rsquo;m glad the play is engaging. Watch King Claudius closely and tell me if his countenance changes during the performance.&rdquo;</div>
 
-<p><b>Reading.</b> The four blocks share a register &mdash; the simulation drifts toward administrative correspondence in every backend, which is a property of the action repertoire (agents can <code>say</code>, set goals, and report) rather than of memory. What differs is the <i>direction of reference</i>. Consensus lines characteristically ask a counterpart to confirm or amend a detail both sides already hold (&ldquo;仍按子时取回，还是改为明日午后三刻&rdquo;, &ldquo;盘点单现在可交否&rdquo;): the speaker is treating an earlier arrangement as a shared record and asking which branch of it now applies. Baseline lines more often restate the arrangement in full before acting on it &mdash; Generative-Agents&rsquo; 糜竺 recapitulates troop count, rations, and the sealing of the granary; collaborative&rsquo;s 许褚 re-reports the entire scouting result &mdash; which is what an agent does when it cannot assume the other party&rsquo;s copy matches its own. This is consistent with, though not proof of, the mechanism: when N witnesses hold one row, the premises of a conversation do not need re-establishing. It is also the plausible source of the narrative-coherence edge consensus shows in 三国 (&sect;5.3.1) and of nothing else &mdash; the effect is small, and the quality metrics say so.</p>
+<p><b>Reading.</b> Three things hold across all four worlds. <i>The register is set by the action repertoire, not by the memory design.</i> Every backend drifts toward administrative correspondence &mdash; requests, confirmations, rosters, timings &mdash; because what an agent can do is speak, set goals, and report; 红楼&rsquo;s poetry club and Hamlet&rsquo;s battlements are pulled into the same idiom as 三国&rsquo;s supply trains. <i>The worlds differ more than the backends do.</i> The institutional worlds produce long procedural messages (Russia&ndash;Ukraine&rsquo;s shortest English line runs 285 characters); the chamber drama produces short ones (&ldquo;Horatio, Marcellus and I just saw a ghost on the battlements&rdquo;); the household world sits between, with etiquette carrying most of the content.</p>
+<p>What does track the memory design is the <i>direction of reference</i>. Consensus lines characteristically ask which branch of an already-shared arrangement now applies &mdash; 程昱 asks whether the pickup still stands at midnight <i>or</i> has moved to the post-house; 宝玉 asks whether to sit now <i>or</i> wait for 黛玉; the UN chair asks a named official to begin <i>the</i> brief. The speaker treats the prior arrangement as a record both sides hold and asks only for the delta. Baseline lines more often re-establish the arrangement before acting on it: 糜竺 restates troop count, rations, and the sealing of the granary; 许褚 re-reports the whole scouting result; 贾琏 asks for names, business, and proof of identity that the household already has. That is what an agent does when it cannot assume the other party&rsquo;s copy matches its own. The pattern is consistent with the mechanism &mdash; N witnesses holding one row do not need to re-establish premises &mdash; but it is an observation on selected excerpts, not a measurement; the quality metrics of &sect;5.3 put the backends within each other&rsquo;s error bars, and we do not claim more than that.</p>
 <p>One artifact worth recording, because it affects anything built on the event log: the kernel logs a single utterance both as an <code>action</code> event and as one <code>message</code> event per recipient, so a line addressed to three agents appears four times. Naive transcript assembly therefore triples parts of a run; the excerpts above and the screenplay renderer both deduplicate by (tick, speaker, content).</p>
 
 <h3>A.4 &nbsp;Sedimentation and cast selection</h3>
