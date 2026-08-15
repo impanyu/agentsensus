@@ -18,8 +18,8 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from PIL import Image
 
-WORLDS = [("三国演义\n80 rounds", "paper_stats_g80"),
-          ("红楼梦\n80 rounds", "paper_stats_rc80"),
+WORLDS = [("Three Kingdoms (三国演义)\n80 rounds", "paper_stats_g80"),
+          ("Red Chamber (红楼梦)\n80 rounds", "paper_stats_rc80"),
           ("Russia–Ukraine\n40 rounds", "paper_stats_ru40"),
           ("Hamlet\n30 rounds", "paper_stats_hl30")]
 OUT = "runs/paper_figs_all"
@@ -37,7 +37,7 @@ for label, stats in WORLDS:
 
 x = np.arange(len(labels))
 w = 0.36
-fig, ax = plt.subplots(figsize=(7.2, 3.4))
+fig, ax = plt.subplots(figsize=(8.0, 3.4))
 b1 = ax.bar(x - w / 2, shared, w, label="shared (multi-owner)", color="#2563eb")
 b2 = ax.bar(x + w / 2, linked, w, label="linked (affiliated)", color="#7c9ff5")
 for bars in (b1, b2):
@@ -45,7 +45,7 @@ for bars in (b1, b2):
         ax.text(b.get_x() + b.get_width() / 2, b.get_height() + 2,
                 f"{b.get_height():.0f}%", ha="center", fontsize=9)
 ax.set_xticks(x)
-ax.set_xticklabels(labels, fontsize=9)
+ax.set_xticklabels(labels, fontsize=8.5)
 ax.set_ylabel("% of consensus sim memories")
 ax.set_ylim(0, 132)
 ax.legend(fontsize=9, loc="upper center", ncols=2, frameon=False,

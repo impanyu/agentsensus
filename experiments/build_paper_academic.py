@@ -60,6 +60,35 @@ for _pref in ("g80", "ru40", "rc80", "hl30"):
             TOTAL[(_pref, _b)] = json.load(_f)["footprint"]["entries"]
 
 
+# English renderings of the Chinese memory records quoted as merge examples.
+# Keyed by the stored text; a record with no entry is shown as-is (the
+# Russia-Ukraine and Hamlet stores are largely English already).
+MERGE_GLOSS = {
+    "夏侯渊率三百轻骑分三路从许昌出城侦察。":
+        "Xiahou Yuan led three hundred light cavalry out of Xuchang on reconnaissance, in three columns.",
+    "乐进督管许昌的粮草与军需。":
+        "Yue Jin was put in charge of Xuchang&rsquo;s grain and military supplies.",
+    "张辽被任为许昌防务的总摄指挥。":
+        "Zhang Liao was appointed overall commander of Xuchang&rsquo;s defences.",
+    "贾母只留下贾宝玉、林黛玉与薛宝钗到贾母身边相见。":
+        "Grandmother Jia kept only Jia Baoyu, Lin Daiyu and Xue Baochai by her side to receive them.",
+    "贾政召唤贾宝玉到贾政的书房。":
+        "Jia Zheng summoned Jia Baoyu to his study.",
+    "平儿在门廊与院外寻找贾宝玉。":
+        "Ping&rsquo;er searched the gallery and the courtyard outside for Jia Baoyu.",
+    "在厄耳锡诺城堡，吉尔登斯特恩与罗森克兰茨决定分头监视哈姆雷特。":
+        "At Elsinore, Guildenstern and Rosencrantz decided to watch Hamlet separately.",
+}
+
+
+def quote_memory(text):
+    """Render a stored memory for the paper: English, with the original after it
+    when the record itself is not in English."""
+    en = MERGE_GLOSS.get(text)
+    if en is None:
+        return f"&ldquo;{text}&rdquo;"
+    return f"&ldquo;{en}&rdquo; <span class=\"orig\">({text})</span>"
+
 def scale_rows(pref, stats):
     """Table rows for one world: sediment / sim / total."""
     out = []
@@ -186,6 +215,7 @@ figcaption b{color:var(--ink);font-weight:660}
 .quote{font-family:var(--sans);font-size:13px;background:var(--line2);border-radius:8px;
   padding:12px 15px;margin:12px 0;color:var(--muted);line-height:1.6}
 .quote b{color:var(--ink)}
+.quote .orig,.orig{color:var(--faint);font-size:.94em}
 .rel{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:14px 17px;margin:12px 0}
 .rel h4{font-size:14px;margin:0 0 5px;font-weight:700}
 .rel h4 .rx{font-family:var(--mono);color:var(--accent);margin-right:8px}
@@ -221,7 +251,7 @@ HTML = CSS + f"""
 <h1>Agentsensus: Consensus-Compressed Shared Memory for<br>Multi-Agent Story-World Simulation</h1>
 <p class="sub">A shared long-term memory that merges agents&rsquo; equivalent memories into multi-witness records and self-organizes into a navigable memory graph.</p>
 <div class="byline">
-  <span><b>Scenarios</b> 三国演义 (80 rounds, 33 active agents) &middot; Russia&ndash;Ukraine (40 rounds, 47 active) &middot; 红楼梦 (80 rounds, 34 active) &middot; Hamlet (30 rounds, 16 active)</span>
+  <span><b>Scenarios</b> Three Kingdoms (三国演义) (80 rounds, 33 active agents) &middot; Russia&ndash;Ukraine (40 rounds, 47 active) &middot; Red Chamber (红楼梦) (80 rounds, 34 active) &middot; Hamlet (30 rounds, 16 active)</span>
   <span><b>Checkpointing</b> every 20 rounds</span>
   <span><b>Model</b> gpt-5-mini</span>
 </div>
@@ -512,10 +542,10 @@ HTML = CSS + f"""
 <h2><span class="n">4</span> Experimental Setup</h2>
 
 <h3>4.1 &nbsp;Scenarios</h3>
-<p>三国演义 chapters 1&ndash;40 are sedimented onto 191 canonical characters (33 active at the boundary, the rest archived as dead; ~6,000 consensus events). All four backends then run the <i>same</i> 80-round simulation &mdash; same scenario file, same action repertoire, same model (<code>gpt-5-mini</code>; embeddings <code>text-embedding-3-small</code>) &mdash; in four checkpointed 20-round stages.</p>
+<p>Three Kingdoms (三国演义) chapters 1&ndash;40 are sedimented onto 191 canonical characters (33 active at the boundary, the rest archived as dead; ~6,000 consensus events). All four backends then run the <i>same</i> 80-round simulation &mdash; same scenario file, same action repertoire, same model (<code>gpt-5-mini</code>; embeddings <code>text-embedding-3-small</code>) &mdash; in four checkpointed 20-round stages.</p>
 <p>To test that the mechanisms are not an artifact of one fictional world, the second scenario is <b>real-world</b>: a timeline of the Russia&ndash;Ukraine conflict sedimented through 2026-07 (1,533 events over 170 entities). Real-world boundary semantics replace the novel&rsquo;s: a figure is archived if, by the boundary, they are dead <i>or out of the conflict&rsquo;s stage</i> (out of office, dismissed, disbanded), with placements grounded in the timeline or, failing that, the person&rsquo;s workplace/role (final cast: 47 active, 14 archived, manually verified). All four backends run the same 40-round simulation under the identical fairness protocol.</p>
 
-<p>The third scenario returns to fiction in a different register: <b>红楼梦</b> (<i>Dream of the Red Chamber</i>), chapters 1&ndash;40 sedimented onto 152 registry characters (6,506 consensus events; chapters 41&ndash;80 held out). The active cast is the 37 characters above the memory threshold (34 living; 秦可卿, 贾瑞 and 秦钟, dead by chapter 40, stay archived owners), and the boundary state is a freeze-frame of chapter 40&rsquo;s garden banquet &mdash; 贾母 and 刘姥姥 at 大观楼, the touring party at 蘅芜苑, the musicians at 藕香榭 &mdash; grounded per character in the sediment and manually verified. Where 三国 is war and statecraft among factions, 红楼 is dense domestic society &mdash; one household, fine-grained relationships &mdash; a different social topology for the same mechanisms. All four backends run the same 80-round simulation under the identical fairness protocol.</p>
+<p>The third scenario returns to fiction in a different register: <b>Red Chamber (红楼梦)</b> (<i>Dream of the Red Chamber</i>), chapters 1&ndash;40 sedimented onto 152 registry characters (6,506 consensus events; chapters 41&ndash;80 held out). The active cast is the 37 characters above the memory threshold (34 living; Qin Keqing (秦可卿), Jia Rui (贾瑞) and Qin Zhong (秦钟), dead by chapter 40, stay archived owners), and the boundary state is a freeze-frame of chapter 40&rsquo;s garden banquet &mdash; Grandmother Jia (贾母) and Granny Liu (刘姥姥) at the Grand View Pavilion (大观楼), the touring party at Hengwu Court (蘅芜苑), the musicians at the Lotus Fragrance Pavilion (藕香榭) &mdash; grounded per character in the sediment and manually verified. Where Three Kingdoms is war and statecraft among factions, Red Chamber is dense domestic society &mdash; one household, fine-grained relationships &mdash; a different social topology for the same mechanisms. All four backends run the same 80-round simulation under the identical fairness protocol.</p>
 
 <p>The fourth scenario is deliberately the smallest: <b>Hamlet</b>, Acts&nbsp;1&ndash;3 sedimented onto a 22-character registry (1,135 consensus events; Acts&nbsp;4&ndash;5 held out). Sixteen characters pass the memory threshold, plus Fortinbras, who owns no sediment memories at all &mdash; he never appears on stage before Act&nbsp;4 &mdash; but is retained because the continuation is his; England is likewise retained as an environment because it is where the sealed commission leads. Two characters are archived at the boundary: Polonius, killed behind the arras in 3.4, and the Ghost, absent from the canon after that scene. Where the other three worlds have dozens of agents spread over a map, Hamlet is a chamber drama &mdash; sixteen agents in one castle, most scenes a two-person exchange &mdash; which makes it the sharpest test of whether the mechanisms need scale to show anything. All four backends run the same 30-round simulation under the identical fairness protocol.</p>
 
@@ -534,7 +564,7 @@ HTML = CSS + f"""
 <h3>4.4 &nbsp;Metrics</h3>
 <ul class="body">
 <li><b>Structure</b> (deterministic): sim-entry count; share of multi-owner entries; share of entries with affiliated edges.</li>
-<li><b>Continuation quality</b> (LLM-judged, mean&plusmn;std over 3 scorings of the sim transcript): <i>grounding</i> &mdash; the fraction of the sim&rsquo;s own events consistent with the canon; <i>trajectory</i> &mdash; agreement of character arcs with reference arcs extracted from each world&rsquo;s held-out continuation (三国: chapters 41&ndash;60; Russia&ndash;Ukraine: the timeline beyond the 2024-04 boundary); <i>narrative</i> &mdash; judged coherence/drama/fidelity (1&ndash;5); <i>goal pursuit</i> &mdash; whether each agent&rsquo;s actions consistently pursue its declared goals (judged against the goal stack the agent itself maintains; defined here, measurement deferred &mdash; achievement itself is deliberately not scored, since a faithful tragedy requires goals to fail). The verbose Russia&ndash;Ukraine transcripts are compacted to the judge&rsquo;s context window (messages truncated to 280 chars, lines sampled evenly when needed); 三国 fits untruncated.</li>
+<li><b>Continuation quality</b> (LLM-judged, mean&plusmn;std over 3 scorings of the sim transcript): <i>grounding</i> &mdash; the fraction of the sim&rsquo;s own events consistent with the canon; <i>trajectory</i> &mdash; agreement of character arcs with reference arcs extracted from each world&rsquo;s held-out continuation (Three Kingdoms: chapters 41&ndash;60; Russia&ndash;Ukraine: the timeline beyond the 2024-04 boundary); <i>narrative</i> &mdash; judged coherence/drama/fidelity (1&ndash;5); <i>goal pursuit</i> &mdash; whether each agent&rsquo;s actions consistently pursue its declared goals (judged against the goal stack the agent itself maintains; defined here, measurement deferred &mdash; achievement itself is deliberately not scored, since a faithful tragedy requires goals to fail). The verbose Russia&ndash;Ukraine transcripts are compacted to the judge&rsquo;s context window (messages truncated to 280 chars, lines sampled evenly when needed); Three Kingdoms fits untruncated.</li>
 <li><b>Operation latency</b> (&sect;5.2): per-call wall-clock time of <code>remember</code>/<code>recall</code>, timed in the kernel around the backend call so each mechanism&rsquo;s internal cost (equivalence judging, importance scoring, auto-expansion) falls inside the window. Rounds 61&ndash;80 are instrumented live; rounds 1&ndash;60 are measured by replaying each stage&rsquo;s logged operations against the store state the stage started from (checkpoint-exact for stages 2&ndash;3; the first stage&rsquo;s GA/G-Memory replay stores lack prime by-products, &asymp;3&ndash;5% of rows).</li>
 <li><b>Three-layer alignment</b> (&sect;5.4): relations between the interaction graph, the affiliation graph, and the ownership relation.</li>
 </ul>
@@ -542,33 +572,33 @@ HTML = CSS + f"""
 <h2><span class="n">5</span> Results</h2>
 
 <h3>5.1 &nbsp;Footprint and structure</h3>
-<p>At equal granularity, consensus writes the fewest sim memories in all three worlds (三国: {C['sim_new']} vs {GA['sim_new']}&ndash;{CO['sim_new']}; Russia&ndash;Ukraine: {RUC['sim_new']} vs {RU['collaborative']['sim_new']}&ndash;{RU['generative_agents']['sim_new']}; 红楼: {RCC['sim_new']} vs {RC['generative_agents']['sim_new']}&ndash;{RC['g_memory']['sim_new']}) because merging folds witnesses together. The same holds for structure: in every world consensus is the only backend whose memories become shared and linked ({C['sh_pct']}%/{C['aff_pct']}% in 三国, {RUC['sh_pct']}%/{RUC['aff_pct']}% in Russia&ndash;Ukraine, {RCC['sh_pct']}%/{RCC['aff_pct']}% in 红楼), against 0% for every baseline.</p>
+<p>At equal granularity, consensus writes the fewest sim memories in all three worlds (Three Kingdoms: {C['sim_new']} vs {GA['sim_new']}&ndash;{CO['sim_new']}; Russia&ndash;Ukraine: {RUC['sim_new']} vs {RU['collaborative']['sim_new']}&ndash;{RU['generative_agents']['sim_new']}; Red Chamber: {RCC['sim_new']} vs {RC['generative_agents']['sim_new']}&ndash;{RC['g_memory']['sim_new']}) because merging folds witnesses together. The same holds for structure: in every world consensus is the only backend whose memories become shared and linked ({C['sh_pct']}%/{C['aff_pct']}% in Three Kingdoms, {RUC['sh_pct']}%/{RUC['aff_pct']}% in Russia&ndash;Ukraine, {RCC['sh_pct']}%/{RCC['aff_pct']}% in Red Chamber), against 0% for every baseline.</p>
 <div class="tw"><table>
 <caption><b>Table 1. Store size by backend and world.</b> &ldquo;Sediment&rdquo; is the store at round&nbsp;0, produced by each mechanism&rsquo;s own ingest of the identical source events (&sect;3.4) &mdash; one row per event under consensus, one row per witness under every baseline, plus each backend&rsquo;s own by-products (Generative-Agents reflections, G-Memory insight nodes). &ldquo;Sim&rdquo; is what the simulation then added and is the comparison the fairness protocol licenses: all four backends atomize identically, so entry counts are comparable by construction. Structure &mdash; what fraction of those sim entries becomes shared and linked &mdash; is Figure&nbsp;3.</caption>
 <thead><tr><th>backend</th><th>sediment</th><th>sim</th><th>total</th></tr></thead>
 <tbody>
-<tr class="grp"><td colspan="4">三国演义 &mdash; fiction, 80 rounds, 6,052 source events</td></tr>
+<tr class="grp"><td colspan="4">Three Kingdoms (三国演义) &mdash; fiction, 80 rounds, 6,052 source events</td></tr>
 {scale_rows('g80', S)}
 <tr class="grp"><td colspan="4">Russia&ndash;Ukraine &mdash; real world, 40 rounds, 1,533 source events</td></tr>
 {scale_rows('ru40', RU)}
-<tr class="grp"><td colspan="4">红楼梦 &mdash; fiction, 80 rounds, 6,506 source events</td></tr>
+<tr class="grp"><td colspan="4">Red Chamber (红楼梦) &mdash; fiction, 80 rounds, 6,506 source events</td></tr>
 {scale_rows('rc80', RC)}
 <tr class="grp"><td colspan="4">Hamlet &mdash; fiction, 30 rounds, 1,135 source events</td></tr>
 {scale_rows('hl30', HL)}
 </tbody></table></div>
-<p><b>Two columns, two effects.</b> The sediment column is consensus compression applied to the seeded history, and its multiplier is a property of the <i>world</i> rather than of the mechanism: the per-witness fan-out is 3.3&times; in 三国, 4.1&ndash;5.7&times; in 红楼, 5.5&ndash;9.4&times; in Russia&ndash;Ukraine and 4.7&ndash;6.2&times; in Hamlet, tracking the average number of witnesses per event, which a war room with institutional spokespeople maximizes and a two-hander chamber drama minimizes. The sim column is the same effect measured over events the simulation itself generated, at rates of roughly 12 (三国), 20 (Russia&ndash;Ukraine), 5 (红楼) and 4 (Hamlet) consensus entries per round. Everything else in &sect;5 is computed over the sim column only.</p>
+<p><b>Two columns, two effects.</b> The sediment column is consensus compression applied to the seeded history, and its multiplier is a property of the <i>world</i> rather than of the mechanism: the per-witness fan-out is 3.3&times; in Three Kingdoms, 4.1&ndash;5.7&times; in Red Chamber, 5.5&ndash;9.4&times; in Russia&ndash;Ukraine and 4.7&ndash;6.2&times; in Hamlet, tracking the average number of witnesses per event, which a war room with institutional spokespeople maximizes and a two-hander chamber drama minimizes. The sim column is the same effect measured over events the simulation itself generated, at rates of roughly 12 (Three Kingdoms), 20 (Russia&ndash;Ukraine), 5 (Red Chamber) and 4 (Hamlet) consensus entries per round. Everything else in &sect;5 is computed over the sim column only.</p>
 
 <figure>
   <img src="{IMG['struct_all']}" alt="Consensus sharing and linking across the four worlds">
   <figcaption><b>Figure 3. Structure of the consensus store, all four worlds.</b> Share of consensus sim memories that are <i>shared</i> (multi-owner, i.e. produced by an equivalence merge) and <i>linked</i> (carrying affiliated edges). Only consensus is plotted because the three per-agent baselines sit at 0% on both measures in every world &mdash; they have no cross-agent rows to merge and no deposit-siblings to link, so the columns measure capabilities they lack architecturally rather than parameters they tuned differently. Linking is near-total everywhere (94&ndash;99%) because auto-affiliation fires on every compound deposit; sharing varies with the world (14&ndash;26%) and with horizon (&sect;5.5).</figcaption>
 </figure>
 
-<h4>5.1.1 &nbsp;三国演义</h4>
+<h4>5.1.1 &nbsp;Three Kingdoms (三国演义)</h4>
 
 <p><b>Discussion.</b> Two readings matter here. First, the footprint gap is <i>mechanistic</i>, not behavioral: all four backends receive the same actions and atomize identically, so the 481-entry spread between consensus and the largest baseline is exactly the number of times the equivalence judge folded one agent&rsquo;s record into another&rsquo;s &mdash; each fold is a deduplicated witness (P1). Second, the structural columns are all-or-nothing by design: per-agent stores have no cross-agent rows to merge and no deposit-siblings to link, so the 19% / 97% columns measure capabilities the baselines lack architecturally, not parameters they tuned differently.</p>
 <p>Merged records are precisely the cross-viewpoint deduplication the mechanism targets &mdash; {S['n_3plus']} memories carry three or more witnesses (maximum {S['max_owners']}):</p>
 <div class="quote">""" + "<br>\n".join(
-    f"<b>owners = [{owners_zh(e['owners'])}]</b> &nbsp;&ldquo;{e['text']}&rdquo;" for e in mex[:3]
+    f"<b>owners = [{owners_zh(e['owners'])}]</b> &nbsp;{quote_memory(e['text'])}" for e in mex[:3]
 ) + f"""</div>
 
 <h4>5.1.2 &nbsp;Russia&ndash;Ukraine</h4>
@@ -579,37 +609,37 @@ HTML = CSS + f"""
 <b>owners = [podolyak, ukrainian_government]</b> &nbsp;&ldquo;Mykhailo Podolyak reported that overnight Russian drone strikes struck Dnipropetrovsk Oblast.&rdquo;<br>
 <b>owners = [kremlin, sobyanin]</b> &nbsp;&ldquo;Moscow Mayor Sergey Sobyanin requested authorization to release public instructions to Moscow residents.&rdquo;</div>
 
-<h4>5.1.3 &nbsp;红楼梦</h4>
+<h4>5.1.3 &nbsp;Red Chamber (红楼梦)</h4>
 
-<p><b>Discussion.</b> 红楼 is where the two claims of &sect;5.1 can be watched separating in time, because it was run at four horizons. Structure was already complete at ten rounds (13% shared, 87% linked, baselines 0%); footprint was not &mdash; the four backends then sat at 62&ndash;98 entries with consensus not the smallest, within run-to-run variance. From forty rounds on consensus is lowest and stays lowest, and the gap holds as both sides grow: 216 vs 379&ndash;492 at forty, 338 vs 625&ndash;683 at sixty, {RCC['sim_new']} vs {RC['generative_agents']['sim_new']}&ndash;{RC['g_memory']['sim_new']} at eighty &mdash; a {round(100-100*RCC['sim_new']/RC['g_memory']['sim_new'])}% reduction against the largest. Sharing rises along the same curve and flattens as it saturates &mdash; 13%&rarr;20%&rarr;23%&rarr;{RCC['sh_pct']}% &mdash; while multi-witness merges keep accumulating: {RC['n_3plus']} entries carry three or more witnesses (17 at sixty, nine at forty, three at ten), the deepest still the banquet where 贾母 keeps 宝玉, 黛玉 and 宝钗 by her side, co-owned by {RC['max_owners']}. The ordering is the point: the structural properties are architectural and appear immediately, whereas the footprint advantage is a <i>compounding</i> effect that needs enough repeated witnessing to overcome noise. A household world reaches that point later than a war does, because fewer people witness each event.</p>
+<p><b>Discussion.</b> Red Chamber is where the two claims of &sect;5.1 can be watched separating in time, because it was run at four horizons. Structure was already complete at ten rounds (13% shared, 87% linked, baselines 0%); footprint was not &mdash; the four backends then sat at 62&ndash;98 entries with consensus not the smallest, within run-to-run variance. From forty rounds on consensus is lowest and stays lowest, and the gap holds as both sides grow: 216 vs 379&ndash;492 at forty, 338 vs 625&ndash;683 at sixty, {RCC['sim_new']} vs {RC['generative_agents']['sim_new']}&ndash;{RC['g_memory']['sim_new']} at eighty &mdash; a {round(100-100*RCC['sim_new']/RC['g_memory']['sim_new'])}% reduction against the largest. Sharing rises along the same curve and flattens as it saturates &mdash; 13%&rarr;20%&rarr;23%&rarr;{RCC['sh_pct']}% &mdash; while multi-witness merges keep accumulating: {RC['n_3plus']} entries carry three or more witnesses (17 at sixty, nine at forty, three at ten), the deepest still the banquet where Grandmother Jia (贾母) keeps Baoyu (宝玉), Daiyu (黛玉) and Baochai (宝钗) by her side, co-owned by {RC['max_owners']}. The ordering is the point: the structural properties are architectural and appear immediately, whereas the footprint advantage is a <i>compounding</i> effect that needs enough repeated witnessing to overcome noise. A household world reaches that point later than a war does, because fewer people witness each event.</p>
 <p>Merged records in the household world fold family witnesses of one scene:</p>
 <div class="quote">""" + "<br>\n".join(
-    f"<b>owners = [{owners_zh(e['owners'])}]</b> &nbsp;&ldquo;{e['text']}&rdquo;" for e in rc_mex[:3]
+    f"<b>owners = [{owners_zh(e['owners'])}]</b> &nbsp;{quote_memory(e['text'])}" for e in rc_mex[:3]
 ) + f"""</div>
 
 
 <h4>5.1.4 &nbsp;Hamlet</h4>
 
-<p><b>Discussion.</b> Sixteen agents are enough. Consensus writes {HLC['sim_new']} entries against {HL['generative_agents']['sim_new']}&ndash;{HL['g_memory']['sim_new']}, with {HLC['sh_pct']}% shared and {HLC['aff_pct']}% linked &mdash; the highest sharing rate of any world at any horizon, in the smallest one tested. The extension from twenty rounds to thirty shows the same compounding the other worlds display: sharing rose 19%&rarr;{HLC['sh_pct']}% and the first three-witness merge appeared (the players' troupe beginning the performance, owned by the First Player, the Prologue, and Guildenstern together), where every merge at twenty rounds had been a strict pair. Depth still lags the larger worlds ({HL['n_3plus']} entry with three or more witnesses, against {S['n_3plus']} in 三国 and {RC['n_3plus']} in 红楼), and the reason is the play's staging rather than the mechanism's reach: Shakespeare writes in two-person exchanges &mdash; the sentinels on the battlements, Laertes and Polonius, Rosencrantz with Guildenstern &mdash; and merge depth tracks how many people the world puts in a room together. The play-within-a-play is the one scene that assembles an audience, and it is exactly where the three-way merge appears.</p>
+<p><b>Discussion.</b> Sixteen agents are enough. Consensus writes {HLC['sim_new']} entries against {HL['generative_agents']['sim_new']}&ndash;{HL['g_memory']['sim_new']}, with {HLC['sh_pct']}% shared and {HLC['aff_pct']}% linked &mdash; the highest sharing rate of any world at any horizon, in the smallest one tested. The extension from twenty rounds to thirty shows the same compounding the other worlds display: sharing rose 19%&rarr;{HLC['sh_pct']}% and the first three-witness merge appeared (the players' troupe beginning the performance, owned by the First Player, the Prologue, and Guildenstern together), where every merge at twenty rounds had been a strict pair. Depth still lags the larger worlds ({HL['n_3plus']} entry with three or more witnesses, against {S['n_3plus']} in Three Kingdoms and {RC['n_3plus']} in Red Chamber), and the reason is the play's staging rather than the mechanism's reach: Shakespeare writes in two-person exchanges &mdash; the sentinels on the battlements, Laertes and Polonius, Rosencrantz with Guildenstern &mdash; and merge depth tracks how many people the world puts in a room together. The play-within-a-play is the one scene that assembles an audience, and it is exactly where the three-way merge appears.</p>
 <p>The pairs the mechanism finds are the play&rsquo;s own dyads:</p>
 <div class="quote">""" + "<br>\n".join(
-    f"<b>owners = [{owners_zh(e['owners'])}]</b> &nbsp;&ldquo;{e['text']}&rdquo;" for e in hl_mex[:3]
+    f"<b>owners = [{owners_zh(e['owners'])}]</b> &nbsp;{quote_memory(e['text'])}" for e in hl_mex[:3]
 ) + f"""</div>
 
 <h3>5.2 &nbsp;Growth and operation latency</h3>
 <p>The footprint gap of Table 1 accumulates round by round, and its price is paid at write time. We show both sides for each scenario.</p>
 
-<h4>5.2.1 &nbsp;三国演义</h4>
+<h4>5.2.1 &nbsp;Three Kingdoms (三国演义)</h4>
 <figure class="two">
   <img src="{IMG['gtotal']}" alt="System memory growth per round">
   <img src="{IMG['gagents']}" alt="Per-agent memory growth per round">
-  <figcaption><b>Figure 4. Memory growth &mdash; 三国演义 (80 rounds).</b> Left: cumulative sim-generated entries per round for all four backends (reconstructed from each entry&rsquo;s creation round under the same sim-only accounting as Table 1) &mdash; consensus stays lowest throughout and the gap widens with horizon, the per-round view of the merge folding witnesses together. Right: per-agent owned memories per round in the consensus run (top 6 agents labeled; the rest gray) &mdash; memory concentrates on the characters carrying the active plotlines (徐庶 leads with 132), while merges let one event&rsquo;s record count toward every witness&rsquo;s curve.</figcaption>
+  <figcaption><b>Figure 4. Memory growth &mdash; Three Kingdoms (三国演义) (80 rounds).</b> Left: cumulative sim-generated entries per round for all four backends (reconstructed from each entry&rsquo;s creation round under the same sim-only accounting as Table 1) &mdash; consensus stays lowest throughout and the gap widens with horizon, the per-round view of the merge folding witnesses together. Right: per-agent owned memories per round in the consensus run (top 6 agents labeled; the rest gray) &mdash; memory concentrates on the characters carrying the active plotlines (Xu Shu 徐庶 leads with 132), while merges let one event&rsquo;s record count toward every witness&rsquo;s curve.</figcaption>
 </figure>
-<p><b>Discussion.</b> The system-level curves separate almost from the start and diverge steadily &mdash; the merge saves entries at a roughly constant <i>rate</i>, so its absolute savings compound with horizon rather than saturating; there is no sign of the gap closing by round 80. The per-agent curves show the same mechanism from the individual&rsquo;s side: growth is stair-stepped (a burst when a character is at the center of a plotline, plateaus when off-stage), and the ranking tracks narrative centrality rather than raw talkativeness &mdash; 徐庶 leads because the 徐庶-recruitment arc dominates the middle game, and every merge credits a shared event to all of its witnesses&rsquo; curves at once.</p>
+<p><b>Discussion.</b> The system-level curves separate almost from the start and diverge steadily &mdash; the merge saves entries at a roughly constant <i>rate</i>, so its absolute savings compound with horizon rather than saturating; there is no sign of the gap closing by round 80. The per-agent curves show the same mechanism from the individual&rsquo;s side: growth is stair-stepped (a burst when a character is at the center of a plotline, plateaus when off-stage), and the ranking tracks narrative centrality rather than raw talkativeness &mdash; Xu Shu (徐庶) leads because the Xu Shu recruitment arc dominates the middle game, and every merge credits a shared event to all of its witnesses&rsquo; curves at once.</p>
 
 <figure>
   <img src="{IMG['latency']}" alt="Memory-operation latency vs round">
-  <figcaption><b>Figure 5. Memory-operation latency &mdash; 三国演义 (80 rounds).</b> Mean wall-clock seconds per <code>remember</code> (left) and <code>recall</code> (right) call, 5-round bins, all four backends. Rounds 61&ndash;80 are instrumented live in the kernel; rounds 1&ndash;60 are measured by replaying each stage&rsquo;s logged operations (same agent, text/query, and order) against the exact store state that stage started from &mdash; a measurement of the same workload, not a synthesis (dotted line marks the boundary; first-stage GA/G-Memory replay stores lack their prime by-products, &asymp;3&ndash;5% of rows).</figcaption>
+  <figcaption><b>Figure 5. Memory-operation latency &mdash; Three Kingdoms (三国演义) (80 rounds).</b> Mean wall-clock seconds per <code>remember</code> (left) and <code>recall</code> (right) call, 5-round bins, all four backends. Rounds 61&ndash;80 are instrumented live in the kernel; rounds 1&ndash;60 are measured by replaying each stage&rsquo;s logged operations (same agent, text/query, and order) against the exact store state that stage started from &mdash; a measurement of the same workload, not a synthesis (dotted line marks the boundary; first-stage GA/G-Memory replay stores lack their prime by-products, &asymp;3&ndash;5% of rows).</figcaption>
 </figure>
 <p><b>Discussion.</b> The two panels show where each design pays. <i>Writes are LLM-bound:</i> every backend pays the shared atomization call, on top of which Generative-Agents adds a per-atom importance call (the most expensive line, 35&ndash;75s) and consensus adds the equivalence judge (26&ndash;57s), while G-Memory and collaborative write for 10&ndash;25s with no per-deposit reasoning beyond atomization. <i>Reads are vector-bound and cheap everywhere</i> (&le;1.4s), and &mdash; notably &mdash; consensus recall is the <b>cheapest</b> of the four (&asymp;0.35s) despite returning &asymp;28 additional linked memories per call: auto-expansion is plain row lookup, whereas G-Memory&rsquo;s bi-level retrieval pays for graph traversal with extra vector queries (0.7&ndash;1.1s). Neither panel trends upward over 80 rounds: at this scale, store growth (&asymp;7k&ndash;22k rows) does not yet move per-call latency, so the consensus premium is a roughly constant per-write tax &mdash; the price of P1&rsquo;s deduplication &mdash; paid where agents are least latency-sensitive.</p>
 
@@ -622,18 +652,18 @@ HTML = CSS + f"""
   <img src="{IMG['ru_latency']}" alt="RU memory-operation latency">
   <figcaption><b>Figure 7. Memory-operation latency &mdash; Russia&ndash;Ukraine (40 rounds).</b> Mean wall-clock seconds per <code>remember</code> (left) and <code>recall</code> (right) call, 2-round bins, all four backends; every round is instrumented live in the kernel.</figcaption>
 </figure>
-<p><b>Discussion.</b> Both figures replay the 三国 dynamics at a shorter horizon. The system curves separate from round ~3 with consensus lowest and the gap widening, and per-agent growth again concentrates on the situation&rsquo;s protagonists. The latency ordering of Figure 5 reproduces: writes are LLM-bound (Generative-Agents&rsquo; per-atom importance calls most expensive, consensus paying the equivalence-judge tax), while reads are vector-bound and sub-second for all four backends, with consensus recall cheapest despite auto-expansion.</p>
+<p><b>Discussion.</b> Both figures replay the Three Kingdoms dynamics at a shorter horizon. The system curves separate from round ~3 with consensus lowest and the gap widening, and per-agent growth again concentrates on the situation&rsquo;s protagonists. The latency ordering of Figure 5 reproduces: writes are LLM-bound (Generative-Agents&rsquo; per-atom importance calls most expensive, consensus paying the equivalence-judge tax), while reads are vector-bound and sub-second for all four backends, with consensus recall cheapest despite auto-expansion.</p>
 
-<h4>5.2.3 &nbsp;红楼梦</h4>
+<h4>5.2.3 &nbsp;Red Chamber (红楼梦)</h4>
 <figure>
   <img src="{IMG['rc_growth']}" alt="RC memory growth">
-  <figcaption><b>Figure 8. Memory growth &mdash; 红楼梦 (80 rounds).</b> Left: cumulative sim-generated entries per round for all four backends under the same sim-only accounting as Table 1. Right: per-agent owned memories per round in the consensus run (top agents labeled; the rest gray).</figcaption>
+  <figcaption><b>Figure 8. Memory growth &mdash; Red Chamber (红楼梦) (80 rounds).</b> Left: cumulative sim-generated entries per round for all four backends under the same sim-only accounting as Table 1. Right: per-agent owned memories per round in the consensus run (top agents labeled; the rest gray).</figcaption>
 </figure>
 <figure>
   <img src="{IMG['rc_latency']}" alt="RC memory-operation latency">
-  <figcaption><b>Figure 9. Memory-operation latency &mdash; 红楼梦 (80 rounds).</b> Mean wall-clock seconds per <code>remember</code> (left) and <code>recall</code> (right) call, 2-round bins, all four backends; every round is instrumented live in the kernel.</figcaption>
+  <figcaption><b>Figure 9. Memory-operation latency &mdash; Red Chamber (红楼梦) (80 rounds).</b> Mean wall-clock seconds per <code>remember</code> (left) and <code>recall</code> (right) call, 2-round bins, all four backends; every round is instrumented live in the kernel.</figcaption>
 </figure>
-<p><b>Discussion.</b> The domestic world writes more slowly than either other scenario (~{RCC['sim_new']//80} consensus entries per round against ~20 in Russia&ndash;Ukraine) &mdash; garden conversation generates fewer memory-worthy events than a war &mdash; and the curves that interleaved through the first ten rounds separate cleanly thereafter, consensus lowest and the gap holding to eighty rounds, exactly as in Figures 4 and 6. Per-agent growth concentrates on the household&rsquo;s centers of gravity (贾母, 王熙凤, 贾宝玉 and the banquet guests). The read side reproduces both other worlds: consensus recall is cheapest despite auto-expansion returning &asymp;{RCE['items']//max(RCE['recalls'],1)} linked memories per call, while G-Memory&rsquo;s bi-level retrieval pays for graph traversal with extra vector queries.</p>
+<p><b>Discussion.</b> The domestic world writes more slowly than either other scenario (~{RCC['sim_new']//80} consensus entries per round against ~20 in Russia&ndash;Ukraine) &mdash; garden conversation generates fewer memory-worthy events than a war &mdash; and the curves that interleaved through the first ten rounds separate cleanly thereafter, consensus lowest and the gap holding to eighty rounds, exactly as in Figures 4 and 6. Per-agent growth concentrates on the household&rsquo;s centers of gravity (Grandmother Jia 贾母, Wang Xifeng 王熙凤, Jia Baoyu 贾宝玉 and the banquet guests). The read side reproduces both other worlds: consensus recall is cheapest despite auto-expansion returning &asymp;{RCE['items']//max(RCE['recalls'],1)} linked memories per call, while G-Memory&rsquo;s bi-level retrieval pays for graph traversal with extra vector queries.</p>
 
 <h4>5.2.4 &nbsp;Hamlet</h4>
 <figure>
@@ -644,15 +674,15 @@ HTML = CSS + f"""
   <img src="{IMG['hl_latency']}" alt="HL memory-operation latency">
   <figcaption><b>Figure 11. Memory-operation latency &mdash; Hamlet (30 rounds).</b> Mean wall-clock seconds per <code>remember</code> (left) and <code>recall</code> (right) call, 2-round bins, all four backends; every round is instrumented live in the kernel.</figcaption>
 </figure>
-<p><b>Discussion.</b> The smallest world writes at a rate between the other two fictions (~{HLC['sim_new']//30} consensus entries per round), and the four curves separate early with consensus lowest &mdash; at this cast size a single merge is a large fraction of a round's writes, so the gap opens without the compounding 红楼 needed. Latency is dominated by per-call LLM cost exactly as elsewhere; with only {HLE['recalls']} recalls over the whole run the read-side curves are too sparse to rank backends, and we read nothing into their ordering here.</p>
+<p><b>Discussion.</b> The smallest world writes at a rate between the other two fictions (~{HLC['sim_new']//30} consensus entries per round), and the four curves separate early with consensus lowest &mdash; at this cast size a single merge is a large fraction of a round's writes, so the gap opens without the compounding Red Chamber needed. Latency is dominated by per-call LLM cost exactly as elsewhere; with only {HLE['recalls']} recalls over the whole run the read-side curves are too sparse to rank backends, and we read nothing into their ordering here.</p>
 
 <h3>5.3 &nbsp;Continuation quality</h3>
-<p>Compression does not cost judged quality in either world. In 三国, consensus scores highest on narrative and is competitive elsewhere; in Russia&ndash;Ukraine all four backends land within overlapping error bars on every metric, with consensus tied-best on grounding and trajectory. The structural gaps of &sect;5.1 do not translate into behavioral penalties.</p>
+<p>Compression does not cost judged quality in either world. In Three Kingdoms, consensus scores highest on narrative and is competitive elsewhere; in Russia&ndash;Ukraine all four backends land within overlapping error bars on every metric, with consensus tied-best on grounding and trajectory. The structural gaps of &sect;5.1 do not translate into behavioral penalties.</p>
 
-<h4>5.3.1 &nbsp;三国演义</h4>
+<h4>5.3.1 &nbsp;Three Kingdoms (三国演义)</h4>
 <figure>
   <img src="{IMG['quality']}" alt="Continuation quality comparison">
-  <figcaption><b>Figure 12. Continuation quality &mdash; 三国演义 (40-round checkpoint).</b> Grounding (fraction of the sim&rsquo;s own events judged canon-consistent), trajectory (agreement of character arcs with reference arcs from held-out chapters 41&ndash;60), and narrative (judged coherence/drama/fidelity, 1&ndash;5), scored at the 40-round checkpoint of the same continuously-resumed runs; bars are means over 3 independent LLM scorings, whiskers &plusmn;1 std. Consensus scores highest on narrative and is competitive on trajectory; grounding sits mid-pack (GA/collaborative slightly higher).</figcaption>
+  <figcaption><b>Figure 12. Continuation quality &mdash; Three Kingdoms (三国演义) (40-round checkpoint).</b> Grounding (fraction of the sim&rsquo;s own events judged canon-consistent), trajectory (agreement of character arcs with reference arcs from held-out chapters 41&ndash;60), and narrative (judged coherence/drama/fidelity, 1&ndash;5), scored at the 40-round checkpoint of the same continuously-resumed runs; bars are means over 3 independent LLM scorings, whiskers &plusmn;1 std. Consensus scores highest on narrative and is competitive on trajectory; grounding sits mid-pack (GA/collaborative slightly higher).</figcaption>
 </figure>
 <p><b>Discussion.</b> The quality profile is consistent with what compression should and should not affect. Narrative coherence benefits from consensus (4.25, the clear leader): agents recalling one shared record of an event act on consistent premises, where baseline agents can act on N drifting paraphrases of it. Trajectory sits in the pack (0.68 vs 0.59&ndash;0.72): arc-following depends mostly on the persona and goal machinery all backends share. Grounding is mid-pack (0.86 vs 0.83&ndash;0.92, overlapping error bars): merging keeps the <i>shorter</i> of two equivalent texts, which occasionally discards a viewpoint detail a canon-consistency judge rewards. None of the differences approach the structural gaps of Figure 3 &mdash; the mechanisms separate on architecture, not on judged behavior.</p>
 
@@ -661,10 +691,10 @@ HTML = CSS + f"""
   <img src="{IMG['ru_quality']}" alt="RU continuation quality comparison">
   <figcaption><b>Figure 13. Continuation quality &mdash; Russia&ndash;Ukraine (40 rounds).</b> Same protocol as Figure 12 at the same horizon: grounding judges each sim event against the real conflict&rsquo;s world (real entities, correct roles/allegiances, plausible dynamics), trajectory compares ten principals&rsquo; arcs against arcs extracted from the held-out timeline (2024-05 onward), narrative is the same 4-dimension rubric; bars are means over 3 independent LLM scorings, whiskers &plusmn;1 std.</figcaption>
 </figure>
-<p><b>Discussion.</b> The real-world replication is a wash &mdash; which is the point. Grounding is uniformly high ({min(QR[k]['agg']['grnd']['mean'] for k in QR):.2f}&ndash;{max(QR[k]['agg']['grnd']['mean'] for k in QR):.2f}: institutional actors reciting real capabilities rarely fabricate), trajectory is tied within error bars ({QR['consensus']['agg']['traj']['mean']:.2f} for consensus vs {min(QR[k]['agg']['traj']['mean'] for k in QR if k!='consensus'):.2f}&ndash;{max(QR[k]['agg']['traj']['mean'] for k in QR if k!='consensus'):.2f}), and narrative spreads {QR['g_memory']['agg']['narr']['mean']:.2f}&ndash;{QR['generative_agents']['agg']['narr']['mean']:.2f} with overlapping whiskers and no stable leader across scorings. As in 三国, the mechanisms separate on architecture (Table&nbsp;1 and Figure&nbsp;3), not on judged behavior: consensus deduplicates {RUC['sim_new']} entries against the baselines&rsquo; {RU['collaborative']['sim_new']}&ndash;{RU['generative_agents']['sim_new']} and builds all the structure &mdash; while giving none of it back in quality.</p>
+<p><b>Discussion.</b> The real-world replication is a wash &mdash; which is the point. Grounding is uniformly high ({min(QR[k]['agg']['grnd']['mean'] for k in QR):.2f}&ndash;{max(QR[k]['agg']['grnd']['mean'] for k in QR):.2f}: institutional actors reciting real capabilities rarely fabricate), trajectory is tied within error bars ({QR['consensus']['agg']['traj']['mean']:.2f} for consensus vs {min(QR[k]['agg']['traj']['mean'] for k in QR if k!='consensus'):.2f}&ndash;{max(QR[k]['agg']['traj']['mean'] for k in QR if k!='consensus'):.2f}), and narrative spreads {QR['g_memory']['agg']['narr']['mean']:.2f}&ndash;{QR['generative_agents']['agg']['narr']['mean']:.2f} with overlapping whiskers and no stable leader across scorings. As in Three Kingdoms, the mechanisms separate on architecture (Table&nbsp;1 and Figure&nbsp;3), not on judged behavior: consensus deduplicates {RUC['sim_new']} entries against the baselines&rsquo; {RU['collaborative']['sim_new']}&ndash;{RU['generative_agents']['sim_new']} and builds all the structure &mdash; while giving none of it back in quality.</p>
 
-<h4>5.3.3 &nbsp;红楼梦</h4>
-<p>Not scored yet: at 80 rounds the 红楼 runs match 三国&rsquo;s horizon and exceed the 40-round checkpoint at which both scored worlds were judged, so the protocol of &sect;5.3.1&ndash;5.3.2 applies unchanged; the scoring pass is pending and will be reported alongside the other two worlds.</p>
+<h4>5.3.3 &nbsp;Red Chamber (红楼梦)</h4>
+<p>Not scored yet: at 80 rounds the Red Chamber runs match Three Kingdoms&rsquo;s horizon and exceed the 40-round checkpoint at which both scored worlds were judged, so the protocol of &sect;5.3.1&ndash;5.3.2 applies unchanged; the scoring pass is pending and will be reported alongside the other two worlds.</p>
 
 <h4>5.3.4 &nbsp;Hamlet</h4>
 <p>Not scored: at 30 rounds Hamlet remains below the 40-round horizon used by both scored worlds, and its held-out reference (Acts&nbsp;4&ndash;5) is short enough that arc extraction would rest on very few events. Scoring follows if the run is extended.</p>
@@ -672,26 +702,26 @@ HTML = CSS + f"""
 <h3>5.4 &nbsp;Case study: three graphs over each world</h3>
 <p>Each world&rsquo;s consensus run induces the same three graphs: the <b>interaction graph</b> (who talks to whom), the <b>affiliation graph</b> (which memories are linked), and the <b>ownership relation</b> (who owns which memories). For each scenario we show the three layers, then all three in one view, then quantify their pairwise alignment.</p>
 
-<h4>5.4.1 &nbsp;三国演义</h4>
+<h4>5.4.1 &nbsp;Three Kingdoms (三国演义)</h4>
 
 <h5>The three layers <span style="font-family:var(--sans);font-size:12px;color:var(--faint);font-weight:400">&mdash; interactive: drag to pan, scroll to zoom, hover for details, drag nodes to rearrange</span></h5>
 <figure>
   <div class="ig" id="ig-interaction" style="height:520px"></div>
-  <figcaption><b>Figure 14a. The interaction graph (interactive) &mdash; 三国演义.</b> Nodes are the complete active-character roster (silent characters parked on the bottom row); edge width is conversation frequency; colors are detected communities, which recover the canonical factions without being told about them. Hover a character for its name, community, and conversation volume; click to highlight its neighbourhood.</figcaption>
+  <figcaption><b>Figure 14a. The interaction graph (interactive) &mdash; Three Kingdoms (三国演义).</b> Nodes are the complete active-character roster (silent characters parked on the bottom row); edge width is conversation frequency; colors are detected communities, which recover the canonical factions without being told about them. Hover a character for its name, community, and conversation volume; click to highlight its neighbourhood.</figcaption>
 </figure>
 <figure>
   <div class="ig" id="ig-affiliation" style="height:600px"></div>
-  <figcaption><b>Figure 14b. The full memory-affiliation graph (interactive) &mdash; 三国演义.</b> Every sim-generated memory is a node ({R['MO']['link_n']} affiliated edges; components colored, singletons gray; shared multi-owner memories drawn larger with a red ring). <b>Hover any node to read the memory&rsquo;s full text and its owners</b> &mdash; each cluster is one plotline&rsquo;s linked pieces, assembled bottom-up by auto-affiliation and merging.</figcaption>
+  <figcaption><b>Figure 14b. The full memory-affiliation graph (interactive) &mdash; Three Kingdoms (三国演义).</b> Every sim-generated memory is a node ({R['MO']['link_n']} affiliated edges; components colored, singletons gray; shared multi-owner memories drawn larger with a red ring). <b>Hover any node to read the memory&rsquo;s full text and its owners</b> &mdash; each cluster is one plotline&rsquo;s linked pieces, assembled bottom-up by auto-affiliation and merging.</figcaption>
 </figure>
 <figure>
   <div class="ig" id="ig-heatmap" style="height:620px"></div>
-  <figcaption><b>Figure 14. The ownership layer (interactive) &mdash; 三国演义.</b> Pairwise co-owned memory counts over the complete roster, ordered by interaction community. Hover a cell for the pair and its count. Non-zero cells concentrate in the diagonal blocks &mdash; agents share memories with their own faction &mdash; and each strong cell corresponds to consensus merges of jointly experienced events.</figcaption>
+  <figcaption><b>Figure 14. The ownership layer (interactive) &mdash; Three Kingdoms (三国演义).</b> Pairwise co-owned memory counts over the complete roster, ordered by interaction community. Hover a cell for the pair and its count. Non-zero cells concentrate in the diagonal blocks &mdash; agents share memories with their own faction &mdash; and each strong cell corresponds to consensus merges of jointly experienced events.</figcaption>
 </figure>
 
 <h5>All three layers in one view</h5>
 <figure>
   <div class="ig" id="ig-trilayer" style="height:560px"></div>
-  <figcaption><b>Figure 15. All three layers in one view (interactive) &mdash; 三国演义.</b> Agents on the top row (circles = characters, squares = passive memory owners) with conversation arcs above (blue; width = frequency); memories on the bottom row with affiliation arcs below (green when the linked memories share a witness, gray when disjoint); ownership as vertical lines, red when the memory is shared. <b>Hover an agent</b> to isolate its conversations and owned memories; <b>hover a memory</b> (&starf; = merged multi-owner) to read its text and see its links. Shared structure sits where conversation sits.</figcaption>
+  <figcaption><b>Figure 15. All three layers in one view (interactive) &mdash; Three Kingdoms (三国演义).</b> Agents on the top row (circles = characters, squares = passive memory owners) with conversation arcs above (blue; width = frequency); memories on the bottom row with affiliation arcs below (green when the linked memories share a witness, gray when disjoint); ownership as vertical lines, red when the memory is shared. <b>Hover an agent</b> to isolate its conversations and owned memories; <b>hover a memory</b> (&starf; = merged multi-owner) to read its text and see its links. Shared structure sits where conversation sits.</figcaption>
 </figure>
 
 <h5>Pairwise alignment of the layers</h5>
@@ -703,7 +733,7 @@ HTML = CSS + f"""
 <p>Affiliated edges running between two agents&rsquo; memory sets: talking pairs average {R['AM']['talk_mean']:.1f}; non-talking pairs {R['AM']['non_mean']:.2f}. The memory graph bridges exactly the agents the conversation graph connects.</p></div>
 <figure>
   <img src="{IMG['relpanels']}" alt="Three pairwise relationships">
-  <figcaption><b>Figure 16. Each pairwise relation as a with/without pair of distributions &mdash; 三国演义</b> (columns share x and y axes; log density so tails read against the mass at zero; top row = pairs with the relation, bottom = without). Left: owned-memory-set Jaccard for talking vs non-talking agent pairs. Middle: owner-set Jaccard for memory pairs with vs without an affiliated edge. Right: cross-set affiliated-edge counts for talking vs non-talking agent pairs. In all three, the without-group concentrates at zero and the with-group carries the entire tail.</figcaption>
+  <figcaption><b>Figure 16. Each pairwise relation as a with/without pair of distributions &mdash; Three Kingdoms (三国演义)</b> (columns share x and y axes; log density so tails read against the mass at zero; top row = pairs with the relation, bottom = without). Left: owned-memory-set Jaccard for talking vs non-talking agent pairs. Middle: owner-set Jaccard for memory pairs with vs without an affiliated edge. Right: cross-set affiliated-edge counts for talking vs non-talking agent pairs. In all three, the without-group concentrates at zero and the with-group carries the entire tail.</figcaption>
 </figure>
 <p><b>Synthesis.</b> The three alignments are not three separate facts but one: the consensus mechanisms transcribe the story&rsquo;s social structure into the memory substrate. Conversations are where shared experience happens, so merges (ownership overlap) land on talking pairs; deposits narrate the conversation an agent just had, so affiliation clusters coincide with events and their witnesses; and cross-agent links therefore run along conversation edges. In a per-agent store all three relations are identically zero &mdash; the substrate cannot express them &mdash; which is why the case study is run on the consensus backend alone.</p>
 
@@ -738,24 +768,24 @@ HTML = CSS + f"""
   <figcaption><b>Figure 19. Each pairwise relation as a with/without pair of distributions &mdash; Russia&ndash;Ukraine</b> (same format as Figure 16). The structural signature transfers intact to a real-world scenario at one eighth the horizon.</figcaption>
 </figure>
 
-<h4>5.4.3 &nbsp;红楼梦</h4>
+<h4>5.4.3 &nbsp;Red Chamber (红楼梦)</h4>
 <h5>The three layers <span style="font-family:var(--sans);font-size:12px;color:var(--faint);font-weight:400">&mdash; interactive: drag to pan, scroll to zoom, hover for details, drag nodes to rearrange</span></h5>
 <figure>
   <div class="ig" id="ig-rc-interaction" style="height:480px"></div>
-  <figcaption><b>Figure 20a. The interaction graph (interactive) &mdash; 红楼梦.</b> 31 conversing characters; community detection recovers the household&rsquo;s social circles &mdash; the 贾母 banquet orbit, the young poets&rsquo; circle, and the stewards &mdash; without being told about them.</figcaption>
+  <figcaption><b>Figure 20a. The interaction graph (interactive) &mdash; Red Chamber (红楼梦).</b> 31 conversing characters; community detection recovers the household&rsquo;s social circles &mdash; the Grandmother Jia (贾母) banquet orbit, the young poets&rsquo; circle, and the stewards &mdash; without being told about them.</figcaption>
 </figure>
 <figure>
   <div class="ig" id="ig-rc-affiliation" style="height:520px"></div>
-  <figcaption><b>Figure 20b. The full memory-affiliation graph (interactive) &mdash; 红楼梦.</b> {RCC['sim_new']} sim memories, {RCR['MO']['link_n']} affiliated edges; hover any node to read the memory and its owners. Clusters are single storylines assembled by auto-affiliation.</figcaption>
+  <figcaption><b>Figure 20b. The full memory-affiliation graph (interactive) &mdash; Red Chamber (红楼梦).</b> {RCC['sim_new']} sim memories, {RCR['MO']['link_n']} affiliated edges; hover any node to read the memory and its owners. Clusters are single storylines assembled by auto-affiliation.</figcaption>
 </figure>
 <figure>
   <div class="ig" id="ig-rc-heatmap" style="height:560px"></div>
-  <figcaption><b>Figure 20. The ownership layer (interactive) &mdash; 红楼梦.</b> Pairwise co-owned memory counts over the 红楼 roster, ordered by interaction community. Hover a cell for the pair and its count. As in Figure 14, non-zero cells sit on pairs that jointly experienced scenes &mdash; here the strongest cells are kin who attended the same banquet, the domestic counterpart of faction comrades.</figcaption>
+  <figcaption><b>Figure 20. The ownership layer (interactive) &mdash; Red Chamber (红楼梦).</b> Pairwise co-owned memory counts over the Red Chamber roster, ordered by interaction community. Hover a cell for the pair and its count. As in Figure 14, non-zero cells sit on pairs that jointly experienced scenes &mdash; here the strongest cells are kin who attended the same banquet, the domestic counterpart of faction comrades.</figcaption>
 </figure>
 <h5>All three layers in one view</h5>
 <figure>
   <div class="ig" id="ig-rc-trilayer" style="height:520px"></div>
-  <figcaption><b>Figure 21. All three layers in one view (interactive) &mdash; 红楼梦.</b> Conversations above, ownership between, affiliation below; merged memories (&starf;) hang between the parties that share them.</figcaption>
+  <figcaption><b>Figure 21. All three layers in one view (interactive) &mdash; Red Chamber (红楼梦).</b> Conversations above, ownership between, affiliation below; merged memories (&starf;) hang between the parties that share them.</figcaption>
 </figure>
 <h5>Pairwise alignment of the layers</h5>
 <div class="rel"><h4><span class="rx">A&harr;O</span> Agents who talk own overlapping memories <span class="stat">({RCR['AO']['talk_mean']:.3f} vs {RCR['AO']['non_mean']:.4f}, {RCR['AO']['talk_mean']/max(RCR['AO']['non_mean'],1e-9):.0f}&times;)</span></h4>
@@ -766,7 +796,7 @@ HTML = CSS + f"""
 <p>Talking pairs average {RCR['AM']['talk_mean']:.2f} affiliated edges between their memory sets against {RCR['AM']['non_mean']:.3f} for non-talking pairs &mdash; the separation sharpens with the horizon (2.09 vs 0.15 at ten rounds).</p></div>
 <figure>
   <img src="{IMG['rc_relpanels']}" alt="RC relationship panels">
-  <figcaption><b>Figure 22. Each pairwise relation as a with/without pair of distributions &mdash; 红楼梦</b> (same format as Figure 16). The structural signature holds in a third world with a markedly different social topology.</figcaption>
+  <figcaption><b>Figure 22. Each pairwise relation as a with/without pair of distributions &mdash; Red Chamber (红楼梦)</b> (same format as Figure 16). The structural signature holds in a third world with a markedly different social topology.</figcaption>
 </figure>
 
 <h4>5.4.4 &nbsp;Hamlet</h4>
@@ -803,21 +833,21 @@ HTML = CSS + f"""
 <h3>5.5 &nbsp;Structure compounds with horizon</h3>
 <p>Shared and linked structure is not a transient: across the 20/40/60-round checkpoints, sim memories grow roughly linearly while shared memories and affiliated edges grow with them &mdash; the merge finds more cross-witness events as the story densifies.</p>
 
-<h4>5.5.1 &nbsp;三国演义</h4>
+<h4>5.5.1 &nbsp;Three Kingdoms (三国演义)</h4>
 <figure>
   <img src="{IMG['growth']}" alt="Growth across horizon">
-  <figcaption><b>Figure 26. Consensus structure across the horizon &mdash; 三国演义.</b> Sim-memory count (left), shared multi-owner memories (middle), and affiliated edges (right) at the 20/40/60/80-round checkpoints of the same continuously-resumed run. All three grow super-linearly in usefulness even where counts grow linearly: each new shared memory raises the chance that a future deposit finds a merge partner, and each new edge widens what a single auto-expanding recall can surface.</figcaption>
+  <figcaption><b>Figure 26. Consensus structure across the horizon &mdash; Three Kingdoms (三国演义).</b> Sim-memory count (left), shared multi-owner memories (middle), and affiliated edges (right) at the 20/40/60/80-round checkpoints of the same continuously-resumed run. All three grow super-linearly in usefulness even where counts grow linearly: each new shared memory raises the chance that a future deposit finds a merge partner, and each new edge widens what a single auto-expanding recall can surface.</figcaption>
 </figure>
 
 <h4>5.5.2 &nbsp;Russia&ndash;Ukraine</h4>
-<p>Forty rounds in a second, structurally different world (real entities, institutional actors, English-language events, a live timeline rather than a novel) reproduce every qualitative claim of &sect;5: fewest entries, exclusive sharing and linking, the three-layer alignment, and the latency profile. The horizon effect predicted by 三国 is directly observable here: the sharing rate rose 6%&rarr;9%&rarr;{RUC['sh_pct']}% at rounds 10/20/40, three-plus-witness merges went from zero to {RU['n_3plus']}, and the deepest merge grew from two witnesses to {RU['max_owners']} &mdash; a presidential air-defense directive whose single record is co-owned by the president, his chief of staff and adviser, the interior minister, the air-force and intelligence commanders, and the security service &mdash; tracking 三国&rsquo;s 19% at 80 rounds on the same compounding curve.</p>
+<p>Forty rounds in a second, structurally different world (real entities, institutional actors, English-language events, a live timeline rather than a novel) reproduce every qualitative claim of &sect;5: fewest entries, exclusive sharing and linking, the three-layer alignment, and the latency profile. The horizon effect predicted by Three Kingdoms is directly observable here: the sharing rate rose 6%&rarr;9%&rarr;{RUC['sh_pct']}% at rounds 10/20/40, three-plus-witness merges went from zero to {RU['n_3plus']}, and the deepest merge grew from two witnesses to {RU['max_owners']} &mdash; a presidential air-defense directive whose single record is co-owned by the president, his chief of staff and adviser, the interior minister, the air-force and intelligence commanders, and the security service &mdash; tracking Three Kingdoms&rsquo;s 19% at 80 rounds on the same compounding curve.</p>
 
 <h3>5.6 &nbsp;Agents do not manage memory &mdash; mechanisms must</h3>
 <p>Across all four backends and both models tested, agents issued <b>zero</b> calls to every discretionary memory-management action &mdash; linking (<code>add/set/remove_affiliated</code>), explicit link-reading (<code>get_affiliated</code>), forgetting, and revision &mdash; despite documentation, worked skill examples, and the id-free query interface. In contrast, the two mechanism-embedded operations carried everything: <code>remember</code> (with atomization, merging, auto-affiliation inside) and <code>recall</code> (with auto-expansion inside; {AE['with_expansion']}/{AE['recalls']} recalls returned linked context). We take this as a design principle for agent memory systems: <b>structure must be a side-effect of the operations agents already perform, not a task delegated to them.</b></p>
 
 <h2><span class="n">6</span> Discussion and Limitations</h2>
 <p><b>What consensus buys.</b> Under equal granularity and sim-only accounting, consensus dominates structurally &mdash; fewest entries, all sharing, all graph structure &mdash; and this no longer trades against judged quality (best narrative, competitive elsewhere). The three-layer alignment argues the structure is meaningful: it recovers the story&rsquo;s social organization from the memory substrate alone.</p>
-<p><b>Limitations.</b> (i) Quality metrics are LLM-judged and noisy; we report 3-scoring means with std, but ranking claims beyond narrative should be treated cautiously. (ii) Results cover one scenario (三国) and one 60-round horizon; the protocol ports directly to other sedimented worlds and longer runs (checkpoints exist), but those runs remain future work. (iii) Auto-expansion is deliberately uncapped, appending &asymp;{AE['items']//max(AE['recalls'],1)} linked memories per recall; this enriches context but grows prompts, and its cost&ndash;benefit curve is unmeasured. (iv) The equivalence judge and atomizer consume extra LLM calls per deposit &mdash; the price of compression is paid at write time. (v) One baseline artifact: G-Memory re-runs distillation on resume (its distill bookkeeping is not check-pointed); sim-only accounting excludes distillation nodes, so reported numbers are unaffected.</p>
+<p><b>Limitations.</b> (i) Quality metrics are LLM-judged and noisy; we report 3-scoring means with std, but ranking claims beyond narrative should be treated cautiously. (ii) Results cover one scenario (Three Kingdoms) and one 60-round horizon; the protocol ports directly to other sedimented worlds and longer runs (checkpoints exist), but those runs remain future work. (iii) Auto-expansion is deliberately uncapped, appending &asymp;{AE['items']//max(AE['recalls'],1)} linked memories per recall; this enriches context but grows prompts, and its cost&ndash;benefit curve is unmeasured. (iv) The equivalence judge and atomizer consume extra LLM calls per deposit &mdash; the price of compression is paid at write time. (v) One baseline artifact: G-Memory re-runs distillation on resume (its distill bookkeeping is not check-pointed); sim-only accounting excludes distillation nodes, so reported numbers are unaffected.</p>
 
 <h2><span class="n">7</span> Conclusion</h2>
 <p>Agentsensus treats a story world&rsquo;s memory as a single consensus store: equivalent memories merge across witnesses, split memories link into a graph, and recall walks that graph automatically. On a novel-seeded 80-round simulation, this yields the smallest memory footprint at equal granularity, the only shared and linked memory structure among four backends, and an emergent memory graph that mirrors the story&rsquo;s social structure &mdash; at no cost to judged narrative quality. The broader lesson is that memory structure in multi-agent systems must be mechanized, not delegated: agents reliably use only <code>remember</code> and <code>recall</code>, so that is where the structure has to live.</p>
@@ -842,7 +872,7 @@ HTML = CSS + f"""
 <h3>A.1 &nbsp;What agents actually call</h3>
 <p>&sect;5.6 asserts that agents never perform memory management. Table&nbsp;A1 is the evidence in full: every action invocation across the four worlds&rsquo; final stages, by backend. The repertoire is identical for all four and documented in the same skill file, with worked examples; the id-free query addressing of &sect;3.7 removes the interface barrier that an earlier design was suspected of having.</p>
 <div class="tw"><table>
-<caption><b>Table A1. Action census.</b> Counts are invocations in the final stage of each world (三国 g80, 红楼 rc80, Russia&ndash;Ukraine ru40, Hamlet hl30), summed across worlds, per backend. Rows at zero for all four backends are actions the repertoire offers and no agent ever used.</caption>
+<caption><b>Table A1. Action census.</b> Counts are invocations in the final stage of each world (Three Kingdoms g80, Red Chamber rc80, Russia&ndash;Ukraine ru40, Hamlet hl30), summed across worlds, per backend. Rows at zero for all four backends are actions the repertoire offers and no agent ever used.</caption>
 <thead><tr><th>action</th><th>consensus</th><th>gen-agents</th><th>g-memory</th><th>collab.</th></tr></thead>
 <tbody>
 <tr><td>read_thread</td><td>531</td><td>492</td><td>490</td><td>501</td></tr>
@@ -872,35 +902,35 @@ HTML = CSS + f"""
 <p><b>Reading.</b> Three things stand out. First, the memory interface agents do use is exactly two calls wide: <code>remember</code> (168&ndash;181 per backend) and <code>recall</code> (8&ndash;24), and nothing else &mdash; every one of the six discretionary memory-management actions sits at zero for every backend. This is the empirical basis for D3: a mechanism placed behind <code>add_affiliated</code> would never run. Second, the distribution is nearly identical across backends, which is what the fairness protocol wants: the backends differ in what <code>remember</code> and <code>recall</code> <i>do</i>, not in how often agents call them. Third, the ratio of writes to reads is roughly 9:1 &mdash; agents deposit far more than they retrieve &mdash; which is why the cost analysis of &sect;5.2 treats the write path as the one that matters.</p>
 
 <h3>A.2 &nbsp;Transcript excerpts</h3>
-<p>One deduplicated <code>say</code> message per backend, from each world&rsquo;s final stage, chosen by length so a block fits here; only the recipient list is abridged. The two Chinese worlds are given in the original with an English rendering beneath; the two English worlds are given as written. The point of the comparison is not prose quality &mdash; &sect;5.3 measures that and finds the backends within error bars of one another &mdash; but what a memory design looks like from the outside.</p>
+<p>One deduplicated <code>say</code> message per backend, from each world&rsquo;s final stage, chosen by length so a block fits here; only the recipient list is abridged. The two Chinese worlds are given in English with the original beneath; the two English worlds are given as written. The point of the comparison is not prose quality &mdash; &sect;5.3 measures that and finds the backends within error bars of one another &mdash; but what a memory design looks like from the outside.</p>
 
-<h4>三国演义 (80 rounds, Chinese)</h4>
-<div class="quote"><b>consensus</b> &nbsp;[r61] 程昱 &rarr; 乐进<br>
-&ldquo;乐进：今夜子时于许昌城东取徐母家书之事，今以何时为准？仍按子时取回，还是改为明日午后三刻于馆驿交接？请速回禀。&rdquo;<br>
-<i>&ldquo;Yue Jin: regarding tonight&rsquo;s midnight collection of Xu Shu&rsquo;s mother&rsquo;s letter east of Xuchang &mdash; which timing now stands? Still midnight, or moved to the third quarter after noon tomorrow at the post-house? Report back at once.&rdquo;</i></div>
-<div class="quote"><b>generative-agents</b> &nbsp;[r61] 糜竺 &rarr; 刘备, 关羽, 孙乾<br>
-&ldquo;回禀主公：承受圣裁。兵数仍定为三百，准用樊城抽拨之三日口粮；我即刻领发粮草并督樊城粮官封存登记&hellip;&rdquo;<br>
-<i>&ldquo;Reporting to my lord: the ruling is received. The force stands at three hundred; three days&rsquo; rations drawn from Fancheng are approved; I will issue the supplies at once and have the Fancheng grain officer seal and register them&hellip;&rdquo;</i></div>
-<div class="quote"><b>g-memory</b> &nbsp;[r62] 夏侯渊 &rarr; 荀彧<br>
-&ldquo;荀公：于禁、乐进已携册赴府衙呈上，臣亦已将斥候回报摘要与各营点验簿整理成册&hellip;能否按议于三刻内汇整为摘要上奏陛下？&rdquo;<br>
-<i>&ldquo;Lord Xun: Yu Jin and Yue Jin have carried the registers to the yamen; I have also compiled the scouts&rsquo; summaries and the camp inspection books&hellip; can it be consolidated into a memorial to His Majesty within three quarters, as agreed?&rdquo;</i></div>
-<div class="quote"><b>collaborative</b> &nbsp;[r61] 许褚 &rarr; 关羽, 诸葛亮, 赵云<br>
-&ldquo;白狼山侦察已毕。沿山脊侦望，未见敌军主力，仅见零星侦骑与少数可疑营帐、营火。已设回报信号，现按原路返营，预计一小时内抵达。&rdquo;<br>
-<i>&ldquo;Reconnaissance of Mount Bailang is complete. Observing along the ridge, no main enemy force was seen &mdash; only scattered scout riders and a few suspicious tents and campfires. Signals are set; returning by the same route, arrival expected within the hour.&rdquo;</i></div>
+<h4>Three Kingdoms 三国演义 (80 rounds, Chinese)</h4>
+<div class="quote"><b>consensus</b> &nbsp;[r61] Cheng Yu 程昱 &rarr; Yue Jin 乐进<br>
+Yue Jin: regarding tonight&rsquo;s midnight collection of Xu Shu&rsquo;s mother&rsquo;s letter east of Xuchang &mdash; which timing now stands? Still midnight, or moved to the third quarter after noon tomorrow at the post-house? Report back at once.<br>
+<span class="orig">乐进：今夜子时于许昌城东取徐母家书之事，今以何时为准？仍按子时取回，还是改为明日午后三刻于馆驿交接？请速回禀。</span></div>
+<div class="quote"><b>generative-agents</b> &nbsp;[r61] Mi Zhu 糜竺 &rarr; Liu Bei 刘备, Guan Yu 关羽, Sun Qian 孙乾<br>
+Reporting to my lord: the ruling is received. The force stands at three hundred; three days&rsquo; rations drawn from Fancheng are approved; I will issue the supplies at once and have the Fancheng grain officer seal and register them&hellip;<br>
+<span class="orig">回禀主公：承受圣裁。兵数仍定为三百，准用樊城抽拨之三日口粮；我即刻领发粮草并督樊城粮官封存登记&hellip;</span></div>
+<div class="quote"><b>g-memory</b> &nbsp;[r62] Xiahou Yuan 夏侯渊 &rarr; Xun Yu 荀彧<br>
+Lord Xun: Yu Jin and Yue Jin have carried the registers to the yamen; I have also compiled the scouts&rsquo; summaries and the camp inspection books&hellip; can it be consolidated into a memorial to His Majesty within three quarters, as agreed?<br>
+<span class="orig">荀公：于禁、乐进已携册赴府衙呈上，臣亦已将斥候回报摘要与各营点验簿整理成册&hellip;能否按议于三刻内汇整为摘要上奏陛下？</span></div>
+<div class="quote"><b>collaborative</b> &nbsp;[r61] Xu Chu 许褚 &rarr; Guan Yu 关羽, Zhuge Liang 诸葛亮, Zhao Yun 赵云<br>
+Reconnaissance of Mount Bailang is complete. Observing along the ridge, no main enemy force was seen &mdash; only scattered scout riders and a few suspicious tents and campfires. Signals are set; returning by the same route, arrival expected within the hour.<br>
+<span class="orig">白狼山侦察已毕。沿山脊侦望，未见敌军主力，仅见零星侦骑与少数可疑营帐、营火。已设回报信号，现按原路返营，预计一小时内抵达。</span></div>
 
-<h4>红楼梦 (80 rounds, Chinese)</h4>
-<div class="quote"><b>consensus</b> &nbsp;[r60] 贾宝玉 &rarr; 贾母, 贾珍, 王熙凤<br>
-&ldquo;外祖母、贾珍、凤姐、宝钗，晚辈已在此恭候。请问外祖母现在是要我先近前到贾母身侧就座陪侍，还是等林姑娘到齐再并列就座？&rdquo;<br>
-<i>&ldquo;Grandmother, Jia Zhen, Sister Feng, Baochai &mdash; I am waiting here. Does Grandmother wish me to come up and sit beside her now, or to wait until Miss Lin arrives and be seated together?&rdquo;</i></div>
-<div class="quote"><b>generative-agents</b> &nbsp;[r60] 贾琏 &rarr; 板儿, 尤氏<br>
-&ldquo;板儿，请将你与姥姥的姓名、来意及是否带有介绍信或能证明身份的凭证一并禀明；尤氏，请差小厮将板儿与刘姥姥领到厅上等候，不可四处走动&hellip;&rdquo;<br>
-<i>&ldquo;Ban&rsquo;er, state your name and Granny&rsquo;s, your business, and whether you carry a letter of introduction or any proof of identity; You-shi, have a page bring Ban&rsquo;er and Granny Liu to the hall to wait, and let them not wander&hellip;&rdquo;</i></div>
-<div class="quote"><b>g-memory</b> &nbsp;[r60] 贾探春 &rarr; 李纨<br>
-&ldquo;李姐姐，承你所托，探春已于席间为社中示范一首（海棠初绽露凝香……）且湘云已和唱，诸位正依次应和&hellip;关于本月轮主，惜春愿任一任。&rdquo;<br>
-<i>&ldquo;Sister Li, as you asked, I have offered the club a model verse at the table (&lsquo;the crab-apple newly opened, dew holding its scent&hellip;&rsquo;), Xiangyun has answered it, and the others are responding in turn&hellip; as for this month&rsquo;s host, Xichun is willing to take a turn.&rdquo;</i></div>
-<div class="quote"><b>collaborative</b> &nbsp;[r60] 晴雯 &rarr; 贾芸, 小红<br>
-&ldquo;贾芸，你刚才可曾拿着一方白底绣花、角上有绣字的绢子？小红说那是她的，若你有请拿出来让小红看；若没有请直言。&rdquo;<br>
-<i>&ldquo;Jia Yun, were you just now holding a white embroidered handkerchief with a word stitched in the corner? Xiaohong says it is hers. If you have it, produce it for her to see; if not, say so plainly.&rdquo;</i></div>
+<h4>Red Chamber 红楼梦 (80 rounds, Chinese)</h4>
+<div class="quote"><b>consensus</b> &nbsp;[r60] Jia Baoyu 贾宝玉 &rarr; Grandmother Jia 贾母, Jia Zhen 贾珍, Wang Xifeng 王熙凤<br>
+Grandmother, Jia Zhen, Sister Feng, Baochai &mdash; I am waiting here. Does Grandmother wish me to come up and sit beside her now, or to wait until Miss Lin arrives and be seated together?<br>
+<span class="orig">外祖母、贾珍、凤姐、宝钗，晚辈已在此恭候。请问外祖母现在是要我先近前到贾母身侧就座陪侍，还是等林姑娘到齐再并列就座？</span></div>
+<div class="quote"><b>generative-agents</b> &nbsp;[r60] Jia Lian 贾琏 &rarr; Ban&rsquo;er 板儿, You-shi 尤氏<br>
+Ban&rsquo;er, state your name and Granny&rsquo;s, your business, and whether you carry a letter of introduction or any proof of identity; You-shi, have a page bring Ban&rsquo;er and Granny Liu to the hall to wait, and let them not wander&hellip;<br>
+<span class="orig">板儿，请将你与姥姥的姓名、来意及是否带有介绍信或能证明身份的凭证一并禀明；尤氏，请差小厮将板儿与刘姥姥领到厅上等候，不可四处走动&hellip;</span></div>
+<div class="quote"><b>g-memory</b> &nbsp;[r60] Jia Tanchun 贾探春 &rarr; Li Wan 李纨<br>
+Sister Li, as you asked, I have offered the club a model verse at the table (&lsquo;the crab-apple newly opened, dew holding its scent&hellip;&rsquo;), Xiangyun has answered it, and the others are responding in turn&hellip; as for this month&rsquo;s host, Xichun is willing to take a turn.<br>
+<span class="orig">李姐姐，承你所托，探春已于席间为社中示范一首（海棠初绽露凝香……）且湘云已和唱，诸位正依次应和&hellip;关于本月轮主，惜春愿任一任。</span></div>
+<div class="quote"><b>collaborative</b> &nbsp;[r60] Qingwen 晴雯 &rarr; Jia Yun 贾芸, Xiaohong 小红<br>
+Jia Yun, were you just now holding a white embroidered handkerchief with a word stitched in the corner? Xiaohong says it is hers. If you have it, produce it for her to see; if not, say so plainly.<br>
+<span class="orig">贾芸，你刚才可曾拿着一方白底绣花、角上有绣字的绢子？小红说那是她的，若你有请拿出来让小红看；若没有请直言。</span></div>
 
 <h4>Russia&ndash;Ukraine (40 rounds, English)</h4>
 <div class="quote"><b>consensus</b> &nbsp;[r24] un &rarr; guterres<br>
@@ -923,8 +953,8 @@ HTML = CSS + f"""
 <div class="quote"><b>collaborative</b> &nbsp;[r20] first_player &rarr; rosencrantz<br>
 &ldquo;Thank you, Rosencrantz. I&rsquo;m glad the play is engaging. Watch King Claudius closely and tell me if his countenance changes during the performance.&rdquo;</div>
 
-<p><b>Reading.</b> Three things hold across all four worlds. <i>The register is set by the action repertoire, not by the memory design.</i> Every backend drifts toward administrative correspondence &mdash; requests, confirmations, rosters, timings &mdash; because what an agent can do is speak, set goals, and report; 红楼&rsquo;s poetry club and Hamlet&rsquo;s battlements are pulled into the same idiom as 三国&rsquo;s supply trains. <i>The worlds differ more than the backends do.</i> The institutional worlds produce long procedural messages (Russia&ndash;Ukraine&rsquo;s shortest English line runs 285 characters); the chamber drama produces short ones (&ldquo;Horatio, Marcellus and I just saw a ghost on the battlements&rdquo;); the household world sits between, with etiquette carrying most of the content.</p>
-<p>What does track the memory design is the <i>direction of reference</i>. Consensus lines characteristically ask which branch of an already-shared arrangement now applies &mdash; 程昱 asks whether the pickup still stands at midnight <i>or</i> has moved to the post-house; 宝玉 asks whether to sit now <i>or</i> wait for 黛玉; the UN chair asks a named official to begin <i>the</i> brief. The speaker treats the prior arrangement as a record both sides hold and asks only for the delta. Baseline lines more often re-establish the arrangement before acting on it: 糜竺 restates troop count, rations, and the sealing of the granary; 许褚 re-reports the whole scouting result; 贾琏 asks for names, business, and proof of identity that the household already has. That is what an agent does when it cannot assume the other party&rsquo;s copy matches its own. The pattern is consistent with the mechanism &mdash; N witnesses holding one row do not need to re-establish premises &mdash; but it is an observation on selected excerpts, not a measurement; the quality metrics of &sect;5.3 put the backends within each other&rsquo;s error bars, and we do not claim more than that.</p>
+<p><b>Reading.</b> Three things hold across all four worlds. <i>The register is set by the action repertoire, not by the memory design.</i> Every backend drifts toward administrative correspondence &mdash; requests, confirmations, rosters, timings &mdash; because what an agent can do is speak, set goals, and report; Red Chamber&rsquo;s poetry club and Hamlet&rsquo;s battlements are pulled into the same idiom as Three Kingdoms&rsquo;s supply trains. <i>The worlds differ more than the backends do.</i> The institutional worlds produce long procedural messages (Russia&ndash;Ukraine&rsquo;s shortest English line runs 285 characters); the chamber drama produces short ones (&ldquo;Horatio, Marcellus and I just saw a ghost on the battlements&rdquo;); the household world sits between, with etiquette carrying most of the content.</p>
+<p>What does track the memory design is the <i>direction of reference</i>. Consensus lines characteristically ask which branch of an already-shared arrangement now applies &mdash; Cheng Yu (程昱) asks whether the pickup still stands at midnight <i>or</i> has moved to the post-house; Baoyu (宝玉) asks whether to sit now <i>or</i> wait for Daiyu (黛玉); the UN chair asks a named official to begin <i>the</i> brief. The speaker treats the prior arrangement as a record both sides hold and asks only for the delta. Baseline lines more often re-establish the arrangement before acting on it: Mi Zhu (糜竺) restates troop count, rations, and the sealing of the granary; Xu Chu (许褚) re-reports the whole scouting result; Jia Lian (贾琏) asks for names, business, and proof of identity that the household already has. That is what an agent does when it cannot assume the other party&rsquo;s copy matches its own. The pattern is consistent with the mechanism &mdash; N witnesses holding one row do not need to re-establish premises &mdash; but it is an observation on selected excerpts, not a measurement; the quality metrics of &sect;5.3 put the backends within each other&rsquo;s error bars, and we do not claim more than that.</p>
 <p>One artifact worth recording, because it affects anything built on the event log: the kernel logs a single utterance both as an <code>action</code> event and as one <code>message</code> event per recipient, so a line addressed to three agents appears four times. Naive transcript assembly therefore triples parts of a run; the excerpts above and the screenplay renderer both deduplicate by (round, speaker, content).</p>
 
 <h3>A.3 &nbsp;Sedimentation and cast selection</h3>
@@ -933,21 +963,21 @@ HTML = CSS + f"""
 <caption><b>Table A2. Sedimentation cost and cast composition.</b> Wall-clock and token figures are for the sedimentation pass only, on the consensus store; the per-backend ingest of the same events is additional. &ldquo;Warnings&rdquo; counts extraction records the pipeline flagged for review (unresolved referents, ambiguous attributions).</caption>
 <thead><tr><th>world</th><th>registry</th><th>events</th><th>LLM calls</th><th>tokens</th><th>wall</th><th>active</th><th>archived</th><th>envs</th><th>carriers</th><th>warn</th></tr></thead>
 <tbody>
-<tr><td>三国演义</td><td>399</td><td>6,052</td><td>764</td><td>9.2M</td><td>124 min</td><td>33</td><td>38</td><td>115</td><td>5</td><td>235</td></tr>
-<tr><td>红楼梦</td><td>152</td><td>6,506</td><td>848</td><td>8.5M</td><td>129 min</td><td>34</td><td>3</td><td>88</td><td>9</td><td>222</td></tr>
+<tr><td>Three Kingdoms (三国演义)</td><td>399</td><td>6,052</td><td>764</td><td>9.2M</td><td>124 min</td><td>33</td><td>38</td><td>115</td><td>5</td><td>235</td></tr>
+<tr><td>Red Chamber (红楼梦)</td><td>152</td><td>6,506</td><td>848</td><td>8.5M</td><td>129 min</td><td>34</td><td>3</td><td>88</td><td>9</td><td>222</td></tr>
 <tr><td>Russia&ndash;Ukraine</td><td>170</td><td>1,533</td><td>1,373</td><td>12.3M</td><td>69 min</td><td>47</td><td>14</td><td>71</td><td>0</td><td>61</td></tr>
 <tr><td>Hamlet</td><td>22</td><td>1,135</td><td>212</td><td>0.9M</td><td>31 min</td><td>16</td><td>2</td><td>8</td><td>3</td><td>10</td></tr>
 </tbody></table></div>
-<p><b>Reading.</b> Cost tracks source length, not cast size: Russia&ndash;Ukraine extracts the fewest events (1,533 dated entries) yet costs the most tokens, because a timeline entry names many institutional actors and attribution must resolve each one. The archived column is the boundary-state finalization of &sect;3.4 at work and is worth reading per world: 三国 archives 38 characters dead by chapter&nbsp;40; 红楼 archives three (秦可卿, 贾瑞, 秦钟); Hamlet archives Polonius, killed in 3.4, and the Ghost, absent from the canon thereafter; Russia&ndash;Ukraine archives 14 under real-world semantics, where &ldquo;no longer a participant&rdquo; covers leaving office or being disbanded as well as dying, and where every placement was verified by hand against the 2026-07 boundary. Two cases required overrides that no automatic rule would produce: Fortinbras owns zero sediment memories &mdash; he never appears before Act&nbsp;4 &mdash; but is retained because the continuation is his, and England is retained as an environment for the same reason.</p>
+<p><b>Reading.</b> Cost tracks source length, not cast size: Russia&ndash;Ukraine extracts the fewest events (1,533 dated entries) yet costs the most tokens, because a timeline entry names many institutional actors and attribution must resolve each one. The archived column is the boundary-state finalization of &sect;3.4 at work and is worth reading per world: Three Kingdoms archives 38 characters dead by chapter&nbsp;40; Red Chamber archives three (秦可卿, 贾瑞, 秦钟); Hamlet archives Polonius, killed in 3.4, and the Ghost, absent from the canon thereafter; Russia&ndash;Ukraine archives 14 under real-world semantics, where &ldquo;no longer a participant&rdquo; covers leaving office or being disbanded as well as dying, and where every placement was verified by hand against the 2026-07 boundary. Two cases required overrides that no automatic rule would produce: Fortinbras owns zero sediment memories &mdash; he never appears before Act&nbsp;4 &mdash; but is retained because the continuation is his, and England is retained as an environment for the same reason.</p>
 
 <h3>A.4 &nbsp;Language composition of the runs</h3>
-<p>Each world declares a language: 三国 and 红楼 run in Chinese, Russia&ndash;Ukraine and Hamlet in English. The declaration selects the action-skill document and the output-format block, and the sediment is in the source language throughout. It did <i>not</i>, in the runs reported here, constrain what agents wrote: the language of a memory followed the language of the profile and of whatever the agent recalled, and drifted when those disagreed.</p>
+<p>Each world declares a language: Three Kingdoms and Red Chamber run in Chinese, Russia&ndash;Ukraine and Hamlet in English. The declaration selects the action-skill document and the output-format block, and the sediment is in the source language throughout. It did <i>not</i>, in the runs reported here, constrain what agents wrote: the language of a memory followed the language of the profile and of whatever the agent recalled, and drifted when those disagreed.</p>
 <div class="tw"><table>
 <caption><b>Table A3. Language of simulation memories</b> (consensus store, final stage of each world). Classification is by script: an entry with CJK characters and no substantial Latin text counts as Chinese, an entry with both counts as mixed, Cyrillic-dominant entries count as Russian.</caption>
 <thead><tr><th>world</th><th>declared</th><th>Chinese</th><th>English</th><th>mixed</th><th>Russian</th></tr></thead>
 <tbody>
-<tr><td>三国演义</td><td>zh</td><td>90%</td><td>9%</td><td>&mdash;</td><td>&mdash;</td></tr>
-<tr><td>红楼梦</td><td>zh</td><td>97%</td><td>1%</td><td>1%</td><td>&mdash;</td></tr>
+<tr><td>Three Kingdoms (三国演义)</td><td>zh</td><td>90%</td><td>9%</td><td>&mdash;</td><td>&mdash;</td></tr>
+<tr><td>Red Chamber (红楼梦)</td><td>zh</td><td>97%</td><td>1%</td><td>1%</td><td>&mdash;</td></tr>
 <tr><td>Russia&ndash;Ukraine</td><td>en</td><td>12%</td><td>81%</td><td>2%</td><td>2%</td></tr>
 <tr><td>Hamlet</td><td>en</td><td>26%</td><td>59%</td><td>14%</td><td>&mdash;</td></tr>
 </tbody></table></div>
@@ -959,14 +989,14 @@ HTML = CSS + f"""
 <caption><b>Table A4. Consensus structure per world</b> (final stage). &ldquo;3+&rdquo; counts entries with three or more witnesses; &ldquo;max&rdquo; is the deepest merge; &ldquo;expanded&rdquo; is the fraction of recalls that returned at least one memory reached along an affiliated edge, with the mean number of such memories per call.</caption>
 <thead><tr><th>world</th><th>sim entries</th><th>shared</th><th>3+</th><th>max</th><th>linked</th><th>expanded recalls</th><th>linked per call</th></tr></thead>
 <tbody>
-<tr><td>三国演义 (80t)</td><td>974</td><td>188 (19%)</td><td>38</td><td>6</td><td>97%</td><td>51/51</td><td>28</td></tr>
-<tr><td>红楼梦 (80t)</td><td>438</td><td>107 (24%)</td><td>24</td><td>6</td><td>94%</td><td>19/19</td><td>38</td></tr>
+<tr><td>Three Kingdoms (三国演义) (80t)</td><td>974</td><td>188 (19%)</td><td>38</td><td>6</td><td>97%</td><td>51/51</td><td>28</td></tr>
+<tr><td>Red Chamber (红楼梦) (80t)</td><td>438</td><td>107 (24%)</td><td>24</td><td>6</td><td>94%</td><td>19/19</td><td>38</td></tr>
 <tr><td>Russia&ndash;Ukraine (40t)</td><td>814</td><td>113 (14%)</td><td>23</td><td>10</td><td>99%</td><td>23/41</td><td>2</td></tr>
 <tr><td>Hamlet (30t)</td><td>110</td><td>29 (26%)</td><td>1</td><td>3</td><td>98%</td><td>3/3</td><td>39</td></tr>
 </tbody></table></div>
-<p><b>Reading.</b> Merge depth is a property of the world&rsquo;s staging, not of the mechanism. Russia&ndash;Ukraine reaches ten witnesses on a single presidential air-defense directive because a real command chain broadcasts one instruction to many named institutions at once; Hamlet tops out at three, and only once &mdash; on the players&rsquo; performance, the one scene in the play that assembles an audience &mdash; because Shakespeare stages almost everything as a two-person exchange. The two novels sit between, at six. Expansion behaves differently for a different reason: it returns few linked memories in Russia&ndash;Ukraine (2 per call, and only 23 of 41 recalls expanded at all) because institutional deposits are short and rarely split into several atoms, so there are fewer siblings to link; in the novels a single compound recollection atomizes into many pieces, and a recall pulls back 28&ndash;39 of them. The sharing rate itself is horizon-dependent and saturating &mdash; 红楼, run at four horizons, goes 13%&rarr;20%&rarr;23%&rarr;24% at rounds 10/40/60/80 &mdash; which is the compounding argument of &sect;5.1.3 measured directly.</p>
+<p><b>Reading.</b> Merge depth is a property of the world&rsquo;s staging, not of the mechanism. Russia&ndash;Ukraine reaches ten witnesses on a single presidential air-defense directive because a real command chain broadcasts one instruction to many named institutions at once; Hamlet tops out at three, and only once &mdash; on the players&rsquo; performance, the one scene in the play that assembles an audience &mdash; because Shakespeare stages almost everything as a two-person exchange. The two novels sit between, at six. Expansion behaves differently for a different reason: it returns few linked memories in Russia&ndash;Ukraine (2 per call, and only 23 of 41 recalls expanded at all) because institutional deposits are short and rarely split into several atoms, so there are fewer siblings to link; in the novels a single compound recollection atomizes into many pieces, and a recall pulls back 28&ndash;39 of them. The sharing rate itself is horizon-dependent and saturating &mdash; Red Chamber, run at four horizons, goes 13%&rarr;20%&rarr;23%&rarr;24% at rounds 10/40/60/80 &mdash; which is the compounding argument of &sect;5.1.3 measured directly.</p>
 
-<p class="foot">Agentsensus &middot; 三国演义 60-round, three resumed 20-round stages &middot; chat gpt-5-mini, embeddings text-embedding-3-small &middot; simulation-only accounting under uniform atomization &middot; structural counts deterministic; quality metrics mean&plusmn;std over 3 LLM scorings &middot; data: <code>runs/g20_* ... g80_*</code>.</p>
+<p class="foot">Agentsensus &middot; Three Kingdoms (三国演义) 60-round, three resumed 20-round stages &middot; chat gpt-5-mini, embeddings text-embedding-3-small &middot; simulation-only accounting under uniform atomization &middot; structural counts deterministic; quality metrics mean&plusmn;std over 3 LLM scorings &middot; data: <code>runs/g20_* ... g80_*</code>.</p>
 
 </div>
 """
