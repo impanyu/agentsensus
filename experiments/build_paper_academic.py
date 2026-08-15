@@ -55,6 +55,35 @@ rc_mex = RC["merge_examples"]
 HL = _scrub(json.load(open("runs/paper_stats_hl30.json", encoding="utf-8")))
 HLC = HL["consensus"]; HLR = HL["relations"]; HLE = HL["auto_expand"]
 hl_mex = HL["merge_examples"]
+
+# Store size at the end of each run (footprint.entries), so the scale table can
+# show what each mechanism carries out of sedimentation as well as what the
+# simulation added: sediment = total - sim.
+BACKENDS = ["consensus", "generative_agents", "g_memory", "collaborative"]
+TOTAL = {}
+for _pref in ("g80", "ru40", "rc80", "hl30"):
+    for _b in BACKENDS:
+        with open(f"runs/{_pref}_{_b}/result.json", encoding="utf-8") as _f:
+            TOTAL[(_pref, _b)] = json.load(_f)["footprint"]["entries"]
+
+
+def scale_rows(pref, stats):
+    """Table rows for one world: sediment / sim / shared / linked / total."""
+    out = []
+    for b, label in zip(BACKENDS, ("consensus", "generative-agents", "g-memory", "collaborative")):
+        st = stats[b]
+        total = TOTAL[(pref, b)]
+        sediment = total - st["sim_new"]
+        best = ' class="best"' if b == "consensus" else ""
+        hi = ' class="hi"' if b == "consensus" else ""
+        shared = (f'{st["multi_owner"]} ({st["sh_pct"]}%)' if st["multi_owner"] else "0")
+        linked = (f'{st["aff_pct"]}%' if st["aff_pct"] else "0")
+        out.append(
+            f'<tr{hi}><td>{label}</td><td{best}>{sediment:,}</td><td{best}>{st["sim_new"]:,}</td>'
+            f'<td{best}>{shared}</td><td{best}>{linked}</td><td>{total:,}</td></tr>'
+        )
+    return "\n".join(out)
+
 Q = json.load(open("runs/results_g40.json", encoding="utf-8"))  # quality scored at the 40-tick checkpoint
 QR = json.load(open("runs/results_ru40.json", encoding="utf-8"))  # RU quality at 40 ticks
 def _slim_graphs(path):
@@ -524,30 +553,19 @@ HTML = CSS + f"""
 <h3>5.1 &nbsp;Footprint and structure</h3>
 <p>At equal granularity, consensus writes the fewest sim memories in all three worlds (三国: {C['sim_new']} vs {GA['sim_new']}&ndash;{CO['sim_new']}; Russia&ndash;Ukraine: {RUC['sim_new']} vs {RU['collaborative']['sim_new']}&ndash;{RU['generative_agents']['sim_new']}; 红楼: {RCC['sim_new']} vs {RC['generative_agents']['sim_new']}&ndash;{RC['g_memory']['sim_new']}) because merging folds witnesses together. The same holds for structure: in every world consensus is the only backend whose memories become shared and linked ({C['sh_pct']}%/{C['aff_pct']}% in 三国, {RUC['sh_pct']}%/{RUC['aff_pct']}% in Russia&ndash;Ukraine, {RCC['sh_pct']}%/{RCC['aff_pct']}% in 红楼), against 0% for every baseline.</p>
 <div class="tw"><table>
-<caption><b>Table 1.</b> Sim-generated memories under uniform atomization, per scenario. &ldquo;Shared&rdquo; = multi-owner entries created by consensus merging; &ldquo;linked&rdquo; = entries carrying affiliated edges. Baseline mechanism by-products (GA reflections, G-Memory distillations) are excluded from all columns. In both worlds consensus writes the fewest entries and is the only backend with shared or linked memories.</caption>
-<thead><tr><th>backend</th><th>sim entries</th><th>shared (multi-owner)</th><th>linked (affiliated)</th></tr></thead>
+<caption><b>Table 1. Store size by backend and world.</b> &ldquo;Sediment&rdquo; is the store at round&nbsp;0, produced by each mechanism&rsquo;s own ingest of the identical source events (&sect;3.4) &mdash; one row per event under consensus, one row per witness under every baseline, plus each backend&rsquo;s own by-products (Generative-Agents reflections, G-Memory insight nodes). &ldquo;Sim&rdquo; is what the simulation then added and is the comparison the fairness protocol licenses: all four backends atomize identically, so entry counts are comparable by construction. &ldquo;Shared&rdquo; = multi-owner entries created by consensus merge; &ldquo;linked&rdquo; = entries carrying affiliated edges; both are computed over sim entries.</caption>
+<thead><tr><th>backend</th><th>sediment</th><th>sim</th><th>shared</th><th>linked</th><th>total</th></tr></thead>
 <tbody>
-<tr class="grp"><td colspan="4">三国演义 &mdash; fiction, 80 rounds</td></tr>
-<tr class="hi"><td>consensus</td><td class="best">{C['sim_new']}</td><td class="best">{C['multi_owner']} ({C['sh_pct']}%)</td><td class="best">{C['aff_pct']}%</td></tr>
-<tr><td>generative-agents</td><td>{GA['sim_new']}</td><td>0</td><td>0</td></tr>
-<tr><td>g-memory</td><td>{GM['sim_new']}</td><td>0</td><td>0</td></tr>
-<tr><td>collaborative</td><td>{CO['sim_new']}</td><td>0</td><td>0</td></tr>
-<tr class="grp"><td colspan="4">Russia&ndash;Ukraine &mdash; real world, 40 rounds</td></tr>
-<tr class="hi"><td>consensus</td><td class="best">{RUC['sim_new']}</td><td class="best">{RUC['multi_owner']} ({RUC['sh_pct']}%)</td><td class="best">{RUC['aff_pct']}%</td></tr>
-<tr><td>generative-agents</td><td>{RU['generative_agents']['sim_new']}</td><td>0</td><td>0</td></tr>
-<tr><td>g-memory</td><td>{RU['g_memory']['sim_new']}</td><td>0</td><td>0</td></tr>
-<tr><td>collaborative</td><td>{RU['collaborative']['sim_new']}</td><td>0</td><td>0</td></tr>
-<tr class="grp"><td colspan="4">红楼梦 &mdash; fiction, 80 rounds</td></tr>
-<tr class="hi"><td>consensus</td><td class="best">{RCC['sim_new']}</td><td class="best">{RCC['multi_owner']} ({RCC['sh_pct']}%)</td><td class="best">{RCC['aff_pct']}%</td></tr>
-<tr><td>generative-agents</td><td>{RC['generative_agents']['sim_new']}</td><td>0</td><td>0</td></tr>
-<tr><td>g-memory</td><td>{RC['g_memory']['sim_new']}</td><td>0</td><td>0</td></tr>
-<tr><td>collaborative</td><td>{RC['collaborative']['sim_new']}</td><td>0</td><td>0</td></tr>
-<tr class="grp"><td colspan="4">Hamlet &mdash; fiction, 30 rounds</td></tr>
-<tr class="hi"><td>consensus</td><td class="best">{HLC['sim_new']}</td><td class="best">{HLC['multi_owner']} ({HLC['sh_pct']}%)</td><td class="best">{HLC['aff_pct']}%</td></tr>
-<tr><td>generative-agents</td><td>{HL['generative_agents']['sim_new']}</td><td>0</td><td>0</td></tr>
-<tr><td>g-memory</td><td>{HL['g_memory']['sim_new']}</td><td>0</td><td>0</td></tr>
-<tr><td>collaborative</td><td>{HL['collaborative']['sim_new']}</td><td>0</td><td>0</td></tr>
+<tr class="grp"><td colspan="6">三国演义 &mdash; fiction, 80 rounds, 6,052 source events</td></tr>
+{scale_rows('g80', S)}
+<tr class="grp"><td colspan="6">Russia&ndash;Ukraine &mdash; real world, 40 rounds, 1,533 source events</td></tr>
+{scale_rows('ru40', RU)}
+<tr class="grp"><td colspan="6">红楼梦 &mdash; fiction, 80 rounds, 6,506 source events</td></tr>
+{scale_rows('rc80', RC)}
+<tr class="grp"><td colspan="6">Hamlet &mdash; fiction, 30 rounds, 1,135 source events</td></tr>
+{scale_rows('hl30', HL)}
 </tbody></table></div>
+<p><b>Two columns, two effects.</b> The sediment column is consensus compression applied to the seeded history, and its multiplier is a property of the <i>world</i> rather than of the mechanism: the per-witness fan-out is 3.3&times; in 三国, 4.1&ndash;5.7&times; in 红楼, 5.5&ndash;9.4&times; in Russia&ndash;Ukraine and 4.7&ndash;6.2&times; in Hamlet, tracking the average number of witnesses per event, which a war room with institutional spokespeople maximizes and a two-hander chamber drama minimizes. The sim column is the same effect measured over events the simulation itself generated, at rates of roughly 12 (三国), 20 (Russia&ndash;Ukraine), 5 (红楼) and 4 (Hamlet) consensus entries per round. Everything else in &sect;5 is computed over the sim column only.</p>
 
 <h4>5.1.1 &nbsp;三国演义</h4>
 <figure class="two">
@@ -839,41 +857,12 @@ HTML = CSS + f"""
 
 
 <h2><span class="n">A</span> Appendix</h2>
-<p>The appendix reports material the main text summarizes or omits: the full per-backend scale of every run (A.1), a census of what agents actually do with the action repertoire (A.2), transcript excerpts with a reading of how each memory design shows up in behavior (A.3), the sedimentation and cast-selection numbers behind each world (A.4), the language composition of the runs (A.5), and the merge-depth and expansion statistics behind the structural claims (A.6).</p>
+<p>The appendix reports material the main text summarizes or omits: a census of what agents actually do with the action repertoire (A.1), transcript excerpts from all four worlds with a reading of how each memory design shows up in behavior (A.2), the sedimentation and cast-selection numbers behind each world (A.3), the language composition of the runs (A.4), and the merge-depth and expansion statistics behind the structural claims (A.5).</p>
 
-<h3>A.1 &nbsp;Per-backend scale, all four worlds</h3>
-<p>Table&nbsp;1 in &sect;5.1 reports simulation-generated entries only, which is the comparison the fairness protocol licenses. The full picture also includes what each backend carries out of sedimentation, because that is where consensus compression first applies: the same source events become one row per event under consensus and one row per witness under every baseline. &ldquo;Sediment&rdquo; below is the store at round&nbsp;0 (including each backend&rsquo;s own by-products &mdash; Generative-Agents reflections, G-Memory insight nodes); &ldquo;sim&rdquo; is what the simulation then added; &ldquo;total&rdquo; is the store at the end of the run.</p>
+<h3>A.1 &nbsp;What agents actually call</h3>
+<p>&sect;5.6 asserts that agents never perform memory management. Table&nbsp;A1 is the evidence in full: every action invocation across the four worlds&rsquo; final stages, by backend. The repertoire is identical for all four and documented in the same skill file, with worked examples; the id-free query addressing of &sect;3.7 removes the interface barrier that an earlier design was suspected of having.</p>
 <div class="tw"><table>
-<caption><b>Table A1. Store size by backend and world.</b> Sediment rows are produced by each mechanism&rsquo;s own ingest of the identical source events (&sect;3.4), so the ratio in that column is consensus compression applied to the seeded history; sim rows are the &sect;5.1 comparison. All four backends atomize identically.</caption>
-<thead><tr><th>world</th><th>backend</th><th>sediment</th><th>sim</th><th>total</th></tr></thead>
-<tbody>
-<tr class="grp"><td colspan="5">三国演义 &mdash; 80 rounds, 6,052 source events</td></tr>
-<tr class="hi"><td></td><td>consensus</td><td class="best">6,051</td><td class="best">974</td><td class="best">7,025</td></tr>
-<tr><td></td><td>generative-agents</td><td>20,896</td><td>1,251</td><td>22,147</td></tr>
-<tr><td></td><td>g-memory</td><td>27,156</td><td>1,434</td><td>28,590</td></tr>
-<tr><td></td><td>collaborative</td><td>19,856</td><td>1,455</td><td>21,311</td></tr>
-<tr class="grp"><td colspan="5">红楼梦 &mdash; 80 rounds, 6,506 source events</td></tr>
-<tr class="hi"><td></td><td>consensus</td><td class="best">6,506</td><td class="best">438</td><td class="best">6,944</td></tr>
-<tr><td></td><td>generative-agents</td><td>27,306</td><td>785</td><td>28,091</td></tr>
-<tr><td></td><td>g-memory</td><td>37,124</td><td>882</td><td>38,006</td></tr>
-<tr><td></td><td>collaborative</td><td>26,681</td><td>789</td><td>27,470</td></tr>
-<tr class="grp"><td colspan="5">Russia&ndash;Ukraine &mdash; 40 rounds, 1,533 source events</td></tr>
-<tr class="hi"><td></td><td>consensus</td><td class="best">1,533</td><td class="best">814</td><td class="best">2,347</td></tr>
-<tr><td></td><td>generative-agents</td><td>9,492</td><td>1,268</td><td>10,760</td></tr>
-<tr><td></td><td>g-memory</td><td>14,346</td><td>1,191</td><td>15,537</td></tr>
-<tr><td></td><td>collaborative</td><td>8,493</td><td>1,091</td><td>9,584</td></tr>
-<tr class="grp"><td colspan="5">Hamlet &mdash; 30 rounds, 1,135 source events</td></tr>
-<tr class="hi"><td></td><td>consensus</td><td class="best">1,135</td><td class="best">110</td><td class="best">1,245</td></tr>
-<tr><td></td><td>generative-agents</td><td>5,819</td><td>152</td><td>5,971</td></tr>
-<tr><td></td><td>g-memory</td><td>7,056</td><td>152</td><td>7,208</td></tr>
-<tr><td></td><td>collaborative</td><td>5,310</td><td>151</td><td>5,461</td></tr>
-</tbody></table></div>
-<p><b>Reading.</b> The sediment column varies by world in a way the sim column does not: the per-witness fan-out is 3.3&times; in 三国, 4.1&ndash;5.7&times; in 红楼, 5.5&ndash;9.4&times; in Russia&ndash;Ukraine, 4.7&ndash;6.2&times; in Hamlet. The multiplier is not a property of the mechanism but of the world &mdash; it is the average number of witnesses per event, which a war room with institutional spokespeople maximizes and a two-hander chamber drama minimizes. The sim column is the same effect measured over events the simulation itself generated, at rates of roughly 12 (三国), 20 (Russia&ndash;Ukraine), 5 (红楼) and 4 (Hamlet) consensus entries per round.</p>
-
-<h3>A.2 &nbsp;What agents actually call</h3>
-<p>&sect;5.6 asserts that agents never perform memory management. Table&nbsp;A2 is the evidence in full: every action invocation across the four worlds&rsquo; final stages, by backend. The repertoire is identical for all four and documented in the same skill file, with worked examples; the id-free query addressing of &sect;3.7 removes the interface barrier that an earlier design was suspected of having.</p>
-<div class="tw"><table>
-<caption><b>Table A2. Action census.</b> Counts are invocations in the final stage of each world (三国 g80, 红楼 rc80, Russia&ndash;Ukraine ru40, Hamlet hl30), summed across worlds, per backend. Rows at zero for all four backends are actions the repertoire offers and no agent ever used.</caption>
+<caption><b>Table A1. Action census.</b> Counts are invocations in the final stage of each world (三国 g80, 红楼 rc80, Russia&ndash;Ukraine ru40, Hamlet hl30), summed across worlds, per backend. Rows at zero for all four backends are actions the repertoire offers and no agent ever used.</caption>
 <thead><tr><th>action</th><th>consensus</th><th>gen-agents</th><th>g-memory</th><th>collab.</th></tr></thead>
 <tbody>
 <tr><td>read_thread</td><td>531</td><td>492</td><td>490</td><td>501</td></tr>
@@ -902,7 +891,7 @@ HTML = CSS + f"""
 </tbody></table></div>
 <p><b>Reading.</b> Three things stand out. First, the memory interface agents do use is exactly two calls wide: <code>remember</code> (168&ndash;181 per backend) and <code>recall</code> (8&ndash;24), and nothing else &mdash; every one of the six discretionary memory-management actions sits at zero for every backend. This is the empirical basis for D3: a mechanism placed behind <code>add_affiliated</code> would never run. Second, the distribution is nearly identical across backends, which is what the fairness protocol wants: the backends differ in what <code>remember</code> and <code>recall</code> <i>do</i>, not in how often agents call them. Third, the ratio of writes to reads is roughly 9:1 &mdash; agents deposit far more than they retrieve &mdash; which is why the cost analysis of &sect;5.2 treats the write path as the one that matters.</p>
 
-<h3>A.3 &nbsp;Transcript excerpts</h3>
+<h3>A.2 &nbsp;Transcript excerpts</h3>
 <p>One deduplicated <code>say</code> message per backend, from each world&rsquo;s final stage, chosen by length so a block fits here; only the recipient list is abridged. The two Chinese worlds are given in the original with an English rendering beneath; the two English worlds are given as written. The point of the comparison is not prose quality &mdash; &sect;5.3 measures that and finds the backends within error bars of one another &mdash; but what a memory design looks like from the outside.</p>
 
 <h4>三国演义 (80 rounds, Chinese)</h4>
@@ -942,7 +931,7 @@ HTML = CSS + f"""
 &ldquo;Brigadier Foster &mdash; I am transmitting Colonel Andriy Kovalenko&rsquo;s secure contact details and the prioritized spreadsheet to you and the UK team now via the agreed secure channel&hellip;&rdquo;</div>
 <div class="quote"><b>collaborative</b> &nbsp;[r33] un &rarr; guterres<br>
 &ldquo;Secretary-General, DPO has not yet delivered its update. Shall OCHA proceed now with its five-minute update on civilian needs and corridor routes, or wait a moment longer for DPO?&rdquo;</div>
-<p style="font-size:14px;color:var(--muted);max-width:68ch">These are English-language excerpts, but not every message in this world was English: 12% of the run&rsquo;s memories are Chinese and 2% Russian (Table&nbsp;A4), the latter because agents adopted the language of the character they were playing.</p>
+<p style="font-size:14px;color:var(--muted);max-width:68ch">These are English-language excerpts, but not every message in this world was English: 12% of the run&rsquo;s memories are Chinese and 2% Russian (Table&nbsp;A3), the latter because agents adopted the language of the character they were playing.</p>
 
 <h4>Hamlet (30 rounds, English)</h4>
 <div class="quote"><b>consensus</b> &nbsp;[r24] fortinbras &rarr; marcellus<br>
@@ -958,10 +947,10 @@ HTML = CSS + f"""
 <p>What does track the memory design is the <i>direction of reference</i>. Consensus lines characteristically ask which branch of an already-shared arrangement now applies &mdash; 程昱 asks whether the pickup still stands at midnight <i>or</i> has moved to the post-house; 宝玉 asks whether to sit now <i>or</i> wait for 黛玉; the UN chair asks a named official to begin <i>the</i> brief. The speaker treats the prior arrangement as a record both sides hold and asks only for the delta. Baseline lines more often re-establish the arrangement before acting on it: 糜竺 restates troop count, rations, and the sealing of the granary; 许褚 re-reports the whole scouting result; 贾琏 asks for names, business, and proof of identity that the household already has. That is what an agent does when it cannot assume the other party&rsquo;s copy matches its own. The pattern is consistent with the mechanism &mdash; N witnesses holding one row do not need to re-establish premises &mdash; but it is an observation on selected excerpts, not a measurement; the quality metrics of &sect;5.3 put the backends within each other&rsquo;s error bars, and we do not claim more than that.</p>
 <p>One artifact worth recording, because it affects anything built on the event log: the kernel logs a single utterance both as an <code>action</code> event and as one <code>message</code> event per recipient, so a line addressed to three agents appears four times. Naive transcript assembly therefore triples parts of a run; the excerpts above and the screenplay renderer both deduplicate by (round, speaker, content).</p>
 
-<h3>A.4 &nbsp;Sedimentation and cast selection</h3>
+<h3>A.3 &nbsp;Sedimentation and cast selection</h3>
 <p>Each world is built by the pipeline of &sect;3.4 and then reduced to a simulable cast. A character participates iff it owns more than a per-world threshold of sediment memories; below-threshold characters remain owners of their memories but are never scheduled. Environments are kept if an active character stands there or if they own memories of their own; information carriers (letters, commissions, play scripts) are always kept.</p>
 <div class="tw"><table>
-<caption><b>Table A3. Sedimentation cost and cast composition.</b> Wall-clock and token figures are for the sedimentation pass only, on the consensus store; the per-backend ingest of the same events is additional. &ldquo;Warnings&rdquo; counts extraction records the pipeline flagged for review (unresolved referents, ambiguous attributions).</caption>
+<caption><b>Table A2. Sedimentation cost and cast composition.</b> Wall-clock and token figures are for the sedimentation pass only, on the consensus store; the per-backend ingest of the same events is additional. &ldquo;Warnings&rdquo; counts extraction records the pipeline flagged for review (unresolved referents, ambiguous attributions).</caption>
 <thead><tr><th>world</th><th>registry</th><th>events</th><th>LLM calls</th><th>tokens</th><th>wall</th><th>active</th><th>archived</th><th>envs</th><th>carriers</th><th>warn</th></tr></thead>
 <tbody>
 <tr><td>三国演义</td><td>399</td><td>6,052</td><td>764</td><td>9.2M</td><td>124 min</td><td>33</td><td>38</td><td>115</td><td>5</td><td>235</td></tr>
@@ -971,10 +960,10 @@ HTML = CSS + f"""
 </tbody></table></div>
 <p><b>Reading.</b> Cost tracks source length, not cast size: Russia&ndash;Ukraine extracts the fewest events (1,533 dated entries) yet costs the most tokens, because a timeline entry names many institutional actors and attribution must resolve each one. The archived column is the boundary-state finalization of &sect;3.4 at work and is worth reading per world: 三国 archives 38 characters dead by chapter&nbsp;40; 红楼 archives three (秦可卿, 贾瑞, 秦钟); Hamlet archives Polonius, killed in 3.4, and the Ghost, absent from the canon thereafter; Russia&ndash;Ukraine archives 14 under real-world semantics, where &ldquo;no longer a participant&rdquo; covers leaving office or being disbanded as well as dying, and where every placement was verified by hand against the 2026-07 boundary. Two cases required overrides that no automatic rule would produce: Fortinbras owns zero sediment memories &mdash; he never appears before Act&nbsp;4 &mdash; but is retained because the continuation is his, and England is retained as an environment for the same reason.</p>
 
-<h3>A.5 &nbsp;Language composition of the runs</h3>
+<h3>A.4 &nbsp;Language composition of the runs</h3>
 <p>Each world declares a language: 三国 and 红楼 run in Chinese, Russia&ndash;Ukraine and Hamlet in English. The declaration selects the action-skill document and the output-format block, and the sediment is in the source language throughout. It did <i>not</i>, in the runs reported here, constrain what agents wrote: the language of a memory followed the language of the profile and of whatever the agent recalled, and drifted when those disagreed.</p>
 <div class="tw"><table>
-<caption><b>Table A4. Language of simulation memories</b> (consensus store, final stage of each world). Classification is by script: an entry with CJK characters and no substantial Latin text counts as Chinese, an entry with both counts as mixed, Cyrillic-dominant entries count as Russian.</caption>
+<caption><b>Table A3. Language of simulation memories</b> (consensus store, final stage of each world). Classification is by script: an entry with CJK characters and no substantial Latin text counts as Chinese, an entry with both counts as mixed, Cyrillic-dominant entries count as Russian.</caption>
 <thead><tr><th>world</th><th>declared</th><th>Chinese</th><th>English</th><th>mixed</th><th>Russian</th></tr></thead>
 <tbody>
 <tr><td>三国演义</td><td>zh</td><td>90%</td><td>9%</td><td>&mdash;</td><td>&mdash;</td></tr>
@@ -984,10 +973,10 @@ HTML = CSS + f"""
 </tbody></table></div>
 <p><b>Reading.</b> The drift is largest where the two implicit signals disagree most. All four worlds carried Chinese-authored character profiles, so an English world with an English sediment still pulled toward Chinese, and Hamlet &mdash; the smallest sediment, hence the weakest counterweight &mdash; drifted furthest (26% Chinese, 14% mixed). Russia&ndash;Ukraine additionally produced Russian-language memories: agents adopted the language of the character they were playing, which no instruction had asked for and none had forbidden. We report this as a finding about implicit conditioning rather than a defect of the memory mechanisms, which are language-agnostic: entry counts, sharing, and graph structure are unaffected. The framework now carries an explicit content-language directive in the agent system prompt, and screenplays are normalized to the world&rsquo;s language at render time; the runs above predate the directive and were not regenerated for it.</p>
 
-<h3>A.6 &nbsp;Merge depth, graph density, and expansion</h3>
+<h3>A.5 &nbsp;Merge depth, graph density, and expansion</h3>
 <p>&sect;5.1 reports the share of memories that are shared and linked. The distribution behind those shares, and what recall does with the graph, are below.</p>
 <div class="tw"><table>
-<caption><b>Table A5. Consensus structure per world</b> (final stage). &ldquo;3+&rdquo; counts entries with three or more witnesses; &ldquo;max&rdquo; is the deepest merge; &ldquo;expanded&rdquo; is the fraction of recalls that returned at least one memory reached along an affiliated edge, with the mean number of such memories per call.</caption>
+<caption><b>Table A4. Consensus structure per world</b> (final stage). &ldquo;3+&rdquo; counts entries with three or more witnesses; &ldquo;max&rdquo; is the deepest merge; &ldquo;expanded&rdquo; is the fraction of recalls that returned at least one memory reached along an affiliated edge, with the mean number of such memories per call.</caption>
 <thead><tr><th>world</th><th>sim entries</th><th>shared</th><th>3+</th><th>max</th><th>linked</th><th>expanded recalls</th><th>linked per call</th></tr></thead>
 <tbody>
 <tr><td>三国演义 (80t)</td><td>974</td><td>188 (19%)</td><td>38</td><td>6</td><td>97%</td><td>51/51</td><td>28</td></tr>
