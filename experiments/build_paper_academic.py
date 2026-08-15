@@ -6,8 +6,6 @@ import base64, os, json
 os.chdir("/Users/ypan12/git_repo/bookworld_paper/agentsensus")
 
 FIGS = {
-    "simfoot": "runs/paper_figs_g80/sim_footprint_q.png",
-    "structure": "runs/paper_figs_g80/structure_q.png",
     "growth": "runs/paper_figs_g80/growth_q.png",
     "relpanels": "runs/g80full_consensus/case_study/relationship_panels_q.png",
     "gtotal": "runs/paper_figs_g80/growth_total_q.png",
@@ -15,21 +13,16 @@ FIGS = {
     "quality": "runs/paper_figs_g80/quality_q.png",
     "arch": "runs/paper_figs_g80/architecture_q.png",
     "latency": "runs/paper_figs_g80/latency_q.png",
-    "ru_simfoot": "runs/paper_figs_ru40/sim_footprint_q.png",
-    "ru_structure": "runs/paper_figs_ru40/structure_q.png",
     "ru_growth": "runs/paper_figs_ru40/growth_q.png",
     "ru_latency": "runs/paper_figs_ru40/latency_q.png",
     "ru_relpanels": "runs/ru40full_consensus/case_study/relationship_panels_q.png",
     "ru_quality": "runs/paper_figs_ru40/quality_q.png",
-    "rc_simfoot": "runs/paper_figs_rc80/sim_footprint_q.png",
-    "rc_structure": "runs/paper_figs_rc80/structure_q.png",
     "rc_growth": "runs/paper_figs_rc80/growth_q.png",
     "rc_latency": "runs/paper_figs_rc80/latency_q.png",
     "rc_relpanels": "runs/rc80full_consensus/case_study/relationship_panels_q.png",
-    "hl_simfoot": "runs/paper_figs_hl30/sim_footprint_q.png",
-    "hl_structure": "runs/paper_figs_hl30/structure_q.png",
     "hl_growth": "runs/paper_figs_hl30/growth_q.png",
     "hl_latency": "runs/paper_figs_hl30/latency_q.png",
+    "struct_all": "runs/paper_figs_all/structure_all_q.png",
     "hl_relpanels": "runs/hl30full_consensus/case_study/relationship_panels_q.png",
 }
 IMG = {k: "data:image/png;base64," + base64.b64encode(open(v, "rb").read()).decode()
@@ -68,7 +61,7 @@ for _pref in ("g80", "ru40", "rc80", "hl30"):
 
 
 def scale_rows(pref, stats):
-    """Table rows for one world: sediment / sim / shared / linked / total."""
+    """Table rows for one world: sediment / sim / total."""
     out = []
     for b, label in zip(BACKENDS, ("consensus", "generative-agents", "g-memory", "collaborative")):
         st = stats[b]
@@ -76,11 +69,9 @@ def scale_rows(pref, stats):
         sediment = total - st["sim_new"]
         best = ' class="best"' if b == "consensus" else ""
         hi = ' class="hi"' if b == "consensus" else ""
-        shared = (f'{st["multi_owner"]} ({st["sh_pct"]}%)' if st["multi_owner"] else "0")
-        linked = (f'{st["aff_pct"]}%' if st["aff_pct"] else "0")
         out.append(
             f'<tr{hi}><td>{label}</td><td{best}>{sediment:,}</td><td{best}>{st["sim_new"]:,}</td>'
-            f'<td{best}>{shared}</td><td{best}>{linked}</td><td>{total:,}</td></tr>'
+            f'<td>{total:,}</td></tr>'
         )
     return "\n".join(out)
 
@@ -553,26 +544,27 @@ HTML = CSS + f"""
 <h3>5.1 &nbsp;Footprint and structure</h3>
 <p>At equal granularity, consensus writes the fewest sim memories in all three worlds (三国: {C['sim_new']} vs {GA['sim_new']}&ndash;{CO['sim_new']}; Russia&ndash;Ukraine: {RUC['sim_new']} vs {RU['collaborative']['sim_new']}&ndash;{RU['generative_agents']['sim_new']}; 红楼: {RCC['sim_new']} vs {RC['generative_agents']['sim_new']}&ndash;{RC['g_memory']['sim_new']}) because merging folds witnesses together. The same holds for structure: in every world consensus is the only backend whose memories become shared and linked ({C['sh_pct']}%/{C['aff_pct']}% in 三国, {RUC['sh_pct']}%/{RUC['aff_pct']}% in Russia&ndash;Ukraine, {RCC['sh_pct']}%/{RCC['aff_pct']}% in 红楼), against 0% for every baseline.</p>
 <div class="tw"><table>
-<caption><b>Table 1. Store size by backend and world.</b> &ldquo;Sediment&rdquo; is the store at round&nbsp;0, produced by each mechanism&rsquo;s own ingest of the identical source events (&sect;3.4) &mdash; one row per event under consensus, one row per witness under every baseline, plus each backend&rsquo;s own by-products (Generative-Agents reflections, G-Memory insight nodes). &ldquo;Sim&rdquo; is what the simulation then added and is the comparison the fairness protocol licenses: all four backends atomize identically, so entry counts are comparable by construction. &ldquo;Shared&rdquo; = multi-owner entries created by consensus merge; &ldquo;linked&rdquo; = entries carrying affiliated edges; both are computed over sim entries.</caption>
-<thead><tr><th>backend</th><th>sediment</th><th>sim</th><th>shared</th><th>linked</th><th>total</th></tr></thead>
+<caption><b>Table 1. Store size by backend and world.</b> &ldquo;Sediment&rdquo; is the store at round&nbsp;0, produced by each mechanism&rsquo;s own ingest of the identical source events (&sect;3.4) &mdash; one row per event under consensus, one row per witness under every baseline, plus each backend&rsquo;s own by-products (Generative-Agents reflections, G-Memory insight nodes). &ldquo;Sim&rdquo; is what the simulation then added and is the comparison the fairness protocol licenses: all four backends atomize identically, so entry counts are comparable by construction. Structure &mdash; what fraction of those sim entries becomes shared and linked &mdash; is Figure&nbsp;3.</caption>
+<thead><tr><th>backend</th><th>sediment</th><th>sim</th><th>total</th></tr></thead>
 <tbody>
-<tr class="grp"><td colspan="6">三国演义 &mdash; fiction, 80 rounds, 6,052 source events</td></tr>
+<tr class="grp"><td colspan="4">三国演义 &mdash; fiction, 80 rounds, 6,052 source events</td></tr>
 {scale_rows('g80', S)}
-<tr class="grp"><td colspan="6">Russia&ndash;Ukraine &mdash; real world, 40 rounds, 1,533 source events</td></tr>
+<tr class="grp"><td colspan="4">Russia&ndash;Ukraine &mdash; real world, 40 rounds, 1,533 source events</td></tr>
 {scale_rows('ru40', RU)}
-<tr class="grp"><td colspan="6">红楼梦 &mdash; fiction, 80 rounds, 6,506 source events</td></tr>
+<tr class="grp"><td colspan="4">红楼梦 &mdash; fiction, 80 rounds, 6,506 source events</td></tr>
 {scale_rows('rc80', RC)}
-<tr class="grp"><td colspan="6">Hamlet &mdash; fiction, 30 rounds, 1,135 source events</td></tr>
+<tr class="grp"><td colspan="4">Hamlet &mdash; fiction, 30 rounds, 1,135 source events</td></tr>
 {scale_rows('hl30', HL)}
 </tbody></table></div>
 <p><b>Two columns, two effects.</b> The sediment column is consensus compression applied to the seeded history, and its multiplier is a property of the <i>world</i> rather than of the mechanism: the per-witness fan-out is 3.3&times; in 三国, 4.1&ndash;5.7&times; in 红楼, 5.5&ndash;9.4&times; in Russia&ndash;Ukraine and 4.7&ndash;6.2&times; in Hamlet, tracking the average number of witnesses per event, which a war room with institutional spokespeople maximizes and a two-hander chamber drama minimizes. The sim column is the same effect measured over events the simulation itself generated, at rates of roughly 12 (三国), 20 (Russia&ndash;Ukraine), 5 (红楼) and 4 (Hamlet) consensus entries per round. Everything else in &sect;5 is computed over the sim column only.</p>
 
-<h4>5.1.1 &nbsp;三国演义</h4>
-<figure class="two">
-  <img src="{IMG['simfoot']}" alt="Sim footprint">
-  <img src="{IMG['structure']}" alt="Memory structure">
-  <figcaption><b>Figure 3. Footprint and structure &mdash; 三国演义 (80 rounds).</b> Left: entries written by each backend under identical atomization; consensus is lowest because equivalent records from different witnesses merge into one. Right: percentage of each backend&rsquo;s sim memories that are shared (multi-owner) and linked (affiliated); both properties exist only under consensus &mdash; per-agent stores have nothing to merge or link across.</figcaption>
+<figure>
+  <img src="{IMG['struct_all']}" alt="Consensus sharing and linking across the four worlds">
+  <figcaption><b>Figure 3. Structure of the consensus store, all four worlds.</b> Share of consensus sim memories that are <i>shared</i> (multi-owner, i.e. produced by an equivalence merge) and <i>linked</i> (carrying affiliated edges). Only consensus is plotted because the three per-agent baselines sit at 0% on both measures in every world &mdash; they have no cross-agent rows to merge and no deposit-siblings to link, so the columns measure capabilities they lack architecturally rather than parameters they tuned differently. Linking is near-total everywhere (94&ndash;99%) because auto-affiliation fires on every compound deposit; sharing varies with the world (14&ndash;26%) and with horizon (&sect;5.5).</figcaption>
 </figure>
+
+<h4>5.1.1 &nbsp;三国演义</h4>
+
 <p><b>Discussion.</b> Two readings matter here. First, the footprint gap is <i>mechanistic</i>, not behavioral: all four backends receive the same actions and atomize identically, so the 481-entry spread between consensus and the largest baseline is exactly the number of times the equivalence judge folded one agent&rsquo;s record into another&rsquo;s &mdash; each fold is a deduplicated witness (P1). Second, the structural columns are all-or-nothing by design: per-agent stores have no cross-agent rows to merge and no deposit-siblings to link, so the 19% / 97% columns measure capabilities the baselines lack architecturally, not parameters they tuned differently.</p>
 <p>Merged records are precisely the cross-viewpoint deduplication the mechanism targets &mdash; {S['n_3plus']} memories carry three or more witnesses (maximum {S['max_owners']}):</p>
 <div class="quote">""" + "<br>\n".join(
@@ -580,11 +572,7 @@ HTML = CSS + f"""
 ) + f"""</div>
 
 <h4>5.1.2 &nbsp;Russia&ndash;Ukraine</h4>
-<figure class="two">
-  <img src="{IMG['ru_simfoot']}" alt="RU sim footprint">
-  <img src="{IMG['ru_structure']}" alt="RU memory structure">
-  <figcaption><b>Figure 4. Footprint and structure &mdash; Russia&ndash;Ukraine (40 rounds).</b> Same panels as Figure 3: entries written under identical atomization (left) and the share of each backend&rsquo;s sim memories that are shared and linked (right).</figcaption>
-</figure>
+
 <p><b>Discussion.</b> The same two readings hold at one eighth the horizon: the 19&ndash;30% footprint gap is again exactly the number of equivalence-judge folds, and the structural columns remain all-or-nothing &mdash; 0% for every per-agent baseline. What is new is the real-world flavor of the folds: equivalence merges a <i>person&rsquo;s</i> record into their <i>institution&rsquo;s</i> &mdash; the same mechanism that fuses two officers&rsquo; views of one battle fuses a spokesperson&rsquo;s statement with its organization&rsquo;s record of it.</p>
 <p>Merged records again pair one event seen from two sides &mdash; characteristically a person and their institution:</p>
 <div class="quote"><b>owners = [guterres, un]</b> &nbsp;&ldquo;Ant&oacute;nio Guterres at UN Headquarters in New York asked the United Nations to assemble a mediation team comprising DPA, OCHA, WFP, UN Political Affairs, and UN Legal to support renewal of the Black Sea grain agreement.&rdquo;<br>
@@ -592,11 +580,7 @@ HTML = CSS + f"""
 <b>owners = [kremlin, sobyanin]</b> &nbsp;&ldquo;Moscow Mayor Sergey Sobyanin requested authorization to release public instructions to Moscow residents.&rdquo;</div>
 
 <h4>5.1.3 &nbsp;红楼梦</h4>
-<figure class="two">
-  <img src="{IMG['rc_simfoot']}" alt="RC sim footprint">
-  <img src="{IMG['rc_structure']}" alt="RC memory structure">
-  <figcaption><b>Figure 5. Footprint and structure &mdash; 红楼梦 (80 rounds).</b> Same panels as Figures 3&ndash;4: entries written under identical atomization (left) and the share of each backend&rsquo;s sim memories that are shared and linked (right).</figcaption>
-</figure>
+
 <p><b>Discussion.</b> 红楼 is where the two claims of &sect;5.1 can be watched separating in time, because it was run at four horizons. Structure was already complete at ten rounds (13% shared, 87% linked, baselines 0%); footprint was not &mdash; the four backends then sat at 62&ndash;98 entries with consensus not the smallest, within run-to-run variance. From forty rounds on consensus is lowest and stays lowest, and the gap holds as both sides grow: 216 vs 379&ndash;492 at forty, 338 vs 625&ndash;683 at sixty, {RCC['sim_new']} vs {RC['generative_agents']['sim_new']}&ndash;{RC['g_memory']['sim_new']} at eighty &mdash; a {round(100-100*RCC['sim_new']/RC['g_memory']['sim_new'])}% reduction against the largest. Sharing rises along the same curve and flattens as it saturates &mdash; 13%&rarr;20%&rarr;23%&rarr;{RCC['sh_pct']}% &mdash; while multi-witness merges keep accumulating: {RC['n_3plus']} entries carry three or more witnesses (17 at sixty, nine at forty, three at ten), the deepest still the banquet where 贾母 keeps 宝玉, 黛玉 and 宝钗 by her side, co-owned by {RC['max_owners']}. The ordering is the point: the structural properties are architectural and appear immediately, whereas the footprint advantage is a <i>compounding</i> effect that needs enough repeated witnessing to overcome noise. A household world reaches that point later than a war does, because fewer people witness each event.</p>
 <p>Merged records in the household world fold family witnesses of one scene:</p>
 <div class="quote">""" + "<br>\n".join(
@@ -605,11 +589,7 @@ HTML = CSS + f"""
 
 
 <h4>5.1.4 &nbsp;Hamlet</h4>
-<figure class="two">
-  <img src="{IMG['hl_simfoot']}" alt="HL sim footprint">
-  <img src="{IMG['hl_structure']}" alt="HL memory structure">
-  <figcaption><b>Figure 6. Footprint and structure &mdash; Hamlet (30 rounds).</b> Same panels as Figures 3&ndash;5 on the smallest world: entries written under identical atomization (left) and the share of each backend&rsquo;s sim memories that are shared and linked (right).</figcaption>
-</figure>
+
 <p><b>Discussion.</b> Sixteen agents are enough. Consensus writes {HLC['sim_new']} entries against {HL['generative_agents']['sim_new']}&ndash;{HL['g_memory']['sim_new']}, with {HLC['sh_pct']}% shared and {HLC['aff_pct']}% linked &mdash; the highest sharing rate of any world at any horizon, in the smallest one tested. The extension from twenty rounds to thirty shows the same compounding the other worlds display: sharing rose 19%&rarr;{HLC['sh_pct']}% and the first three-witness merge appeared (the players' troupe beginning the performance, owned by the First Player, the Prologue, and Guildenstern together), where every merge at twenty rounds had been a strict pair. Depth still lags the larger worlds ({HL['n_3plus']} entry with three or more witnesses, against {S['n_3plus']} in 三国 and {RC['n_3plus']} in 红楼), and the reason is the play's staging rather than the mechanism's reach: Shakespeare writes in two-person exchanges &mdash; the sentinels on the battlements, Laertes and Polonius, Rosencrantz with Guildenstern &mdash; and merge depth tracks how many people the world puts in a room together. The play-within-a-play is the one scene that assembles an audience, and it is exactly where the three-way merge appears.</p>
 <p>The pairs the mechanism finds are the play&rsquo;s own dyads:</p>
 <div class="quote">""" + "<br>\n".join(
@@ -623,46 +603,46 @@ HTML = CSS + f"""
 <figure class="two">
   <img src="{IMG['gtotal']}" alt="System memory growth per round">
   <img src="{IMG['gagents']}" alt="Per-agent memory growth per round">
-  <figcaption><b>Figure 7. Memory growth &mdash; 三国演义 (80 rounds).</b> Left: cumulative sim-generated entries per round for all four backends (reconstructed from each entry&rsquo;s creation round under the same sim-only accounting as Table 1) &mdash; consensus stays lowest throughout and the gap widens with horizon, the per-round view of the merge folding witnesses together. Right: per-agent owned memories per round in the consensus run (top 6 agents labeled; the rest gray) &mdash; memory concentrates on the characters carrying the active plotlines (徐庶 leads with 132), while merges let one event&rsquo;s record count toward every witness&rsquo;s curve.</figcaption>
+  <figcaption><b>Figure 4. Memory growth &mdash; 三国演义 (80 rounds).</b> Left: cumulative sim-generated entries per round for all four backends (reconstructed from each entry&rsquo;s creation round under the same sim-only accounting as Table 1) &mdash; consensus stays lowest throughout and the gap widens with horizon, the per-round view of the merge folding witnesses together. Right: per-agent owned memories per round in the consensus run (top 6 agents labeled; the rest gray) &mdash; memory concentrates on the characters carrying the active plotlines (徐庶 leads with 132), while merges let one event&rsquo;s record count toward every witness&rsquo;s curve.</figcaption>
 </figure>
 <p><b>Discussion.</b> The system-level curves separate almost from the start and diverge steadily &mdash; the merge saves entries at a roughly constant <i>rate</i>, so its absolute savings compound with horizon rather than saturating; there is no sign of the gap closing by round 80. The per-agent curves show the same mechanism from the individual&rsquo;s side: growth is stair-stepped (a burst when a character is at the center of a plotline, plateaus when off-stage), and the ranking tracks narrative centrality rather than raw talkativeness &mdash; 徐庶 leads because the 徐庶-recruitment arc dominates the middle game, and every merge credits a shared event to all of its witnesses&rsquo; curves at once.</p>
 
 <figure>
   <img src="{IMG['latency']}" alt="Memory-operation latency vs round">
-  <figcaption><b>Figure 8. Memory-operation latency &mdash; 三国演义 (80 rounds).</b> Mean wall-clock seconds per <code>remember</code> (left) and <code>recall</code> (right) call, 5-round bins, all four backends. Rounds 61&ndash;80 are instrumented live in the kernel; rounds 1&ndash;60 are measured by replaying each stage&rsquo;s logged operations (same agent, text/query, and order) against the exact store state that stage started from &mdash; a measurement of the same workload, not a synthesis (dotted line marks the boundary; first-stage GA/G-Memory replay stores lack their prime by-products, &asymp;3&ndash;5% of rows).</figcaption>
+  <figcaption><b>Figure 5. Memory-operation latency &mdash; 三国演义 (80 rounds).</b> Mean wall-clock seconds per <code>remember</code> (left) and <code>recall</code> (right) call, 5-round bins, all four backends. Rounds 61&ndash;80 are instrumented live in the kernel; rounds 1&ndash;60 are measured by replaying each stage&rsquo;s logged operations (same agent, text/query, and order) against the exact store state that stage started from &mdash; a measurement of the same workload, not a synthesis (dotted line marks the boundary; first-stage GA/G-Memory replay stores lack their prime by-products, &asymp;3&ndash;5% of rows).</figcaption>
 </figure>
 <p><b>Discussion.</b> The two panels show where each design pays. <i>Writes are LLM-bound:</i> every backend pays the shared atomization call, on top of which Generative-Agents adds a per-atom importance call (the most expensive line, 35&ndash;75s) and consensus adds the equivalence judge (26&ndash;57s), while G-Memory and collaborative write for 10&ndash;25s with no per-deposit reasoning beyond atomization. <i>Reads are vector-bound and cheap everywhere</i> (&le;1.4s), and &mdash; notably &mdash; consensus recall is the <b>cheapest</b> of the four (&asymp;0.35s) despite returning &asymp;28 additional linked memories per call: auto-expansion is plain row lookup, whereas G-Memory&rsquo;s bi-level retrieval pays for graph traversal with extra vector queries (0.7&ndash;1.1s). Neither panel trends upward over 80 rounds: at this scale, store growth (&asymp;7k&ndash;22k rows) does not yet move per-call latency, so the consensus premium is a roughly constant per-write tax &mdash; the price of P1&rsquo;s deduplication &mdash; paid where agents are least latency-sensitive.</p>
 
 <h4>5.2.2 &nbsp;Russia&ndash;Ukraine</h4>
 <figure>
   <img src="{IMG['ru_growth']}" alt="RU memory growth">
-  <figcaption><b>Figure 9. Memory growth &mdash; Russia&ndash;Ukraine (40 rounds).</b> Left: cumulative sim-generated entries per round for all four backends under the same sim-only accounting as Table 1. Right: per-agent owned memories per round in the consensus run (top agents labeled; the rest gray).</figcaption>
+  <figcaption><b>Figure 6. Memory growth &mdash; Russia&ndash;Ukraine (40 rounds).</b> Left: cumulative sim-generated entries per round for all four backends under the same sim-only accounting as Table 1. Right: per-agent owned memories per round in the consensus run (top agents labeled; the rest gray).</figcaption>
 </figure>
 <figure>
   <img src="{IMG['ru_latency']}" alt="RU memory-operation latency">
-  <figcaption><b>Figure 10. Memory-operation latency &mdash; Russia&ndash;Ukraine (40 rounds).</b> Mean wall-clock seconds per <code>remember</code> (left) and <code>recall</code> (right) call, 2-round bins, all four backends; every round is instrumented live in the kernel.</figcaption>
+  <figcaption><b>Figure 7. Memory-operation latency &mdash; Russia&ndash;Ukraine (40 rounds).</b> Mean wall-clock seconds per <code>remember</code> (left) and <code>recall</code> (right) call, 2-round bins, all four backends; every round is instrumented live in the kernel.</figcaption>
 </figure>
-<p><b>Discussion.</b> Both figures replay the 三国 dynamics at a shorter horizon. The system curves separate from round ~3 with consensus lowest and the gap widening, and per-agent growth again concentrates on the situation&rsquo;s protagonists. The latency ordering of Figure 8 reproduces: writes are LLM-bound (Generative-Agents&rsquo; per-atom importance calls most expensive, consensus paying the equivalence-judge tax), while reads are vector-bound and sub-second for all four backends, with consensus recall cheapest despite auto-expansion.</p>
+<p><b>Discussion.</b> Both figures replay the 三国 dynamics at a shorter horizon. The system curves separate from round ~3 with consensus lowest and the gap widening, and per-agent growth again concentrates on the situation&rsquo;s protagonists. The latency ordering of Figure 5 reproduces: writes are LLM-bound (Generative-Agents&rsquo; per-atom importance calls most expensive, consensus paying the equivalence-judge tax), while reads are vector-bound and sub-second for all four backends, with consensus recall cheapest despite auto-expansion.</p>
 
 <h4>5.2.3 &nbsp;红楼梦</h4>
 <figure>
   <img src="{IMG['rc_growth']}" alt="RC memory growth">
-  <figcaption><b>Figure 11. Memory growth &mdash; 红楼梦 (80 rounds).</b> Left: cumulative sim-generated entries per round for all four backends under the same sim-only accounting as Table 1. Right: per-agent owned memories per round in the consensus run (top agents labeled; the rest gray).</figcaption>
+  <figcaption><b>Figure 8. Memory growth &mdash; 红楼梦 (80 rounds).</b> Left: cumulative sim-generated entries per round for all four backends under the same sim-only accounting as Table 1. Right: per-agent owned memories per round in the consensus run (top agents labeled; the rest gray).</figcaption>
 </figure>
 <figure>
   <img src="{IMG['rc_latency']}" alt="RC memory-operation latency">
-  <figcaption><b>Figure 12. Memory-operation latency &mdash; 红楼梦 (80 rounds).</b> Mean wall-clock seconds per <code>remember</code> (left) and <code>recall</code> (right) call, 2-round bins, all four backends; every round is instrumented live in the kernel.</figcaption>
+  <figcaption><b>Figure 9. Memory-operation latency &mdash; 红楼梦 (80 rounds).</b> Mean wall-clock seconds per <code>remember</code> (left) and <code>recall</code> (right) call, 2-round bins, all four backends; every round is instrumented live in the kernel.</figcaption>
 </figure>
-<p><b>Discussion.</b> The domestic world writes more slowly than either other scenario (~{RCC['sim_new']//80} consensus entries per round against ~20 in Russia&ndash;Ukraine) &mdash; garden conversation generates fewer memory-worthy events than a war &mdash; and the curves that interleaved through the first ten rounds separate cleanly thereafter, consensus lowest and the gap holding to eighty rounds, exactly as in Figures 7 and 9. Per-agent growth concentrates on the household&rsquo;s centers of gravity (贾母, 王熙凤, 贾宝玉 and the banquet guests). The read side reproduces both other worlds: consensus recall is cheapest despite auto-expansion returning &asymp;{RCE['items']//max(RCE['recalls'],1)} linked memories per call, while G-Memory&rsquo;s bi-level retrieval pays for graph traversal with extra vector queries.</p>
+<p><b>Discussion.</b> The domestic world writes more slowly than either other scenario (~{RCC['sim_new']//80} consensus entries per round against ~20 in Russia&ndash;Ukraine) &mdash; garden conversation generates fewer memory-worthy events than a war &mdash; and the curves that interleaved through the first ten rounds separate cleanly thereafter, consensus lowest and the gap holding to eighty rounds, exactly as in Figures 4 and 6. Per-agent growth concentrates on the household&rsquo;s centers of gravity (贾母, 王熙凤, 贾宝玉 and the banquet guests). The read side reproduces both other worlds: consensus recall is cheapest despite auto-expansion returning &asymp;{RCE['items']//max(RCE['recalls'],1)} linked memories per call, while G-Memory&rsquo;s bi-level retrieval pays for graph traversal with extra vector queries.</p>
 
 <h4>5.2.4 &nbsp;Hamlet</h4>
 <figure>
   <img src="{IMG['hl_growth']}" alt="HL memory growth">
-  <figcaption><b>Figure 13. Memory growth &mdash; Hamlet (30 rounds).</b> Left: cumulative sim-generated entries per round for all four backends under the same sim-only accounting as Table 1. Right: per-agent owned memories per round in the consensus run (top agents labeled; the rest gray).</figcaption>
+  <figcaption><b>Figure 10. Memory growth &mdash; Hamlet (30 rounds).</b> Left: cumulative sim-generated entries per round for all four backends under the same sim-only accounting as Table 1. Right: per-agent owned memories per round in the consensus run (top agents labeled; the rest gray).</figcaption>
 </figure>
 <figure>
   <img src="{IMG['hl_latency']}" alt="HL memory-operation latency">
-  <figcaption><b>Figure 14. Memory-operation latency &mdash; Hamlet (30 rounds).</b> Mean wall-clock seconds per <code>remember</code> (left) and <code>recall</code> (right) call, 2-round bins, all four backends; every round is instrumented live in the kernel.</figcaption>
+  <figcaption><b>Figure 11. Memory-operation latency &mdash; Hamlet (30 rounds).</b> Mean wall-clock seconds per <code>remember</code> (left) and <code>recall</code> (right) call, 2-round bins, all four backends; every round is instrumented live in the kernel.</figcaption>
 </figure>
 <p><b>Discussion.</b> The smallest world writes at a rate between the other two fictions (~{HLC['sim_new']//30} consensus entries per round), and the four curves separate early with consensus lowest &mdash; at this cast size a single merge is a large fraction of a round's writes, so the gap opens without the compounding 红楼 needed. Latency is dominated by per-call LLM cost exactly as elsewhere; with only {HLE['recalls']} recalls over the whole run the read-side curves are too sparse to rank backends, and we read nothing into their ordering here.</p>
 
@@ -672,16 +652,16 @@ HTML = CSS + f"""
 <h4>5.3.1 &nbsp;三国演义</h4>
 <figure>
   <img src="{IMG['quality']}" alt="Continuation quality comparison">
-  <figcaption><b>Figure 15. Continuation quality &mdash; 三国演义 (40-round checkpoint).</b> Grounding (fraction of the sim&rsquo;s own events judged canon-consistent), trajectory (agreement of character arcs with reference arcs from held-out chapters 41&ndash;60), and narrative (judged coherence/drama/fidelity, 1&ndash;5), scored at the 40-round checkpoint of the same continuously-resumed runs; bars are means over 3 independent LLM scorings, whiskers &plusmn;1 std. Consensus scores highest on narrative and is competitive on trajectory; grounding sits mid-pack (GA/collaborative slightly higher).</figcaption>
+  <figcaption><b>Figure 12. Continuation quality &mdash; 三国演义 (40-round checkpoint).</b> Grounding (fraction of the sim&rsquo;s own events judged canon-consistent), trajectory (agreement of character arcs with reference arcs from held-out chapters 41&ndash;60), and narrative (judged coherence/drama/fidelity, 1&ndash;5), scored at the 40-round checkpoint of the same continuously-resumed runs; bars are means over 3 independent LLM scorings, whiskers &plusmn;1 std. Consensus scores highest on narrative and is competitive on trajectory; grounding sits mid-pack (GA/collaborative slightly higher).</figcaption>
 </figure>
 <p><b>Discussion.</b> The quality profile is consistent with what compression should and should not affect. Narrative coherence benefits from consensus (4.25, the clear leader): agents recalling one shared record of an event act on consistent premises, where baseline agents can act on N drifting paraphrases of it. Trajectory sits in the pack (0.68 vs 0.59&ndash;0.72): arc-following depends mostly on the persona and goal machinery all backends share. Grounding is mid-pack (0.86 vs 0.83&ndash;0.92, overlapping error bars): merging keeps the <i>shorter</i> of two equivalent texts, which occasionally discards a viewpoint detail a canon-consistency judge rewards. None of the differences approach the structural gaps of Figure 3 &mdash; the mechanisms separate on architecture, not on judged behavior.</p>
 
 <h4>5.3.2 &nbsp;Russia&ndash;Ukraine</h4>
 <figure>
   <img src="{IMG['ru_quality']}" alt="RU continuation quality comparison">
-  <figcaption><b>Figure 16. Continuation quality &mdash; Russia&ndash;Ukraine (40 rounds).</b> Same protocol as Figure 15 at the same horizon: grounding judges each sim event against the real conflict&rsquo;s world (real entities, correct roles/allegiances, plausible dynamics), trajectory compares ten principals&rsquo; arcs against arcs extracted from the held-out timeline (2024-05 onward), narrative is the same 4-dimension rubric; bars are means over 3 independent LLM scorings, whiskers &plusmn;1 std.</figcaption>
+  <figcaption><b>Figure 13. Continuation quality &mdash; Russia&ndash;Ukraine (40 rounds).</b> Same protocol as Figure 12 at the same horizon: grounding judges each sim event against the real conflict&rsquo;s world (real entities, correct roles/allegiances, plausible dynamics), trajectory compares ten principals&rsquo; arcs against arcs extracted from the held-out timeline (2024-05 onward), narrative is the same 4-dimension rubric; bars are means over 3 independent LLM scorings, whiskers &plusmn;1 std.</figcaption>
 </figure>
-<p><b>Discussion.</b> The real-world replication is a wash &mdash; which is the point. Grounding is uniformly high ({min(QR[k]['agg']['grnd']['mean'] for k in QR):.2f}&ndash;{max(QR[k]['agg']['grnd']['mean'] for k in QR):.2f}: institutional actors reciting real capabilities rarely fabricate), trajectory is tied within error bars ({QR['consensus']['agg']['traj']['mean']:.2f} for consensus vs {min(QR[k]['agg']['traj']['mean'] for k in QR if k!='consensus'):.2f}&ndash;{max(QR[k]['agg']['traj']['mean'] for k in QR if k!='consensus'):.2f}), and narrative spreads {QR['g_memory']['agg']['narr']['mean']:.2f}&ndash;{QR['generative_agents']['agg']['narr']['mean']:.2f} with overlapping whiskers and no stable leader across scorings. As in 三国, the mechanisms separate on architecture (Figure 4), not on judged behavior: consensus deduplicates {RUC['sim_new']} entries against the baselines&rsquo; {RU['collaborative']['sim_new']}&ndash;{RU['generative_agents']['sim_new']} and builds all the structure &mdash; while giving none of it back in quality.</p>
+<p><b>Discussion.</b> The real-world replication is a wash &mdash; which is the point. Grounding is uniformly high ({min(QR[k]['agg']['grnd']['mean'] for k in QR):.2f}&ndash;{max(QR[k]['agg']['grnd']['mean'] for k in QR):.2f}: institutional actors reciting real capabilities rarely fabricate), trajectory is tied within error bars ({QR['consensus']['agg']['traj']['mean']:.2f} for consensus vs {min(QR[k]['agg']['traj']['mean'] for k in QR if k!='consensus'):.2f}&ndash;{max(QR[k]['agg']['traj']['mean'] for k in QR if k!='consensus'):.2f}), and narrative spreads {QR['g_memory']['agg']['narr']['mean']:.2f}&ndash;{QR['generative_agents']['agg']['narr']['mean']:.2f} with overlapping whiskers and no stable leader across scorings. As in 三国, the mechanisms separate on architecture (Table&nbsp;1 and Figure&nbsp;3), not on judged behavior: consensus deduplicates {RUC['sim_new']} entries against the baselines&rsquo; {RU['collaborative']['sim_new']}&ndash;{RU['generative_agents']['sim_new']} and builds all the structure &mdash; while giving none of it back in quality.</p>
 
 <h4>5.3.3 &nbsp;红楼梦</h4>
 <p>Not scored yet: at 80 rounds the 红楼 runs match 三国&rsquo;s horizon and exceed the 40-round checkpoint at which both scored worlds were judged, so the protocol of &sect;5.3.1&ndash;5.3.2 applies unchanged; the scoring pass is pending and will be reported alongside the other two worlds.</p>
@@ -697,21 +677,21 @@ HTML = CSS + f"""
 <h5>The three layers <span style="font-family:var(--sans);font-size:12px;color:var(--faint);font-weight:400">&mdash; interactive: drag to pan, scroll to zoom, hover for details, drag nodes to rearrange</span></h5>
 <figure>
   <div class="ig" id="ig-interaction" style="height:520px"></div>
-  <figcaption><b>Figure 17a. The interaction graph (interactive) &mdash; 三国演义.</b> Nodes are the complete active-character roster (silent characters parked on the bottom row); edge width is conversation frequency; colors are detected communities, which recover the canonical factions without being told about them. Hover a character for its name, community, and conversation volume; click to highlight its neighbourhood.</figcaption>
+  <figcaption><b>Figure 14a. The interaction graph (interactive) &mdash; 三国演义.</b> Nodes are the complete active-character roster (silent characters parked on the bottom row); edge width is conversation frequency; colors are detected communities, which recover the canonical factions without being told about them. Hover a character for its name, community, and conversation volume; click to highlight its neighbourhood.</figcaption>
 </figure>
 <figure>
   <div class="ig" id="ig-affiliation" style="height:600px"></div>
-  <figcaption><b>Figure 17b. The full memory-affiliation graph (interactive) &mdash; 三国演义.</b> Every sim-generated memory is a node ({R['MO']['link_n']} affiliated edges; components colored, singletons gray; shared multi-owner memories drawn larger with a red ring). <b>Hover any node to read the memory&rsquo;s full text and its owners</b> &mdash; each cluster is one plotline&rsquo;s linked pieces, assembled bottom-up by auto-affiliation and merging.</figcaption>
+  <figcaption><b>Figure 14b. The full memory-affiliation graph (interactive) &mdash; 三国演义.</b> Every sim-generated memory is a node ({R['MO']['link_n']} affiliated edges; components colored, singletons gray; shared multi-owner memories drawn larger with a red ring). <b>Hover any node to read the memory&rsquo;s full text and its owners</b> &mdash; each cluster is one plotline&rsquo;s linked pieces, assembled bottom-up by auto-affiliation and merging.</figcaption>
 </figure>
 <figure>
   <div class="ig" id="ig-heatmap" style="height:620px"></div>
-  <figcaption><b>Figure 17. The ownership layer (interactive) &mdash; 三国演义.</b> Pairwise co-owned memory counts over the complete roster, ordered by interaction community. Hover a cell for the pair and its count. Non-zero cells concentrate in the diagonal blocks &mdash; agents share memories with their own faction &mdash; and each strong cell corresponds to consensus merges of jointly experienced events.</figcaption>
+  <figcaption><b>Figure 14. The ownership layer (interactive) &mdash; 三国演义.</b> Pairwise co-owned memory counts over the complete roster, ordered by interaction community. Hover a cell for the pair and its count. Non-zero cells concentrate in the diagonal blocks &mdash; agents share memories with their own faction &mdash; and each strong cell corresponds to consensus merges of jointly experienced events.</figcaption>
 </figure>
 
 <h5>All three layers in one view</h5>
 <figure>
   <div class="ig" id="ig-trilayer" style="height:560px"></div>
-  <figcaption><b>Figure 18. All three layers in one view (interactive) &mdash; 三国演义.</b> Agents on the top row (circles = characters, squares = passive memory owners) with conversation arcs above (blue; width = frequency); memories on the bottom row with affiliation arcs below (green when the linked memories share a witness, gray when disjoint); ownership as vertical lines, red when the memory is shared. <b>Hover an agent</b> to isolate its conversations and owned memories; <b>hover a memory</b> (&starf; = merged multi-owner) to read its text and see its links. Shared structure sits where conversation sits.</figcaption>
+  <figcaption><b>Figure 15. All three layers in one view (interactive) &mdash; 三国演义.</b> Agents on the top row (circles = characters, squares = passive memory owners) with conversation arcs above (blue; width = frequency); memories on the bottom row with affiliation arcs below (green when the linked memories share a witness, gray when disjoint); ownership as vertical lines, red when the memory is shared. <b>Hover an agent</b> to isolate its conversations and owned memories; <b>hover a memory</b> (&starf; = merged multi-owner) to read its text and see its links. Shared structure sits where conversation sits.</figcaption>
 </figure>
 
 <h5>Pairwise alignment of the layers</h5>
@@ -723,7 +703,7 @@ HTML = CSS + f"""
 <p>Affiliated edges running between two agents&rsquo; memory sets: talking pairs average {R['AM']['talk_mean']:.1f}; non-talking pairs {R['AM']['non_mean']:.2f}. The memory graph bridges exactly the agents the conversation graph connects.</p></div>
 <figure>
   <img src="{IMG['relpanels']}" alt="Three pairwise relationships">
-  <figcaption><b>Figure 19. Each pairwise relation as a with/without pair of distributions &mdash; 三国演义</b> (columns share x and y axes; log density so tails read against the mass at zero; top row = pairs with the relation, bottom = without). Left: owned-memory-set Jaccard for talking vs non-talking agent pairs. Middle: owner-set Jaccard for memory pairs with vs without an affiliated edge. Right: cross-set affiliated-edge counts for talking vs non-talking agent pairs. In all three, the without-group concentrates at zero and the with-group carries the entire tail.</figcaption>
+  <figcaption><b>Figure 16. Each pairwise relation as a with/without pair of distributions &mdash; 三国演义</b> (columns share x and y axes; log density so tails read against the mass at zero; top row = pairs with the relation, bottom = without). Left: owned-memory-set Jaccard for talking vs non-talking agent pairs. Middle: owner-set Jaccard for memory pairs with vs without an affiliated edge. Right: cross-set affiliated-edge counts for talking vs non-talking agent pairs. In all three, the without-group concentrates at zero and the with-group carries the entire tail.</figcaption>
 </figure>
 <p><b>Synthesis.</b> The three alignments are not three separate facts but one: the consensus mechanisms transcribe the story&rsquo;s social structure into the memory substrate. Conversations are where shared experience happens, so merges (ownership overlap) land on talking pairs; deposits narrate the conversation an agent just had, so affiliation clusters coincide with events and their witnesses; and cross-agent links therefore run along conversation edges. In a per-agent store all three relations are identically zero &mdash; the substrate cannot express them &mdash; which is why the case study is run on the consensus backend alone.</p>
 
@@ -731,20 +711,20 @@ HTML = CSS + f"""
 <h5>The three layers <span style="font-family:var(--sans);font-size:12px;color:var(--faint);font-weight:400">&mdash; interactive: drag to pan, scroll to zoom, hover for details, drag nodes to rearrange</span></h5>
 <figure>
   <div class="ig" id="ig-ru-interaction" style="height:480px"></div>
-  <figcaption><b>Figure 20a. The interaction graph (interactive) &mdash; Russia&ndash;Ukraine.</b> 65 entities; community detection recovers the conflict&rsquo;s blocs &mdash; the Kyiv government cluster, the Moscow cluster, and the international mediators &mdash; without being told about them.</figcaption>
+  <figcaption><b>Figure 17a. The interaction graph (interactive) &mdash; Russia&ndash;Ukraine.</b> 65 entities; community detection recovers the conflict&rsquo;s blocs &mdash; the Kyiv government cluster, the Moscow cluster, and the international mediators &mdash; without being told about them.</figcaption>
 </figure>
 <figure>
   <div class="ig" id="ig-ru-affiliation" style="height:520px"></div>
-  <figcaption><b>Figure 20b. The full memory-affiliation graph (interactive) &mdash; Russia&ndash;Ukraine.</b> {RUC['sim_new']} sim memories, {RUR['MO']['link_n']} affiliated edges; hover any node to read the memory and its owners. Clusters are single storylines (a strike wave, a negotiation) assembled by auto-affiliation.</figcaption>
+  <figcaption><b>Figure 17b. The full memory-affiliation graph (interactive) &mdash; Russia&ndash;Ukraine.</b> {RUC['sim_new']} sim memories, {RUR['MO']['link_n']} affiliated edges; hover any node to read the memory and its owners. Clusters are single storylines (a strike wave, a negotiation) assembled by auto-affiliation.</figcaption>
 </figure>
 <figure>
   <div class="ig" id="ig-ru-heatmap" style="height:560px"></div>
-  <figcaption><b>Figure 20. The ownership layer (interactive) &mdash; Russia&ndash;Ukraine.</b> Pairwise co-owned memory counts over the Russia&ndash;Ukraine roster, ordered by interaction community. Hover a cell for the pair and its count. As in Figure 17, non-zero cells sit on pairs that jointly experienced events &mdash; here the strongest cells are spokesperson&harr;institution pairs, the real-world counterpart of faction comrades.</figcaption>
+  <figcaption><b>Figure 17. The ownership layer (interactive) &mdash; Russia&ndash;Ukraine.</b> Pairwise co-owned memory counts over the Russia&ndash;Ukraine roster, ordered by interaction community. Hover a cell for the pair and its count. As in Figure 14, non-zero cells sit on pairs that jointly experienced events &mdash; here the strongest cells are spokesperson&harr;institution pairs, the real-world counterpart of faction comrades.</figcaption>
 </figure>
 <h5>All three layers in one view</h5>
 <figure>
   <div class="ig" id="ig-ru-trilayer" style="height:520px"></div>
-  <figcaption><b>Figure 21. All three layers in one view (interactive) &mdash; Russia&ndash;Ukraine.</b> Conversations above, ownership between, affiliation below; merged memories (&starf;) hang between the parties that share them.</figcaption>
+  <figcaption><b>Figure 18. All three layers in one view (interactive) &mdash; Russia&ndash;Ukraine.</b> Conversations above, ownership between, affiliation below; merged memories (&starf;) hang between the parties that share them.</figcaption>
 </figure>
 <h5>Pairwise alignment of the layers</h5>
 <div class="rel"><h4><span class="rx">A&harr;O</span> Agents who talk own overlapping memories <span class="stat">({RUR['AO']['talk_mean']:.3f} vs {RUR['AO']['non_mean']:.4f}, {RUR['AO']['talk_mean']/max(RUR['AO']['non_mean'],1e-9):.0f}&times;)</span></h4>
@@ -755,27 +735,27 @@ HTML = CSS + f"""
 <p>Talking pairs average {RUR['AM']['talk_mean']:.2f} affiliated edges between their memory sets; non-talking pairs essentially none.</p></div>
 <figure>
   <img src="{IMG['ru_relpanels']}" alt="RU relationship panels">
-  <figcaption><b>Figure 22. Each pairwise relation as a with/without pair of distributions &mdash; Russia&ndash;Ukraine</b> (same format as Figure 19). The structural signature transfers intact to a real-world scenario at one eighth the horizon.</figcaption>
+  <figcaption><b>Figure 19. Each pairwise relation as a with/without pair of distributions &mdash; Russia&ndash;Ukraine</b> (same format as Figure 16). The structural signature transfers intact to a real-world scenario at one eighth the horizon.</figcaption>
 </figure>
 
 <h4>5.4.3 &nbsp;红楼梦</h4>
 <h5>The three layers <span style="font-family:var(--sans);font-size:12px;color:var(--faint);font-weight:400">&mdash; interactive: drag to pan, scroll to zoom, hover for details, drag nodes to rearrange</span></h5>
 <figure>
   <div class="ig" id="ig-rc-interaction" style="height:480px"></div>
-  <figcaption><b>Figure 23a. The interaction graph (interactive) &mdash; 红楼梦.</b> 31 conversing characters; community detection recovers the household&rsquo;s social circles &mdash; the 贾母 banquet orbit, the young poets&rsquo; circle, and the stewards &mdash; without being told about them.</figcaption>
+  <figcaption><b>Figure 20a. The interaction graph (interactive) &mdash; 红楼梦.</b> 31 conversing characters; community detection recovers the household&rsquo;s social circles &mdash; the 贾母 banquet orbit, the young poets&rsquo; circle, and the stewards &mdash; without being told about them.</figcaption>
 </figure>
 <figure>
   <div class="ig" id="ig-rc-affiliation" style="height:520px"></div>
-  <figcaption><b>Figure 23b. The full memory-affiliation graph (interactive) &mdash; 红楼梦.</b> {RCC['sim_new']} sim memories, {RCR['MO']['link_n']} affiliated edges; hover any node to read the memory and its owners. Clusters are single storylines assembled by auto-affiliation.</figcaption>
+  <figcaption><b>Figure 20b. The full memory-affiliation graph (interactive) &mdash; 红楼梦.</b> {RCC['sim_new']} sim memories, {RCR['MO']['link_n']} affiliated edges; hover any node to read the memory and its owners. Clusters are single storylines assembled by auto-affiliation.</figcaption>
 </figure>
 <figure>
   <div class="ig" id="ig-rc-heatmap" style="height:560px"></div>
-  <figcaption><b>Figure 23. The ownership layer (interactive) &mdash; 红楼梦.</b> Pairwise co-owned memory counts over the 红楼 roster, ordered by interaction community. Hover a cell for the pair and its count. As in Figure 17, non-zero cells sit on pairs that jointly experienced scenes &mdash; here the strongest cells are kin who attended the same banquet, the domestic counterpart of faction comrades.</figcaption>
+  <figcaption><b>Figure 20. The ownership layer (interactive) &mdash; 红楼梦.</b> Pairwise co-owned memory counts over the 红楼 roster, ordered by interaction community. Hover a cell for the pair and its count. As in Figure 14, non-zero cells sit on pairs that jointly experienced scenes &mdash; here the strongest cells are kin who attended the same banquet, the domestic counterpart of faction comrades.</figcaption>
 </figure>
 <h5>All three layers in one view</h5>
 <figure>
   <div class="ig" id="ig-rc-trilayer" style="height:520px"></div>
-  <figcaption><b>Figure 24. All three layers in one view (interactive) &mdash; 红楼梦.</b> Conversations above, ownership between, affiliation below; merged memories (&starf;) hang between the parties that share them.</figcaption>
+  <figcaption><b>Figure 21. All three layers in one view (interactive) &mdash; 红楼梦.</b> Conversations above, ownership between, affiliation below; merged memories (&starf;) hang between the parties that share them.</figcaption>
 </figure>
 <h5>Pairwise alignment of the layers</h5>
 <div class="rel"><h4><span class="rx">A&harr;O</span> Agents who talk own overlapping memories <span class="stat">({RCR['AO']['talk_mean']:.3f} vs {RCR['AO']['non_mean']:.4f}, {RCR['AO']['talk_mean']/max(RCR['AO']['non_mean'],1e-9):.0f}&times;)</span></h4>
@@ -786,27 +766,27 @@ HTML = CSS + f"""
 <p>Talking pairs average {RCR['AM']['talk_mean']:.2f} affiliated edges between their memory sets against {RCR['AM']['non_mean']:.3f} for non-talking pairs &mdash; the separation sharpens with the horizon (2.09 vs 0.15 at ten rounds).</p></div>
 <figure>
   <img src="{IMG['rc_relpanels']}" alt="RC relationship panels">
-  <figcaption><b>Figure 25. Each pairwise relation as a with/without pair of distributions &mdash; 红楼梦</b> (same format as Figure 19). The structural signature holds in a third world with a markedly different social topology.</figcaption>
+  <figcaption><b>Figure 22. Each pairwise relation as a with/without pair of distributions &mdash; 红楼梦</b> (same format as Figure 16). The structural signature holds in a third world with a markedly different social topology.</figcaption>
 </figure>
 
 <h4>5.4.4 &nbsp;Hamlet</h4>
 <h5>The three layers <span style="font-family:var(--sans);font-size:12px;color:var(--faint);font-weight:400">&mdash; interactive: drag to pan, scroll to zoom, hover for details, drag nodes to rearrange</span></h5>
 <figure>
   <div class="ig" id="ig-hl-interaction" style="height:440px"></div>
-  <figcaption><b>Figure 26a. The interaction graph (interactive) &mdash; Hamlet.</b> 15 conversing characters, 22 pairs &mdash; the whole court in one castle. At this size the graph is the cast list rather than a community structure to be recovered.</figcaption>
+  <figcaption><b>Figure 23a. The interaction graph (interactive) &mdash; Hamlet.</b> 15 conversing characters, 22 pairs &mdash; the whole court in one castle. At this size the graph is the cast list rather than a community structure to be recovered.</figcaption>
 </figure>
 <figure>
   <div class="ig" id="ig-hl-affiliation" style="height:480px"></div>
-  <figcaption><b>Figure 26b. The full memory-affiliation graph (interactive) &mdash; Hamlet.</b> {HLC['sim_new']} sim memories, {HLR['MO']['link_n']} affiliated edges; hover any node to read the memory and its owners. Clusters are single scenes assembled by auto-affiliation.</figcaption>
+  <figcaption><b>Figure 23b. The full memory-affiliation graph (interactive) &mdash; Hamlet.</b> {HLC['sim_new']} sim memories, {HLR['MO']['link_n']} affiliated edges; hover any node to read the memory and its owners. Clusters are single scenes assembled by auto-affiliation.</figcaption>
 </figure>
 <figure>
   <div class="ig" id="ig-hl-heatmap" style="height:520px"></div>
-  <figcaption><b>Figure 26. The ownership layer (interactive) &mdash; Hamlet.</b> Pairwise co-owned memory counts over the Hamlet roster, ordered by interaction community. Every non-zero cell is a two-person scene; the densest are the play&rsquo;s standing pairs.</figcaption>
+  <figcaption><b>Figure 23. The ownership layer (interactive) &mdash; Hamlet.</b> Pairwise co-owned memory counts over the Hamlet roster, ordered by interaction community. Every non-zero cell is a two-person scene; the densest are the play&rsquo;s standing pairs.</figcaption>
 </figure>
 <h5>All three layers in one view</h5>
 <figure>
   <div class="ig" id="ig-hl-trilayer" style="height:480px"></div>
-  <figcaption><b>Figure 27. All three layers in one view (interactive) &mdash; Hamlet.</b> Conversations above, ownership between, affiliation below; merged memories (&starf;) hang between the parties that share them.</figcaption>
+  <figcaption><b>Figure 24. All three layers in one view (interactive) &mdash; Hamlet.</b> Conversations above, ownership between, affiliation below; merged memories (&starf;) hang between the parties that share them.</figcaption>
 </figure>
 <h5>Pairwise alignment of the layers</h5>
 <div class="rel"><h4><span class="rx">A&harr;O</span> Agents who talk own overlapping memories <span class="stat">({HLR['AO']['talk_mean']:.3f} vs {HLR['AO']['non_mean']:.4f}, {HLR['AO']['talk_mean']/max(HLR['AO']['non_mean'],1e-9):.0f}&times;)</span></h4>
@@ -817,7 +797,7 @@ HTML = CSS + f"""
 <p>Talking pairs average {HLR['AM']['talk_mean']:.2f} affiliated edges between their memory sets against {HLR['AM']['non_mean']:.2f} for non-talking pairs &mdash; the same direction as the larger worlds at a tenth of the scale, and four times sharper than at twenty rounds.</p></div>
 <figure>
   <img src="{IMG['hl_relpanels']}" alt="HL relationship panels">
-  <figcaption><b>Figure 28. Each pairwise relation as a with/without pair of distributions &mdash; Hamlet</b> (same format as Figure 19). The signature survives at the smallest scale tested, with the A&harr;O panel visibly the noisiest.</figcaption>
+  <figcaption><b>Figure 25. Each pairwise relation as a with/without pair of distributions &mdash; Hamlet</b> (same format as Figure 16). The signature survives at the smallest scale tested, with the A&harr;O panel visibly the noisiest.</figcaption>
 </figure>
 
 <h3>5.5 &nbsp;Structure compounds with horizon</h3>
@@ -826,7 +806,7 @@ HTML = CSS + f"""
 <h4>5.5.1 &nbsp;三国演义</h4>
 <figure>
   <img src="{IMG['growth']}" alt="Growth across horizon">
-  <figcaption><b>Figure 29. Consensus structure across the horizon &mdash; 三国演义.</b> Sim-memory count (left), shared multi-owner memories (middle), and affiliated edges (right) at the 20/40/60/80-round checkpoints of the same continuously-resumed run. All three grow super-linearly in usefulness even where counts grow linearly: each new shared memory raises the chance that a future deposit finds a merge partner, and each new edge widens what a single auto-expanding recall can surface.</figcaption>
+  <figcaption><b>Figure 26. Consensus structure across the horizon &mdash; 三国演义.</b> Sim-memory count (left), shared multi-owner memories (middle), and affiliated edges (right) at the 20/40/60/80-round checkpoints of the same continuously-resumed run. All three grow super-linearly in usefulness even where counts grow linearly: each new shared memory raises the chance that a future deposit finds a merge partner, and each new edge widens what a single auto-expanding recall can surface.</figcaption>
 </figure>
 
 <h4>5.5.2 &nbsp;Russia&ndash;Ukraine</h4>
