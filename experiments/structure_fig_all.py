@@ -21,7 +21,7 @@ from PIL import Image
 WORLDS = [("Three Kingdoms (三国演义)\n80 rounds", "paper_stats_g80"),
           ("Red Chamber (红楼梦)\n80 rounds", "paper_stats_rc80"),
           ("Russia–Ukraine\n40 rounds", "paper_stats_ru40"),
-          ("Hamlet\n30 rounds", "paper_stats_hl30")]
+          ("Hamlet\n40 rounds", "paper_stats_hl40")]
 OUT = "runs/paper_figs_all"
 os.makedirs(OUT, exist_ok=True)
 

@@ -20,10 +20,10 @@ FIGS = {
     "rc_growth": "runs/paper_figs_rc80/growth_q.png",
     "rc_latency": "runs/paper_figs_rc80/latency_q.png",
     "rc_relpanels": "runs/rc80full_consensus/case_study/relationship_panels_q.png",
-    "hl_growth": "runs/paper_figs_hl30/growth_q.png",
-    "hl_latency": "runs/paper_figs_hl30/latency_q.png",
+    "hl_growth": "runs/paper_figs_hl40/growth_q.png",
+    "hl_latency": "runs/paper_figs_hl40/latency_q.png",
     "struct_all": "runs/paper_figs_all/structure_all_q.png",
-    "hl_relpanels": "runs/hl30full_consensus/case_study/relationship_panels_q.png",
+    "hl_relpanels": "runs/hl40full_consensus/case_study/relationship_panels_q.png",
 }
 IMG = {k: "data:image/png;base64," + base64.b64encode(open(v, "rb").read()).decode()
        for k, v in FIGS.items()}
@@ -45,7 +45,7 @@ RUC = RU["consensus"]; RUR = RU["relations"]; RUE = RU["auto_expand"]
 RC = _scrub(json.load(open("runs/paper_stats_rc80.json", encoding="utf-8")))
 RCC = RC["consensus"]; RCR = RC["relations"]; RCE = RC["auto_expand"]
 rc_mex = RC["merge_examples"]
-HL = _scrub(json.load(open("runs/paper_stats_hl30.json", encoding="utf-8")))
+HL = _scrub(json.load(open("runs/paper_stats_hl40.json", encoding="utf-8")))
 HLC = HL["consensus"]; HLR = HL["relations"]; HLE = HL["auto_expand"]
 hl_mex = HL["merge_examples"]
 
@@ -54,7 +54,7 @@ hl_mex = HL["merge_examples"]
 # simulation added: sediment = total - sim.
 BACKENDS = ["consensus", "generative_agents", "g_memory", "collaborative"]
 TOTAL = {}
-for _pref in ("g80", "ru40", "rc80", "hl30"):
+for _pref in ("g80", "ru40", "rc80", "hl40"):
     for _b in BACKENDS:
         with open(f"runs/{_pref}_{_b}/result.json", encoding="utf-8") as _f:
             TOTAL[(_pref, _b)] = json.load(_f)["footprint"]["entries"]
@@ -108,6 +108,18 @@ Q = json.load(open("runs/results_g40.json", encoding="utf-8"))  # quality scored
 QR = json.load(open("runs/results_ru40.json", encoding="utf-8"))  # RU quality at 40 ticks
 def _slim_graphs(path):
     _G = json.loads(open(path, encoding="utf-8").read().replace("\ufffd", ""))
+    # English renderings produced by experiments/translate_case_study.py: the
+    # figures read in English, with the record's own text kept alongside.
+    _tpath = os.path.join(os.path.dirname(path), "translations.json")
+    _tr = json.load(open(_tpath, encoding="utf-8")) if os.path.exists(_tpath) else {}
+    _texts, _names = _tr.get("texts", {}), _tr.get("agents", {})
+    for _n in _G["affiliation"]["nodes"] + _G["trilayer"]["mems"]:
+        _en = _texts.get(_n.get("text"))
+        if _en:
+            _n["en"] = _en
+    for _k in ("interaction", "affiliation", "trilayer", "heatmap"):
+        _G[_k]["names"] = _names
+    _G["names"] = _names
     _aidx = {n["id"]: i for i, n in enumerate(_G["affiliation"]["nodes"])}
     for _n in _G["affiliation"]["nodes"]:
         _n.pop("id", None)
@@ -122,7 +134,7 @@ def _slim_graphs(path):
 GRAPHS_JSON = _slim_graphs("runs/g80full_consensus/case_study/graphs.json")
 GRAPHS_RU_JSON = _slim_graphs("runs/ru40full_consensus/case_study/graphs.json")
 GRAPHS_RC_JSON = _slim_graphs("runs/rc80full_consensus/case_study/graphs.json")
-GRAPHS_HL_JSON = _slim_graphs("runs/hl30full_consensus/case_study/graphs.json")
+GRAPHS_HL_JSON = _slim_graphs("runs/hl40full_consensus/case_study/graphs.json")
 
 def cell(k, key):
     a = Q[k]["agg"][key]
@@ -251,7 +263,7 @@ HTML = CSS + f"""
 <h1>Agentsensus: Consensus-Compressed Shared Memory for<br>Multi-Agent Story-World Simulation</h1>
 <p class="sub">A shared long-term memory that merges agents&rsquo; equivalent memories into multi-witness records and self-organizes into a navigable memory graph.</p>
 <div class="byline">
-  <span><b>Scenarios</b> Three Kingdoms (三国演义) (80 rounds, 33 active agents) &middot; Russia&ndash;Ukraine (40 rounds, 47 active) &middot; Red Chamber (红楼梦) (80 rounds, 34 active) &middot; Hamlet (30 rounds, 16 active)</span>
+  <span><b>Scenarios</b> Three Kingdoms (三国演义) (80 rounds, 33 active agents) &middot; Russia&ndash;Ukraine (40 rounds, 47 active) &middot; Red Chamber (红楼梦) (80 rounds, 34 active) &middot; Hamlet (40 rounds, 16 active)</span>
   <span><b>Checkpointing</b> every 20 rounds</span>
   <span><b>Model</b> gpt-5-mini</span>
 </div>
@@ -547,7 +559,7 @@ HTML = CSS + f"""
 
 <p>The third scenario returns to fiction in a different register: <b>Red Chamber (红楼梦)</b> (<i>Dream of the Red Chamber</i>), chapters 1&ndash;40 sedimented onto 152 registry characters (6,506 consensus events; chapters 41&ndash;80 held out). The active cast is the 37 characters above the memory threshold (34 living; Qin Keqing (秦可卿), Jia Rui (贾瑞) and Qin Zhong (秦钟), dead by chapter 40, stay archived owners), and the boundary state is a freeze-frame of chapter 40&rsquo;s garden banquet &mdash; Grandmother Jia (贾母) and Granny Liu (刘姥姥) at the Grand View Pavilion (大观楼), the touring party at Hengwu Court (蘅芜苑), the musicians at the Lotus Fragrance Pavilion (藕香榭) &mdash; grounded per character in the sediment and manually verified. Where Three Kingdoms is war and statecraft among factions, Red Chamber is dense domestic society &mdash; one household, fine-grained relationships &mdash; a different social topology for the same mechanisms. All four backends run the same 80-round simulation under the identical fairness protocol.</p>
 
-<p>The fourth scenario is deliberately the smallest: <b>Hamlet</b>, Acts&nbsp;1&ndash;3 sedimented onto a 22-character registry (1,135 consensus events; Acts&nbsp;4&ndash;5 held out). Sixteen characters pass the memory threshold, plus Fortinbras, who owns no sediment memories at all &mdash; he never appears on stage before Act&nbsp;4 &mdash; but is retained because the continuation is his; England is likewise retained as an environment because it is where the sealed commission leads. Two characters are archived at the boundary: Polonius, killed behind the arras in 3.4, and the Ghost, absent from the canon after that scene. Where the other three worlds have dozens of agents spread over a map, Hamlet is a chamber drama &mdash; sixteen agents in one castle, most scenes a two-person exchange &mdash; which makes it the sharpest test of whether the mechanisms need scale to show anything. All four backends run the same 30-round simulation under the identical fairness protocol.</p>
+<p>The fourth scenario is deliberately the smallest: <b>Hamlet</b>, Acts&nbsp;1&ndash;3 sedimented onto a 22-character registry (1,135 consensus events; Acts&nbsp;4&ndash;5 held out). Sixteen characters pass the memory threshold, plus Fortinbras, who owns no sediment memories at all &mdash; he never appears on stage before Act&nbsp;4 &mdash; but is retained because the continuation is his; England is likewise retained as an environment because it is where the sealed commission leads. Two characters are archived at the boundary: Polonius, killed behind the arras in 3.4, and the Ghost, absent from the canon after that scene. Where the other three worlds have dozens of agents spread over a map, Hamlet is a chamber drama &mdash; sixteen agents in one castle, most scenes a two-person exchange &mdash; which makes it the sharpest test of whether the mechanisms need scale to show anything. All four backends run the same 40-round simulation under the identical fairness protocol.</p>
 
 <h3>4.2 &nbsp;Baselines</h3>
 <ul class="body">
@@ -583,8 +595,8 @@ HTML = CSS + f"""
 {scale_rows('ru40', RU)}
 <tr class="grp"><td colspan="4">Red Chamber (红楼梦) &mdash; fiction, 80 rounds, 6,506 source events</td></tr>
 {scale_rows('rc80', RC)}
-<tr class="grp"><td colspan="4">Hamlet &mdash; fiction, 30 rounds, 1,135 source events</td></tr>
-{scale_rows('hl30', HL)}
+<tr class="grp"><td colspan="4">Hamlet &mdash; fiction, 40 rounds, 1,135 source events</td></tr>
+{scale_rows('hl40', HL)}
 </tbody></table></div>
 <p><b>Two columns, two effects.</b> The sediment column is consensus compression applied to the seeded history, and its multiplier is a property of the <i>world</i> rather than of the mechanism: the per-witness fan-out is 3.3&times; in Three Kingdoms, 4.1&ndash;5.7&times; in Red Chamber, 5.5&ndash;9.4&times; in Russia&ndash;Ukraine and 4.7&ndash;6.2&times; in Hamlet, tracking the average number of witnesses per event, which a war room with institutional spokespeople maximizes and a two-hander chamber drama minimizes. The sim column is the same effect measured over events the simulation itself generated, at rates of roughly 12 (Three Kingdoms), 20 (Russia&ndash;Ukraine), 5 (Red Chamber) and 4 (Hamlet) consensus entries per round. Everything else in &sect;5 is computed over the sim column only.</p>
 
@@ -620,7 +632,7 @@ HTML = CSS + f"""
 
 <h4>5.1.4 &nbsp;Hamlet</h4>
 
-<p><b>Discussion.</b> Sixteen agents are enough. Consensus writes {HLC['sim_new']} entries against {HL['generative_agents']['sim_new']}&ndash;{HL['g_memory']['sim_new']}, with {HLC['sh_pct']}% shared and {HLC['aff_pct']}% linked &mdash; the highest sharing rate of any world at any horizon, in the smallest one tested. The extension from twenty rounds to thirty shows the same compounding the other worlds display: sharing rose 19%&rarr;{HLC['sh_pct']}% and the first three-witness merge appeared (the players' troupe beginning the performance, owned by the First Player, the Prologue, and Guildenstern together), where every merge at twenty rounds had been a strict pair. Depth still lags the larger worlds ({HL['n_3plus']} entry with three or more witnesses, against {S['n_3plus']} in Three Kingdoms and {RC['n_3plus']} in Red Chamber), and the reason is the play's staging rather than the mechanism's reach: Shakespeare writes in two-person exchanges &mdash; the sentinels on the battlements, Laertes and Polonius, Rosencrantz with Guildenstern &mdash; and merge depth tracks how many people the world puts in a room together. The play-within-a-play is the one scene that assembles an audience, and it is exactly where the three-way merge appears.</p>
+<p><b>Discussion.</b> Sixteen agents are enough. Consensus writes {HLC['sim_new']} entries against {HL['generative_agents']['sim_new']}&ndash;{HL['collaborative']['sim_new']}, with {HLC['sh_pct']}% shared and {HLC['aff_pct']}% linked &mdash; the highest sharing rate of any world at any horizon, in the smallest one tested. Run at three horizons, it compounds like the others: sharing goes 19%&rarr;26%&rarr;{HLC['sh_pct']}% at twenty, thirty and forty rounds, and three-witness merges appear at thirty (the players&rsquo; troupe beginning the performance, owned by the First Player, the Prologue and Guildenstern together) where every merge at twenty had been a strict pair. Depth still lags the larger worlds ({HL['n_3plus']} entries with three or more witnesses, against {S['n_3plus']} in Three Kingdoms and {RC['n_3plus']} in Red Chamber), and the reason is the play&rsquo;s staging rather than the mechanism&rsquo;s reach: Shakespeare writes in two-person exchanges &mdash; the sentinels on the battlements, Laertes and Polonius, Rosencrantz with Guildenstern &mdash; and merge depth tracks how many people the world puts in a room together. The play-within-a-play is the one scene that assembles an audience, and it is exactly where the three-way merges appear.</p>
 <p>The pairs the mechanism finds are the play&rsquo;s own dyads:</p>
 <div class="quote">""" + "<br>\n".join(
     f"<b>owners = [{owners_zh(e['owners'])}]</b> &nbsp;{quote_memory(e['text'])}" for e in hl_mex[:3]
@@ -668,13 +680,13 @@ HTML = CSS + f"""
 <h4>5.2.4 &nbsp;Hamlet</h4>
 <figure>
   <img src="{IMG['hl_growth']}" alt="HL memory growth">
-  <figcaption><b>Figure 10. Memory growth &mdash; Hamlet (30 rounds).</b> Left: cumulative sim-generated entries per round for all four backends under the same sim-only accounting as Table 1. Right: per-agent owned memories per round in the consensus run (top agents labeled; the rest gray).</figcaption>
+  <figcaption><b>Figure 10. Memory growth &mdash; Hamlet (40 rounds).</b> Left: cumulative sim-generated entries per round for all four backends under the same sim-only accounting as Table 1. Right: per-agent owned memories per round in the consensus run (top agents labeled; the rest gray).</figcaption>
 </figure>
 <figure>
   <img src="{IMG['hl_latency']}" alt="HL memory-operation latency">
-  <figcaption><b>Figure 11. Memory-operation latency &mdash; Hamlet (30 rounds).</b> Mean wall-clock seconds per <code>remember</code> (left) and <code>recall</code> (right) call, 2-round bins, all four backends; every round is instrumented live in the kernel.</figcaption>
+  <figcaption><b>Figure 11. Memory-operation latency &mdash; Hamlet (40 rounds).</b> Mean wall-clock seconds per <code>remember</code> (left) and <code>recall</code> (right) call, 2-round bins, all four backends; every round is instrumented live in the kernel.</figcaption>
 </figure>
-<p><b>Discussion.</b> The smallest world writes at a rate between the other two fictions (~{HLC['sim_new']//30} consensus entries per round), and the four curves separate early with consensus lowest &mdash; at this cast size a single merge is a large fraction of a round's writes, so the gap opens without the compounding Red Chamber needed. Latency is dominated by per-call LLM cost exactly as elsewhere; with only {HLE['recalls']} recalls over the whole run the read-side curves are too sparse to rank backends, and we read nothing into their ordering here.</p>
+<p><b>Discussion.</b> The smallest world writes at a rate between the other two fictions (~{HLC['sim_new']//40} consensus entries per round), and the four curves separate early with consensus lowest &mdash; at this cast size a single merge is a large fraction of a round's writes, so the gap opens without the compounding Red Chamber needed. Latency is dominated by per-call LLM cost exactly as elsewhere; with only {HLE['recalls']} recalls over the whole run the read-side curves are too sparse to rank backends, and we read nothing into their ordering here.</p>
 
 <h3>5.3 &nbsp;Continuation quality</h3>
 <p>Compression does not cost judged quality in either world. In Three Kingdoms, consensus scores highest on narrative and is competitive elsewhere; in Russia&ndash;Ukraine all four backends land within overlapping error bars on every metric, with consensus tied-best on grounding and trajectory. The structural gaps of &sect;5.1 do not translate into behavioral penalties.</p>
@@ -697,7 +709,7 @@ HTML = CSS + f"""
 <p>Not scored yet: at 80 rounds the Red Chamber runs match Three Kingdoms&rsquo;s horizon and exceed the 40-round checkpoint at which both scored worlds were judged, so the protocol of &sect;5.3.1&ndash;5.3.2 applies unchanged; the scoring pass is pending and will be reported alongside the other two worlds.</p>
 
 <h4>5.3.4 &nbsp;Hamlet</h4>
-<p>Not scored: at 30 rounds Hamlet remains below the 40-round horizon used by both scored worlds, and its held-out reference (Acts&nbsp;4&ndash;5) is short enough that arc extraction would rest on very few events. Scoring follows if the run is extended.</p>
+<p>Not scored yet: at 40 rounds Hamlet now reaches the horizon at which both scored worlds were judged, so the protocol of &sect;5.3.1&ndash;5.3.2 applies unchanged; the scoring pass is pending. Its held-out reference (Acts&nbsp;4&ndash;5) is short, so arc extraction will rest on fewer events than in the other worlds.</p>
 
 <h3>5.4 &nbsp;Case study: three graphs over each world</h3>
 <p>Each world&rsquo;s consensus run induces the same three graphs: the <b>interaction graph</b> (who talks to whom), the <b>affiliation graph</b> (which memories are linked), and the <b>ownership relation</b> (who owns which memories). For each scenario we show the three layers, then all three in one view, then quantify their pairwise alignment.</p>
@@ -872,7 +884,7 @@ HTML = CSS + f"""
 <h3>A.1 &nbsp;What agents actually call</h3>
 <p>&sect;5.6 asserts that agents never perform memory management. Table&nbsp;A1 is the evidence in full: every action invocation across the four worlds&rsquo; final stages, by backend. The repertoire is identical for all four and documented in the same skill file, with worked examples; the id-free query addressing of &sect;3.7 removes the interface barrier that an earlier design was suspected of having.</p>
 <div class="tw"><table>
-<caption><b>Table A1. Action census.</b> Counts are invocations in the final stage of each world (Three Kingdoms g80, Red Chamber rc80, Russia&ndash;Ukraine ru40, Hamlet hl30), summed across worlds, per backend. Rows at zero for all four backends are actions the repertoire offers and no agent ever used.</caption>
+<caption><b>Table A1. Action census.</b> Counts are invocations in the final stage of each world (Three Kingdoms g80, Red Chamber rc80, Russia&ndash;Ukraine ru40, Hamlet hl40), summed across worlds, per backend. Rows at zero for all four backends are actions the repertoire offers and no agent ever used.</caption>
 <thead><tr><th>action</th><th>consensus</th><th>gen-agents</th><th>g-memory</th><th>collab.</th></tr></thead>
 <tbody>
 <tr><td>read_thread</td><td>531</td><td>492</td><td>490</td><td>501</td></tr>
@@ -943,7 +955,7 @@ Jia Yun, were you just now holding a white embroidered handkerchief with a word 
 &ldquo;Secretary-General, DPO has not yet delivered its update. Shall OCHA proceed now with its five-minute update on civilian needs and corridor routes, or wait a moment longer for DPO?&rdquo;</div>
 <p style="font-size:14px;color:var(--muted);max-width:68ch">These are English-language excerpts, but not every message in this world was English: 12% of the run&rsquo;s memories are Chinese and 2% Russian (Table&nbsp;A3), the latter because agents adopted the language of the character they were playing.</p>
 
-<h4>Hamlet (30 rounds, English)</h4>
+<h4>Hamlet (40 rounds, English)</h4>
 <div class="quote"><b>consensus</b> &nbsp;[r24] fortinbras &rarr; marcellus<br>
 &ldquo;Marcellus, report the current troop and weapon counts on the battlements, and prepare to escort me to the Great Hall so we can inventory arms and gather grain.&rdquo;</div>
 <div class="quote"><b>generative-agents</b> &nbsp;[r20] marcellus &rarr; barnardo<br>
@@ -992,7 +1004,7 @@ Jia Yun, were you just now holding a white embroidered handkerchief with a word 
 <tr><td>Three Kingdoms (三国演义) (80t)</td><td>974</td><td>188 (19%)</td><td>38</td><td>6</td><td>97%</td><td>51/51</td><td>28</td></tr>
 <tr><td>Red Chamber (红楼梦) (80t)</td><td>438</td><td>107 (24%)</td><td>24</td><td>6</td><td>94%</td><td>19/19</td><td>38</td></tr>
 <tr><td>Russia&ndash;Ukraine (40t)</td><td>814</td><td>113 (14%)</td><td>23</td><td>10</td><td>99%</td><td>23/41</td><td>2</td></tr>
-<tr><td>Hamlet (30t)</td><td>110</td><td>29 (26%)</td><td>1</td><td>3</td><td>98%</td><td>3/3</td><td>39</td></tr>
+<tr><td>Hamlet (40t)</td><td>110</td><td>29 (26%)</td><td>1</td><td>3</td><td>98%</td><td>3/3</td><td>39</td></tr>
 </tbody></table></div>
 <p><b>Reading.</b> Merge depth is a property of the world&rsquo;s staging, not of the mechanism. Russia&ndash;Ukraine reaches ten witnesses on a single presidential air-defense directive because a real command chain broadcasts one instruction to many named institutions at once; Hamlet tops out at three, and only once &mdash; on the players&rsquo; performance, the one scene in the play that assembles an audience &mdash; because Shakespeare stages almost everything as a two-person exchange. The two novels sit between, at six. Expansion behaves differently for a different reason: it returns few linked memories in Russia&ndash;Ukraine (2 per call, and only 23 of 41 recalls expanded at all) because institutional deposits are short and rarely split into several atoms, so there are fewer siblings to link; in the novels a single compound recollection atomizes into many pieces, and a recall pulls back 28&ndash;39 of them. The sharing rate itself is horizon-dependent and saturating &mdash; Red Chamber, run at four horizons, goes 13%&rarr;20%&rarr;23%&rarr;24% at rounds 10/40/60/80 &mdash; which is the compounding argument of &sect;5.1.3 measured directly.</p>
 
@@ -1033,6 +1045,7 @@ function showTip(h,html,mx,my){
 
 /* ---------- generic node-link view (interaction / affiliation) ---------- */
 function nodeLink(elId,data,opt){
+  const NM=id=>((data&&data.names)||{})[id]||id;
   const el=document.getElementById(elId); if(!el)return;
   const h=mk(el), N=data.nodes, E0=data.edges;
   const idx={}; N.forEach((n,i)=>{ if(n.id!==undefined) idx[n.id]=i; });
@@ -1077,12 +1090,12 @@ function nodeLink(elId,data,opt){
       ctx.font=(10.5*h.dpr)+"px system-ui"; ctx.fillStyle=ink; ctx.textAlign="center";
       N.forEach((n,i)=>{
         const on = focus<0 || i===focus || nbr[focus].includes(i);
-        if(on) ctx.fillText(n.id,SX(n),SY(n)-(opt.r(n)+4)*h.dpr);
+        if(on) ctx.fillText(NM(n.id),SX(n),SY(n)-(opt.r(n)+4)*h.dpr);
       });
     } else if(focus>=0){
       ctx.font=(10.5*h.dpr)+"px system-ui"; ctx.fillStyle=ink; ctx.textAlign="center";
       [focus,...nbr[focus]].slice(0,40).forEach(i=>{const n=N[i];
-        ctx.fillText(opt.shortLabel?opt.shortLabel(n):n.id,SX(n),SY(n)-(opt.r(n)+4)*h.dpr);});
+        ctx.fillText(opt.shortLabel?opt.shortLabel(n):NM(n.id),SX(n),SY(n)-(opt.r(n)+4)*h.dpr);});
     }
   }
   draw();
@@ -1124,6 +1137,7 @@ function nodeLink(elId,data,opt){
 
 /* ---------- heatmap ---------- */
 function heatmap(elId,data){
+  const NM=id=>((data&&data.names)||{})[id]||id;
   const el=document.getElementById(elId); if(!el)return;
   const h=mk(el), ord=data.order, M=data.matrix, n=ord.length;
   const vmax=Math.max(1,...M.flat());
@@ -1149,9 +1163,9 @@ function heatmap(elId,data){
     }
     ctx.fillStyle=css("--muted");
     for(let i=0;i<n;i++){
-      ctx.textAlign="right"; ctx.fillText(ord[i],ox-4*h.dpr,oy+i*cell+cell*0.7);
+      ctx.textAlign="right"; ctx.fillText(NM(ord[i]),ox-4*h.dpr,oy+i*cell+cell*0.7);
       ctx.save(); ctx.translate(ox+i*cell+cell*0.7,oy-4*h.dpr); ctx.rotate(-Math.PI/2);
-      ctx.textAlign="left"; ctx.fillText(ord[i],0,0); ctx.restore();
+      ctx.textAlign="left"; ctx.fillText(NM(ord[i]),0,0); ctx.restore();
     }
   }
   draw();
@@ -1169,6 +1183,7 @@ function heatmap(elId,data){
 
 /* ---------- tri-layer ---------- */
 function trilayer(elId,data){
+  const NM=id=>((data&&data.names)||{})[id]||id;
   const el=document.getElementById(elId); if(!el)return;
   const h=mk(el);
   const A=data.agents,M=data.mems;
@@ -1240,7 +1255,7 @@ function trilayer(elId,data){
       else ctx.fillRect(X(a.x)-r*0.8,YA()-r*0.8,r*1.6,r*1.6);
       if(on){
         ctx.save(); ctx.translate(X(a.x)+2*h.dpr,YA()-10*h.dpr); ctx.rotate(-0.9);
-        ctx.fillStyle=ink; ctx.textAlign="left"; ctx.fillText(a.id,0,0); ctx.restore();
+        ctx.fillStyle=ink; ctx.textAlign="left"; ctx.fillText(NM(a.id),0,0); ctx.restore();
       }
     });
   }
@@ -1254,11 +1269,11 @@ function trilayer(elId,data){
     if(bm>=0) ba=-1;
     if(ba!==hovA||bm!==hovM){ hovA=ba; hovM=bm; draw(); }
     if(bm>=0){ const m=M[bm];
-      showTip(h,`<b>memory</b> ${m.multi?"(shared ★)":""}<br>${esc(m.text)}<br><b>owners:</b> ${esc(m.owners.join(", "))}`,
+      showTip(h,`<b>memory</b> ${m.multi?"(shared ★)":""}<br>${esc(m.en||m.text)}${m.en?`<br><span style="opacity:.65">(${esc(m.text)})</span>`:""}<br><b>owners:</b> ${esc(m.owners.map(o=>NM(o)).join(", "))}`,
         ev.clientX-r.left,ev.clientY-r.top);
     } else if(ba>=0){ const a=A[ba];
       const owned=OWN.filter(o=>o.a===a.id).length;
-      showTip(h,`<b>${esc(a.id)}</b> (${a.kind})<br>owned sim memories: <b>${owned}</b>`,
+      showTip(h,`<b>${esc(NM(a.id))}</b> (${a.kind})<br>owned sim memories: <b>${owned}</b>`,
         ev.clientX-r.left,ev.clientY-r.top);
     } else h.tip.style.display="none";
   });
@@ -1267,12 +1282,16 @@ function trilayer(elId,data){
 }
 
 function initSet(GG,pfx){
+const NAMES=GG.names||{};
+// Node labels and tooltips show the English name; the id stays the fallback so
+// a world whose agents were never glossed still renders.
+const NM=id=>NAMES[id]||id;
 nodeLink(pfx+"interaction",GG.interaction,{
   r:n=>5.5+1.1*Math.sqrt(Math.min(n.deg||0,80)),
   color:n=> n.comm>=0? PAL[n.comm%10] : "#9ca3af",
   ew:e=>0.5+2.2*e.w/Math.max(1,...GG.interaction.edges.map(x=>x.w)),
   edgeColor:"#8fa3c8", edgeAlpha:0.4, labels:true,
-  tip:n=>`<b>${esc(n.id)}</b><br>${n.silent?"silent this run":"conversation volume: <b>"+n.deg+"</b>"}<br>community: ${n.comm>=0?n.comm+1:"—"}`
+  tip:n=>`<b>${esc(NM(n.id))}</b><br>${n.silent?"silent this run":"conversation volume: <b>"+n.deg+"</b>"}<br>community: ${n.comm>=0?n.comm+1:"—"}`
 });
 nodeLink(pfx+"affiliation",GG.affiliation,{
   r:n=> n.shared?5:3,
@@ -1280,7 +1299,7 @@ nodeLink(pfx+"affiliation",GG.affiliation,{
   ring:n=>n.shared,
   ew:()=>0.5, edgeColor:"#9fb4d8", edgeAlpha:0.3, labels:false,
   shortLabel:n=>"",
-  tip:n=>`<b>memory</b> ${n.shared?"(shared)":""}<br>${esc(n.text)}<br><b>owners:</b> ${esc(n.owners.join(", "))}`
+  tip:n=>`<b>memory</b> ${n.shared?"(shared)":""}<br>${esc(n.en||n.text)}${n.en?`<br><span style="opacity:.65">(${esc(n.text)})</span>`:""}<br><b>owners:</b> ${esc(n.owners.map(o=>NM(o)).join(", "))}`
 });
 heatmap(pfx+"heatmap",GG.heatmap);
 trilayer(pfx+"trilayer",GG.trilayer);
