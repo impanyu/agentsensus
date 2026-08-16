@@ -46,23 +46,23 @@ def _chapters(files):
 
 
 def _three_kingdoms_reference():
-    return "".join(_chapters(["three_kingdoms_ch01-10.txt",
-                              "three_kingdoms_ch11-60.txt"])[40:60])
+    return _chapters(["three_kingdoms_ch01-10.txt",
+                      "three_kingdoms_ch11-60.txt"])[40:60]
 
 
 def _red_chamber_reference():
-    return "".join(_chapters(["dream_red_chamber_ch01-80.txt"])[40:80])
+    return _chapters(["dream_red_chamber_ch01-80.txt"])[40:80]
 
 
 def _hamlet_reference():
     text = open(f"{SRC}/hamlet.txt", encoding="utf-8").read()
-    return text[text.index("ACT IV"):]
+    return [text[text.index("ACT IV"):]]
 
 
 def _russia_ukraine_reference():
     keep = [l.rstrip("\n") for l in open(f"{SRC}/russia_ukraine_timeline.txt", encoding="utf-8")
             if len(l[:10]) == 10 and l[4] == "-" and l[:10] >= "2024-05-01"]
-    return "\n".join(keep)
+    return ["\n".join(keep)]
 
 
 WORLDS = {
@@ -102,6 +102,56 @@ WORLDS = {
 }
 
 
+ARC_CHUNK = int(os.environ.get("ARC_CHUNK_CHARS", "100000"))
+
+
+def _pack(segments, budget=ARC_CHUNK):
+    """Group reference segments (chapters, or one blob) into context-sized chunks.
+
+    Chunks are evenly sized rather than greedily filled, so no chunk is a
+    scrap: a 101k-character span becomes two halves, not 94k plus 7k. A single
+    segment is never split -- a chapter is the smallest unit of arc.
+    """
+    total = sum(len(s) for s in segments)
+    target = total / max(1, -(-total // budget))
+    chunks, cur = [], ""
+    for seg in segments:
+        if cur and len(cur) + len(seg) / 2 > target:
+            chunks.append(cur); cur = ""
+        cur += seg
+    return chunks + ([cur] if cur else [])
+
+
+async def _condense(name, pieces, llm):
+    """One arc paragraph out of the per-chunk paragraphs for one character."""
+    prompt = ("Below are descriptions of one character's arc, each taken from a "
+              "different stretch of the same narrative, in order.\n\n"
+              + "\n\n".join(pieces) +
+              f"\n\nWrite ONE paragraph describing {name}'s arc across the whole "
+              "stretch: behaviour, goals, relationships, how they change. Return "
+              "only the paragraph.")
+    return (await llm.chat(prompt, system=None, bucket="eval_extract_arcs")).strip()
+
+
+async def gold_arcs(segments, characters, llm):
+    """`ev.extract_arcs` over a reference too long for one call.
+
+    Red Chamber's held-out span is 313k characters of Chinese -- past the
+    judge's context window -- so the span is extracted chapter-group by
+    chapter-group and each character's paragraphs are condensed into one arc.
+    """
+    chunks = _pack(segments)
+    if len(chunks) == 1:
+        return await ev.extract_arcs(chunks[0], characters, llm)
+    parts = await asyncio.gather(*[ev.extract_arcs(c, characters, llm) for c in chunks])
+    out = {}
+    for c in characters:
+        got = [p.get(c, "").strip() for p in parts if p.get(c, "").strip()]
+        out[c] = await _condense(c, got, llm) if len(got) > 1 else (got[0] if got else "")
+    print(f"    gold arcs from {len(chunks)} chunks", flush=True)
+    return out
+
+
 async def _judge_one(event_text, canon, judge):
     prompt = (
         f"Below is an event taken from a SIMULATED continuation of {canon}. "
@@ -125,7 +175,13 @@ async def _judge_one(event_text, canon, judge):
 
 
 async def grounding_rate(text, canon, judge, max_events=MAX_EVENTS):
-    events = await ev.extract_events(text, judge, max_events=max_events)
+    for attempt in range(3):
+        events = await ev.extract_events(text, judge, max_events=max_events)
+        if events:
+            break
+        print(f"    event extraction returned nothing (attempt {attempt + 1})", flush=True)
+    if not events:
+        return {"rate": None, "n": 0}
     verdicts = await asyncio.gather(*[
         _judge_one(e.get("event", ""), canon, judge) for e in events])
     n = len(verdicts)
@@ -134,7 +190,7 @@ async def grounding_rate(text, canon, judge, max_events=MAX_EVENTS):
 
 async def score_world(name, spec, llm):
     print(f"=== {name}: extracting gold arcs", flush=True)
-    gold = await ev.extract_arcs(spec["reference"](), spec["arcs"], llm)
+    gold = await gold_arcs(spec["reference"](), spec["arcs"], llm)
     print(f"=== {name}: {len(gold)} arcs | repeat={REPEAT}", flush=True)
     results = {}
     for backend in BACKENDS:
@@ -147,7 +203,10 @@ async def score_world(name, spec, llm):
             nq = await ev.narrative_quality(text, llm)
             runs.append({"grnd": gr["rate"], "grnd_n": gr["n"],
                          "traj": tj["mean"], "narr": nq["overall"]})
-        agg = {k: dict(zip(("mean", "std"), _mean_std([r[k] for r in runs])))
+        # a repeat whose extraction failed carries no grounding number; it is
+        # dropped rather than averaged in as a zero
+        agg = {k: dict(zip(("mean", "std"),
+                           _mean_std([r[k] for r in runs if r[k] is not None])))
                for k in ("grnd", "traj", "narr")}
         agg["grnd_n"] = sum(r["grnd_n"] for r in runs) / len(runs)
         results[backend] = {"agg": agg, "runs": runs, "chars": len(text)}

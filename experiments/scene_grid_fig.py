@@ -19,8 +19,16 @@ import yaml
 from society.events import EventLog
 from society.screenplay import _is_beat, _dedupe, _split_scenes, _sort_key, _beat_speaker
 
-WORLDS = {"hamlet": (["hl20", "hl30", "hl40"], "scenarios/hamlet.sim.yaml",
-                     "runs/hl40full_consensus")}
+WORLDS = {
+    "three_kingdoms": (["g20", "g40", "g60", "g80"], "scenarios/three_kingdoms.sim.yaml",
+                       "runs/g80full_consensus"),
+    "red_chamber": (["rc10", "rc40", "rc60", "rc80"], "scenarios/red_chamber.sim.yaml",
+                    "runs/rc80full_consensus"),
+    "russia_ukraine": (["ru10", "ru20", "ru40"], "scenarios/russia_ukraine.sim.yaml",
+                       "runs/ru40full_consensus"),
+    "hamlet": (["hl20", "hl30", "hl40"], "scenarios/hamlet.sim.yaml",
+               "runs/hl40full_consensus"),
+}
 PALETTE = ["#2563eb", "#0f9d6b", "#c07a12", "#d63b3b", "#7c3aed", "#0891b2",
            "#be185d", "#4d7c0f", "#b45309", "#0369a1", "#7c9ff5", "#65a30d",
            "#9333ea", "#0d9488", "#dc2626", "#525252"]
@@ -131,6 +139,18 @@ def svg(world="hamlet"):
                   'stroke-width="2.4"/></pattern></defs>')
     out.append("</g></svg>")
     return "\n".join(out)
+
+
+def stats(world):
+    """What the screenplay of `world` was cut from: rounds, scenes, beats, cast, places.
+
+    Read from the event log, not from the rendered markdown, so the numbers hold
+    whichever language the screenplay was rendered into.
+    """
+    _, cells, locations, rounds, actors, _, scenes = build(world)
+    return {"rounds": (rounds[0], rounds[-1]), "scenes": len(scenes),
+            "beats": sum(len(v) for v in cells.values()),
+            "speakers": len(actors), "places": len(locations)}
 
 
 if __name__ == "__main__":
