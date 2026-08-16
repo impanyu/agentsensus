@@ -26,6 +26,7 @@ _SYSTEM_PROMPT = {
         "或公文分条格式;③一条含多个要点的事件可拆成同一人的连续数句;"
         "④不得整句照抄原文措辞;⑤事件里的具体信息(人名、地点、器物、数目、"
         "称谓、动作的对象与结果)必须保留。\n"
+        "舞台指示用第三人称叙述(「他动身前往…」),不要写成第一人称台词;不要自行加「舞台指示:」之类标签。\n"
         "字段名要写成人话:move 事件的 eta 是预计到达的**回合数**(如""「预计回合 33 到位」),不要照搬 eta;delivered 之类的投递计数不必出现。\n"
         "不得增加事件中没有的内容:不替任何人添加追问、应答或过渡句,不虚构"
         "动作、情绪或情节。\n"
@@ -42,6 +43,7 @@ _SYSTEM_PROMPT = {
         "sentence of the source verbatim; (v) keep every concrete particular "
         "the event carries (names, places, objects, numbers, titles, the target "
         "and outcome of an action).\n"
+        "Write stage directions in the third person (\"he leaves for ...\"), never as first-person speech, and do not label them \"Stage direction:\".\n"
         "Render field names as prose: a move event's eta is the round it "
         "arrives (\"in place by round 33\"), never \"eta: 33\"; delivery counts "
         "need not appear at all.\n"
@@ -463,6 +465,10 @@ def _assemble(scene, rewrites, names, out_lang):
             text = " ".join(str(l).strip() for l in lines)
             while text.startswith("(") and text.endswith(")"):
                 text = text[1:-1].strip()
+            # the renderer sometimes labels its own stage direction, or opens it
+            # with the actor's name; the block already carries both
+            text = re.sub(r"^\(?\s*(stage direction|舞台指示)\s*[:：]\s*", "",
+                          text, flags=re.I).strip()
             if who and text.lower().startswith(str(who).lower()):
                 text = text[len(str(who)):].lstrip(" ,，:：").strip()
             mark = "inner monologue: " if kind in _INNER_KINDS else ""

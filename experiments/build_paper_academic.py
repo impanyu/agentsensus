@@ -1082,7 +1082,7 @@ Jia Yun, were you just now holding a white embroidered handkerchief with a word 
 <tr class="hi"><td>Three Kingdoms 三国演义</td><td>2&ndash;79</td><td>41</td><td>312</td><td>33</td><td>24</td><td>149k chars</td><td>41k chars (zh)</td></tr>
 <tr><td>Red Chamber 红楼梦</td><td>1&ndash;79</td><td>46</td><td>390</td><td>34</td><td>26</td><td>106k chars</td><td>34k chars (zh)</td></tr>
 <tr><td>Russia&ndash;Ukraine</td><td>1&ndash;39</td><td>41</td><td>334</td><td>47</td><td>20</td><td>285k chars</td><td>&mdash; (en)</td></tr>
-<tr><td>Hamlet</td><td>1&ndash;39</td><td>12</td><td>117</td><td>16</td><td>6</td><td>50k chars</td><td>&mdash; (en)</td></tr>
+<tr><td>Hamlet</td><td>1&ndash;39</td><td>12</td><td>117</td><td>16</td><td>6</td><td>49k chars</td><td>&mdash; (en)</td></tr>
 </tbody></table></div>
 <p><b>Reading.</b> Scene count tracks how scattered a world is, not how much happens in it: Hamlet&rsquo;s 117 beats fall into 9 scenes because the play keeps returning to six places, while Three Kingdoms&rsquo; 312 beats spread over 24 locations and split into 41. Russia&ndash;Ukraine is the outlier in length &mdash; 285k characters from 334 beats, nearly three times Red Chamber&rsquo;s output from more beats &mdash; because institutional messages carry more particulars per beat, and the renderer must keep every one of them. The English rendering of a Chinese world runs three times the length of its source-language twin, which is a property of the writing systems rather than of the content.</p>
 
