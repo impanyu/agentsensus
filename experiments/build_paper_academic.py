@@ -2,7 +2,7 @@
 Reads: runs/paper_stats_g80.json, runs/results_g60.json, figures in
 runs/paper_figs_g80/ + runs/g80full_consensus/case_study/.
 """
-import base64, os, json
+import base64, os, json, re
 os.chdir("/Users/ypan12/git_repo/bookworld_paper/agentsensus")
 
 FIGS = {
@@ -106,6 +106,41 @@ def scale_rows(pref, stats):
 
 Q = json.load(open("runs/results_g40.json", encoding="utf-8"))  # quality scored at the 40-tick checkpoint
 QR = json.load(open("runs/results_ru40.json", encoding="utf-8"))  # RU quality at 40 ticks
+
+def _screenplay_scenes(path):
+    """(header, body) per scene of a rendered screenplay."""
+    if not os.path.exists(path):
+        return []
+    text = open(path, encoding="utf-8").read()
+    parts = re.split(r"(?m)^(## .*)$", text)
+    out = []
+    for i in range(1, len(parts), 2):
+        head = parts[i].lstrip("# ").strip()
+        body = parts[i + 1].strip() if i + 1 < len(parts) else ""
+        out.append((head, body))
+    return out
+
+
+def _esc(t):
+    return (t.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;"))
+
+
+def screenplay_block(world, title, note, bilingual):
+    """A collapsible full screenplay; bilingual worlds interleave scene by scene."""
+    en = _screenplay_scenes(f"runs/screenplays/{world}.en.md")
+    zh = _screenplay_scenes(f"runs/screenplays/{world}.zh.md") if bilingual else []
+    if not en and not zh:
+        return ""
+    scenes = []
+    for i, (head, body) in enumerate(en or zh):
+        block = f'<h5>{_esc(head)}</h5>\n<pre class="sp">{_esc(body)}</pre>'
+        if bilingual and i < len(zh):
+            block += f'<pre class="sp orig">{_esc(zh[i][1])}</pre>'
+        scenes.append(block)
+    n = len(scenes)
+    return (f'<details class="spwrap"><summary><b>{title}</b> &mdash; {n} scenes, '
+            f'consensus run{note}</summary>\n' + "\n".join(scenes) + "\n</details>")
+
 def _slim_graphs(path):
     _G = json.loads(open(path, encoding="utf-8").read().replace("\ufffd", ""))
     # English renderings produced by experiments/translate_case_study.py: the
@@ -227,6 +262,11 @@ figcaption b{color:var(--ink);font-weight:660}
 .quote{font-family:var(--sans);font-size:13px;background:var(--line2);border-radius:8px;
   padding:12px 15px;margin:12px 0;color:var(--muted);line-height:1.6}
 .quote b{color:var(--ink)}
+.spwrap{border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:14px 0;background:var(--card)}
+.spwrap summary{font-family:var(--sans);font-size:14px;cursor:pointer;color:var(--muted)}
+.spwrap h5{margin:18px 0 6px;font-size:13px;color:var(--accent)}
+pre.sp{white-space:pre-wrap;font-family:var(--serif);font-size:14.5px;line-height:1.6;margin:0;color:var(--ink)}
+pre.sp.orig{color:var(--muted);font-size:13.5px;margin-top:8px;padding-top:8px;border-top:1px dashed var(--line)}
 .quote .orig,.orig{color:var(--faint);font-size:.94em}
 .rel{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:14px 17px;margin:12px 0}
 .rel h4{font-size:14px;margin:0 0 5px;font-weight:700}
@@ -1007,6 +1047,16 @@ Jia Yun, were you just now holding a white embroidered handkerchief with a word 
 <tr><td>Hamlet (40t)</td><td>110</td><td>29 (26%)</td><td>1</td><td>3</td><td>98%</td><td>3/3</td><td>39</td></tr>
 </tbody></table></div>
 <p><b>Reading.</b> Merge depth is a property of the world&rsquo;s staging, not of the mechanism. Russia&ndash;Ukraine reaches ten witnesses on a single presidential air-defense directive because a real command chain broadcasts one instruction to many named institutions at once; Hamlet tops out at three, and only once &mdash; on the players&rsquo; performance, the one scene in the play that assembles an audience &mdash; because Shakespeare stages almost everything as a two-person exchange. The two novels sit between, at six. Expansion behaves differently for a different reason: it returns few linked memories in Russia&ndash;Ukraine (2 per call, and only 23 of 41 recalls expanded at all) because institutional deposits are short and rarely split into several atoms, so there are fewer siblings to link; in the novels a single compound recollection atomizes into many pieces, and a recall pulls back 28&ndash;39 of them. The sharing rate itself is horizon-dependent and saturating &mdash; Red Chamber, run at four horizons, goes 13%&rarr;20%&rarr;23%&rarr;24% at rounds 10/40/60/80 &mdash; which is the compounding argument of &sect;5.1.3 measured directly.</p>
+
+<h3>A.6 &nbsp;Screenplays</h3>
+<p>The full screenplay of each world&rsquo;s consensus run, rendered from its event log by the pipeline of &sect;5.3: beats are grouped into scenes by place and stretch of time, each scene is dramatized in one grounded pass, and a check-and-repair round catches any beat the renderer dropped. Nothing outside the log may appear &mdash; the cast, the location and every action are constrained to what the run actually produced &mdash; while the wording must be rewritten rather than copied, with no line running longer than a spoken breath and no memo formatting inside dialogue. This is the text the continuation-quality judge reads.</p>
+<p>The Chinese worlds are given in English with the scenario-language rendering beneath each scene; both are produced directly from the same beats in a single pass, not by translating one into the other. Each screenplay is long &mdash; between nine and forty-six scenes &mdash; so they are collapsed by default.</p>
+<p style="font-size:14px;color:var(--muted)">A note on register: the dialogue reads administratively because the simulation does. Agents can speak, set goals and report, so they write like officers filing returns; the screenplay can stage that exchange, give it voices and cut it into speakable lines, but it cannot make a supply conference lyrical. &sect;A.2 makes the same point from the raw transcripts.</p>
+
+""" + screenplay_block("three_kingdoms", "Three Kingdoms 三国演义", " &middot; 80 rounds", True) + """
+""" + screenplay_block("red_chamber", "Red Chamber 红楼梦", " &middot; 80 rounds", True) + """
+""" + screenplay_block("russia_ukraine", "Russia&ndash;Ukraine", " &middot; 40 rounds", False) + """
+""" + screenplay_block("hamlet", "Hamlet", " &middot; 40 rounds", False) + f"""
 
 <p class="foot">Agentsensus &middot; Three Kingdoms (三国演义) 60-round, three resumed 20-round stages &middot; chat gpt-5-mini, embeddings text-embedding-3-small &middot; simulation-only accounting under uniform atomization &middot; structural counts deterministic; quality metrics mean&plusmn;std over 3 LLM scorings &middot; data: <code>runs/g20_* ... g80_*</code>.</p>
 

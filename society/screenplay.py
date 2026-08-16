@@ -28,10 +28,15 @@ _SYSTEM_PROMPT = {
         "数目、称谓、行动的对象与结果)必须原样保留,不可含糊带过。"
         "think/conclude 类事件渲染为内心独白或旁白(括号标注,"
         "如“(内心独白)”“(旁白)”)。\n"
-        "第二,文学性:在不增删事实的前提下写得像真正的剧本——"
-        "人物各有声口,台词符合其身份与处境,舞台指示简练而有画面感,"
-        "场面有起伏节奏。语言风格贴合该世界的时代与气质。\n"
-        "两者冲突时以完整优先:宁可朴素,不可漏事。"
+        "第二,文学性:必须改写,不得照抄。源事件多为冗长的公文式消息"
+        "(编号条款、格式化请示),整段搬进台词即是失败。请把它们拆成人物"
+        "真能说出口的话,人物各有声口,舞台指示简练而有画面感,场面有起伏。"
+        "语言风格贴合该世界的时代与气质。\n"
+        "硬性格式(违反即不合格):①单句台词不超过 60 字;②台词内禁止出现"
+        "编号(1)、2)、一、二)、项目符号或分条冒号等公文格式;③一条含多个"
+        "要点的源事件必须拆成多句台词或多轮对答,可由对方追问、应答、复述"
+        "分担;④不得整句照抄源事件措辞。\n"
+        "两者的结合:事实一条不少,措辞一句不抄。"
         "直接输出剧本正文,不要输出解释、前后缀或 Markdown 标题。"
     ),
     "en": (
@@ -46,14 +51,24 @@ _SYSTEM_PROMPT = {
         "survive verbatim in substance; do not blur them into generalities. "
         "think/conclude events become inner monologue or voice-over (marked "
         "in parentheses, e.g. \"(inner monologue)\" or \"(voice-over)\").\n"
-        "Second, literary quality: without adding or removing any fact, write "
-        "it as a real screenplay — distinct voices per character, lines that "
-        "fit each speaker's station and situation, spare but vivid stage "
-        "directions, and a scene that builds rather than lists. Match the "
-        "register of the world the events come from.\n"
-        "When the two collide, completeness wins: plain is acceptable, "
-        "missing is not. Output the screenplay text directly, with no "
-        "explanation, prefix, or Markdown heading."
+        "Second, literary quality: you must **rewrite**, never copy the event "
+        "text. The source events are mostly long administrative messages "
+        "(numbered clauses, formatted requests); pasting one into a line of "
+        "dialogue is a failure. Break them into lines a person would actually "
+        "speak \u2014 one or two points per line, a long directive split across an "
+        "exchange, enumerations turned into speech \u2014 with distinct voices per "
+        "character, lines that fit each speaker's station, spare but vivid "
+        "stage directions, and a scene that builds rather than lists. Match "
+        "the register of the world the events come from.\n"
+        "Hard format rules (violating them fails the task): (i) no single line of "
+        "dialogue longer than about 40 words; (ii) no numbered clauses, bullets "
+        "or memo formatting inside dialogue; (iii) an event carrying several "
+        "points must be split across several lines or an exchange, with the "
+        "other party questioning, answering or confirming parts of it; (iv) "
+        "never reproduce a sentence of the source verbatim.\n"
+        "How the two combine: not one fact missing, not one phrase copied. "
+        "Output the screenplay text directly, with no explanation, prefix, or "
+        "Markdown heading."
     ),
 }
 
@@ -95,8 +110,8 @@ _COVERAGE_REPAIR = {
 }
 
 _USER_TEMPLATE = {
-    "zh": "场景地点:{location}\ntick范围:{tick_start}–{tick_end}\n\n事件列表:\n{beats}\n",
-    "en": "Location: {location}\nTick range: {tick_start}–{tick_end}\n\nEvents:\n{beats}\n",
+    "zh": "场景地点:{location}\n回合范围:{tick_start}–{tick_end}\n\n事件列表:\n{beats}\n",
+    "en": "Location: {location}\nRounds: {tick_start}–{tick_end}\n\nEvents:\n{beats}\n",
 }
 
 # Target-language render instruction (Deliverable 1). Prepended to the
@@ -134,13 +149,14 @@ _TARGET_LANGUAGE_INSTRUCTION = {
 # beyond what the logged run actually produced.
 _CONSTRAINT_TEMPLATE = {
     "zh": (
-        "你只能使用以下角色:{cast}。场景地点:{location}。"
+        "你只能使用以下角色(格式为「显示名 [id]」,剧本中一律写显示名,禁止出现 id):{cast}。场景地点:{location}。"
         "绝对禁止虚构任何未列出的角色、未出现的地点或未发生的事件。"
         "每句对白和动作都必须对应所给的实际事件记录,可以润色语言表达,"
         "但不可改变事实、不可增加情节。think/conclude 渲染为内心独白。"
     ),
     "en": (
-        "You may only use the following characters: {cast}. Scene location: "
+        "You may only use the following characters, given as \"name [id]\" \u2014 "
+        "always write the name, never the id: {cast}. Scene location: "
         "{location}. It is strictly forbidden to invent any character not "
         "listed, any location that did not appear, or any event that did "
         "not happen. Every line of dialogue and every action must "
@@ -186,7 +202,7 @@ def _beat_line(event: dict) -> str:
         targets = params.get("targets")
         target_str = f" -> {targets}" if targets else ""
         content = " | ".join(pieces)
-        return f"[tick {tick}] {speaker}{target_str} {name}: {content}"
+        return f"[round {tick}] {speaker}{target_str} {name}: {content}"
 
     # message beat
     message = event.get("message", {})
@@ -194,7 +210,7 @@ def _beat_line(event: dict) -> str:
     recipient = event.get("recipient")
     msg_kind = message.get("kind")
     content = message.get("content")
-    return f"[tick {tick}] {sender} -> {recipient} {msg_kind}: {content}"
+    return f"[round {tick}] {sender} -> {recipient} {msg_kind}: {content}"
 
 
 def _sort_key(event: dict):
@@ -202,43 +218,40 @@ def _sort_key(event: dict):
 
 
 def _split_scenes(beats: list[dict], scene_gap: int) -> list[dict]:
-    """Group sorted beats into scenes.
+    """Group sorted beats into scenes: one place, one stretch of time.
 
-    A new scene starts when a beat's location differs from the current
-    scene's location, or its tick is more than `scene_gap` past the
-    previous beat's tick. Message beats (no "location" key) never trigger
-    a location change on their own; they inherit the current scene's
-    location.
+    Beats are bucketed by location first and only then cut on time, because a
+    round applies actions in every location at once -- splitting the
+    chronological stream on each location change turned a run into hundreds of
+    one-beat "scenes". Within a location a new scene starts when the gap to the
+    previous beat there exceeds `scene_gap`. Scenes are returned in the order
+    they begin, so the screenplay still reads forwards. Message beats carry no
+    location and inherit the last one seen.
     """
-    scenes = []
-    scene = None
-    scene_location = None
-    prev_tick = None
-
+    current_location = None
+    by_location: dict = {}
     for beat in beats:
         loc = beat.get("location")
-        tick = beat.get("tick", 0)
-
-        tick_jump = prev_tick is not None and (tick - prev_tick) > scene_gap
-        loc_change = loc is not None and scene_location is not None and loc != scene_location
-
-        if scene is None or tick_jump or loc_change:
-            effective_loc = loc if loc is not None else scene_location
-            scene = {
-                "location": effective_loc,
-                "beats": [],
-                "tick_start": tick,
-                "tick_end": tick,
-            }
-            scenes.append(scene)
-
         if loc is not None:
-            scene_location = loc
-            scene["location"] = loc
+            current_location = loc
+        by_location.setdefault(current_location, []).append(beat)
 
-        scene["beats"].append(beat)
-        scene["tick_end"] = tick
-        prev_tick = tick
+    scenes = []
+    for location, located in by_location.items():
+        scene = None
+        prev_tick = None
+        for beat in sorted(located, key=_sort_key):
+            tick = beat.get("tick", 0)
+            if scene is None or (prev_tick is not None and tick - prev_tick > scene_gap):
+                scene = {"location": location, "beats": [],
+                         "tick_start": tick, "tick_end": tick}
+                scenes.append(scene)
+            scene["beats"].append(beat)
+            scene["tick_end"] = tick
+            prev_tick = tick
+
+    scenes.sort(key=lambda s: (s["tick_start"], str(s["location"] or "")))
+    return scenes
 
     return scenes
 
@@ -275,7 +288,10 @@ def _format_cast(cast_ids: list[str], names: dict | None) -> str:
     parts = []
     for cid in cast_ids:
         display_name = names.get(cid)
-        parts.append(f"{cid}({display_name})" if display_name else cid)
+        # "display name [id]" rather than "id(display name)": the renderer kept
+        # echoing whichever token came first, and the screenplay must speak the
+        # name, not the identifier.
+        parts.append(f"{display_name} [{cid}]" if display_name else cid)
     return ", ".join(parts)
 
 
@@ -312,6 +328,36 @@ def _dedupe(beats: list[dict]) -> list[dict]:
             seen.add(key)
         out.append(e)
     return out
+
+
+def _clean_rendered(text: str, ids, location=None, names=None) -> str:
+    """Tidy one rendered scene.
+
+    Drops leading lines that merely echo the prompt's scene header (including a
+    bare location id), and strips the "[agent_id]" the renderer tends to carry
+    over from the cast list, which is given as "Name [id]" precisely so the id
+    is not spoken.
+    """
+    names = names or {}
+    ids = [i for i in (ids or []) if i]
+    if ids:
+        text = re.sub(r"\s*\[(" + "|".join(re.escape(i) for i in ids) + r")\]", "", text)
+        # ids that leaked into the prose: the beats name agents by id, and the
+        # renderer sometimes carries one through. Only substitute ids long
+        # enough to be unambiguous as whole words ("un", "eu" would be words).
+        subs = {i: names.get(i) for i in ids if len(i) >= 4 and names.get(i)}
+        if subs:
+            pattern = re.compile(r"\b(" + "|".join(re.escape(i) for i in subs) + r")\b")
+            text = pattern.sub(lambda m: subs[m.group(1)], text)
+    lines = text.lstrip().split("\n")
+    drop = ("场景地点", "回合范围", "事件列表", "Location:", "Rounds:", "Events:",
+            "Scene at", "（场景", "(场景", "场景:", "Scene:")
+    echoes = {str(location or "").strip(), "（场景·" + str(location or "") + "）"}
+    while lines and (not lines[0].strip()
+                     or lines[0].strip().startswith(drop)
+                     or lines[0].strip() in echoes):
+        lines.pop(0)
+    return "\n".join(lines).strip()
 
 
 async def _repair_coverage(rendered, beats, beat_lines, llm, language, system_prompt):
@@ -440,10 +486,16 @@ async def generate_screenplay(
                 rendered, scene["beats"], beat_lines, llm, language, system_prompt
             )
 
-        header = (
-            f"## 第{i}幕 · {scene['location']} · "
-            f"tick {scene['tick_start']}–{scene['tick_end']}"
-        )
+        place = (names or {}).get(scene["location"], scene["location"])
+        span = f"{scene['tick_start']}–{scene['tick_end']}"
+        # the header follows the language the screenplay is written in, which is
+        # the target when one is named, not the world's own language
+        out_lang = target_language or language
+        header = (f"## 第{i}幕 · {place} · 回合 {span}" if out_lang == "zh"
+                  else f"## Scene {i} · {place} · rounds {span}")
+        # the renderer sometimes echoes the prompt's location/round header back
+        # as its first line; the block already has one.
+        rendered = _clean_rendered(rendered, list((names or {}).keys()), scene["location"], names)
         blocks.append(f"{header}\n\n{rendered}\n")
 
     markdown = "\n".join(blocks)

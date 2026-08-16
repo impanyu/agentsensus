@@ -46,11 +46,15 @@ BACKENDS = ["consensus", "generative_agents", "g_memory", "collaborative"]
 # the "fair2" run series, which no longer exists, so an unset prefix now fails
 # loudly instead of chasing deleted data.
 PREFIX = os.environ.get("RUN_PREFIX")
-if not PREFIX:
-    raise SystemExit(
-        "RUN_PREFIX is required (e.g. RUN_PREFIX=g40). For the scenarios in "
-        "the paper, prefer experiments/score_g40.py or experiments/score_ru40.py."
-    )
+
+
+def _require_prefix():
+    """Fail loudly when run without a prefix; importing for helpers is fine."""
+    if not PREFIX:
+        raise SystemExit(
+            "RUN_PREFIX is required (e.g. RUN_PREFIX=g40). For the scenarios in "
+            "the paper, prefer experiments/score_all.py."
+        )
 # FIDELITY_REPEAT>1 scores each backend N times (reusing the same gold) and
 # reports mean±std per metric -- the LLM answer/judge steps are nondeterministic
 # so a single run cannot rank backends (see the grounding variance finding).
@@ -148,4 +152,5 @@ async def main():
 
 
 if __name__ == "__main__":
+    _require_prefix()
     asyncio.run(main())
