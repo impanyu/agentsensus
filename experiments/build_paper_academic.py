@@ -107,8 +107,50 @@ def scale_rows(pref, stats):
 Q = json.load(open("runs/results_g40.json", encoding="utf-8"))  # quality scored at the 40-tick checkpoint
 QR = json.load(open("runs/results_ru40.json", encoding="utf-8"))  # RU quality at 40 ticks
 
+# Action census per world, read from the runs themselves so the appendix table
+# cannot drift from the logs.
+_ACTS = ["say", "read_thread", "observe", "move", "act_on", "read", "think",
+         "conclude", "push_goal", "pop_goal", "replace_goal", "update_status",
+         "remember", "recall", "wait"]
+_NEVER = ["gesture", "noop", "remove_status", "forget", "revise_memory",
+          "add_affiliated", "remove_affiliated", "set_affiliated", "get_affiliated"]
+
+
+def _action_counts(pref):
+    per = {b: {} for b in BACKENDS}
+    for b in BACKENDS:
+        path = f"runs/{pref}_{b}/events.jsonl"
+        if not os.path.exists(path):
+            continue
+        with open(path, encoding="utf-8") as f:
+            for line in f:
+                e = json.loads(line)
+                if e.get("kind") == "action":
+                    n = (e.get("action") or {}).get("name")
+                    per[b][n] = per[b].get(n, 0) + 1
+    return per
+
+
+def action_rows(pref, label, rounds):
+    per = _action_counts(pref)
+    rows = [f'<tr class="grp"><td colspan="5">{label} &mdash; {rounds}</td></tr>']
+    for a in _ACTS:
+        vals = [per[b].get(a, 0) for b in BACKENDS]
+        if not sum(vals):
+            continue
+        hi = ' class="hi"' if a in ("remember", "recall") else ""
+        rows.append(f'<tr{hi}><td><code>{a}</code></td>'
+                    + "".join(f"<td>{v}</td>" for v in vals) + "</tr>")
+    return "\n".join(rows)
+
 def _screenplay_scenes(path):
-    """(header, body) per scene of a rendered screenplay."""
+    """(header, body) per scene of a rendered screenplay.
+
+    Falls back to runs/screenplays_prev/ so a world whose screenplay has not yet
+    been regenerated under the current renderer still appears.
+    """
+    if not os.path.exists(path):
+        path = path.replace("/screenplays/", "/screenplays_prev/")
     if not os.path.exists(path):
         return []
     text = open(path, encoding="utf-8").read()
@@ -924,34 +966,15 @@ HTML = CSS + f"""
 <h3>A.1 &nbsp;What agents actually call</h3>
 <p>&sect;5.6 asserts that agents never perform memory management. Table&nbsp;A1 is the evidence in full: every action invocation across the four worlds&rsquo; final stages, by backend. The repertoire is identical for all four and documented in the same skill file, with worked examples; the id-free query addressing of &sect;3.7 removes the interface barrier that an earlier design was suspected of having.</p>
 <div class="tw"><table>
-<caption><b>Table A1. Action census.</b> Counts are invocations in the final stage of each world (Three Kingdoms g80, Red Chamber rc80, Russia&ndash;Ukraine ru40, Hamlet hl40), summed across worlds, per backend. Rows at zero for all four backends are actions the repertoire offers and no agent ever used.</caption>
+<caption><b>Table A1. Action census, per world.</b> Every action invocation in each world&rsquo;s full run, by backend. Rows are omitted where all four backends are at zero in that world. Nine of the repertoire&rsquo;s twenty-four actions were never invoked anywhere: <code>gesture</code>, <code>noop</code>, <code>remove_status</code>, and the six memory-management calls <code>forget</code>, <code>revise_memory</code>, <code>add_affiliated</code>, <code>remove_affiliated</code>, <code>set_affiliated</code>, <code>get_affiliated</code>.</caption>
 <thead><tr><th>action</th><th>consensus</th><th>gen-agents</th><th>g-memory</th><th>collab.</th></tr></thead>
 <tbody>
-<tr><td>read_thread</td><td>531</td><td>492</td><td>490</td><td>501</td></tr>
-<tr><td>push_goal</td><td>418</td><td>434</td><td>421</td><td>358</td></tr>
-<tr><td>say</td><td>325</td><td>297</td><td>307</td><td>314</td></tr>
-<tr class="hi"><td>remember</td><td>168</td><td>181</td><td>169</td><td>177</td></tr>
-<tr><td>wait</td><td>142</td><td>138</td><td>133</td><td>134</td></tr>
-<tr><td>pop_goal</td><td>97</td><td>139</td><td>109</td><td>94</td></tr>
-<tr><td>observe</td><td>82</td><td>74</td><td>84</td><td>81</td></tr>
-<tr><td>act_on</td><td>19</td><td>21</td><td>39</td><td>46</td></tr>
-<tr class="hi"><td>recall</td><td>19</td><td>8</td><td>24</td><td>19</td></tr>
-<tr><td>read</td><td>17</td><td>23</td><td>54</td><td>20</td></tr>
-<tr><td>move</td><td>13</td><td>9</td><td>15</td><td>15</td></tr>
-<tr><td>update_status</td><td>6</td><td>2</td><td>1</td><td>1</td></tr>
-<tr><td>think</td><td>3</td><td>4</td><td>5</td><td>3</td></tr>
-<tr><td>conclude</td><td>2</td><td>0</td><td>9</td><td>0</td></tr>
-<tr><td>replace_goal</td><td>1</td><td>1</td><td>4</td><td>2</td></tr>
-<tr><td>forget</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
-<tr><td>revise_memory</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
-<tr><td>add_affiliated</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
-<tr><td>remove_affiliated</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
-<tr><td>set_affiliated</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
-<tr><td>get_affiliated</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
-<tr><td>remove_status</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
-<tr><td>gesture / broadcast / noop</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+{action_rows('g80', 'Three Kingdoms 三国演义', '80 rounds')}
+{action_rows('rc80', 'Red Chamber 红楼梦', '80 rounds')}
+{action_rows('ru40', 'Russia&ndash;Ukraine', '40 rounds')}
+{action_rows('hl40', 'Hamlet', '40 rounds')}
 </tbody></table></div>
-<p><b>Reading.</b> Three things stand out. First, the memory interface agents do use is exactly two calls wide: <code>remember</code> (168&ndash;181 per backend) and <code>recall</code> (8&ndash;24), and nothing else &mdash; every one of the six discretionary memory-management actions sits at zero for every backend. This is the empirical basis for D3: a mechanism placed behind <code>add_affiliated</code> would never run. Second, the distribution is nearly identical across backends, which is what the fairness protocol wants: the backends differ in what <code>remember</code> and <code>recall</code> <i>do</i>, not in how often agents call them. Third, the ratio of writes to reads is roughly 9:1 &mdash; agents deposit far more than they retrieve &mdash; which is why the cost analysis of &sect;5.2 treats the write path as the one that matters.</p>
+<p><b>Reading.</b> The memory interface agents actually use is two calls wide. <code>remember</code> runs 8&ndash;84 times per backend per world and <code>recall</code> 0&ndash;12, and every one of the six discretionary memory-management actions sits at zero in every world &mdash; the empirical basis for D3, since a mechanism placed behind <code>add_affiliated</code> would simply never run. Two further readings. The distribution is nearly identical across backends within a world, which is what the fairness protocol wants: the backends differ in what <code>remember</code> and <code>recall</code> <i>do</i>, not in how often they are called. And writes outnumber reads by roughly 8:1 in the novels and 15:1 in Russia&ndash;Ukraine &mdash; agents deposit far more than they retrieve, which is why &sect;5.2 treats the write path as the one whose cost matters. Hamlet is the sharpest case: <code>recall</code> was invoked <i>zero</i> times by any backend across 40 rounds, so its whole run is written memory that no agent ever asked for again.</p>
 
 <h3>A.2 &nbsp;Transcript excerpts</h3>
 <p>One deduplicated <code>say</code> message per backend, from each world&rsquo;s final stage, chosen by length so a block fits here; only the recipient list is abridged. The two Chinese worlds are given in English with the original beneath; the two English worlds are given as written. The point of the comparison is not prose quality &mdash; &sect;5.3 measures that and finds the backends within error bars of one another &mdash; but what a memory design looks like from the outside.</p>
@@ -1050,6 +1073,7 @@ Jia Yun, were you just now holding a white embroidered handkerchief with a word 
 
 <h3>A.6 &nbsp;Screenplays</h3>
 <p>The full screenplay of each world&rsquo;s consensus run, rendered from its event log by the pipeline of &sect;5.3: beats are grouped into scenes by place and stretch of time, each scene is dramatized in one grounded pass, and a check-and-repair round catches any beat the renderer dropped. Nothing outside the log may appear &mdash; the cast, the location and every action are constrained to what the run actually produced &mdash; while the wording must be rewritten rather than copied, with no line running longer than a spoken breath and no memo formatting inside dialogue. This is the text the continuation-quality judge reads.</p>
+<p style="font-size:14px;color:var(--muted)"><b>Renderer note.</b> Hamlet below is rendered by the current version, which groups beats by proximity in space and time, forbids inventing any line that no logged event supports, and never gives a place or a document dialogue. The other three are still the previous rendering, in which scenes were grouped by place alone and the renderer was allowed to invent an interlocutor&rsquo;s questions to break up a long message &mdash; which it did, occasionally putting words in a location&rsquo;s mouth. They will be regenerated.</p>
 <p>The Chinese worlds are given in English with the scenario-language rendering beneath each scene; both are produced directly from the same beats in a single pass, not by translating one into the other. Each screenplay is long &mdash; between nine and forty-six scenes &mdash; so they are collapsed by default.</p>
 <div class="tw"><table>
 <caption><b>Table A5. The four screenplays.</b> &ldquo;Beats&rdquo; are the dramatizable events the run produced after deduplication (one utterance is one beat, however many recipients it was logged against); &ldquo;scenes&rdquo; are the groupings of those beats by place and stretch of time that each become one render call. Length is the rendered markdown; the Chinese worlds carry two renderings of the same beats.</caption>
@@ -1058,7 +1082,7 @@ Jia Yun, were you just now holding a white embroidered handkerchief with a word 
 <tr class="hi"><td>Three Kingdoms 三国演义</td><td>2&ndash;79</td><td>41</td><td>312</td><td>33</td><td>24</td><td>149k chars</td><td>41k chars (zh)</td></tr>
 <tr><td>Red Chamber 红楼梦</td><td>1&ndash;79</td><td>46</td><td>390</td><td>34</td><td>26</td><td>106k chars</td><td>34k chars (zh)</td></tr>
 <tr><td>Russia&ndash;Ukraine</td><td>1&ndash;39</td><td>41</td><td>334</td><td>47</td><td>20</td><td>285k chars</td><td>&mdash; (en)</td></tr>
-<tr><td>Hamlet</td><td>1&ndash;39</td><td>9</td><td>117</td><td>16</td><td>6</td><td>48k chars</td><td>&mdash; (en)</td></tr>
+<tr><td>Hamlet</td><td>1&ndash;39</td><td>12</td><td>117</td><td>16</td><td>6</td><td>50k chars</td><td>&mdash; (en)</td></tr>
 </tbody></table></div>
 <p><b>Reading.</b> Scene count tracks how scattered a world is, not how much happens in it: Hamlet&rsquo;s 117 beats fall into 9 scenes because the play keeps returning to six places, while Three Kingdoms&rsquo; 312 beats spread over 24 locations and split into 41. Russia&ndash;Ukraine is the outlier in length &mdash; 285k characters from 334 beats, nearly three times Red Chamber&rsquo;s output from more beats &mdash; because institutional messages carry more particulars per beat, and the renderer must keep every one of them. The English rendering of a Chinese world runs three times the length of its source-language twin, which is a property of the writing systems rather than of the content.</p>
 

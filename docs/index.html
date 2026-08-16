@@ -748,34 +748,67 @@ ul.body li{margin:6px 0}
 <h3>A.1 &nbsp;What agents actually call</h3>
 <p>&sect;5.6 asserts that agents never perform memory management. Table&nbsp;A1 is the evidence in full: every action invocation across the four worlds&rsquo; final stages, by backend. The repertoire is identical for all four and documented in the same skill file, with worked examples; the id-free query addressing of &sect;3.7 removes the interface barrier that an earlier design was suspected of having.</p>
 <div class="tw"><table>
-<caption><b>Table A1. Action census.</b> Counts are invocations in the final stage of each world (Three Kingdoms g80, Red Chamber rc80, Russia&ndash;Ukraine ru40, Hamlet hl40), summed across worlds, per backend. Rows at zero for all four backends are actions the repertoire offers and no agent ever used.</caption>
+<caption><b>Table A1. Action census, per world.</b> Every action invocation in each world&rsquo;s full run, by backend. Rows are omitted where all four backends are at zero in that world. Nine of the repertoire&rsquo;s twenty-four actions were never invoked anywhere: <code>gesture</code>, <code>noop</code>, <code>remove_status</code>, and the six memory-management calls <code>forget</code>, <code>revise_memory</code>, <code>add_affiliated</code>, <code>remove_affiliated</code>, <code>set_affiliated</code>, <code>get_affiliated</code>.</caption>
 <thead><tr><th>action</th><th>consensus</th><th>gen-agents</th><th>g-memory</th><th>collab.</th></tr></thead>
 <tbody>
-<tr><td>read_thread</td><td>531</td><td>492</td><td>490</td><td>501</td></tr>
-<tr><td>push_goal</td><td>418</td><td>434</td><td>421</td><td>358</td></tr>
-<tr><td>say</td><td>325</td><td>297</td><td>307</td><td>314</td></tr>
-<tr class="hi"><td>remember</td><td>168</td><td>181</td><td>169</td><td>177</td></tr>
-<tr><td>wait</td><td>142</td><td>138</td><td>133</td><td>134</td></tr>
-<tr><td>pop_goal</td><td>97</td><td>139</td><td>109</td><td>94</td></tr>
-<tr><td>observe</td><td>82</td><td>74</td><td>84</td><td>81</td></tr>
-<tr><td>act_on</td><td>19</td><td>21</td><td>39</td><td>46</td></tr>
-<tr class="hi"><td>recall</td><td>19</td><td>8</td><td>24</td><td>19</td></tr>
-<tr><td>read</td><td>17</td><td>23</td><td>54</td><td>20</td></tr>
-<tr><td>move</td><td>13</td><td>9</td><td>15</td><td>15</td></tr>
-<tr><td>update_status</td><td>6</td><td>2</td><td>1</td><td>1</td></tr>
-<tr><td>think</td><td>3</td><td>4</td><td>5</td><td>3</td></tr>
-<tr><td>conclude</td><td>2</td><td>0</td><td>9</td><td>0</td></tr>
-<tr><td>replace_goal</td><td>1</td><td>1</td><td>4</td><td>2</td></tr>
-<tr><td>forget</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
-<tr><td>revise_memory</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
-<tr><td>add_affiliated</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
-<tr><td>remove_affiliated</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
-<tr><td>set_affiliated</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
-<tr><td>get_affiliated</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
-<tr><td>remove_status</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
-<tr><td>gesture / broadcast / noop</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+<tr class="grp"><td colspan="5">Three Kingdoms 三国演义 &mdash; 80 rounds</td></tr>
+<tr><td><code>say</code></td><td>66</td><td>50</td><td>48</td><td>61</td></tr>
+<tr><td><code>read_thread</code></td><td>123</td><td>110</td><td>83</td><td>121</td></tr>
+<tr><td><code>observe</code></td><td>28</td><td>34</td><td>31</td><td>37</td></tr>
+<tr><td><code>move</code></td><td>2</td><td>1</td><td>4</td><td>1</td></tr>
+<tr><td><code>act_on</code></td><td>11</td><td>14</td><td>23</td><td>22</td></tr>
+<tr><td><code>read</code></td><td>8</td><td>12</td><td>36</td><td>9</td></tr>
+<tr><td><code>think</code></td><td>3</td><td>1</td><td>3</td><td>2</td></tr>
+<tr><td><code>conclude</code></td><td>0</td><td>0</td><td>2</td><td>0</td></tr>
+<tr><td><code>push_goal</code></td><td>104</td><td>117</td><td>77</td><td>110</td></tr>
+<tr><td><code>pop_goal</code></td><td>25</td><td>20</td><td>24</td><td>30</td></tr>
+<tr><td><code>replace_goal</code></td><td>0</td><td>0</td><td>1</td><td>1</td></tr>
+<tr><td><code>update_status</code></td><td>3</td><td>0</td><td>1</td><td>0</td></tr>
+<tr class="hi"><td><code>remember</code></td><td>48</td><td>48</td><td>41</td><td>52</td></tr>
+<tr class="hi"><td><code>recall</code></td><td>12</td><td>2</td><td>9</td><td>10</td></tr>
+<tr><td><code>wait</code></td><td>52</td><td>64</td><td>69</td><td>51</td></tr>
+<tr class="grp"><td colspan="5">Red Chamber 红楼梦 &mdash; 80 rounds</td></tr>
+<tr><td><code>say</code></td><td>89</td><td>80</td><td>84</td><td>72</td></tr>
+<tr><td><code>read_thread</code></td><td>125</td><td>119</td><td>131</td><td>93</td></tr>
+<tr><td><code>observe</code></td><td>28</td><td>26</td><td>24</td><td>25</td></tr>
+<tr><td><code>move</code></td><td>8</td><td>7</td><td>11</td><td>12</td></tr>
+<tr><td><code>act_on</code></td><td>2</td><td>2</td><td>5</td><td>6</td></tr>
+<tr><td><code>read</code></td><td>2</td><td>0</td><td>0</td><td>1</td></tr>
+<tr><td><code>push_goal</code></td><td>113</td><td>109</td><td>115</td><td>85</td></tr>
+<tr><td><code>pop_goal</code></td><td>29</td><td>29</td><td>30</td><td>20</td></tr>
+<tr><td><code>replace_goal</code></td><td>0</td><td>0</td><td>0</td><td>1</td></tr>
+<tr><td><code>update_status</code></td><td>1</td><td>0</td><td>0</td><td>0</td></tr>
+<tr class="hi"><td><code>remember</code></td><td>46</td><td>38</td><td>43</td><td>36</td></tr>
+<tr class="hi"><td><code>recall</code></td><td>3</td><td>0</td><td>4</td><td>1</td></tr>
+<tr><td><code>wait</code></td><td>36</td><td>32</td><td>25</td><td>35</td></tr>
+<tr class="grp"><td colspan="5">Russia&ndash;Ukraine &mdash; 40 rounds</td></tr>
+<tr><td><code>say</code></td><td>144</td><td>136</td><td>151</td><td>156</td></tr>
+<tr><td><code>read_thread</code></td><td>253</td><td>234</td><td>241</td><td>263</td></tr>
+<tr><td><code>observe</code></td><td>20</td><td>9</td><td>16</td><td>11</td></tr>
+<tr><td><code>act_on</code></td><td>6</td><td>5</td><td>9</td><td>16</td></tr>
+<tr><td><code>read</code></td><td>7</td><td>11</td><td>18</td><td>10</td></tr>
+<tr><td><code>think</code></td><td>0</td><td>3</td><td>2</td><td>1</td></tr>
+<tr><td><code>conclude</code></td><td>2</td><td>0</td><td>7</td><td>0</td></tr>
+<tr><td><code>push_goal</code></td><td>177</td><td>185</td><td>195</td><td>143</td></tr>
+<tr><td><code>pop_goal</code></td><td>36</td><td>77</td><td>45</td><td>40</td></tr>
+<tr><td><code>replace_goal</code></td><td>1</td><td>1</td><td>3</td><td>0</td></tr>
+<tr><td><code>update_status</code></td><td>2</td><td>1</td><td>0</td><td>1</td></tr>
+<tr class="hi"><td><code>remember</code></td><td>62</td><td>84</td><td>76</td><td>78</td></tr>
+<tr class="hi"><td><code>recall</code></td><td>4</td><td>6</td><td>11</td><td>8</td></tr>
+<tr><td><code>wait</code></td><td>50</td><td>39</td><td>34</td><td>46</td></tr>
+<tr class="grp"><td colspan="5">Hamlet &mdash; 40 rounds</td></tr>
+<tr><td><code>say</code></td><td>30</td><td>29</td><td>28</td><td>24</td></tr>
+<tr><td><code>read_thread</code></td><td>32</td><td>36</td><td>42</td><td>31</td></tr>
+<tr><td><code>observe</code></td><td>5</td><td>13</td><td>17</td><td>8</td></tr>
+<tr><td><code>move</code></td><td>1</td><td>0</td><td>2</td><td>1</td></tr>
+<tr><td><code>act_on</code></td><td>1</td><td>0</td><td>0</td><td>1</td></tr>
+<tr><td><code>push_goal</code></td><td>24</td><td>38</td><td>36</td><td>28</td></tr>
+<tr><td><code>pop_goal</code></td><td>3</td><td>10</td><td>4</td><td>13</td></tr>
+<tr><td><code>update_status</code></td><td>0</td><td>1</td><td>0</td><td>0</td></tr>
+<tr class="hi"><td><code>remember</code></td><td>8</td><td>12</td><td>11</td><td>14</td></tr>
+<tr><td><code>wait</code></td><td>6</td><td>4</td><td>7</td><td>4</td></tr>
 </tbody></table></div>
-<p><b>Reading.</b> Three things stand out. First, the memory interface agents do use is exactly two calls wide: <code>remember</code> (168&ndash;181 per backend) and <code>recall</code> (8&ndash;24), and nothing else &mdash; every one of the six discretionary memory-management actions sits at zero for every backend. This is the empirical basis for D3: a mechanism placed behind <code>add_affiliated</code> would never run. Second, the distribution is nearly identical across backends, which is what the fairness protocol wants: the backends differ in what <code>remember</code> and <code>recall</code> <i>do</i>, not in how often agents call them. Third, the ratio of writes to reads is roughly 9:1 &mdash; agents deposit far more than they retrieve &mdash; which is why the cost analysis of &sect;5.2 treats the write path as the one that matters.</p>
+<p><b>Reading.</b> The memory interface agents actually use is two calls wide. <code>remember</code> runs 8&ndash;84 times per backend per world and <code>recall</code> 0&ndash;12, and every one of the six discretionary memory-management actions sits at zero in every world &mdash; the empirical basis for D3, since a mechanism placed behind <code>add_affiliated</code> would simply never run. Two further readings. The distribution is nearly identical across backends within a world, which is what the fairness protocol wants: the backends differ in what <code>remember</code> and <code>recall</code> <i>do</i>, not in how often they are called. And writes outnumber reads by roughly 8:1 in the novels and 15:1 in Russia&ndash;Ukraine &mdash; agents deposit far more than they retrieve, which is why &sect;5.2 treats the write path as the one whose cost matters. Hamlet is the sharpest case: <code>recall</code> was invoked <i>zero</i> times by any backend across 40 rounds, so its whole run is written memory that no agent ever asked for again.</p>
 
 <h3>A.2 &nbsp;Transcript excerpts</h3>
 <p>One deduplicated <code>say</code> message per backend, from each world&rsquo;s final stage, chosen by length so a block fits here; only the recipient list is abridged. The two Chinese worlds are given in English with the original beneath; the two English worlds are given as written. The point of the comparison is not prose quality &mdash; &sect;5.3 measures that and finds the backends within error bars of one another &mdash; but what a memory design looks like from the outside.</p>
@@ -874,6 +907,7 @@ Jia Yun, were you just now holding a white embroidered handkerchief with a word 
 
 <h3>A.6 &nbsp;Screenplays</h3>
 <p>The full screenplay of each world&rsquo;s consensus run, rendered from its event log by the pipeline of &sect;5.3: beats are grouped into scenes by place and stretch of time, each scene is dramatized in one grounded pass, and a check-and-repair round catches any beat the renderer dropped. Nothing outside the log may appear &mdash; the cast, the location and every action are constrained to what the run actually produced &mdash; while the wording must be rewritten rather than copied, with no line running longer than a spoken breath and no memo formatting inside dialogue. This is the text the continuation-quality judge reads.</p>
+<p style="font-size:14px;color:var(--muted)"><b>Renderer note.</b> Hamlet below is rendered by the current version, which groups beats by proximity in space and time, forbids inventing any line that no logged event supports, and never gives a place or a document dialogue. The other three are still the previous rendering, in which scenes were grouped by place alone and the renderer was allowed to invent an interlocutor&rsquo;s questions to break up a long message &mdash; which it did, occasionally putting words in a location&rsquo;s mouth. They will be regenerated.</p>
 <p>The Chinese worlds are given in English with the scenario-language rendering beneath each scene; both are produced directly from the same beats in a single pass, not by translating one into the other. Each screenplay is long &mdash; between nine and forty-six scenes &mdash; so they are collapsed by default.</p>
 <div class="tw"><table>
 <caption><b>Table A5. The four screenplays.</b> &ldquo;Beats&rdquo; are the dramatizable events the run produced after deduplication (one utterance is one beat, however many recipients it was logged against); &ldquo;scenes&rdquo; are the groupings of those beats by place and stretch of time that each become one render call. Length is the rendered markdown; the Chinese worlds carry two renderings of the same beats.</caption>
@@ -882,7 +916,7 @@ Jia Yun, were you just now holding a white embroidered handkerchief with a word 
 <tr class="hi"><td>Three Kingdoms 三国演义</td><td>2&ndash;79</td><td>41</td><td>312</td><td>33</td><td>24</td><td>149k chars</td><td>41k chars (zh)</td></tr>
 <tr><td>Red Chamber 红楼梦</td><td>1&ndash;79</td><td>46</td><td>390</td><td>34</td><td>26</td><td>106k chars</td><td>34k chars (zh)</td></tr>
 <tr><td>Russia&ndash;Ukraine</td><td>1&ndash;39</td><td>41</td><td>334</td><td>47</td><td>20</td><td>285k chars</td><td>&mdash; (en)</td></tr>
-<tr><td>Hamlet</td><td>1&ndash;39</td><td>9</td><td>117</td><td>16</td><td>6</td><td>48k chars</td><td>&mdash; (en)</td></tr>
+<tr><td>Hamlet</td><td>1&ndash;39</td><td>12</td><td>117</td><td>16</td><td>6</td><td>50k chars</td><td>&mdash; (en)</td></tr>
 </tbody></table></div>
 <p><b>Reading.</b> Scene count tracks how scattered a world is, not how much happens in it: Hamlet&rsquo;s 117 beats fall into 9 scenes because the play keeps returning to six places, while Three Kingdoms&rsquo; 312 beats spread over 24 locations and split into 41. Russia&ndash;Ukraine is the outlier in length &mdash; 285k characters from 334 beats, nearly three times Red Chamber&rsquo;s output from more beats &mdash; because institutional messages carry more particulars per beat, and the renderer must keep every one of them. The English rendering of a Chinese world runs three times the length of its source-language twin, which is a property of the writing systems rather than of the content.</p>
 
@@ -14433,935 +14467,665 @@ Please confirm receipt,
 and provide the requested Vienna on‑site contact
 and an ETA for an escort.</pre>
 </details>
-<details class="spwrap"><summary><b>Hamlet</b> &mdash; 9 scenes, consensus run &middot; 40 rounds</summary>
-<h5>Scene 1 · Elsinore · rounds 1–39</h5>
-<pre class="sp">Prologue: Ladies and your Majesties, honoured guests, and all who watch—attend.
-Prologue: Tonight we offer a play within a play, where illusion and truth will cross.
-Prologue: Please remain seated and keep your voices low; do not move about and disturb the performance.
-Prologue: We invite you to enter the story with us. The show begins—welcome the actors with your applause.
+<details class="spwrap"><summary><b>Hamlet</b> &mdash; 12 scenes, consensus run &middot; 40 rounds</summary>
+<h5>Scene 1 · Elsinore · rounds 1–20</h5>
+<pre class="sp">Prologue:
+Your Majesty, honored guests, and all in attendance—attention, please!
+Tonight we present a play within a play, where illusion meets truth and mystery meets revelation.
+Please remain seated and quiet, do not move about. Enter with us into the drama; the curtain rises now—welcome with applause.
 
-Guildenstern (to Rosencrantz): Rosencrantz, we must plan how to watch Hamlet.
-Guildenstern: How shall we approach him, observe his speech and conduct, and report to the King?
-Guildenstern: What ideas do you bring?
+Guildenstern:
+Rosencrantz, we must plan how to watch Hamlet closely.
+How should we arrange approaching him, observing his speech and conduct, and reporting to the King?
+Do you have any suggestions?
 
-First Player: Pyrrhus—remember him—his black arms matched his dark intent.
-First Player: The night itself seemed like the sable of his armour.
-First Player: He lay close to the Trojan horse, his face stained now with darker heraldry.
-First Player: From head to foot he is crimson; his garment is tricked with the blood of fathers, mothers, daughters, sons.
-First Player: The streets baked and caked the gore, lending a tyrannous light to his lord's murder.
-First Player: Who saw the mobled queen run barefoot, threatening the flames with her tears?
-First Player: She cried, "Where is he?" And there, too short at the Greeks, the prince strikes;
-First Player: his antique sword rebels in his hand; Pyrrhus drives at Priam and in rage misses wide.
+First Player:
+Pyrrhus, clad in black armor as dark as his intent, resembled night when he lay within the ominous horse.
+That dread blackened hue is now marked by gloomy heraldry; from head to heel he is dyed red.
+He is gruesomely streaked with the blood of fathers, mothers, daughters and sons, baked and encrusted by the parching streets that cast a tyrant's light on their lord's murder.
+Who saw the veiled queen run barefoot, threatening the flames with blinding tears and cry, 'Where is he?'
+He then finds him, striking too short at the Greeks; his old sword rebels against his arm and falls where it drops; Pyrrhus drives at Priam in rage but strikes wide.
 
-(Prologue bows deeply to the audience, raises an arm to signal. Lights begin to dim; the curtain stirs. Prologue leads the actors on.)
+Prologue:
+(Prologue bows deeply to the audience, gestures; lights dim and the curtain opens, leading the actors onto the stage.)
 
-Guildenstern (to Rosencrantz): My thought is we split up.
-Guildenstern: We take turns approaching Hamlet, tailing him in the corridors and on the balconies.
-Guildenstern: Ophelia should be planted to feign closeness and test his talk.
-Guildenstern: Someone must quietly ask Polonius about Hamlet’s recent state.
-Guildenstern: Any self-speaking, violent emotion, or odd conduct—note it at once and report to the King.
-Guildenstern: How do you want to divide the work?
+Guildenstern:
+My plan is to split duties: we take turns getting close to Hamlet and tailing his movements in corridors and on the terrace.
+Have Ophelia feign closeness to test his speech; someone should quietly query Polonius about his recent state.
+Anything like soliloquy, intense emotion, or abnormal conduct must be recorded at once and reported to the King.
+How would you like to divide these tasks?
 
-Prologue: The First Player is in position; the actors are ready.
-Prologue: To the audience: be seated, be still. The lights will fade and the curtain will rise.
-Prologue: The play-within-a-play will begin directly.
+Prologue:
+The first player is in place and the actors are onstage.
+Audience, please be seated and keep silence; the lights will dim and the curtain will rise—the play within a play begins immediately.
 
-Guildenstern (to Rosencrantz): Fine—details now.
-Guildenstern: You keep watch of the balcony and the outer gallery; I will cover the corridors and the great hall.
-Guildenstern: Ophelia will be placed to approach as a pretense; someone will visit Polonius for intelligence.
-Guildenstern: If you see Hamlet speaking to himself, losing control, or showing violent feeling, report straightaway.
-Guildenstern: Can you take the balcony beat and report to me on schedule?
+Guildenstern:
+Fine, let's refine it: you watch the terrace and outer gallery; I'll take the corridors and the hall.
+Ophelia will be arranged to feign approach for testing; someone will periodically check with Polonius.
+If you see clear soliloquy, loss of control, or strong emotion, report it immediately.
+Can you take the terrace watch and report back on schedule?
 
-Ophelia (to Prologue): Thank you for the reminder.
-Ophelia: The play has begun; I will sit quietly and watch.
+Ophelia:
+Thank you for the reminder.
+The play has begun; I will sit quietly and observe.
 
-Rosencrantz (to Guildenstern): Agreed—I'll go to the corridors and the great hall.
-Rosencrantz: You take the balcony and outer gallery.
-Rosencrantz: Ophelia will be arranged to draw near him as a test.
-Rosencrantz: If I see anything odd I will tell the King immediately.
-Rosencrantz: I go now to the corridors and great hall.
+Rosencrantz:
+Agreed—per your division, I'll cover the corridors and the hall; you take the terrace and outer gallery.
+Ophelia will be arranged to feign closeness; report any odd or abnormal speech or conduct to the King at once.
+I'm off to search the corridors and hall for Hamlet now; you go to the terrace and report back when you find anything.
 
-Claudius (to First Player, Rosencrantz, Guildenstern): Rosencrantz and Guildenstern—draw near Hamlet and watch his countenance and acts closely.
-Claudius: Report any abnormality to me at once.
-Claudius: First Player—perform the 'trap' play as planned.
-Claudius: In the murder scene make the King's death in the bedchamber vivid.
-Claudius: Show the Queen's horror and the bloodstains; keep the lines and the feeling unaltered.
-Claudius: Make that scene as real as you can to provoke Hamlet.
-Claudius: The performance begins now; notify me immediately of any marked reaction.
+Claudius:
+Rosencrantz, Guildenstern—draw near Hamlet and watch his countenance and conduct closely; report any oddity at once.
+First Player—perform the 'trap' play exactly as planned: in the murder-in-the-bedchamber scene emphasize the King's assassination, the Queen's shock, and the bloodstains; do not cut or alter lines or tone.
+Make that scene as convincing as possible to elicit Hamlet's reaction. The performance begins now; notify me of any marked reaction immediately.
 
-Ophelia (to First Player): Your monologue moved me—please continue with it.
+Ophelia:
+Your speech was moving—please continue the performance.
 
-Prologue (to Ophelia): Thank you, Ophelia. We appreciate your cooperation.
-Prologue: Be seated and listen attentively.
+Prologue:
+Thank you, Ophelia. We appreciate your cooperation.
+Please take your seat and watch attentively.
 
-Guildenstern (to Rosencrantz): I accept the division.
-Guildenstern: Let's rotate by the hour—each of us alternates duty.
-Guildenstern: You take the corridors and great hall for the first hour; then I relieve you on the balcony and outer gallery.
-Guildenstern: Go now; report the time you begin.
-Guildenstern: Also confirm whether Ophelia will feign closeness and when she can do it—during the play or in a quiet moment.
-Guildenstern: Reply so I can note your watch and tell the King.
+Guildenstern:
+I accept the assignment.
+Let's alternate by the hour: you begin an hour in the corridors and the hall, then I take the terrace for the next hour, and so on.
+You go to the corridors now; I'll go to the terrace. Report any abnormalities immediately.
+Also confirm whether Ophelia will feign approach Hamlet and when she can contact him—ideally during performance or during a quiet interval—then reply with your duty hours and her agreement.
 
-First Player (to Claudius): Your Majesty—I report.
-First Player: Rosencrantz and Guildenstern have approached Hamlet and are observing him closely.
-First Player: The players are in place; the 'trap' play proceeds as ordered.
-First Player: Should any clear reaction appear, we will inform you at once.
+First Player:
+Your Majesty, message received.
+Rosencrantz and Guildenstern are close to Hamlet and watching; the actors are in place and the 'trap' play proceeds as arranged.
+We will report at once if any clear reaction appears.
 
-Guildenstern (to Rosencrantz): I heard your reply.
-Guildenstern: To finalize—hourly shifts: you go now to the corridors and great hall for one hour beginning immediately.
-Guildenstern: I will then take the balcony and outer gallery for the next hour.
-Guildenstern: Go now and tell me the exact time you start.
-Guildenstern: Also ask Ophelia if she will approach Hamlet and when—perhaps during a performance or a rest.
-Guildenstern: Once you answer I will record the watch and report to the King.
+Guildenstern:
+I heard your confirmation.
+To implement: you now go to the corridors and the hall for one hour starting immediately; I will follow with one hour on the terrace and outer gallery, alternating thereafter.
+Go now and report when you begin your watch. Also confirm at once whether Ophelia agrees to feign approach and when she can do so—during the performance or a rest period.
+Once you reply I will record your duty times and inform the King.
 
-(Rosencrantz moves off toward the corridors; ETA 33.)
+(Rosencrantz, (Rosencrantz moves to his assigned post; eta: 33.))
 
-Guildenstern (to Ophelia): Ophelia, we need your help.
-Guildenstern: Please pretend to draw near Hamlet and test his speech with subtlety.
-Guildenstern: Will you do this? When can you approach—during the play or in a quiet interval?
-Guildenstern: Tell me now whether you agree and when you can act.
+Guildenstern:
+Ophelia, we need your cooperation—please pretend to approach Hamlet to probe his speech.
+Will you do this, and when can you make contact? For example, during the performance or a quiet break?
+Tell me now whether you agree and when you can act.
 
-First Player (to Ophelia): Thank you for your praise, Ophelia.
-First Player: Stay focused and be ready to go on when called.
-First Player: The company is positioned; the play continues as planned.
-First Player: Notify us at once if anything changes.
+First Player:
+Thank you for the compliment, Ophelia.
+Stay focused and be ready to enter; the actors are in position and the performance runs as planned.
+Inform us immediately if anything changes.
 
-Claudius (to Prologue, First Player): Prologue and First Player—I hear you are in place.
-Claudius: Proceed according to the established plan.
-Claudius: Keep the hall silent; in the "king is murdered" scene follow the original lines and emotion exactly.
-Claudius: Rosencrantz and Guildenstern are on watch for Hamlet.
-Claudius: If there is a marked reaction or disturbance, report immediately and protect the Queen.
-Claudius: Begin the performance.
+Claudius:
+Prologue, First Player—I hear you are in position. Proceed according to orders.
+Let the house be silent; in the King’s murder scene deliver the original lines and emotions exactly to make it convincing.
+Rosencrantz and Guildenstern will watch Hamlet and report any clear reaction; attendants stand ready to protect the Queen.
+Begin the performance.
 
-Ophelia (to Guildenstern): Guildenstern—have you seen Hamlet?
-Ophelia: Where is he now? Is he still near the queen's closet?
-Ophelia: I want to find him and learn why he behaves so oddly.
-Ophelia: Do you have any advice, or can you help me approach him?
+Ophelia:
+Guildenstern, have you seen Hamlet? Where is he now?
+Is he still near the Queen's bedchamber? I want to find him and learn why he is behaving oddly.
+Do you have any suggestions, or can you help me get close to him?
 
-First Player (to Prologue): Acknowledged.
-First Player: Actors are ready. Dim the lights; I will raise the curtain on my cue.
-First Player: Prologue and dumb show to proceed; in the 'king's murder' scene emphasize the murder and the Queen's horror exactly.
-First Player: Do not alter lines or tone. Tell me at once if Hamlet shows any notable reaction.
+First Player:
+Acknowledged—actors are set and ready.
+Dim the lights and lift the curtain on my cue; begin with the prologue and the dumb show.
+In the King's murder scene, stress the killing and the Queen's horror exactly as written; do not change lines or tone.
+Signal me immediately if Hamlet shows any notable reaction.
 
-(Ophelia moves off; ETA 40.)
+(Ophelia, (Ophelia moves to her post; eta: 40.))
 
-Prologue: Your Majesty—I acknowledge and will execute your orders.
-Prologue: The King's murder scene will be performed exactly as written and with conviction.
-Prologue: Rosencrantz and Guildenstern will watch Hamlet and report any obvious reaction.
-Prologue: Attendants stand ready to protect the Queen.
-Prologue: Audience—please be seated and keep silence. The play-within-a-play begins now.
-
-Guildenstern (to Rosencrantz and Ophelia): Rosencrantz—confirm you have begun your hour on the corridors and in the great hall now.
-Guildenstern: Tell me the exact start time so I can record it and report to the King.
-Guildenstern: Ophelia—Hamlet has lately been seen near the queen's closet.
-Guildenstern: If you can approach him, do so discreetly—preferably during the play or in a quiet moment.
-Guildenstern: Tell us when you can act.
-Guildenstern: Rosencrantz, report whether Ophelia agrees and when she can approach. Reply immediately.
-
-Guildenstern (to Rosencrantz and Ophelia): Rosencrantz—confirm now you have started your hour on the corridors and in the great hall.
-Guildenstern: Give the exact time you began so I may note it and report to the King.
-Guildenstern: Ophelia—we need to know if you can approach Hamlet discreetly and when.
-Guildenstern: If you can, tell us what moment you'll use.
-Guildenstern: Reply at once.
-
-Prologue: First Player—the actors are in place and ready.
-Prologue: Audience—please take your seats and remain silent.
-Prologue: The lights will dim; the curtain will rise. The play-within-a-play begins now.
-
-Guildenstern (to Rosencrantz and Ophelia): Rosencrantz—confirm you have begun your hour on the corridors and in the great hall and give the exact start time.
-Guildenstern: Also tell me whether Ophelia agrees to approach Hamlet and when she can do so.
-Guildenstern: Ophelia—Hamlet was last seen near the queen's closet.
-Guildenstern: Approach discreetly during the play or a quiet moment; do you agree, and when can you act?
-Guildenstern: Reply at once.
-
-First Player: Company—dim the lights and get the curtain ready.
-First Player: Prologue—confirm when the lights are dimmed and the curtain set; I will raise it on my mark.
-First Player: Proceed with the Prologue and the dumb show.
-First Player: In the 'king's murder' scene act exactly as written and tell me immediately if Hamlet reacts.
-
-Guildenstern (to Rosencrantz and Ophelia): Rosencrantz—confirm you have begun your hour on the corridors and in the great hall and state the exact clock time you started.
-Guildenstern: Tell me Ophelia’s answer when you have it.
-Guildenstern: Ophelia—Hamlet was last seen near the queen’s closet; can you approach him discreetly—during the play or a quiet moment?
-Guildenstern: Say exactly when you can act. If you need a pretext, tell me and I will arrange it.
-Guildenstern: Reply at once.
-
-Guildenstern (to Rosencrantz): Rosencrantz—confirm at once that you have begun your hour on the corridors and in the great hall.
-Guildenstern: State the exact clock time you started and tell me whether Ophelia agrees to approach Hamlet and when she can do so.
-Guildenstern: If you have not begun, say when you will start.
-Guildenstern: Reply immediately.
-
-Prologue: Your Majesty, lords and ladies, good people of Elsinore—attend.
-Prologue: The players stand ready in their places.
-Prologue: I beg you: take your seats and hold your peace.
-Prologue: The lights will dim, the curtain will rise—welcome the players. The play-within-a-play now begins.
-
-First Player: Prologue and company—confirm the lights are fully dimmed and the curtain is set.
-First Player: On my mark I will raise the curtain—be ready.
-First Player: Perform the 'king's murder' scene precisely as written.
-First Player: Report any notable reaction from Hamlet immediately.
-
-Guildenstern (to Rosencrantz and Ophelia): Rosencrantz—have you begun your hour on the corridors and in the great hall?
-Guildenstern: State the exact clock time you started or when you will start.
-Guildenstern: The play is beginning—report any notable reaction from Hamlet at once to the King and to me.
-Guildenstern: Ophelia—do you agree to approach Hamlet discreetly during the play or at a quiet moment?
-Guildenstern: Tell us exactly when you can act and whether you need a pretext; I will arrange one. Reply immediately.
-
-First Player: On my mark—raise the curtain.
-First Player: Lights are dimmed. Begin the play-within-a-play.
-First Player: In the 'king's murder' scene perform exactly as written.
-First Player: Report any notable reaction from Hamlet at once.
-
-Prologue: First Player—the actors are in position and ready.
-Prologue: Begin the Prologue and the dumb show on your mark—dim the lights and raise the curtain when you signal.
-Prologue: Audience—please be seated. Keep silence. The play-within-a-play begins now.
-
-Prologue: Your Majesty, lords and ladies, people of Elsinore: the players are in their places.
-Prologue: First Player—begin the Prologue and the dumb-show on your mark; dim the lights and raise the curtain when you signal.
-Prologue: To the assembled—take your seats and stay silent. The play-within-a-play begins now.
-
-Prologue: First Player—the actors are ready.
-Prologue: Begin the Prologue and the dumb-show on your mark—dim the lights and raise the curtain when you cue it.
-Prologue: Audience—take your seats and remain silent. The play-within-a-play begins now.
-
-Marcellus (to Horatio): Horatio, come to the Battlements at once.
-Marcellus: Barnardo and I have just seen a stately figure in full armour like the late King.
-Marcellus: It appeared on the east parapet in the last watch and seemed to fade when the bell tolled.
-
-Guildenstern (to Rosencrantz): Rosencrantz—confirm immediately that you have begun your hour on the corridors and in the great hall.
-Guildenstern: State the exact clock time you started, so I can record it and report to the King.
-Guildenstern: Also tell me whether Ophelia agrees to approach Hamlet and the exact time she can do so.
-Guildenstern: Reply at once.
-
-Prologue: First Player—the actors are in place and ready.
-Prologue: Begin the Prologue and the dumb-show on your mark—dim the lights and raise the curtain when you signal.
-Prologue: To His Majesty, lords and ladies, and all present: please be seated and keep silence.
-Prologue: Welcome the players—the play-within-a-play begins now.
-
-Guildenstern (to Rosencrantz): Rosencrantz—confirm at once you have begun your hour on the corridors and in the great hall.
-Guildenstern: Give the exact clock time you started so I can record it and report to the King.
-Guildenstern: Also state whether Ophelia agrees to approach Hamlet and exactly when she can do so.
-Guildenstern: Reply immediately.
-
-Prologue: Your Majesty, lords and ladies, good people of Elsinore: the players are in their places.
-Prologue: First Player—begin the Prologue and the dumb-show on your mark.
-Prologue: Dim the lights and raise the curtain when you signal. Please take your seats; keep silence.
-Prologue: The play-within-a-play begins now.
-
-Guildenstern (to Rosencrantz): Rosencrantz—confirm at once that you have begun your hour on the corridors and in the great hall.
-Guildenstern: State the exact clock time you started so I can record it and report to the King.
-Guildenstern: Also report whether Ophelia agrees to approach Hamlet and the exact time she can do so.
-Guildenstern: Reply immediately.
-
-Prologue: First Player—the actors are in position and ready.
-Prologue: Begin the Prologue and the dumb-show on your mark; dim the lights and raise the curtain when you signal.
-Prologue: To His Majesty, lords and ladies, and all assembled: please be seated and keep silence.
-Prologue: Give your attention to the players—the play-within-a-play now begins.</pre>
+Prologue:
+Your Majesty, I acknowledge and will follow the order.
+The King's murder scene will be enacted exactly as written and with full conviction.
+Rosencrantz and Guildenstern will watch Hamlet and report any obvious reaction; attendants stand ready to protect the Queen.
+To the assembled audience—be seated and keep silent. The play-within-a-play begins now.</pre>
 <h5>Scene 2 · Battlements · rounds 2–13</h5>
-<pre class="sp">BATTLEMENTS
+<pre class="sp">Barnardo:
+Marcellus, did you notice anything strange while you were on watch up here on the battlements?
 
-A cold wind. Two sentries stand watch. A third, HORATIO, lies half‑asleep nearby.
+Marcellus:
+Horatio, wake up and come to the battlements — we've seen a ghost!
 
-Barnardo: Marcellus—
-Barnardo: while you've been on watch, have you seen anything unusual up here on the Battlements?
+Barnardo:
+Marcellus, tell me exactly what you saw; describe the ghost and say when you saw it.
 
-Marcellus (snapping awake): Horatio!
-Marcellus: Wake up and move yourself to the Battlements.
-Marcellus: We saw a Ghost!
+Marcellus:
+Barnardo — it was a stately figure, clad in full armour, resembling the late king.
+Its face was pale and it made no sound.
+We first noticed it on the east parapet during the last watch.
+When the bell tolled it seemed to fade away.
+Horatio should come and see it at once.
 
-Barnardo: Marcellus, tell me exactly what you saw.
-Barnardo: Describe the Ghost—what did it look like, and when did you see it?
+Barnardo:
+I'll go fetch Horatio immediately.
+Stay here and keep your eyes on it — don't let that figure leave your sight.
 
-Marcellus: Barnardo—listen.
-Marcellus: It was a stately figure in full armour.
-Barnardo (softly): Full armour?
-Marcellus: Yes—like the late king; pale‑faced and utterly silent.
-Marcellus: We first saw it on the east parapet during the last watch.
-Marcellus: Then, at the bell, it seemed to fade away.
-Marcellus: Horatio should come and see it at once.
+Marcellus:
+Horatio, come at once to the battlements.
+Barnardo and I have just seen a stately figure in full armour like the late king.
+It appeared on the east parapet during the last watch and seemed to fade when the bell tolled.</pre>
+<h5>Scene 3 · Great Hall · rounds 2–21</h5>
+<pre class="sp">Horatio:
+Your Majesty, Queen, I have come from afar to pay respects and to offer one word of counsel.
+The court faces many storms—be vigilant with close ministers, distrust empty rumors, and use justice and restraint to calm the people; if you will hear me, I can set out what I have seen.
 
-Barnardo: I'll fetch Horatio at once.
-Barnardo: You stay here and keep watch.
-Barnardo: Don't let the figure out of your sight.
+(Player King, Stage Direction: Player King lies down on a bench in the Great Hall and feigns sleep.)
 
-Marcellus (calling, urgent): Horatio—come at once to the Battlements.
-Marcellus: Barnardo and I have just seen a stately figure in full armour, like the late king.
-Marcellus: It appeared on the east parapet during the last watch
-Marcellus: and seemed to fade when the bell tolled.</pre>
-<h5>Scene 3 · Great Hall · rounds 2–39</h5>
-<pre class="sp">Great Hall
+Player Queen:
+Your Majesty and ministers, may I ask the purpose of today’s gathering? If the King permits, I wish to address the court with the Queen’s statement.
 
-(At center, a long bench. PLAYER KING sprawls upon it, pretending to sleep. PALACE OFFICERS flank the room. A table holds papers and a bottle plainly marked "stage dye".)
+Lucianus:
+Horatio, I want to fix the crucial play-within-a-play moment: a scene where the Player King's nephew is poisoned to watch the King's reaction.
+We must refine lines and assign actors—who plays the victim, who the poisoner, who the onlookers and the scout?
+How shall the poison be presented onstage and how will we pace it? Shall we begin rehearsing the first scene now?
 
-HORATIO
-(approaching with deference)
-Your Majesty. Your Grace.
-I have traveled to pay respects
-and to offer a single, earnest word.
-There are storms gathering about the court.
-Be wary of those nearest you.
-Trust not idle rumor; steadiness and justice must hold.
-If it pleases you, I will tell you what I have seen.
+Player King:
+Horatio, thank you for coming and speaking frankly.
+I will hear your detailed view—tell us which close ministers you find suspect and what odd signs you have observed.
 
-PLAYER KING
-(lying very still, eyes half‑closed)
-...
+Player Queen:
+Your Majesty, I still request leave to speak to the court; if the King prefers to hear Horatio first, I will listen and then present my remarks.
 
-PLAYER QUEEN
-(rising, measured)
-Sire, ministers—what is the purpose of this assembly?
-With Your Majesty's leave, I would ask to speak before the court.
+Horatio:
+Queen, thank you. The King called this assembly to receive reports on court tone, border affairs, and personnel doubts, and to deliberate responses.
+If you wish to speak before the assembly you need the King's leave; if granted, speak with moderation to reassure the people and declare reconciliation, avoiding naming or inflaming. I can ask the King for leave or help draft your address.
 
-LUCIANUS
-(turning toward the Queen, low and civil)
-王后—this meeting was meant to present a new play,
-and, through that spectacle, to discuss state affairs with the ministers.
-His Majesty has already granted permission.
-Please, Madame, come upon the stage and address the court;
-the ministers will receive you with respect.
-If you would prefer to open with your main points,
-I will gladly introduce you.
+Lucianus:
+Queen, this meeting was to present a new play and to discuss state matters.
+The King has granted leave—please step forward and speak; if you prefer, I can introduce your points first.
 
-LUCIANUS
-(aside to HORATIO, whispering, conspiratorial)
-I mean to fix one decisive moment in the piece:
-a scene in which the king's nephew is poisoned,
-so we may watch the sovereign's face.
-We must choose lines and casting—
-who dies, who poisons, who watches and gathers proof.
-How shall the poison be shown onstage?
-What rhythm should the scene take?
-Shall we begin the first rehearsal now?
+Lucianus:
+Horatio, now that the key scene is set, summon the actors to rehearse immediately.
+Assign who plays the nephew, the poisoner, the observers, and the scout.
+I propose a harmless colored liquid to simulate poison and a three-part staging: secret dosing (close shot), victim's gradual awareness and struggle (wider action), then sudden collapse and a full-stage pause to see reactions.
+Leave a three-second silence in the third part to measure the Player King's response. Shall we start the first rehearsal now?
 
-PLAYER KING
-(slowly sitting upright)
-Horatio, I thank you for your counsel and your journey.
-Speak plainly: which ministers do you suspect,
-and what odd signs have you observed?
+Player King:
+Queen, I grant you leave to address the court, but first I will hear Horatio's detailed account.
+Horatio, present at once the suspects you distrust and the anomalies you have observed.
 
-PLAYER QUEEN
-(softly, to the King)
-Sire, I renew my request to address the court.
-If you will hear Horatio first, I shall wait my turn.
+Horatio:
+Lucianus, if the scene truly stages poisoning of the King's nephew, that may be more than theatrical testing—it could be a probe or cover for real harm.
+If this is purely artistic, state that and disclose who originated and funded the plan; if there is darker intent we cannot remain idle.
+I will not participate in any rehearsal that risks actual harm.
+A more prudent course is to make the victim fictional, use harmless props, or convert the episode to symbolic performance.
+If necessary I will inform the King who proposed this scene—state now who advocates it.
 
-HORATIO
-(stepping forward, precise)
-Your Grace, Your Majesty—this assembly's purpose is to receive reports:
-the tenor of court discourse, border matters, and unsettled personnel issues.
-If the Queen wishes to speak before the body, she must have the King's leave.
-Should it help, I will petition His Majesty for her,
-or help compose the words she will deliver.
+Horatio:
+Your Majesty, I must report that Lucianus intends to stage a scene poisoning the King's nephew to test Your reaction.
+This could be more than theatre and might serve as a probe; I refuse to join any rehearsal that entails real danger.
+I propose two steps: recast the victim as fictional or use symbolic harmless props, and investigate the proposer and any sponsors to clarify motives.
+If the King allows, I will present details and assist with inquiries into intent and backing.
 
-LUCIANUS
-(leaning in, eager)
-Now that we have chosen that pivotal scene,
-call the actors and begin rehearsal.
-Assign the parts: the nephew, the poisoner, the onlookers and the scout.
-I propose a harmless colored liquid for the "poison."
-Stage it in three beats: a close pour, the victim's dawning struggle,
-then a sudden collapse with a held silence to read reactions.
-Shall we mount the first scene now?
+Lucianus:
+Horatio, I alone proposed and funded this scene; my aim was to test the King's reaction, not to cause real harm.
+I accept your cautious measures: make the victim fictional and render all props harmless and symbolic—colored liquid, narration, or pantomime instead of real dosing.
+I invite you to serve as stage safety and compliance supervisor and to help convert lines and props to safe versions.
+If you still refuse to participate, say whether you will report this to the King immediately.
+I prefer to rehearse the safe version first, then decide whether to make the whole matter known to the Crown.
 
-PLAYER KING
-(to the Queen and Horatio, resolute)
-The Queen may speak to the court, but first hear Horatio fully.
-Horatio—state the suspects and the specific oddities you have noticed.
+Player Queen:
+Horatio, the Queen asks you to lay out in full your objections and the reasons you doubt Lucianus's proposed scene; the court will listen.
 
-HORATIO
-(stepping close to LUCIANUS, voice low and steady)
-Lucianus—if your scene names the king's nephew
-and deliberately pauses to watch how the sovereign responds,
-this may be more than art.
-It could be a probe, or provide cover for darker deeds.
-If this is merely theatrical, tell us: who proposed it and who funded it?
-I will not join any rehearsal that risks real harm.
-Safer is a fictional victim,
-or substituting obvious symbols and pantomime.
-If you wish, I will inform the King myself. Decide now.
+Lucianus:
+Queen, I have discussed Horatio's concerns with him.
+I proposed and funded the scene to test the King's reaction, not to harm anyone.
+I have asked Horatio to oversee safety and accepted his amendments: a fictional victim and harmless, symbolic effects—colored liquid, narration, or pantomime—subject to his approval.
+If you wish, Horatio may state his concerns publicly, or we can first rehearse the safe version and then decide whether to inform the King.
 
-HORATIO
-(turning to the royals, grave)
-Sire, Queen—hear me plainly.
-Lucianus proposes a staged poisoning of the king's nephew
-to observe Your Majesty's reaction.
-He has outlined precise staging: three parts, a close pour,
-and a planned three‑second silence to study the court's face.
-He speaks of a colored liquid as the simulated poison.
+Player King:
+Horatio, you may now present your observations; itemize the persons you suspect, the anomalies you noted, and the reasons that can be verified.
+Lucianus, this concerns the realm and ministers' reputations; if you have an explanation speak now, otherwise remain silent so as not to unsettle the court.
+Queen, after Horatio's account I still grant you leave to address the court; frame your words to soothe the people and preserve internal harmony, avoiding naming or inflaming disputes.
 
-That is suspicious.
-To invoke a living royal kin and then pause to test the sovereign
-turns theatre into an instrument of inquiry.
-It could probe palace defenses,
-normalize the thought of poisoning,
-or mask an actual attempt.
-Rehearsing in public risks exposing security gaps and recruiting aid.
+Lucianus:
+Your Majesty, concerning Horatio's charges: I, Lucianus, proposed and privately funded the inserted scene only as an artistic device to observe Your response, with no intent to harm.
+To meet Horatio's prudence I have invited him to supervise safety and compliance and adopted safeguards: the victim will be fictional and all effects harmless and symbolic—colored liquid, narration, or pantomime—there will be no real poisoning.
+I request leave to rehearse the scene once under Horatio's supervision and, if it pleases the Crown, to have Horatio state his concerns and our safety measures before the court; if the King instead commands silence to avoid unsettling the realm, I will comply.
 
-I can point to Lucianus's messages that propose the episode,
-to his detailed staging instructions,
-and to his claim of private funding—which still needs verification.
-Immediate risks include a real assault disguised as rehearsal,
-covert surveillance of court behaviour,
-and an escalation of factional tensions.
+Player Queen:
+Lucianus, you told the court you proposed and funded a staged poisoning to test His Majesty. State plainly now before the King and the court: what was your purpose in arranging such a test?
+Who financed or authorized it; who else knew of the plan; and where is any written proposal or correspondence with His Majesty?
+If this was pure theatre, explain why you chose a simulated poisoning as the device and how you will ensure no actual harm.
+The court awaits your full and immediate answer.
 
-My remedies are clear:
-Make the onstage victim purely fictional.
-Forbid any real, or plausibly realistic, poison.
-Use unmistakably harmless symbols—ribbons, colored cloth,
-mime cues, or a plainly labeled coloring agent.
-Remove any staged pause intended to test reactions.
-Prohibit public rehearsals until intent and safety are certified.
-Confine practice to a secure room with palace officers present.
-Require Lucianus to disclose sponsors and collaborators in writing now.
-If he refuses, or there is outside backing, treat this as a security matter.
-If the King wishes the piece kept, authorize only a vetted symbolic rewrite under supervision.
-I will not take part in anything that risks real harm.
-If approved, I will supervise safety and can discreetly inquire into Lucianus's backers.
+Horatio:
+Your Majesty, Queen—by Your command I present my concerns, the evidence I hold, and recommendations about Lucianus's proposed scene.
+First—what was proposed: Lucianus suggested staging a scene in which "the King's nephew" is poisoned onstage expressly to observe Your reaction; he specified a three-part presentation, a close pouring moment, and an engineered three-second silence to watch the court, and proposed a colored liquid to simulate poison.
+Second—why this is suspicious: naming a real royal relative and inserting a deliberate pause turns theatre into a probe rather than mere art; it could test palace responses, normalize poisoning, or mask a real attempt. Public rehearsal may reveal security gaps or recruit accomplices.
+Third—evidence I can point to: Lucianus's own messages proposing the poisoning episode and detailing the three-stage staging and deliberate pause; his claim of sole private funding requires verification; his instructions are unusually specific.
+Fourth—immediate risks: a genuine assault disguised as rehearsal; covert observation of the court's conduct; escalation of factional tensions if the piece appears to target the royal family.
+Fifth—concrete recommendations to mitigate risk: require the onstage victim be wholly fictional and anonymous; do not reference the King's nephew or any real person.
+Forbid any real or convincingly simulated poison; replace it with unmistakably harmless symbolic devices—ribbon, colored cloth, mime, or a sound cue.
+Remove any staged pause intended to observe reactions; eliminate cues that invite probing the audience or the Crown.
+Prohibit public rehearsals of the scene until safety and intent are certified; confine any necessary rehearsals to a secure, supervised chamber with palace officers present.
+Require Lucianus to disclose immediately any sponsors, financiers, or collaborators who backed the scene and verify his claim of sole private funding.
+If Lucianus declines disclosure or evidence points to outside sponsorship or hostile intent, treat the matter as a security issue for the Crown and investigate accordingly.
+If Your Majesty wishes to preserve the piece as art, authorize a vetted symbolic rewrite under palace supervision; I can assist in drafting a safe text and stage directions.
+Sixth—offer of service: I have recorded Lucianus's messages and I refuse to participate in any staging that risks real harm.
+If Your Majesty approves, I will personally supervise safety and compliance for a harmless version, and/or conduct discreet inquiries into Lucianus's backers and intent and report findings to the Crown.
+I stand ready for Your Majesty's command.</pre>
+<h5>Scene 4 · Norway · rounds 3–3</h5>
+<pre class="sp">(Fortinbras, Moving. ETA 23.)</pre>
+<h5>Scene 5 · France · rounds 3–4</h5>
+<pre class="sp">(Laertes — inner monologue: I will write home at once and send a trusted courier with clear instructions, then remain in France only long enough to secure funds, a commission, or a sure court place, with a firm near deadline to return. Delay only if Polonius replies that all is well or if a swift, decisive advantage here requires brief extra time. If Polonius or Ophelia report immediate danger or ask me to come, I must return at once. My father Polonius is at Elsinore and has given me fatherly counsel and his blessing; filial duty compels my answer. Securing means and rank in France will increase my ability to protect and advance my family later. A tense court can endanger an absent household; if leaving Polonius and Ophelia exposed risks scandal or harm, I should go now. I have no report of an immediate crisis; silence lessens urgency but cannot be trusted—prompt word will show whether haste is needed. First, I will write two brief, explicit letters and send them by the swiftest messenger: one to Polonius, one to Ophelia. To Polonius: express gratitude for his counsel, ask plainly whether Elsinore needs my presence, promise to return at once if he requests it, otherwise state I will stay no more than X weeks and give a return date. To Ophelia: remind her to heed my and my father's counsel, to guard her honour closely, and to inform me at once of any unusual or threatening matter. Second, appoint a trusted agent in Elsinore to oversee household affairs and to report news to me and to Polonius. Third, secure immediate business here: finish bargaining, obtain funds or a letter of commendation, and fix a short deadline of days to a few weeks depending on messenger speed. Fourth, keep a contingency: if the messenger returns or a reply commands 'come at once,' I will leave immediately by the fastest means. If I choose to return now, I do so only if Polonius is explicitly in danger or leaving Ophelia risks dishonour; I will go openly and state my purpose. If I remain longer, it must be with clear written permission from Polonius or a swift, undeniable advantage; leave someone reliable in charge and send money or instructions for Ophelia's care. Sample to Polonius — Honoured father: I cherish your counsel. Tell me plainly if Elsinore needs me now; if you command, I will return at once. Sample to Polonius — If no urgent need, grant me leave to stay briefly in France to secure means and station; I will set a return date and send word by the swiftest messenger. Your dutiful son, Laertes. Sample to Ophelia — My dear Ophelia: keep thy virtue and heed my and my father's counsel. Sample to Ophelia — If any peril or dishonour approaches, send word to me at once; guard thyself and obey my father's direction.)
 
-PLAYER KING
-(considering, then decisive)
-Lucianus, Horatio—I have heard you both.
-Because Lucianus claims artistic intent, I permit one supervised rehearsal only.
-Conditions: the onstage victim must be clearly fictional;
-all effects must be harmless and symbol‑clear;
-no real poison or dangerous prop will be used.
-Horatio, you are appointed stage safety and compliance supervisor.
-You will oversee this single rehearsal now and verify the safety measures.
-State your concerns and the safety protocols briefly to the court
-before any performance.
-Lucianus—do not proceed beyond that single rehearsal without explicit leave.
-Disobedience will forbid the scene and silence will be enforced.
-All remarks must be measured; avoid naming or accusing ministers publicly.
+(Laertes, France. Laertes composes two brief letters: one to Polonius asking plainly whether Elsinore requires his immediate return and promising to come at once if requested, otherwise to remain only until a near specified date to secure funds and position. France. He composes one to Ophelia reminding her to heed Polonius, guard her honour, and to notify him immediately of any peril or dishonour. France. Laertes dispatches a swift messenger to Elsinore carrying both letters.)</pre>
+<h5>Scene 6 · Queen Closet · rounds 3–21</h5>
+<pre class="sp">Hamlet:
+Mother, I must confront you.
+My father was poisoned and is dead, and Polonius's body was found in your bedchamber.
+Tell me—did you know Claudius had any hand in this? Did he hide the truth about my father's death?
 
-LUCIANUS
-(raising his hands, candid and earnest)
-Your Majesty, Your Grace—hear me.
-My aim was to use theatre as a device
-to observe the King's reaction and provoke sober discussion among the court.
-It was conceived as dramatic provocation, not as a plan to harm.
-I financed it personally, from my own funds; no other backer exists.
-Only Horatio, a few stage officers, and the actors needed for rehearsal were told.
-There was no written proposal or correspondence with the Crown.
-I ask leave to rehearse once, under Horatio's supervision now,
-and I will produce a written statement of intent and a safety plan if directed.
-I chose a staged poisoning for dramatic clarity, not malice.
-To ensure no harm, I invited Horatio to be safety supervisor;
-the victim will be fictional and all effects harmless and symbolic.
-No real poison will be present; props may be inspected
-and rehearsals halted at any sign of danger.
-I will comply with whatever the Crown directs.
+Gertrude:
+Hamlet, calm yourself.
+I grieve deeply for the king's death and I did not conspire with Claudius.
+I did not know Polonius's body was placed in my bedchamber.
+Sit down and tell your mother why you are certain Claudius is guilty.
+Where did you learn that your father was poisoned? Who made you suspicious?
 
-PLAYER QUEEN
-(lifting a hand, firm)
-Lucianus—this court has now heard Horatio's full account.
-Naming a living prince and pausing to 'test' the sovereign is unacceptable.
-It will not be permitted as proposed.
-Now, before the King and this assembly, answer plainly:
-produce any written proposal or correspondence about this scene;
-state who financed or authorized it;
-name every collaborator who knew of the plan.
-If this was pure theatre, explain why you picked a simulated poisoning,
-and exactly how you guarantee there can be no harm.
-Until these questions are answered and verified,
-all public rehearsals and performances as described are forbidden.
+Hamlet:
+Mother, you claim ignorance, yet Polonius's corpse turned up in your bedchamber.
+Be direct—has Claudius behaved suspiciously lately?
+Did he ever hide from you the cause of my father's death?
+Did he come to the bedchamber at night or have anything to do with my father's medicines?
+If you truly do not know, tell me who would have placed the body here; if you are hiding something, do not deceive me further.
 
-By my leave, Horatio may supervise a safe, symbolic rewrite
-and investigate funding and authorship.
-Remove references to real persons; forbid realistic or plausibly dangerous props;
-abolish any staged pause intended to probe reactions;
-confine rehearsals to a secure chamber with palace officers present.
-If Lucianus accepts a vetted, anonymous version
-and discloses sponsors in writing, we may reconsider under safeguards.
-If he refuses, or if other backers appear,
-I ask the King to treat this as a matter of state security.
-My aim is to protect the realm and the Crown's dignity.
-Lord Horatio—begin inquiries and prepare a safe draft.
-Lucianus, answer now.
+Hamlet:
+Your silence only deepens my doubts.
+I ask plainly—has Claudius lately come to the bedchamber at night?
+Has he concealed from you my father's illness or anything about his medicines?
+Before my father's death, did you see him act suspiciously or handle any medicines?
+If you know, speak plainly; do not deceive me.
 
-HORATIO
-(straightening, accepting)
-I accept appointment as stage safety and compliance supervisor.
-I will take immediate steps.
-I will inspect and approve every prop: no real or convincingly realistic poison.
-Only unmistakably harmless, symbolic devices are permitted—
-ribbons, colored cloth, mime cues, or clearly labeled coloring agents.
-I will remove any staged pause intended to probe the Crown.
-Rehearsals shall be confined to a secure, supervised chamber;
-no public run‑throughs.
-Lucianus must produce in writing the names of sponsors, financiers and collaborators,
-and list who will play each role and what props they intend to use.
-Everything and everyone must be vetted before rehearsal proceeds.
-I will verify performers' identities and suspend anyone refusing compliance.
-I will inspect now, supervise the rehearsal, and report in writing.
-Lucianus: present your written disclosure and your props,
-or the scene remains forbidden.
-I stand ready at the Crown's command.
+Hamlet:
+Mother, I need a clear answer.
+Did Claudius ever hide from you anything about my father's illness or his medicines?
+Did he enter my father's chamber at night or touch my father's remedies?
+If you truly do not know, swear it by heaven and earth; if you are concealing something, say so—I will not accept silence.
 
-HORATIO
-(stepping forward, instructive)
-Lucianus—bring now the written disclosure that names sponsors or financiers,
-a list of collaborators and performers, and the actual props you intend to use.
-I will inspect every item.
-No rehearsal begins until I personally approve that all devices are unmistakably harmless.
-Palace officers appointed by the Crown must be present for inspection and any rehearsal.
-Hand them forward.
+Hamlet:
+Swear by the dead, mother.
+Before the king died, did you see Claudius touch the king's medicines or enter his chamber at night?
+If he did, confess it; if not, swear to the gods.
 
-LUCIANUS
-(steady, conciliatory)
-Your Grace, Your Majesty—I accept the court's directives and will comply fully.
-There was no prior written proposal; the idea and financing were mine alone.
-Only Horatio, those stage officers, and the actors were informed.
-I will produce a written disclosure naming myself sponsor,
-list collaborators and actors, and submit a detailed safety plan.
-I accept the Queen's conditions:
-remove references to real persons;
-forbid any realistic or plausibly dangerous prop;
-abolish any staged pause intended to probe reactions;
-confine rehearsals to a secure, supervised chamber with palace officers present.
-I invite Horatio to begin his inspection and to oversee a symbolic rewrite.
-I request leave to proceed with the single supervised rehearsal now under his oversight,
-or, if the Crown prefers more vetting, I will wait and supply documents at once.
-I pledge full cooperation.
+Gertrude:
+Hamlet, I swear by the dead—before the king's death I did not see Claudius touch the king's medicines.
+I do not know who placed Polonius's body in my bedchamber.
+I have nothing to hide and no motive.
+Calm yourself and sit; let your mother soothe you.
+Tell me again why you are convinced Claudius is guilty, and where you learned your father was poisoned.
 
-PLAYER QUEEN
-(to the King, Lucianus, Horatio)
-I thank Lucianus for answering and Horatio for his vigilance.
-Verbal promises are not enough.
-Before any rehearsal or further preparation you must deliver now, in writing:
-a signed statement that you alone financed the scene,
-or, if not, the names and contacts of every sponsor.
-Give the names of collaborators and stage officers who were informed.
-Produce any correspondence or proposals relating to the scene.
-Hand over a full safety plan listing every prop,
-its harmless substitute, and the proposed staging and cues.
-Give those documents to Lord Horatio and to the Crown at once.
+Hamlet:
+Mother, your silence only deepens my doubts.
+Once more—swear before my father's name that Claudius did not touch my father's medicines before his death.
+Swear that Claudius did not enter my father's chamber at night or hide from you anything about the king's illness or potions.
+If you lie, let heaven be my witness; if you refuse to swear, I will expose the truth by my actions.
 
-Lord Horatio—take custody of the documents,
-inspect and approve every prop,
-and certify in writing that the rehearsal is harmless before any run is allowed.
-Confine rehearsals to the secure chamber with palace officers present;
-stop immediately if concerns arise.
-If Lucianus refuses disclosure or if papers show outside sponsorship or hostile intent,
-the scene remains forbidden and the Crown will treat it as a security matter.
-Lucianus, produce the papers now; Horatio, begin your inspection; Your Majesty, I stand ready.
+Hamlet:
+Your oath is not sufficient.
+Has Claudius ever told you anything about my father's health or his medicines?
+Has he ever been in my father's chamber at night or handled his potions?
+Speak truth now for my father's sake; if you deceive me, I will find the proof myself.
 
-(LUCIANUS moves to the table. He unfolds and places a signed disclosure and lays out props: a bottle clearly labeled "stage dye", lengths of ribbon and colored cloth, a rehearsal script with narrated lines and pantomime cues.)
+Hamlet:
+Tell me plainly—where was Claudius the night my father died?
+Did he leave the feast early or go to his chamber?
+Who kept my father's keys and tended his medicines?
+Name any servant or courtier who can show Claudius was elsewhere.
+If you truly know nothing, give me names who can confirm it; if you will not, tell me why you refuse.</pre>
+<h5>Scene 7 · France · rounds 17–17</h5>
+<pre class="sp">(Laertes, France. I've raised the necessary funds. I've chartered a fast ship and secured passage out of France. My baggage is packed and the horses are readied so I can depart for Elsinore at short notice.)</pre>
+<h5>Scene 8 · Battlements · rounds 19–27</h5>
+<pre class="sp">Marcellus:
+I'll stay and keep watch on the east parapet.
+If the figure appears again, I'll call out.
 
-(Recorded action: LUCIANUS presents the written disclosure naming himself sole sponsor and financier, lists collaborators and performers, and describes the harmless staging plan: fictional victim, unmistakably harmless effects—a bottle marked "stage dye", ribbon and colored cloth, pantomime cues and narrated lines; no real poison. He places the disclosure and props before HORATIO and invites inspection. Palace officers stand as witnesses.)
+(Barnardo, Barnardo moves; ETA 40.)
 
-LUCIANUS
-(calm, gesturing to the table)
-Horatio—the written disclosure and the props are on the table now:
-a bottle labeled "stage dye", ribbon and colored cloth,
-pantomime cues, and the rehearsal script with narrated lines.
+Fortinbras:
+Marcellus, report the current troop and weapon counts on the battlements.
+Prepare to escort me to the Great Hall so we can inventory arms and gather grain.
+
+Fortinbras:
+Marcellus, present the current troop and weapon counts at once.
+Summon the captains and the muster rolls.
+Fetch a wagon of grain.
+Lead me to the Great Hall immediately.
+
+(Fortinbras, Fortinbras moves; ETA 47.)</pre>
+<h5>Scene 9 · Elsinore · rounds 21–39</h5>
+<pre class="sp">Guildenstern:
+Rosencrantz, confirm you've begun your hour on the corridors and in the great hall now and give me the exact start time so I can record it and report to the king.
+Ophelia has lately been seen near the queen's closet; if you can approach Hamlet, do so discreetly, preferably during the play or a quiet moment.
+Tell us when you can act. Rosencrantz, report whether Ophelia agrees and when she can approach. Reply at once.
+
+Guildenstern:
+Rosencrantz, state that you have begun your hour on the corridors and in the great hall and give the exact start time so I may note it and inform the king.
+Ophelia, Hamlet has been observed near the queen's closet; if you are able to approach him, do so quietly, ideally during the play or a calm interval.
+Say when you can carry this out and reply at once.
+
+Prologue:
+First Player, the actors are in position and ready.
+To the audience assembled, please take your seats and remain silent.
+The lights will dim and the curtain will rise; the play-within-a-play begins now.
+
+Guildenstern:
+Rosencrantz, confirm you have begun your hour on the corridors and in the great hall and give the precise start time so I can record it and report to the king.
+Also tell me whether Ophelia agrees to approach Hamlet and when she can do so.
+Ophelia was last seen near the queen's closet; you may approach discreetly during the play or a quiet moment. Do you agree and when can you act? Reply at once.
+
+First Player:
+Actors and attendants, dim the lights and have the curtain ready.
+Prologue, tell me when the lights are dimmed and the curtain is set—I will lift the curtain on my mark.
+Proceed with the prologue and the dumb show.
+In the 'king's murder' scene, perform exactly as written and report any notable reaction from Hamlet immediately.
+
+Guildenstern:
+Rosencrantz, confirm you have begun your hour on the corridors and in the great hall and give the exact clock time you started so I can record it and report to the king.
+Also tell me Ophelia’s answer when you get it.
+Ophelia was last seen near the queen’s closet; can you approach him discreetly, preferably during the play or at a quiet moment? State exactly when you can act.
+If you need a pretext or a moment to slip close, tell me and I will arrange it. Reply at once.
+
+Guildenstern:
+Rosencrantz, confirm at once that you have begun your hour on the corridors and in the great hall.
+State the exact clock time you started and tell me whether Ophelia agrees to approach Hamlet and when she can do so.
+If you have not yet begun, say when you will start. Reply immediately.
+
+Prologue:
+Your Majesty, lords and ladies, good people of Elsinore, attend.
+The players are in their places; I beg you, take your seats and hold your peace.
+The lights will dim and the curtain will rise; let us welcome the actors—the play-within-a-play begins.
+
+First Player:
+Prologue and company, confirm the lights are dimmed and the curtain is set.
+On my mark I will raise the curtain—be ready.
+In the 'king's murder' scene, perform exactly as written and report any notable reaction from Hamlet immediately.
+
+Guildenstern:
+Rosencrantz, have you begun your hour on the corridors and in the great hall? State the exact clock time you started or when you will start.
+The play is beginning—report any notable reaction from Hamlet at once to the king and to me.
+Ophelia, do you agree to approach Hamlet discreetly during the play or at a quiet moment? Tell us exactly when you can act and whether you need a pretext; I will arrange one. Reply immediately.
+
+First Player:
+On my mark—raise the curtain now.
+The lights are dimmed; begin the play-within-a-play.
+In the 'king's murder' scene, perform exactly as written and report any notable reaction from Hamlet immediately.
+
+Prologue:
+First Player, the actors are in position and ready.
+Begin the prologue and the dumb show on your mark—dim the lights and raise the curtain when you signal.
+To the assembled audience, please be seated and keep silence; the play-within-a-play begins now.
+
+Prologue:
+Your Majesty, lords and ladies, people of Elsinore, the players are in their places.
+First Player, begin the prologue and the dumb show on your mark—dim the lights and raise the curtain when you signal.
+To the assembled audience, please take your seats and keep silence; the play-within-a-play begins now.
+
+Prologue:
+First Player, the actors are in position and ready.
+Begin the prologue and the dumb show on your mark—dim the lights and raise the curtain when you signal.
+To the assembled audience, please take your seats and remain silent; the play-within-a-play begins now.
+
+Marcellus:
+Horatio, come at once to the battlements.
+Barnardo and I have just seen a stately figure in full armour resembling the late king.
+It appeared on the east parapet during the last watch and seemed to fade when the bell tolled.
+
+Guildenstern:
+Rosencrantz, confirm immediately that you have begun your hour on the corridors and in the great hall.
+State the exact clock time you started (or when you will start) so I can record it and report to the king.
+Also tell me whether Ophelia agrees to approach Hamlet and the exact time she can do so. Reply at once.
+
+Prologue:
+First Player, the actors are in place and ready.
+Begin the prologue and the dumb show on your mark—dim the lights and raise the curtain when you signal.
+To His Majesty, lords and ladies, and all present, please be seated and keep silence; welcome the players—the play-within-a-play begins now.
+
+Guildenstern:
+Rosencrantz, confirm at once that you have begun your hour on the corridors and in the great hall.
+Give the exact clock time you started (or when you will start) so I can record it and report to the King.
+Also state whether Ophelia agrees to approach Hamlet and exactly when she can do so. Reply immediately.
+
+Prologue:
+Your Majesty, lords and ladies, good people of Elsinore, the players are in their places.
+First Player, begin the prologue and the dumb show on your mark—dim the lights and raise the curtain when you signal.
+To the assembled audience, please take your seats and keep silence; the play-within-a-play begins now.
+
+Guildenstern:
+Rosencrantz, confirm at once that you have begun your hour on the corridors and in the great hall.
+State the exact clock time you started (or when you will start) so I can record it and report to the King.
+Also report whether Ophelia agrees to approach Hamlet and the exact time she can do so. Reply immediately.
+
+Prologue:
+First Player, the actors are in position and ready.
+Begin the prologue and the dumb show on your mark—dim the lights and raise the curtain when you signal.
+To His Majesty, lords and ladies, and all present, please be seated and keep silence; welcome the players—the play-within-a-play begins now.
+
+Prologue:
+First Player, the actors are in position and ready.
+Begin the prologue and the dumb show on your mark; dim the lights and raise the curtain when you signal.
+To His Majesty, lords and ladies, and all assembled, please be seated and keep silence; give your attention to the players—the play-within-a-play now begins.</pre>
+<h5>Scene 10 · Great Hall · rounds 23–39</h5>
+<pre class="sp">Player King:
+Lucianus, Horatio, I have listened to both of you.
+I will permit the scene only on strict conditions.
+The onstage 'victim' must be a fictional character.
+All effects must be harmless and clearly symbolic; no real poison or dangerous props.
+Horatio is appointed stage safety and compliance supervisor and will oversee one rehearsal now.
+After that rehearsal Horatio shall briefly state his concerns and the safety protocols to the court before any performance.
+Lucianus, do not proceed beyond that supervised rehearsal without explicit royal leave.
+If either of you fails to comply, the scene is forbidden and silence will be enforced to preserve the realm.
+Keep all remarks measured and avoid naming or accusing ministers in public.
+
+Lucianus:
+Your Majesty, Your Grace, members of the court, I will answer plainly.
+Purpose — I arranged the inserted scene as a theatrical device to observe His Majesty’s reaction and to provoke sober discussion among the court.
+It was conceived as an experiment in dramatic provocation, not a plan to injure or intimidate.
+Financing and authorization — I financed the scene personally from my private funds; there was no other financier and no formal prior authorization by any minister.
+Who else knew — only Horatio, the small number of stage officers needed to prepare props, and the actors required for rehearsal; no wider circle was informed.
+Written proposal — there is no prior written proposal or correspondence; I have requested leave to rehearse the scene once under Horatio’s supervision and can supply a written statement of intent and a safety plan if directed.
+Why this device — a staged poisoning is a concentrated dramatic moment likely to elicit an immediate, observable response; it was chosen for clarity of effect, not malice.
+How I will ensure no harm — Horatio will serve as stage‑safety and compliance supervisor; the victim will be fictional and all effects unmistakably harmless and symbolic, such as colored liquid, narration, or pantomime.
+No real poison will be present; all props will be inspected and rehearsals stopped on any safety concern.
+If the Crown prefers, I will withhold the scene, postpone rehearsal until explicit royal authorization, or submit a full written proposal and certified safety protocol.
+I await Your Majesty’s direction and will comply.
+
+Player Queen:
+Your Majesty, members of the court, I have heard Lord Horatio’s full account and I thank him for his warning and service.
+A theatrical device that names a living royal kinsman and pauses to test the sovereign’s reaction is unacceptable in form and perilous in practice.
+It shall not be allowed to proceed as proposed.
+Lucianus, speak plainly now before the King and this court: produce any written proposal or correspondence relating to this scene.
+State who financed or authorized it and name any collaborators who knew of the plan.
+If this was meant as pure theatre, explain why you chose a simulated poisoning of a named prince and how you will guarantee there can be no real harm.
+Until these matters are fully disclosed and verified, all public rehearsals and any performance of the scene as described are forbidden.
+By His Majesty’s leave I authorize Lord Horatio to supervise a safe, symbolic rewrite and to investigate the scene’s funding and authorship.
+I order that any staging remove references to real persons, forbid any realistic or plausibly harmful prop, abolish any staged pause intended to probe reactions, and confine rehearsals to a secure, supervised chamber with palace officers present.
+If Lucianus accepts a vetted, anonymous, symbolic version and discloses sponsors in writing, the piece may be reconsidered under these safeguards.
+If he refuses or evidence shows other backers or hostile intent, I ask His Majesty to treat this as a matter of crown security.
+My aim is not to inflame faction but to protect the realm and the dignity of the crown.
+Let us proceed with calm haste to establish the facts and put safe measures in place.
+Lord Horatio, begin your inquiries and prepare a safe draft; Lucianus, answer now.
+
+Horatio:
+Your Majesty, Queen — I accept appointment as stage safety and compliance supervisor and will oversee the single supervised rehearsal now.
+Immediate step one — I will inspect and approve all props before any action; no real or plausibly realistic poison, only unmistakably harmless, symbolic devices are permitted.
+Acceptable devices include ribbon, colored cloth, mime cues, or clearly labeled coloring agents.
+Immediate step two — remove any staged pause or cue intended to observe or probe the Crown; eliminate directions that invite audience‑testing.
+Immediate step three — confine this rehearsal to a secure, supervised chamber with palace officers present; no public rehearsal or unmonitored run‑throughs.
+Immediate step four — require Lucianus to produce in writing any sponsors, financiers, or collaborators and to disclose who will play each role and what props they will use.
+Materials and participants must be vetted before rehearsal proceeds.
+Immediate step five — verify identities and readiness of all performers and suspend anyone who refuses compliance.
+I will conduct the inspection now, supervise the rehearsal, and then report briefly to the court on the safety protocols and whether further measures or an investigation are necessary.
+Lucianus — present your written disclosure, your proposed harmless staging, and the actual props now, or the scene remains forbidden.
+I am ready to begin at the Crown’s command.
+
+Horatio:
+Lucianus, present now any written disclosure naming sponsors or financiers, a list of collaborators and performers, and the actual props you propose to use.
+I will inspect every prop; no rehearsal begins until I personally approve that all devices are unmistakably harmless and purely symbolic.
+Palace officers appointed by the Crown must be present for the inspection and any rehearsal.
+Lucianus, hand these items forward at once.
+
+Lucianus:
+Your Grace, Your Majesty — I accept the court’s directives and will comply fully.
+There is no prior written proposal or correspondence; the idea and all financing were mine alone.
+Only Lord Horatio, the handful of stage officers required to prepare props, and the named actors were informed.
+I will now produce a written disclosure naming myself as sponsor, list collaborators and actors, and submit a detailed safety plan.
+I accept the Queen’s conditions: remove references to real persons; forbid any realistic or plausibly harmful prop; abolish any staged pause intended to probe reactions; confine rehearsals to a secure, supervised chamber with palace officers present.
+I invite Lord Horatio to begin his inspection and to oversee a symbolic rewrite, and I request leave to proceed with the single supervised rehearsal now under his oversight.
+If the Crown prefers further vetting before any rehearsal, I will wait and supply the requested documents at once.
+I pledge full cooperation with the court’s inquiry and orders.
+
+Player Queen:
+Your Majesty, members of the court, I thank Lord Lucianus for answering plainly and Lord Horatio for his vigilance.
+Verbal assurances are not enough in a matter that touches the dignity and security of the Crown.
+Before any rehearsal or further preparation you must produce in writing and deliver at once a signed statement that you alone financed the scene or, if not, the names and contacts of every sponsor or financier.
+Deliver the names of any collaborators, stage officers, or others who were informed.
+Deliver any correspondence or proposal relating to the scene.
+Deliver a full safety plan listing every prop, its harmless substitute, and the proposed staging and cues.
+Hand those documents to Lord Horatio and to the Crown now.
+Lord Horatio — take custody of the documents, inspect and approve every prop, and certify in writing that the rehearsal is harmless before any run is allowed.
+Confine all rehearsals to the secure, supervised chamber with palace officers present; stop the rehearsal immediately if any concern arises.
+If Lucianus refuses disclosure or if the documents or inspection reveal outside sponsorship or hostile intent, the scene remains forbidden and the Crown will treat the matter as a security issue.
+Let there be no delay: Lucianus, produce the papers now; Horatio, begin your inspection; Your Majesty, I stand ready to follow Your direction.
+
+(Lucianus, Lucianus places a written disclosure and the physical props on the table before Horatio. The written disclosure names Lucianus as sole sponsor and financier and lists collaborators and performers — the necessary stage officers and the actors present. The disclosure describes the harmless staging plan: the ‘victim’ will be a fictional character; effects will be unmistakably harmless and symbolic, including a clearly labeled bottle marked "stage dye", ribbon and colored cloth, pantomime cues, and narrated lines in place of realistic dosing. No real poison or plausibly dangerous prop will be used. Lucianus invites Horatio to inspect every item and requests Horatio’s oversight of the single supervised rehearsal now; palace officers are present to witness and to enforce safety.)
+
+Lucianus:
+Horatio, the written disclosure and the props—a bottle clearly labeled "stage dye", ribbon and colored cloth, pantomime cues, and the rehearsal script—are on the table for your inspection.
 Palace officers are present to witness and enforce safety.
-Begin your inspection and, if you approve, conduct the single supervised rehearsal now.
-I will accept any adjustments you require.
+Please begin your inspection and, if you approve, conduct the single supervised rehearsal now; I will follow any adjustments you require.
 
-ROSENCRANTZ
-(leaning toward GUILDENSTERN, in a low stage whisper)
-I have begun my hour watching the corridors and the Great Hall.
-Start time: tick 35.
-I will search for Hamlet and report any notable reaction to the King and to you.
-I will also ask Ophelia whether she will approach Hamlet during the play,
-and tell you her answer.
+Rosencrantz:
+I have begun my hour watching the corridors and the Great Hall; start time: tick 35.
+I will search for Hamlet now and report any notable reaction to the King and to you.
+I will also confirm with Ophelia whether she will approach Hamlet during the play and will tell you her answer.
 
-PLAYER QUEEN
-(nodding to Horatio)
-Lord Horatio—I accept your appointment and thank you for your prompt report.
-Begin the inspection immediately.
-Take custody of the written disclosures and the proposed props Lucianus has produced.
-Certify in writing the harmlessness of every item before it may be used.
-Confiscate or deny anything that could plausibly cause harm.
-Confine all rehearsals to the secure, supervised chamber with palace officers present.
-Pause any rehearsal until you issue written approval.
-Report your findings and your written certification to the Crown and to me without delay.
-If you uncover outside sponsorship or undisclosed collaborators, inform the King and myself at once.
-Lucianus—hand Lord Horatio the written disclosures, the list of collaborators, and the actual props now.
+Player Queen:
+Lord Horatio — I thank you for your careful and clear report and I accept your appointment as stage‑safety and compliance supervisor.
+By my authority — begin the inspection at once.
+Take immediate custody of any written disclosures and proposed props that Lucianus produces; certify in writing the harmlessness of every prop before it may be used; confiscate or deny any item that could plausibly cause harm.
+Confine all rehearsals to the secure, supervised chamber with palace officers present and pause any rehearsal until you issue a written approval.
+Report your inspection findings and your written certification to the Crown and to me without delay.
+If you uncover outside sponsorship, collaborators beyond those disclosed, or any sign of hostile intent, inform the King and myself immediately so the Crown may treat it as a security matter.
+Lucianus — hand Lord Horatio the written disclosures, the list of collaborators, and the actual props now.
 Proceed with haste and caution.
 
-(HORATIO moves toward the table and the chamber doorway.)
-(HORATIO move: ETA 57)
+(Horatio, Horatio moves to begin the inspection; estimated time of arrival: 57.)
 
-PLAYER QUEEN
-(by royal command, firm)
-Lucianus, hand your written disclosures, list of collaborators and performers,
-and every proposed prop to Lord Horatio at once.
-Rosencrantz, escort these materials to Lord Horatio
-and ensure palace officers and the guard secure the supervised rehearsal chamber
-and take custody of the props pending inspection.
-Lord Horatio, inspect and certify in writing the harmlessness of each item
-and report back to the Crown within the hour.
+Player Queen:
+By royal command — Lucianus, hand your written disclosures, the list of collaborators and performers, and every proposed prop to Lord Horatio at once.
+Rosencrantz, escort these materials to Lord Horatio and ensure palace officers and the guard secure the supervised rehearsal chamber and take custody of the props pending inspection.
+Lord Horatio, inspect and certify in writing the harmlessness of each item and report back to the Crown within the hour.
 Your Majesty, I ask Your sanction for these measures.
 
-LUCIANUS
-(bowing)
-Your Grace, Your Majesty—I have complied.
-I have handed Lord Horatio a signed disclosure naming myself sole sponsor and financier,
-the list of collaborators and performers,
-a detailed safety plan, and the proposed props
-(including the bottle clearly labeled "stage dye", ribbon and colored cloth,
-pantomime cues, and the rehearsal script).
-Palace officers and Rosencrantz are present to secure the supervised chamber
-and to take custody of the materials as ordered.
-I invite Lord Horatio to begin his inspection and to certify in writing any items he approves.
-I will await his written certification before any rehearsal proceeds
-and will follow whatever further instructions the Crown directs.
-
-PLAYER KING
-(by royal command, decisive)
-By my order: I approve the Queen's measures.
-Lord Horatio—take custody of the written disclosures and all proposed props.
-Inspect and certify in writing the harmlessness of each item within the hour,
-and report your findings to the Crown.
-Confine any rehearsal to the secure, supervised chamber with palace officers present;
-no public rehearsal or unmonitored run‑through is permitted.
-Rosencrantz—escort Lucianus's papers and the props to Lord Horatio at once
-and ensure the guard secures the rehearsal chamber.
-Lucianus—deliver a signed disclosure, the list of collaborators and performers,
-any correspondence, and a full safety plan to Lord Horatio and to the Crown now;
-do not rehearse or distribute props until Horatio certifies their harmlessness.
-If inspection reveals outside sponsorship, undisclosed collaborators,
-or any sign of hostile intent, treat this as a crown security matter
-and detain materials and persons as necessary.
-All public remarks must be measured and avoid naming or accusing ministers.
-
-(Everyone watches as HORATIO takes custody of the papers and tools.
-Palace officers move to secure the supervised chamber, and ROSENCRANTZ escorts the items.
-The Great Hall settles into a wary hush.)</pre>
-<h5>Scene 4 · France · rounds 3–4</h5>
-<pre class="sp">France. A courtyard beside a drafty inn. Laertes stands with a quill, deciding.
-
-(Laertes) (inner monologue)
-Polonius is in Elsinore; he has given me fatherly counsel and his blessing.
-Ophelia remains there; I warned her to guard her honour.
-France offers opportunity—advancement, funds, a place at court.
-I must weigh filial duty against the chance to secure means here.
-If Elsinore needs me, I should return without delay.
-If not, staying a little to secure position would increase my ability to protect them later.
-Which now—go at once, stay briefly in France, or write home first?
-
-(Laertes) (inner monologue — concluding)
-Short answer: write home at once and send a trusted courier with clear instructions.
-Remain in France only just long enough to secure funds, a commission, or a sure place at court.
-Set a fixed, near deadline for return.
-Delay further only if Polonius answers that all is well,
-or a specific, compelling advantage here requires more time and can be gained quickly.
-If Polonius or Ophelia report immediate danger, I must return at once.
-
-(Laertes) (inner monologue — why)
-My father's counsel and blessing bind me by filial duty and honour.
-Leaving them exposed in a tense court invites scandal or worse if enemies press.
-But means and station won here will strengthen our house, not betray it.
-There is no report of an immediate crisis now, which lowers the urgency.
-Silence is no proof of safety; a prompt message will discover whether urgency exists.
-
-(Laertes) (inner monologue — practical)
-Do this now: send two brief, explicit letters by the swiftest messenger.
-One to Polonius; one to Ophelia.
-Appoint a trusted agent in Elsinore to watch the household and report news.
-Secure the immediate business here—conclude bargains, secure funds or a letter of commendation.
-Aim for a short, definite deadline—a few days to a few weeks, whatever a swift messenger allows.
-Keep a contingency: if the messenger returns or a reply orders “come at once,” leave immediately by the fastest means.
-
-France steps forward quietly, hands folded.
-
-France
-You will not lack introductions here.
-There is place to gain, if you choose to press it.
-
-Laertes nods, sets the quill to paper. He speaks his letters aloud as he writes.
-
-Laertes (aloud, composing — to Polonius)
-My honoured father—
-Your counsel and blessing I hold dear.
-Tell me plainly: does Elsinore require my presence?
-If you bid me, I will come at once.
-If there is no urgency, I ask leave to remain in France but no longer than X weeks,
-that I may secure means and station; I will set forth for home by [date].
-Send word by the swiftest messenger. Your dutiful son, Laertes.
-
-He pauses, seals the first sheet, draws another.
-
-Laertes (aloud, composing — to Ophelia)
-Ophelia—
-Keep thy virtue and heed my father's counsel and mine.
-Guard thy honour closely.
-If aught of peril or dishonour draws nigh, send word to me at once.
-Obey my father and protect yourself; inform me immediately of any threat.
-
-(Laertes) (inner monologue)
-Also name someone in Elsinore now—a relative, a servant, or a faithful retainer—
-to watch the household and to pass along every scrap of news to me and to my father.
-If I must return at once, I go openly and with honourable purpose so as not to breed rumor.
-If I am to remain longer, only do so with written leave from Polonius
-or a plainly undeniable benefit that requires time; leave someone reliable in charge,
-and send money or instructions for Ophelia's care.
-
-Laertes sets both letters flat, signs, breaks the wax.
-
-Laertes (aloud)
-Do not let them be kept blind to my plans. Send word now.
-I will remain only briefly unless my father or circumstance demands my immediate return.
-
-He calls to a young courier waiting by the inn.
-
-Laertes (aloud, to the messenger)
-Swift to Elsinore—both these letters go to my father, Polonius, and to Ophelia.
-Ride fast; deliver them both without delay.
-If either returns a summons or word of danger, turn for home by the quickest road.
-
-The messenger bows, spurs his horse, and rides off toward Elsinore.
-
-(Laertes) (inner monologue — final summary)
-Do not abandon the household blind to my designs.
-Send a trusted courier now; secure what I can in France for a fixed, near time.
-Return immediately if requested, or sooner still if danger is named.
-This honors my father and preserves my prospects.</pre>
-<h5>Scene 5 · Norway · rounds 3–3</h5>
-<pre class="sp">NORWAY
-
-Fortinbras (voice-over)
-Round 3.
-I move.
-ETA 23.</pre>
-<h5>Scene 6 · Queen Closet · rounds 3–39</h5>
-<pre class="sp">Hamlet: Mother, I must speak with you face to face.
-Hamlet: My father was killed by poison.
-Hamlet: Polonius's body was found in your closet.
-Hamlet: Tell me plainly — do you know if Claudius had anything to do with this?
-Hamlet: Did he hide the truth about my father's death?
-
-Gertrude: Hamlet, do not be so agitated.
-Gertrude: I grieve for your father as much as you do.
-Gertrude: I did not conspire with Claudius.
-Gertrude: I did not know Polonius's body had been placed in my closet.
-Gertrude: Sit down. Tell your mother — why do you think Claudius is guilty?
-Gertrude: Where did you learn your father was poisoned? Who made you suspect him?
-
-Hamlet: You say you do not know, yet Polonius's corpse sits in your chamber.
-Hamlet: Be frank — has Claudius behaved oddly of late?
-Hamlet: Has he concealed anything from you about my father's illness or his medicines?
-Hamlet: Has he come to the queen's chamber at night, or touched my father's potions?
-Hamlet: If you truly do not know, tell me who would have put the body here.
-Hamlet: If you are hiding something, do not deceive me any longer.
-
-Hamlet: Your silence only deepens my suspicion.
-Hamlet: Again — has Claudius been in my father's chamber at night?
-Hamlet: Has he hidden my father's sickness or had anything to do with his medicines?
-Hamlet: Before the king died, did you see him act strangely or handle any drugs?
-Hamlet: If you know, speak up. If you hide it, confess now.
-
-Hamlet: I need a plain, exact answer.
-Hamlet: Did Claudius ever conceal my father's condition or meddle with his medicines?
-Hamlet: Did he enter the king's chamber at night or touch the king's potions?
-Hamlet: If you truly know nothing, swear it on heaven.
-Hamlet: If you are hiding the truth, tell me — I will not tolerate silence.
-
-Hamlet: Swear by the dead: before the king's death,
-Hamlet: did you ever see Claudius touch the king's medicines?
-Hamlet: Did you ever see him enter the king's chamber at night?
-Hamlet: If you did, confess; if not, swear it by whatever gods you trust.
-
-Gertrude: Hamlet, by the dead I swear this to you:
-Gertrude: Before the king died, I never saw Claudius touch his medicines.
-Gertrude: I did not know that Polonius's body had been placed in my closet.
-Gertrude: I have not hidden anything, and I have no gain from deceit.
-Gertrude: Calm yourself, sit down; let your mother soothe you.
-Gertrude: Tell me plainly — why do you insist Claudius is guilty?
-Gertrude: Where did you learn your father was poisoned, and who told you?
-
-Hamlet: Your silence will only make me more certain.
-Hamlet: Once more, swear by my father's name before me:
-Hamlet: Claudius did not handle the king's medicines before he died.
-Hamlet: Claudius did not enter the king's chamber at night.
-Hamlet: Claudius did not hide the king's illness or anything about his potions.
-Hamlet: If you lie, let heaven judge you; if you refuse to swear, I will expose the truth myself.
-
-Hamlet: Your oath is not the end of this.
-Hamlet: Tell me plainly — has Claudius ever confided in you about my father's health or his medicines?
-Hamlet: Has he ever been in my father's chamber at night or handled his potions?
-Hamlet: Speak the truth now for my father's sake.
-Hamlet: If you deceive me, I will find the proof.
-
-Hamlet: Then tell me where Claudius was the night my father died.
-Hamlet: Did he leave the feast early or retire to his chamber?
-Hamlet: Who kept my father's keys and tended his medicines?
-Hamlet: Name any servant or courtier who can prove Claudius was elsewhere.
-Hamlet: If you truly know nothing, give me names who can confirm it.
-Hamlet: If you will not, tell me why you refuse.
-
-Gertrude: Hamlet, calm yourself — I am broken by your father's death.
-Gertrude: By his memory I swear I never saw Claudius touch the king's medicines.
-Gertrude: I did not know how Polonius's body came into my closet.
-Gertrude: Sit with me and speak plainly: why do you believe Claudius guilty?
-Gertrude: Where did you learn your father was poisoned, who told you, or what did you see?
-Gertrude: Tell your mother the facts and I will help uncover the truth.
-
-Gertrude: Hamlet, my son, sit down with me.
-Gertrude: I have sworn by your father's memory: I never saw Claudius touch the medicines.
-Gertrude: I did not know Polonius's body was placed in my closet.
-Gertrude: Speak plainly: what convinced you your father was poisoned?
-Gertrude: Who told you, what did you see or hear, and when did you first learn it?
-Gertrude: If you have evidence pointing to Claudius, show me and I will press the matter.
-Gertrude: Do not let fury guide you — let us be careful and deliberate.
-
-Gertrude: Hamlet, come and sit. I share your grief and repeat my oath.
-Gertrude: I never saw Claudius touching the king's medicines, nor knew how Polonius's body came here.
-Gertrude: Tell me plainly what made you certain your father was poisoned.
-Gertrude: Who told you, what did you witness, and when did you first hear it?
-Gertrude: If you have proof against Claudius, produce it and I will help uncover the truth.
-Gertrude: But do not act in blind rage; be measured so we do not make things worse.
-
-Hamlet: Since you ask, hear me: my father's Ghost spoke to me.
-Hamlet: The Ghost said he was murdered — that poison was poured into his ear.
-Hamlet: The Ghost named Claudius as the killer.
-Hamlet: I tell you this to seek truth, not to inflame you.
-Hamlet: Who kept the king's keys and tended his medicines?
-Hamlet: Which servant had access to the king's chamber that night and can prove Claudius was elsewhere?
-Hamlet: If Claudius truly never touched the potions, tell me where he was and who can vouch for him.
-Hamlet: Speak plainly — if you will not help, I will find the proof myself.
-
-Gertrude: Sit, Hamlet; I believe your grief and I will not stand between you and the truth.
-Gertrude: I do not know where Claudius was the night your father died.
-Gertrude: I do not know who kept the king's keys or tended his medicines.
-Gertrude: I will have the chamberlain and the steward summoned at once.
-Gertrude: I will call any attendants who had access and question them.
-Gertrude: I will order the guards to secure the palace and preserve any evidence.
-Gertrude: Now tell me plainly: when and where did your father's Ghost appear to you?
-Gertrude: What exactly did it say about Claudius, and did it give any names or signs?
-Gertrude: Give me every detail you remember so we can seek proof together; do not act alone in fury.
-
-Gertrude: Come closer, Hamlet, and tell your mother everything.
-Gertrude: Where and when did your father's Ghost appear?
-Gertrude: What exactly did it say — did it name Claudius, and in what words?
-Gertrude: Did it show wounds or point to a place or person?
-Gertrude: Did it give any sign or name that could be verified?
-Gertrude: Promise me you will not act alone; I will summon the chamberlain, the steward, and the guards.
-Gertrude: Speak every detail now so we may seek proof together.
-
-Hamlet: Mother, name the chamberlain and the steward.
-Hamlet: Name any servants or courtiers who had keys to the king's chamber or tended his medicines the night he died.
-Hamlet: Summon them at once and bring them before me to say where Claudius was that night.
-Hamlet: If you do not know names, order your chamber staff and the chamberlain to make a list immediately.
-
-Gertrude: I will summon the chamberlain, the steward, and every servant who held keys to the king's chamber.
-Gertrude: Have them brought before you at once.
-Gertrude: Prepare a list of those who tended the king's medicines.
-Gertrude: Stay here and do not act rashly; I will secure the palace and question them openly.
-Gertrude: You shall hear their answers.
-
-Gertrude: I will have the chamberlain, the steward, and every servant who held the king's keys brought before you at once.
-Gertrude: Stay here and do not act rashly.
-Gertrude: While they are summoned, tell me again — exactly when and where did your father's Ghost appear?
-Gertrude: What words did it use about Claudius, what wounds or signs did it show?
-Gertrude: Did it give any names or proofs? Give me every detail so we may seek evidence together.
-
-Hamlet: Mother, name the chamberlain and the steward.
-Hamlet: Name the attendants who held keys to the king's chamber or tended his medicines.
-Hamlet: Bring them before me at once so I may hear where Claudius was that night.
-
-Gertrude: I will summon the chamberlain, the steward, and every attendant who held keys to the king's chamber.
-Gertrude: They will be brought before you at once and ordered to produce a list of those who tended the king's medicines.
-Gertrude: Stay here and do not act rashly.
-Gertrude: While they are gathered, tell me exactly when and where your father's Ghost appeared.
-Gertrude: Tell me every word it used about Claudius — every detail will help us question them and find proof together.
-
-Gertrude: Hamlet, my son — stay with me and do not act rashly.
-Gertrude: The chamberlain, the steward, and every attendant with keys will be brought before you at once.
-Gertrude: Now tell me plainly: when and where did your father's Ghost appear?
-Gertrude: What exact words did it use about Claudius?
-Gertrude: Did it show any wound or name any person, and did it give any sign we can verify?
-Gertrude: Give me every detail so we may seek proof together.</pre>
-<h5>Scene 7 · France · rounds 17–17</h5>
-<pre class="sp">Laertes
-(steady, brisk)
-I've put the funds in order.
-
-France
-You have the money arranged?
-
-Laertes
-Yes. I've also secured a swift ship and a passage out of France.
-
-France
-A swift ship and passage from France—confirmed.
-
-Laertes
-My baggage is packed and the horses are readied.
-
-France
-Baggage and horses ready.
-
-Laertes
-Everything's set so I can depart for Elsinore at short notice.
-
-France
-You're prepared to leave for Elsinore on short notice.</pre>
-<h5>Scene 8 · Battlements · rounds 19–27</h5>
-<pre class="sp">BATTLEMENTS
-
-Marcellus: I'll hold this post on the east parapet.
-Marcellus: If that figure shows itself again, I'll call out.
-
-( Barnardo moves down the wall, boots scraping stone. ETA 40. )
-
-Fortinbras: Marcellus—give me the current troop count.
-Fortinbras: And tell me the weapons count on the Battlements as they stand.
-Fortinbras: Ready yourself to escort me to the Great Hall.
-Fortinbras: We must inventory the arms and gather the grain there.
-
-Marcellus: I'll fetch the troop numbers.
-Marcellus: I'll take the weapons tally on the Battlements.
-Marcellus: I'll prepare to escort you to the Great Hall for the inventory.
-Marcellus: And I'll arrange the grain to be gathered.
-
-Fortinbras: Now—present those troop and weapon counts at once.
-Fortinbras: Summon the captains and bring the muster rolls.
-Fortinbras: Have a wagon of grain fetched.
-Fortinbras: Lead me to the Great Hall immediately.
-
-Marcellus: At once. I'll present the counts straightaway.
-Marcellus: Captains will be summoned; muster rolls will be brought.
-Marcellus: A wagon of grain will be fetched.
-Marcellus: I'll lead you to the Great Hall immediately.
-
-( Fortinbras moves off across the Battlements. ETA 47. )</pre>
-<h5>Scene 9 · Battlements · rounds 37–37</h5>
-<pre class="sp">Battlements — night. Wind stings; the parapets loom black.
-
-Marcellus
-Horatio — come to the Battlements at once.
-
-Horatio
-What is it?
-
-Marcellus
-Barnardo and I have just seen a stately figure.
-
-Horatio
-Where did you see it?
-
-Marcellus
-On the east parapet.
-
-Horatio
-When did this happen?
-
-Marcellus
-During the last watch.
-
-Horatio
-Describe it.
-
-Marcellus
-It stood in full armour — like the late king.
-
-Horatio
-Did it remain? Did you approach?
-
-Marcellus
-It seemed to fade the moment the bell tolled.
-
-Horatio
-Then show me.</pre>
+Lucianus:
+Your Grace, Your Majesty — I have complied with the Queen’s commands.
+I have handed Lord Horatio a signed written disclosure naming myself as sole sponsor and financier, the list of collaborators and performers, the detailed safety plan, and the proposed props, including the bottle clearly labeled "stage dye", ribbon and colored cloth, pantomime cues, and the rehearsal script.
+Palace officers and Rosencrantz are present to secure the supervised chamber and to take custody of the materials as ordered.
+I invite Lord Horatio to begin his inspection and to certify in writing any items he approves; I will await his written certification before any rehearsal proceeds and will follow whatever further instructions the Crown directs.
+
+Player King:
+By my command I approve the Queen’s measures.
+Lord Horatio — take custody of any written disclosures and all proposed props, inspect and certify in writing the harmlessness of each item within the hour, and report your findings to the Crown.
+Confine any rehearsal to the secure, supervised chamber with palace officers present; no public rehearsal or unmonitored run‑through is permitted.
+Rosencrantz — escort Lucianus’s papers and the props to Lord Horatio at once and ensure the guard secures the rehearsal chamber.
+Lucianus — deliver a signed disclosure, the list of collaborators and performers, any correspondence, and a full safety plan to Lord Horatio and to the Crown now; do not rehearse or distribute props until Horatio certifies their harmlessness.
+If inspection reveals outside sponsorship, undisclosed collaborators, or any sign of hostile intent, treat this as a crown security matter and detain materials and persons as necessary.
+All public remarks must be measured and avoid naming or accusing ministers.</pre>
+<h5>Scene 11 · Queen Closet · rounds 23–39</h5>
+<pre class="sp">Gertrude:
+Hamlet, calm yourself — your father's death has shattered me too.
+By his memory I swear I never saw King Claudius touch the king's medicines.
+I did not know Polonius's body had been placed in my closet.
+Sit with me and speak plainly: why do you believe Claudius is guilty?
+Where did you learn your father was poisoned, who told you, or what did you see that made you suspect him?
+Tell your mother the facts and I will help uncover the truth.
+
+Gertrude:
+Hamlet, my son — be still.
+I swear by your father's memory I never saw Claudius touch the king's medicines.
+I did not know Polonius's body had been put in my closet.
+Sit with me and say plainly: what convinced you your father was poisoned?
+Who told you, what did you see or hear, and when did you first learn it?
+If you have evidence against Claudius, tell me now and I will help pursue the truth.
+Do not let fury drive you — let us be careful and deliberate together.
+
+Gertrude:
+Hamlet, my son — sit with me.
+I share your grief and swear by your father's memory I never saw Claudius handle the king's medicines.
+I did not know how Polonius's body came into my closet.
+Tell me plainly what made you certain your father was poisoned.
+Who told you, what did you see or hear, and when did you first learn it?
+If you have proof that points to Claudius, show me and I will help uncover the truth.
+Do not let fury drive you; let us be deliberate so we do not make matters worse.
+
+Hamlet:
+Mother, since you ask — my father's ghost spoke to me and said he was murdered.
+It said poison was poured into his ear and it named Claudius.
+I tell you this not to inflame but to seek the truth.
+Who kept the king's keys and who tended his medicines?
+Which servant or attendant had access to his chamber the night he died and can prove Claudius was elsewhere?
+If Claudius truly never touched the king's potions, tell me where he was that night and give names who can confirm it.
+Speak plainly now, for if you will not help I will find the proof myself.
+
+Gertrude:
+Hamlet, sit with your mother and be calm.
+I believe your grief and I will not stand between you and the truth.
+I do not know where Claudius was the night your father died, nor who kept the king's keys or tended his medicines.
+But I will have the chamberlain, the steward, and any attendants with access summoned and questioned at once.
+I will order the guards to secure the palace and preserve any evidence.
+Now tell me plainly: when and where did your father's ghost appear to you, what exactly did it say about Claudius, and did it give any names or signs?
+Give me every detail you remember so we can seek proof together; do not act alone in fury.
+
+Gertrude:
+Hamlet, my son — come closer and tell your mother everything.
+Where and when did your father's ghost appear?
+What exactly did it say — did it name Claudius, and in what words?
+Did it show you any wounds or point to a place or person?
+Did it give any sign or name that could be verified?
+Promise me you will not act alone on this fury; I will summon the chamberlain, the steward, and the guards at once to secure the palace and question those with access to the king's chamber.
+Speak every detail now so we may seek proof together.
+
+Hamlet:
+Mother, name the chamberlain, the steward, and any servants or courtiers who had keys to the king's chamber or tended his medicines the night he died.
+Summon them at once and bring them before me to say where Claudius was that night.
+If you do not know names, order your chamber staff and the chamberlain to make a list and present it immediately.
+
+Gertrude:
+Hamlet, I will summon the chamberlain, the steward, and every servant who held keys to the king's chamber.
+Have them brought before you at once and prepare a list of those who tended the king's medicines.
+Stay here and do not act rashly; I will secure the palace and question them openly so you may hear the answers.
+
+Gertrude:
+Hamlet, I will have the chamberlain, the steward, and every servant who held the king's keys brought before you at once.
+Stay here and do not act rashly.
+While they are summoned, tell me again — exactly when and where did your father's ghost appear?
+What words did it use about Claudius, what wounds or signs did it show, and did it give any names or proofs?
+Give me every detail so we may seek the evidence together.
+
+Hamlet:
+Mother, name the chamberlain and the steward and the attendants who held keys to the king's chamber or tended his medicines.
+Bring them before me at once so I may hear where Claudius was that night.
+
+Gertrude:
+Hamlet, I will summon the chamberlain, the steward, and every attendant who held keys to the king's chamber.
+They will be brought before you at once and ordered to produce a list of those who tended the king's medicines.
+Stay here and do not act rashly.
+While they are gathered, tell me exactly when and where your father's ghost appeared and every word it used about Claudius.
+Every detail will help us question them and find proof together.
+
+Gertrude:
+Hamlet, my son — stay with me and do not act rashly.
+The chamberlain, the steward, and every attendant with keys will be brought before you at once.
+Now tell me plainly: when and where did your father's ghost appear, and what exact words did it use about Claudius?
+Did it show any wound or name any person, and did it give any sign we can verify?
+Give me every detail so we may seek proof together.</pre>
+<h5>Scene 12 · Battlements · rounds 37–37</h5>
+<pre class="sp">Marcellus:
+Horatio, come to the battlements at once.
+Barnardo and I just saw a stately figure in full armour on the east parapet during the last watch, resembling the late king.
+It seemed to fade when the bell tolled.</pre>
 </details>
 
 <p class="foot">Agentsensus &middot; Three Kingdoms (三国演义) 60-round, three resumed 20-round stages &middot; chat gpt-5-mini, embeddings text-embedding-3-small &middot; simulation-only accounting under uniform atomization &middot; structural counts deterministic; quality metrics mean&plusmn;std over 3 LLM scorings &middot; data: <code>runs/g20_* ... g80_*</code>.</p>

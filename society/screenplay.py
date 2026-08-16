@@ -20,55 +20,37 @@ _CONTENT_PARAM_KEYS = ("content", "description", "question", "text")
 
 _SYSTEM_PROMPT = {
     "zh": (
-        "你是一位经验丰富的编剧。给定一段按时间顺序排列的事件线索,"
-        "请将它们改写为剧本正文,同时满足两条同等重要的要求。\n"
-        "第一,完整:每一条事件都必须在剧本中有对应的落点——化为台词、"
-        "舞台指示、内心独白或旁白皆可,但不得遗漏、不得合并掉任何一条,"
-        "也不得改变其发生顺序。事件中的具体信息(人名、地点、器物、"
-        "数目、称谓、行动的对象与结果)必须原样保留,不可含糊带过。"
-        "think/conclude 类事件渲染为内心独白或旁白(括号标注,"
-        "如“(内心独白)”“(旁白)”)。\n"
-        "第二,文学性:必须改写,不得照抄。源事件多为冗长的公文式消息"
-        "(编号条款、格式化请示),整段搬进台词即是失败。请把它们拆成人物"
-        "真能说出口的话,人物各有声口,舞台指示简练而有画面感,场面有起伏。"
-        "语言风格贴合该世界的时代与气质。\n"
-        "硬性格式(违反即不合格):①单句台词不超过 60 字;②台词内禁止出现"
-        "编号(1)、2)、一、二)、项目符号或分条冒号等公文格式;③一条含多个"
-        "要点的源事件必须拆成多句台词或多轮对答,可由对方追问、应答、复述"
-        "分担;④不得整句照抄源事件措辞。\n"
-        "两者的结合:事实一条不少,措辞一句不抄。"
-        "直接输出剧本正文,不要输出解释、前后缀或 Markdown 标题。"
+        "你是一位编剧。下面给出一场戏里按发生顺序编号的事件,请逐条把每条事件"
+        "改写成剧本文字。\n"
+        "改写要求:①用人物真能说出口的话,单句不超过 60 字;②禁止编号、项目符号"
+        "或公文分条格式;③一条含多个要点的事件可拆成同一人的连续数句;"
+        "④不得整句照抄原文措辞;⑤事件里的具体信息(人名、地点、器物、数目、"
+        "称谓、动作的对象与结果)必须保留。\n"
+        "字段名要写成人话:move 事件的 eta 是预计到达的**回合数**(如""「预计回合 33 到位」),不要照搬 eta;delivered 之类的投递计数不必出现。\n"
+        "不得增加事件中没有的内容:不替任何人添加追问、应答或过渡句,不虚构"
+        "动作、情绪或情节。\n"
+        '严格返回 JSON:{{"1": ["台词或舞台指示", ...], "2": [...], ...}},'
+        "键为事件编号,值为该条事件改写成的一到数行文字。只返回 JSON。"
     ),
     "en": (
-        "You are an experienced screenwriter. Given a chronological list of "
-        "events, render them as screenplay text under two equally binding "
-        "requirements.\n"
-        "First, completeness: every single event must land somewhere in the "
-        "scene — as dialogue, a stage direction, inner monologue, or "
-        "voice-over — with none dropped, none merged away, and none "
-        "reordered. Concrete particulars carried by an event (names, places, "
-        "objects, numbers, titles, the target and outcome of an action) must "
-        "survive verbatim in substance; do not blur them into generalities. "
-        "think/conclude events become inner monologue or voice-over (marked "
-        "in parentheses, e.g. \"(inner monologue)\" or \"(voice-over)\").\n"
-        "Second, literary quality: you must **rewrite**, never copy the event "
-        "text. The source events are mostly long administrative messages "
-        "(numbered clauses, formatted requests); pasting one into a line of "
-        "dialogue is a failure. Break them into lines a person would actually "
-        "speak \u2014 one or two points per line, a long directive split across an "
-        "exchange, enumerations turned into speech \u2014 with distinct voices per "
-        "character, lines that fit each speaker's station, spare but vivid "
-        "stage directions, and a scene that builds rather than lists. Match "
-        "the register of the world the events come from.\n"
-        "Hard format rules (violating them fails the task): (i) no single line of "
-        "dialogue longer than about 40 words; (ii) no numbered clauses, bullets "
-        "or memo formatting inside dialogue; (iii) an event carrying several "
-        "points must be split across several lines or an exchange, with the "
-        "other party questioning, answering or confirming parts of it; (iv) "
-        "never reproduce a sentence of the source verbatim.\n"
-        "How the two combine: not one fact missing, not one phrase copied. "
-        "Output the screenplay text directly, with no explanation, prefix, or "
-        "Markdown heading."
+        "You are a screenwriter. Below are the events of one scene, numbered in "
+        "the order they happened. Rewrite each event as screenplay text.\n"
+        "How to rewrite: (i) lines a person would actually speak, none longer "
+        "than about 40 words; (ii) no numbered clauses, bullets or memo "
+        "formatting; (iii) an event carrying several points may become several "
+        "consecutive lines for that same speaker; (iv) never reproduce a "
+        "sentence of the source verbatim; (v) keep every concrete particular "
+        "the event carries (names, places, objects, numbers, titles, the target "
+        "and outcome of an action).\n"
+        "Render field names as prose: a move event's eta is the round it "
+        "arrives (\"in place by round 33\"), never \"eta: 33\"; delivery counts "
+        "need not appear at all.\n"
+        "Add nothing the event does not contain: no invented questions, "
+        "answers or connective lines for anyone, no invented action, feeling or "
+        "plot.\n"
+        'Return STRICT JSON: {{"1": ["line", ...], "2": [...], ...}} keyed by '
+        "event number, each value the one or more lines that event becomes. "
+        "Return ONLY the JSON."
     ),
 }
 
@@ -149,14 +131,18 @@ _TARGET_LANGUAGE_INSTRUCTION = {
 # beyond what the logged run actually produced.
 _CONSTRAINT_TEMPLATE = {
     "zh": (
-        "你只能使用以下角色(格式为「显示名 [id]」,剧本中一律写显示名,禁止出现 id):{cast}。场景地点:{location}。"
+        "可以说话的角色只有(格式为「显示名 [id]」,剧本中一律写显示名,禁止出现 id):{cast}。"
+        "以下是场景中出现的地点与信息载体:{silent}。它们从不开口——与它们相关的内容一律写成旁白或舞台指示,绝不可给它们台词。场景地点:{location}。"
         "绝对禁止虚构任何未列出的角色、未出现的地点或未发生的事件。"
         "每句对白和动作都必须对应所给的实际事件记录,可以润色语言表达,"
         "但不可改变事实、不可增加情节。think/conclude 渲染为内心独白。"
     ),
     "en": (
-        "You may only use the following characters, given as \"name [id]\" \u2014 "
-        "always write the name, never the id: {cast}. Scene location: "
+        "Only these may speak, given as \"name [id]\" \u2014 always write the name, "
+        "never the id: {cast}. "
+        "These places and objects also appear: {silent}. They never speak \u2014 render "
+        "anything involving them as narration or a stage direction, never as a "
+        "line of dialogue. Scene location: "
         "{location}. It is strictly forbidden to invent any character not "
         "listed, any location that did not appear, or any event that did "
         "not happen. Every line of dialogue and every action must "
@@ -217,16 +203,18 @@ def _sort_key(event: dict):
     return (event.get("tick", 0), event.get("seq", 0))
 
 
-def _split_scenes(beats: list[dict], scene_gap: int) -> list[dict]:
-    """Group sorted beats into scenes: one place, one stretch of time.
+def _split_scenes(beats: list[dict], scene_gap: int, max_span: int = 20) -> list[dict]:
+    """Group beats into scenes by proximity in space and time.
 
-    Beats are bucketed by location first and only then cut on time, because a
-    round applies actions in every location at once -- splitting the
-    chronological stream on each location change turned a run into hundreds of
-    one-beat "scenes". Within a location a new scene starts when the gap to the
-    previous beat there exceeds `scene_gap`. Scenes are returned in the order
-    they begin, so the screenplay still reads forwards. Message beats carry no
-    location and inherit the last one seen.
+    A scene is a run of beats at one location whose neighbours are no more than
+    `scene_gap` rounds apart, capped at `max_span` rounds so a slow-burning
+    place cannot swallow the whole story. Scenes are then ordered by the round
+    they open on, so the screenplay reads forwards.
+
+    Both halves matter. Cutting on pure chronology started a new scene at
+    nearly every beat, since one round touches every location at once; grouping
+    only by place produced scenes that jumped from round 70 back to round 12.
+    Message beats carry no location and inherit the last one seen.
     """
     current_location = None
     by_location: dict = {}
@@ -242,7 +230,9 @@ def _split_scenes(beats: list[dict], scene_gap: int) -> list[dict]:
         prev_tick = None
         for beat in sorted(located, key=_sort_key):
             tick = beat.get("tick", 0)
-            if scene is None or (prev_tick is not None and tick - prev_tick > scene_gap):
+            too_far = prev_tick is not None and tick - prev_tick > scene_gap
+            too_long = scene is not None and tick - scene["tick_start"] >= max_span
+            if scene is None or too_far or too_long:
                 scene = {"location": location, "beats": [],
                          "tick_start": tick, "tick_end": tick}
                 scenes.append(scene)
@@ -250,9 +240,7 @@ def _split_scenes(beats: list[dict], scene_gap: int) -> list[dict]:
             scene["tick_end"] = tick
             prev_tick = tick
 
-    scenes.sort(key=lambda s: (s["tick_start"], str(s["location"] or "")))
-    return scenes
-
+    scenes.sort(key=lambda s: (s["tick_start"], s["tick_end"], str(s["location"] or "")))
     return scenes
 
 
@@ -283,16 +271,20 @@ def _scene_cast(scene: dict) -> list[str]:
     return sorted(ids)
 
 
-def _format_cast(cast_ids: list[str], names: dict | None) -> str:
-    names = names or {}
-    parts = []
+def _format_cast(cast_ids: list[str], names: dict | None, kinds: dict | None = None):
+    """(speaking cast, silent entities) as display-name lists.
+
+    Environments and information carriers own memories and answer `act_on`/
+    `read`, so they appear in a scene's beats -- but the kernel never gives them
+    a turn, so they must never be given a line. Handing the renderer one flat
+    "characters" list made it write dialogue for a place.
+    """
+    names, kinds = names or {}, kinds or {}
+    speaking, silent = [], []
     for cid in cast_ids:
-        display_name = names.get(cid)
-        # "display name [id]" rather than "id(display name)": the renderer kept
-        # echoing whichever token came first, and the screenplay must speak the
-        # name, not the identifier.
-        parts.append(f"{display_name} [{cid}]" if display_name else cid)
-    return ", ".join(parts)
+        label = f"{names[cid]} [{cid}]" if names.get(cid) else cid
+        (silent if kinds.get(cid) in ("environment", "info_carrier") else speaking).append(label)
+    return ", ".join(speaking), ", ".join(silent)
 
 
 def _utterance_key(event: dict):
@@ -410,6 +402,108 @@ def _parse_missing(reply, n_beats):
     return sorted(set(out))
 
 
+_SPEECH_KINDS = {"say", "gesture"}
+_INNER_KINDS = {"think", "conclude"}
+
+
+def _beat_speaker(beat):
+    return beat.get("agent") or (beat.get("message") or {}).get("sender")
+
+
+def _beat_kind(beat):
+    if beat.get("kind") == "action":
+        return (beat.get("action") or {}).get("name")
+    return (beat.get("message") or {}).get("kind")
+
+
+def _strip_label(line, labels):
+    """Drop a speaker label the model echoed back.
+
+    The beat list it is given reads "N. [kind] Name: content", and the model
+    tends to repeat "Name:" (sometimes "Name [id]:") at the head of its line.
+    The assembler supplies the label itself, so a second one would double it.
+    """
+    line = re.sub(r"\s*\[[a-z_]{2,}\]", "", line).strip()
+    m = re.match(r"^([^:：]{1,40})[:：]\s*(.*)$", line, flags=re.S)
+    if m and m.group(1).strip() in labels:
+        return m.group(2).strip()
+    return line
+
+
+def _assemble(scene, rewrites, names, out_lang):
+    """Lay out one scene: the log fixes order and speaker, the model supplies words.
+
+    Any beat the model did not return falls back to its own text, so a scene can
+    never silently lose an event -- and no passage can be attributed to someone
+    who did not produce it, because the label never comes from the model.
+    """
+    names = names or {}
+    labels = {v for v in names.values() if v} | {k for k in names}
+    out = []
+    for n, beat in enumerate(scene["beats"], start=1):
+        lines = rewrites.get(str(n)) or rewrites.get(n)
+        if isinstance(lines, str):
+            lines = [lines]
+        lines = [_strip_label(str(l), labels) for l in (lines or [])]
+        lines = [l for l in lines if l]
+        if not lines:
+            fallback = _beat_content(beat)
+            lines = [fallback] if fallback else []
+        if not lines:
+            continue
+        who = names.get(_beat_speaker(beat), _beat_speaker(beat))
+        kind = _beat_kind(beat)
+        if kind in _SPEECH_KINDS:
+            body = "\n".join(str(l).strip() for l in lines)
+        else:
+            # a non-speech beat is a stage direction: parenthesised, and marked
+            # as inner speech when that is what it was. The renderer often
+            # returns it already wrapped and already naming the actor, which
+            # produced "(Rosencrantz, (Rosencrantz moves ...))".
+            text = " ".join(str(l).strip() for l in lines)
+            while text.startswith("(") and text.endswith(")"):
+                text = text[1:-1].strip()
+            if who and text.lower().startswith(str(who).lower()):
+                text = text[len(str(who)):].lstrip(" ,，:：").strip()
+            mark = "inner monologue: " if kind in _INNER_KINDS else ""
+            body = f"({mark}{text})"
+        # every beat is one labelled block, so a reader can see which agent
+        # produced it and where one action ends and the next begins
+        out.append(f"{who}:\n{body}")
+
+    return "\n\n".join(out)
+
+
+def _beat_content(beat):
+    """Everything a beat carries, as one line.
+
+    Both halves matter: a `think` beat's question is the prompt to itself and
+    its result is the conclusion reached, and a scene that shows only the
+    question loses what the agent actually decided.
+    """
+    if beat.get("kind") == "action":
+        params = (beat.get("action") or {}).get("params") or {}
+        pieces = [str(params[k]) for k in _CONTENT_PARAM_KEYS if params.get(k)]
+        data = (beat.get("result") or {}).get("data")
+        if data:
+            pieces.append(str(data))
+        return " | ".join(pieces)
+    return str((beat.get("message") or {}).get("content") or "")
+
+
+def _parse_rewrites(reply):
+    """The {beat number: lines} object the renderer returns, or {} if unusable."""
+    text = (reply or "").strip()
+    if text.startswith("```"):
+        text = text.strip("`")
+        text = text[text.find("{"):] if "{" in text else text
+    try:
+        data = json.loads(text[text.index("{"):text.rindex("}") + 1])
+    except (ValueError, TypeError):
+        return {}
+    return data if isinstance(data, dict) else {}
+
+
 async def generate_screenplay(
     events: list[dict],
     llm,
@@ -419,6 +513,7 @@ async def generate_screenplay(
     names: dict | None = None,
     target_language: str | None = None,
     ensure_coverage: bool = True,
+    kinds: dict | None = None,
 ) -> str:
     """Turn a run's event log into a markdown screenplay.
 
@@ -430,7 +525,12 @@ async def generate_screenplay(
         out_path: If given, the resulting markdown is also written there
             (utf-8).
         language: "zh" or "en"; selects the prompt language.
-        scene_gap: Max tick gap within one scene before a new scene starts.
+        scene_gap: Max rounds between neighbouring beats of one scene.
+        kinds: Optional {agent_id: kind} map ("character" / "environment" /
+            "info_carrier"). Environments and information carriers appear in
+            beats (they are act_on/read targets) but never take a turn, so they
+            are listed to the renderer as entities that must not be given
+            dialogue.
         names: Optional {agent_id: display_name} map (events themselves
             carry no display names). When given, the per-scene cast line
             shows "id(display_name)" so the LLM can use natural names
@@ -471,32 +571,37 @@ async def generate_screenplay(
 
     blocks = []
     for i, scene in enumerate(scenes, start=1):
-        beat_lines = "\n".join(_beat_line(b) for b in scene["beats"])
-        cast_str = _format_cast(_scene_cast(scene), names)
-        constraint = constraint_template.format(cast=cast_str, location=scene["location"])
+        beat_lines = "\n".join(
+            f"{n}. [{_beat_kind(b)}] {(names or {}).get(_beat_speaker(b), _beat_speaker(b))}: "
+            f"{_beat_content(b)}"
+            for n, b in enumerate(scene["beats"], start=1))
+        cast_str, silent_str = _format_cast(_scene_cast(scene), names, kinds)
+        place = (names or {}).get(scene["location"], scene["location"])
+        constraint = constraint_template.format(cast=cast_str, silent=silent_str or "-",
+                                                location=place)
         prompt = target_instruction + constraint + "\n\n" + user_template.format(
-            location=scene["location"],
+            location=place,
             tick_start=scene["tick_start"],
             tick_end=scene["tick_end"],
             beats=beat_lines,
         )
-        rendered = await llm.chat(prompt, system=system_prompt, bucket="screenplay")
-        if ensure_coverage:
-            rendered = await _repair_coverage(
-                rendered, scene["beats"], beat_lines, llm, language, system_prompt
-            )
+        reply = await llm.chat(prompt, system=system_prompt, bucket="screenplay")
+        rewrites = _parse_rewrites(reply)
+        missing = [n for n in range(1, len(scene["beats"]) + 1)
+                   if not (rewrites.get(str(n)) or rewrites.get(n))]
+        if missing and ensure_coverage:
+            retry = await llm.chat(
+                prompt + "\n\nOnly these event numbers are still needed: "
+                + ", ".join(map(str, missing)),
+                system=system_prompt, bucket="screenplay_coverage")
+            for k, v in _parse_rewrites(retry).items():
+                rewrites.setdefault(str(k), v)
 
-        place = (names or {}).get(scene["location"], scene["location"])
         span = f"{scene['tick_start']}–{scene['tick_end']}"
-        # the header follows the language the screenplay is written in, which is
-        # the target when one is named, not the world's own language
         out_lang = target_language or language
         header = (f"## 第{i}幕 · {place} · 回合 {span}" if out_lang == "zh"
                   else f"## Scene {i} · {place} · rounds {span}")
-        # the renderer sometimes echoes the prompt's location/round header back
-        # as its first line; the block already has one.
-        rendered = _clean_rendered(rendered, list((names or {}).keys()), scene["location"], names)
-        blocks.append(f"{header}\n\n{rendered}\n")
+        blocks.append(f"{header}\n\n{_assemble(scene, rewrites, names, out_lang)}\n")
 
     markdown = "\n".join(blocks)
 

@@ -39,6 +39,7 @@ async def render(world, llm):
     cfg = load_scenario(scenario)
     language = cfg.get("language", "zh")
     source_names = {a["id"]: a.get("name") for a in cfg.get("agents", []) if a.get("id")}
+    kinds = {a["id"]: a.get("kind") for a in cfg.get("agents", []) if a.get("id")}
     # An English screenplay must name people in English; the scenario files carry
     # Chinese display names for every world, so reuse the glossed names built for
     # the case-study figures and fall back to a readable form of the id.
@@ -60,7 +61,7 @@ async def render(world, llm):
         md = await generate_screenplay(
             events, llm, out_path=out, language=language,
             names=(english_names if target == "en" else source_names),
-            target_language=target)
+            target_language=target, kinds=kinds)
         print(f"{out}: {len(md)} chars, {md.count('##')} scenes", flush=True)
 
 

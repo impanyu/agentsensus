@@ -62,9 +62,10 @@ async def screenplay_text(run_dirs: list[str], llm, *, force: bool = False) -> s
     cfg = load_scenario(scenario_of(last))
     language = cfg.get("language", "zh")
     names = {a["id"]: a.get("name") for a in cfg.get("agents", []) if a.get("id")}
+    kinds = {a["id"]: a.get("kind") for a in cfg.get("agents", []) if a.get("id")}
     events = combined_events(run_dirs)
     text = await generate_screenplay(
         events, llm, out_path=cache, language=language, names=names,
-        target_language=language,
+        target_language=language, kinds=kinds,
     )
     return text

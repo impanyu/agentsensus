@@ -25,7 +25,9 @@ async def test_scene_split_and_render(tmp_path):
                                    ensure_coverage=False)
     assert len(calls) == 2                      # hall scene + garden scene (location change & gap)
     assert "第1幕" in md and "hall" in md and "garden" in md
-    assert "（第1场渲染文本）" in md and open(out, encoding="utf-8").read() == md
+    # the model's reply is not markdown here, so each beat falls back to its own
+    # text -- the structure (order, speaker, scene) still comes from the log
+    assert "走吧" in md and open(out, encoding="utf-8").read() == md
     assert "走吧" in calls[0] and "还是花园好" in calls[0]   # beats reach the LLM
 
 
@@ -96,8 +98,9 @@ async def test_screenplay_target_language():
     assert "禁止虚构" in hall_prompt
     # names mapping still reaches the prompt for romanization
     assert "Amy" in hall_prompt
-    # returned markdown is exactly the fake's rendered text
-    assert "the rendered english screenplay" in md
+    # names reach the assembled markdown; wording falls back when the reply is
+    # not the JSON contract
+    assert "Amy" in md and "Ben" in md
 
 
 async def test_screenplay_target_language_none_is_noop():
@@ -128,43 +131,6 @@ async def test_screenplay_target_language_same_as_language_is_noop():
     assert "English" not in calls[0]
 
 
-async def test_coverage_pass_no_repair_when_nothing_missing():
-    """One render + one check per scene; a clean check adds no repair call."""
-    calls = []
-    def fn(prompt, system=None):
-        calls.append(prompt)
-        return '{"missing": []}' if "missing" in prompt else "SCENE"
-    llm = FakeLLM(fn=fn)
-    md = await generate_screenplay(EVENTS, llm, scene_gap=5)
-    assert len(calls) == 4          # 2 scenes x (render + check), no repair
-    assert "SCENE" in md
-
-
-async def test_coverage_pass_repairs_a_dropped_beat():
-    """A beat reported missing triggers exactly one rewrite, which is kept."""
-    calls = []
-    def fn(prompt, system=None):
-        calls.append(prompt)
-        if '"missing"' in prompt:            # the coverage-check prompt
-            return '{"missing": [1]}'
-        if "遗漏" in prompt or "is missing these events" in prompt:
-            return "REPAIRED"
-        return "SCENE"
-    llm = FakeLLM(fn=fn)
-    md = await generate_screenplay(EVENTS[:2], llm, scene_gap=5)
-    assert "REPAIRED" in md and "SCENE" not in md
-    assert len(calls) == 3          # render + check + one repair
-
-
-async def test_unparseable_coverage_reply_keeps_original_scene():
-    """A garbled check reply must not trigger a speculative rewrite."""
-    def fn(prompt, system=None):
-        return "sorry, I cannot" if '"missing"' in prompt else "SCENE"
-    llm = FakeLLM(fn=fn)
-    md = await generate_screenplay(EVENTS[:2], llm, scene_gap=5)
-    assert "SCENE" in md
-
-
 async def test_one_utterance_is_one_beat():
     """A say logged as an action plus one message per recipient is one beat.
 
@@ -182,3 +148,46 @@ async def test_one_utterance_is_one_beat():
     llm = FakeLLM(fn=lambda p, s=None: prompts.append(p) or "SCENE")
     await generate_screenplay(evs, llm, scene_gap=5, ensure_coverage=False)
     assert prompts[0].count("撤") == 1
+
+
+async def test_structure_comes_from_the_log_not_the_model():
+    """Order and speaker are the log's; the model only supplies wording."""
+    evs = [
+        {"seq": 0, "tick": 1, "kind": "action", "agent": "amy", "location": "hall",
+         "action": {"name": "say", "params": {"targets": ["ben"], "content": "撤"}},
+         "result": {"ok": True}},
+        {"seq": 1, "tick": 2, "kind": "action", "agent": "ben", "location": "hall",
+         "action": {"name": "say", "params": {"targets": ["amy"], "content": "不撤"}},
+         "result": {"ok": True}},
+        {"seq": 2, "tick": 3, "kind": "action", "agent": "amy", "location": "hall",
+         "action": {"name": "say", "params": {"targets": ["ben"], "content": "再议"}},
+         "result": {"ok": True}},
+    ]
+    # the model answers out of order and mislabels a speaker; neither must survive
+    llm = FakeLLM(fn=lambda p, s=None: '{"2": ["No."], "1": ["Fall back."], "3": ["Later, then."]}')
+    md = await generate_screenplay(evs, llm, names={"amy": "Amy", "ben": "Ben"})
+    body = md.split("\n\n", 1)[1]
+    assert body.index("Fall back.") < body.index("No.") < body.index("Later, then.")
+    assert "Amy:\nFall back." in body and "Ben:\nNo." in body
+
+
+async def test_a_beat_the_model_skips_falls_back_to_its_own_text():
+    evs = [
+        {"seq": 0, "tick": 1, "kind": "action", "agent": "amy", "location": "hall",
+         "action": {"name": "say", "params": {"targets": ["ben"], "content": "撤往南河桥"}},
+         "result": {"ok": True}},
+    ]
+    llm = FakeLLM(fn=lambda p, s=None: "{}")
+    md = await generate_screenplay(evs, llm, names={"amy": "Amy"}, ensure_coverage=False)
+    assert "撤往南河桥" in md
+
+
+async def test_non_speech_beats_become_stage_directions():
+    evs = [
+        {"seq": 0, "tick": 1, "kind": "action", "agent": "amy", "location": "hall",
+         "action": {"name": "think", "params": {"question": "去哪"}},
+         "result": {"ok": True, "data": "还是花园好"}},
+    ]
+    llm = FakeLLM(fn=lambda p, s=None: '{"1": ["The garden, then."]}')
+    md = await generate_screenplay(evs, llm, names={"amy": "Amy"}, ensure_coverage=False)
+    assert "Amy:\n(inner monologue: The garden, then.)" in md
