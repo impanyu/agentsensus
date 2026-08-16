@@ -1051,6 +1051,17 @@ Jia Yun, were you just now holding a white embroidered handkerchief with a word 
 <h3>A.6 &nbsp;Screenplays</h3>
 <p>The full screenplay of each world&rsquo;s consensus run, rendered from its event log by the pipeline of &sect;5.3: beats are grouped into scenes by place and stretch of time, each scene is dramatized in one grounded pass, and a check-and-repair round catches any beat the renderer dropped. Nothing outside the log may appear &mdash; the cast, the location and every action are constrained to what the run actually produced &mdash; while the wording must be rewritten rather than copied, with no line running longer than a spoken breath and no memo formatting inside dialogue. This is the text the continuation-quality judge reads.</p>
 <p>The Chinese worlds are given in English with the scenario-language rendering beneath each scene; both are produced directly from the same beats in a single pass, not by translating one into the other. Each screenplay is long &mdash; between nine and forty-six scenes &mdash; so they are collapsed by default.</p>
+<div class="tw"><table>
+<caption><b>Table A5. The four screenplays.</b> &ldquo;Beats&rdquo; are the dramatizable events the run produced after deduplication (one utterance is one beat, however many recipients it was logged against); &ldquo;scenes&rdquo; are the groupings of those beats by place and stretch of time that each become one render call. Length is the rendered markdown; the Chinese worlds carry two renderings of the same beats.</caption>
+<thead><tr><th>world</th><th>rounds</th><th>scenes</th><th>beats</th><th>speakers</th><th>places</th><th>English</th><th>source language</th></tr></thead>
+<tbody>
+<tr class="hi"><td>Three Kingdoms 三国演义</td><td>2&ndash;79</td><td>41</td><td>312</td><td>33</td><td>24</td><td>149k chars</td><td>41k chars (zh)</td></tr>
+<tr><td>Red Chamber 红楼梦</td><td>1&ndash;79</td><td>46</td><td>390</td><td>34</td><td>26</td><td>106k chars</td><td>34k chars (zh)</td></tr>
+<tr><td>Russia&ndash;Ukraine</td><td>1&ndash;39</td><td>41</td><td>334</td><td>47</td><td>20</td><td>285k chars</td><td>&mdash; (en)</td></tr>
+<tr><td>Hamlet</td><td>1&ndash;39</td><td>9</td><td>117</td><td>16</td><td>6</td><td>48k chars</td><td>&mdash; (en)</td></tr>
+</tbody></table></div>
+<p><b>Reading.</b> Scene count tracks how scattered a world is, not how much happens in it: Hamlet&rsquo;s 117 beats fall into 9 scenes because the play keeps returning to six places, while Three Kingdoms&rsquo; 312 beats spread over 24 locations and split into 41. Russia&ndash;Ukraine is the outlier in length &mdash; 285k characters from 334 beats, nearly three times Red Chamber&rsquo;s output from more beats &mdash; because institutional messages carry more particulars per beat, and the renderer must keep every one of them. The English rendering of a Chinese world runs three times the length of its source-language twin, which is a property of the writing systems rather than of the content.</p>
+
 <p style="font-size:14px;color:var(--muted)">A note on register: the dialogue reads administratively because the simulation does. Agents can speak, set goals and report, so they write like officers filing returns; the screenplay can stage that exchange, give it voices and cut it into speakable lines, but it cannot make a supply conference lyrical. &sect;A.2 makes the same point from the raw transcripts.</p>
 
 """ + screenplay_block("three_kingdoms", "Three Kingdoms 三国演义", " &middot; 80 rounds", True) + """
