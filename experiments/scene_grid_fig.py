@@ -78,18 +78,41 @@ def build(world="hamlet"):
 
     locations = sorted({k[0] for k in cells},
                        key=lambda L: (min(t for (l, t) in cells if l == L), L))
-    # the axis is the whole run, round 1 to the last round simulated, not just
-    # the stretch that happens to contain beats -- a quiet opening or a silent
-    # last round is part of the picture
+    # the axis is the whole run. The kernel numbers rounds from zero, so an
+    # eighty-round run is 0-79; showing that span rather than the stretch that
+    # happens to contain beats keeps the column count equal to the horizon and
+    # the numbers equal to the ones the screenplays quote.
     last = max(e.get("tick", 0) for e in events)
-    rounds = list(range(1, last + 1))
+    rounds = list(range(0, last + 1))
     actors = sorted({a for v in cells.values() for a in v})
     pal = _palette(len(actors))
     colour = {a: pal[i] for i, a in enumerate(actors)}
     return names, cells, locations, rounds, actors, colour, scenes
 
 
-def svg(world="hamlet", max_width=790):
+LABEL_CAP = 150  # one over-long place name should not eat the grid
+
+
+def _elide(text, max_px=LABEL_CAP):
+    if _advance(text) <= max_px:
+        return text
+    out = text
+    while out and _advance(out + "\u2026") > max_px:
+        out = out[:-1]
+    return out.rstrip() + "\u2026"
+
+
+def label_width(world, data=None):
+    """Width the place-name column needs for one world, over-long names elided."""
+    names, _, locations, *_ = data or build(world)
+    return 14 + max(_advance(_elide(names.get(l, l))) for l in locations)
+
+
+def _advance(text):  # rough advance width at 11.5px, CJK counted double
+    return sum(11.5 if ord(c) > 0x2E80 else 6.2 for c in text)
+
+
+def svg(world="hamlet", max_width=790, left=None, data=None):
     """The grid: one row per place, one column per round, sized to the column.
 
     The cell is what shrinks when a run is long -- a colour block stays
@@ -97,12 +120,10 @@ def svg(world="hamlet", max_width=790):
     take the labels with it. Scene numbers sit in the gap above their
     rectangle so they never cover a cell, however narrow it gets.
     """
-    names, cells, locations, rounds, actors, colour, scenes = build(world)
-
-    def _w(text):  # rough advance width at 11.5px, CJK counted double
-        return sum(11.5 if ord(c) > 0x2E80 else 6.2 for c in text)
-
-    left = max(118, 14 + max(_w(names.get(l, l)) for l in locations))
+    names, cells, locations, rounds, actors, colour, scenes = data or build(world)
+    # one label column for all four worlds, so a cell is the same width in
+    # every figure and the runs can be compared by eye
+    left = max(118, left or label_width(world, (names, cells, locations)))
     cw = min(17, max(5, (max_width - left - 16) / len(rounds)))
     gap = 2 if cw >= 12 else (1.5 if cw >= 8 else 1)
     # narrow cells get shorter rows too, so a cell stays a block rather than
@@ -132,7 +153,7 @@ def svg(world="hamlet", max_width=790):
     for loc in locations:
         y = top + li[loc] * ch
         out.append(f'<text x="{left-8:.0f}" y="{y+cellh/2+4:.1f}" text-anchor="end" '
-                   f'font-size="11.5">{names.get(loc, loc)}</text>')
+                   f'font-size="11.5">{_elide(names.get(loc, loc))}</text>')
         for r in rounds:
             x = left + ri[r] * cw
             who = cells.get((loc, r))
@@ -194,7 +215,10 @@ def stats(world):
 
 
 if __name__ == "__main__":
-    world = sys.argv[1] if len(sys.argv) > 1 else "hamlet"
-    path = f"runs/scene_grid_{world}.svg"
-    open(path, "w", encoding="utf-8").write(svg(world))
-    print("wrote", path)
+    worlds = sys.argv[1:] or list(WORLDS)
+    data = {w: build(w) for w in worlds}
+    shared = max(label_width(w, d) for w, d in data.items())
+    for w, d in data.items():
+        path = f"runs/scene_grid_{w}.svg"
+        open(path, "w", encoding="utf-8").write(svg(w, left=shared, data=d))
+        print(f"wrote {path} (label column {shared:.0f}px)")
