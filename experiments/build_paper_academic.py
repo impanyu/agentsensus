@@ -225,9 +225,9 @@ def scene_grid(world="hamlet"):
 def grid_figure(world, number, title, note):
     """One world's spacetime grid, captioned with what it is made of.
 
-    A grid of eighty rounds by twenty-six places does not survive being
-    squeezed into the text column, so anything wider than the column keeps its
-    own size and scrolls sideways inside the figure.
+    experiments/scene_grid_fig.py already wraps the rounds into bands narrow
+    enough for the text column; the guard here is for anything that still comes
+    out wider.
     """
     from experiments.scene_grid_fig import stats
     svg = scene_grid(world)
@@ -242,8 +242,8 @@ def grid_figure(world, number, title, note):
     return (f'<figure>\n{svg}\n<figcaption><b>Figure {number}. How the scenes were '
             f'cut &mdash; {title}.</b> Rounds {st["rounds"][0]}&ndash;{st["rounds"][1]} '
             f'across {st["places"]} places, {st["beats"]} beats by {st["speakers"]} agents, '
-            f'cut into the {st["scenes"]} outlined scenes; read as Figure&nbsp;29 '
-            f'(scroll sideways for the later rounds). {note}</figcaption>\n</figure>')
+            f'cut into the {st["scenes"]} outlined scenes; read as Figure&nbsp;29, with the '
+            f'rounds wrapped into stacked bands. {note}</figcaption>\n</figure>')
 
 SCREENPLAY_WORLDS = [("three_kingdoms", "Three Kingdoms 三国演义", "zh"),
                      ("red_chamber", "Red Chamber 红楼梦", "zh"),
