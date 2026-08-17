@@ -78,7 +78,11 @@ def build(world="hamlet"):
 
     locations = sorted({k[0] for k in cells},
                        key=lambda L: (min(t for (l, t) in cells if l == L), L))
-    rounds = list(range(min(t for _, t in cells), max(t for _, t in cells) + 1))
+    # the axis is the whole run, round 1 to the last round simulated, not just
+    # the stretch that happens to contain beats -- a quiet opening or a silent
+    # last round is part of the picture
+    last = max(e.get("tick", 0) for e in events)
+    rounds = list(range(1, last + 1))
     actors = sorted({a for v in cells.values() for a in v})
     pal = _palette(len(actors))
     colour = {a: pal[i] for i, a in enumerate(actors)}
@@ -104,7 +108,7 @@ def svg(world="hamlet", max_width=790):
     # narrow cells get shorter rows too, so a cell stays a block rather than
     # a tall bar and the whole figure keeps a readable proportion
     ch, cellh = (34, 25) if cw >= 12 else (25, 17)
-    top = 40
+    top = 46
     W = left + cw * len(rounds) + 16
     legend_rows = (len(actors) + 3) // 4
     H = top + ch * len(locations) + 36 + legend_rows * 20 + 24
@@ -120,9 +124,9 @@ def svg(world="hamlet", max_width=790):
 
     for r in rounds:
         if r % every == 0 or r == rounds[0]:
-            out.append(f'<text x="{left + ri[r]*cw + cw/2:.1f}" y="{top-8}" '
+            out.append(f'<text x="{left + ri[r]*cw + cw/2:.1f}" y="{top-15}" '
                        f'text-anchor="middle" font-size="11" opacity=".7">{r}</text>')
-    out.append(f'<text x="{left + cw*len(rounds)/2:.1f}" y="{top-24}" text-anchor="middle" '
+    out.append(f'<text x="{left + cw*len(rounds)/2:.1f}" y="{top-31}" text-anchor="middle" '
                f'font-size="12" opacity=".75">round</text>')
 
     for loc in locations:
