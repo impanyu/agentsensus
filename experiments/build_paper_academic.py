@@ -223,27 +223,18 @@ def scene_grid(world="hamlet"):
 
 
 def grid_figure(world, number, title, note):
-    """One world's spacetime grid, captioned with what it is made of.
-
-    experiments/scene_grid_fig.py already wraps the rounds into bands narrow
-    enough for the text column; the guard here is for anything that still comes
-    out wider.
-    """
+    """One world's spacetime grid, captioned with what it is made of."""
     from experiments.scene_grid_fig import stats
     svg = scene_grid(world)
     if not svg:
         return ""
-    width = float(re.search(r'viewBox="0 0 ([\d.]+)', svg).group(1))
-    if width > 820:
-        svg = svg.replace('style="max-width:100%;height:auto"',
-                          f'style="width:{width:.0f}px;max-width:none;height:auto"')
-        svg = f'<div style="overflow-x:auto">{svg}</div>'
     st = stats(world)
     return (f'<figure>\n{svg}\n<figcaption><b>Figure {number}. How the scenes were '
             f'cut &mdash; {title}.</b> Rounds {st["rounds"][0]}&ndash;{st["rounds"][1]} '
             f'across {st["places"]} places, {st["beats"]} beats by {st["speakers"]} agents, '
-            f'cut into the {st["scenes"]} outlined scenes; read as Figure&nbsp;29, with the '
-            f'rounds wrapped into stacked bands. {note}</figcaption>\n</figure>')
+            f'cut into the {st["scenes"]} outlined scenes; read as Figure&nbsp;29 &mdash; the '
+            f'cells narrow as the run lengthens, so the whole run stays on one screen. '
+            f'{note}</figcaption>\n</figure>')
 
 SCREENPLAY_WORLDS = [("three_kingdoms", "Three Kingdoms 三国演义", "zh"),
                      ("red_chamber", "Red Chamber 红楼梦", "zh"),
