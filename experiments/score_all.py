@@ -9,7 +9,7 @@ span held out of sedimentation:
     Russia-Ukraine  ru10+ru20+ru40    timeline from 2024-05 held out
     Hamlet          hl20+hl30+hl40    Acts 4-5 held out
 
-Three metrics, each scored RUN_REPEAT times and reported mean/std:
+Four metrics, each scored RUN_REPEAT times and reported mean/std:
   grounding   fraction of the run's own events judged consistent with the
               world's canon (a plausible in-character action that did not
               literally happen still counts; only contradictions and
@@ -17,9 +17,15 @@ Three metrics, each scored RUN_REPEAT times and reported mean/std:
   trajectory  agreement of each principal's arc with the arc extracted from
               the held-out span
   narrative   coherence / distinctiveness / drama / fidelity, 1-5
+  goal        how consistently each principal's actions pursue the goals it
+              itself pushed onto its goal stack (pursuit, not achievement).
+              Read from the event log, not the screenplay -- goal management
+              is internal and never becomes a dramatizable beat.
 
 Run:  RUN_REPEAT=3 venv/bin/python -m experiments.score_all [world ...]
       worlds: three_kingdoms red_chamber russia_ukraine hamlet
+      METRICS=goal ... scores only goal pursuit and merges it into the
+      existing results file, leaving the other three metrics untouched.
 """
 import asyncio
 import json
@@ -32,9 +38,13 @@ from society import evaluation as ev
 from society.history_extract import _split_by_chapters
 from society.run import _build_llm_and_embed
 from experiments.score_fidelity import _mean_std
+from experiments.goal_timeline import timelines
 from experiments.screenplay_for_scoring import screenplay_text
 
 BACKENDS = ["consensus", "generative_agents", "g_memory", "collaborative"]
+# which metrics to compute; "goal" alone merges into an existing results file
+# rather than rescoring what is already there
+METRICS = set(os.environ.get("METRICS", "grnd,traj,narr,goal").split(","))
 REPEAT = int(os.environ.get("RUN_REPEAT", "3"))
 MAX_EVENTS = int(os.environ.get("GROUNDING_MAX_EVENTS", "80"))
 SRC = "scenarios/sources"
@@ -189,30 +199,49 @@ async def grounding_rate(text, canon, judge, max_events=MAX_EVENTS):
 
 
 async def score_world(name, spec, llm):
-    print(f"=== {name}: extracting gold arcs", flush=True)
-    gold = await gold_arcs(spec["reference"](), spec["arcs"], llm)
-    print(f"=== {name}: {len(gold)} arcs | repeat={REPEAT}", flush=True)
-    results = {}
+    screenplay_metrics = METRICS & {"grnd", "traj", "narr"}
+    gold = {}
+    if "traj" in METRICS:
+        print(f"=== {name}: extracting gold arcs", flush=True)
+        gold = await gold_arcs(spec["reference"](), spec["arcs"], llm)
+        print(f"=== {name}: {len(gold)} arcs", flush=True)
+    print(f"=== {name}: metrics {sorted(METRICS)} | repeat={REPEAT}", flush=True)
+    # scoring only some metrics keeps whatever the results file already holds
+    results = (json.load(open(spec["out"], encoding="utf-8"))
+               if os.path.exists(spec["out"]) and screenplay_metrics != {"grnd", "traj", "narr"}
+               else {})
     for backend in BACKENDS:
         dirs = [f"runs/{s}_{backend}" for s in spec["stages"]]
-        text = await screenplay_text(dirs, llm)
+        text = await screenplay_text(dirs, llm) if screenplay_metrics else ""
+        goals = timelines(dirs, spec["arcs"]) if "goal" in METRICS else {}
         runs = []
         for _ in range(REPEAT):
-            gr = await grounding_rate(text, spec["canon"], llm)
-            tj = await ev.trajectory_consistency(gold, text, llm)
-            nq = await ev.narrative_quality(text, llm)
-            runs.append({"grnd": gr["rate"], "grnd_n": gr["n"],
-                         "traj": tj["mean"], "narr": nq["overall"]})
+            r = {}
+            if "grnd" in METRICS:
+                gr = await grounding_rate(text, spec["canon"], llm)
+                r["grnd"], r["grnd_n"] = gr["rate"], gr["n"]
+            if "traj" in METRICS:
+                r["traj"] = (await ev.trajectory_consistency(gold, text, llm))["mean"]
+            if "narr" in METRICS:
+                r["narr"] = (await ev.narrative_quality(text, llm))["overall"]
+            if "goal" in METRICS:
+                r["goal"] = (await ev.goal_pursuit(goals, llm))["mean"]
+            runs.append(r)
         # a repeat whose extraction failed carries no grounding number; it is
         # dropped rather than averaged in as a zero
         agg = {k: dict(zip(("mean", "std"),
-                           _mean_std([r[k] for r in runs if r[k] is not None])))
-               for k in ("grnd", "traj", "narr")}
-        agg["grnd_n"] = sum(r["grnd_n"] for r in runs) / len(runs)
-        results[backend] = {"agg": agg, "runs": runs, "chars": len(text)}
-        print(f"{name}/{backend}: grounding {agg['grnd']['mean']:.2f}±{agg['grnd']['std']:.2f} "
-              f"(n≈{agg['grnd_n']:.0f}) | traj {agg['traj']['mean']:.2f}±{agg['traj']['std']:.2f} "
-              f"| narr {agg['narr']['mean']:.2f}±{agg['narr']['std']:.2f}", flush=True)
+                           _mean_std([r[k] for r in runs if r.get(k) is not None])))
+               for k in ("grnd", "traj", "narr", "goal") if k in METRICS}
+        entry = results.setdefault(backend, {"agg": {}, "runs": [], "chars": 0})
+        entry["agg"].update(agg)
+        if "grnd" in METRICS:
+            entry["agg"]["grnd_n"] = sum(r["grnd_n"] for r in runs) / len(runs)
+        if screenplay_metrics:
+            entry["chars"] = len(text)
+        entry["runs"] = [old | new for old, new in
+                         zip(entry["runs"] + [{}] * REPEAT, runs)][:REPEAT]
+        print(f"{name}/{backend}: " + " | ".join(
+            f"{k} {agg[k]['mean']:.2f}±{agg[k]['std']:.2f}" for k in agg), flush=True)
     json.dump(results, open(spec["out"], "w", encoding="utf-8"),
               ensure_ascii=False, indent=1)
     print(f"=== {name} -> {spec['out']}", flush=True)

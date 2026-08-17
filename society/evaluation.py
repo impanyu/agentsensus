@@ -22,6 +22,7 @@ whatever a completed run left behind (a memory backend instance and/or its
 exported entries, plus rendered transcript/screenplay text).
 """
 
+import asyncio
 import json
 import math
 import re
@@ -540,3 +541,62 @@ def cost_summary(usage: dict, wall_clock_s: float) -> dict:
         "tokens": total.get("tokens", 0),
         "wall_clock_s": wall_clock_s,
     }
+
+
+# ==========================================================================
+# Goal pursuit
+# ==========================================================================
+
+
+async def goal_pursuit(timelines: dict, judge) -> dict:
+    """Score how consistently each agent's actions pursue its own declared goals.
+
+    The goal stack is the agent's own: it pushes, pops and replaces goals as
+    it likes, and this asks only whether what it then *did* served whatever
+    was on that stack at the time. Goal *achievement* is deliberately not
+    scored -- a faithful tragedy requires goals to fail.
+
+    Unlike the other continuation-quality metrics this reads the event log
+    rather than the rendered screenplay, because goal management is internal:
+    pushing a goal is not a dramatizable beat and never reaches the script.
+
+    Args:
+        timelines: {agent_id: "<chronological log of that agent's goal stack
+            operations and actions>"}, as built by
+            experiments/goal_timeline.py.
+        judge: Object with `async chat(prompt, system=None, bucket=...) -> str`.
+
+    Returns:
+        dict: {"per_agent": {agent: float}, "mean": float}. Scores are clamped
+        to [0.0, 1.0]; a reply that fails to parse scores 0.0 (fails closed).
+    """
+    async def one(agent, timeline):
+        prompt = (
+            "Below is one agent's own record from a multi-agent story "
+            "simulation, in time order. Lines marked GOAL are the agent "
+            "managing its own goal stack (it pushes a goal, pops one it "
+            "considers done or abandoned, or replaces the top one); every "
+            "other line is something the agent then did.\n\n"
+            "Score GOAL PURSUIT CONSISTENCY: of the substantive actions this "
+            "agent took, what fraction plausibly serve a goal that was on its "
+            "stack at that moment? Judge pursuit, NOT achievement -- an agent "
+            "that works doggedly towards a goal it never reaches scores high. "
+            "An action counts as serving a goal if it advances it, gathers "
+            "what it needs, or delegates it. Actions that ignore the stack "
+            "entirely, or that pursue something the agent never declared, do "
+            "not count. Bookkeeping (reading messages, recalling memories) "
+            "counts when it serves the current goal.\n\n"
+            f"Agent: {agent}\n\nRecord:\n{timeline}\n\n"
+            'Return STRICT JSON: {"score": <float 0.0-1.0>, '
+            '"why": "<one short sentence>"}. Return ONLY the JSON.'
+        )
+        reply = await judge.chat(prompt, system=None, bucket="eval_judge")
+        parsed = _parse_json(reply, default={"score": 0.0})
+        if not isinstance(parsed, dict):
+            parsed = {"score": 0.0}
+        return agent, _clamp01(parsed.get("score", 0.0))
+
+    pairs = await asyncio.gather(*[one(a, t) for a, t in timelines.items() if t])
+    per_agent = dict(pairs)
+    mean = (sum(per_agent.values()) / len(per_agent)) if per_agent else 0.0
+    return {"per_agent": per_agent, "mean": mean}

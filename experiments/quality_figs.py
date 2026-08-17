@@ -1,6 +1,6 @@
 """Continuation-quality bar figures, one per world, from the score_all results.
 
-Same three panels and style for every world, so the four figures can be read
+Same panels and style for every world, so the four figures can be read
 side by side: grounding (0-1), trajectory (0-1), narrative (1-5), four backends,
 bars are means over the repeated scorings with +-1 std whiskers.
 
@@ -29,15 +29,16 @@ LBL = {"consensus": "Consensus", "generative_agents": "Gen.Agents",
 COL = {"consensus": "#2563eb", "generative_agents": "#10b981",
        "g_memory": "#f59e0b", "collaborative": "#ef4444"}
 PANELS = [("grnd", "grounding (0-1)", 1.18), ("traj", "trajectory (0-1)", 1.18),
-          ("narr", "narrative (1-5)", 5.9)]
+          ("narr", "narrative (1-5)", 5.9), ("goal", "goal pursuit (0-1)", 1.18)]
 
 
 def draw(world):
     src, outdir = WORLDS[world]
     Q = json.load(open(src, encoding="utf-8"))
     os.makedirs(outdir, exist_ok=True)
-    fig, axes = plt.subplots(1, 3, figsize=(10.5, 3.1))
-    for ax, (key, title, ymax) in zip(axes, PANELS):
+    panels = [p for p in PANELS if p[0] in next(iter(Q.values()))["agg"]]
+    fig, axes = plt.subplots(1, len(panels), figsize=(3.5 * len(panels), 3.1))
+    for ax, (key, title, ymax) in zip(axes, panels):
         for i, k in enumerate(KINDS):
             a = Q[k]["agg"][key]
             ax.bar(i, a["mean"], 0.62, yerr=a["std"], capsize=4, color=COL[k],

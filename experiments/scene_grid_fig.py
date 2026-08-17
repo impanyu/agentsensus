@@ -34,6 +34,25 @@ PALETTE = ["#2563eb", "#0f9d6b", "#c07a12", "#d63b3b", "#7c3aed", "#0891b2",
            "#9333ea", "#0d9488", "#dc2626", "#525252"]
 
 
+def _palette(n):
+    """n visually distinct fills. The first sixteen are the hand-picked ones,
+    so a small cast (Hamlet) keeps the colours it was published with; beyond
+    that, hues are walked by the golden angle at alternating lightness, which
+    keeps 30-50 agents apart without hand-mixing that many swatches."""
+    import colorsys
+    out = list(PALETTE)
+    i = 0
+    while len(out) < n:
+        h = (0.13 + 0.381966 * (i + 1)) % 1.0
+        light, sat = (0.38, 0.72) if i % 2 else (0.55, 0.55)
+        r, g, b = colorsys.hls_to_rgb(h, light, sat)
+        hexc = "#%02x%02x%02x" % (int(r * 255), int(g * 255), int(b * 255))
+        if hexc not in out:
+            out.append(hexc)
+        i += 1
+    return out
+
+
 def build(world="hamlet"):
     stages, scenario, case_dir = WORLDS[world]
     cfg = yaml.safe_load(open(scenario, encoding="utf-8"))
@@ -61,14 +80,18 @@ def build(world="hamlet"):
                        key=lambda L: (min(t for (l, t) in cells if l == L), L))
     rounds = list(range(min(t for _, t in cells), max(t for _, t in cells) + 1))
     actors = sorted({a for v in cells.values() for a in v})
-    colour = {a: PALETTE[i % len(PALETTE)] for i, a in enumerate(actors)}
+    pal = _palette(len(actors))
+    colour = {a: pal[i] for i, a in enumerate(actors)}
     return names, cells, locations, rounds, actors, colour, scenes
 
 
 def svg(world="hamlet"):
     names, cells, locations, rounds, actors, colour, scenes = build(world)
     cw, ch = 17, 30
-    left, top = 118, 40
+    def _w(text):  # rough advance width at 11.5px, CJK counted double
+        return sum(11.5 if ord(c) > 0x2E80 else 6.2 for c in text)
+    left = max(118, 14 + max(_w(names.get(l, l)) for l in locations))
+    top = 40
     W = left + cw * len(rounds) + 16
     legend_rows = (len(actors) + 3) // 4
     H = top + ch * len(locations) + 34 + legend_rows * 20 + 24
