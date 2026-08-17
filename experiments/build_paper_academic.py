@@ -223,17 +223,27 @@ def scene_grid(world="hamlet"):
 
 
 def grid_figure(world, number, title, note):
-    """One world's spacetime grid, captioned with what it is made of."""
+    """One world's spacetime grid, captioned with what it is made of.
+
+    A grid of eighty rounds by twenty-six places does not survive being
+    squeezed into the text column, so anything wider than the column keeps its
+    own size and scrolls sideways inside the figure.
+    """
     from experiments.scene_grid_fig import stats
     svg = scene_grid(world)
     if not svg:
         return ""
+    width = float(re.search(r'viewBox="0 0 ([\d.]+)', svg).group(1))
+    if width > 820:
+        svg = svg.replace('style="max-width:100%;height:auto"',
+                          f'style="width:{width:.0f}px;max-width:none;height:auto"')
+        svg = f'<div style="overflow-x:auto">{svg}</div>'
     st = stats(world)
     return (f'<figure>\n{svg}\n<figcaption><b>Figure {number}. How the scenes were '
             f'cut &mdash; {title}.</b> Rounds {st["rounds"][0]}&ndash;{st["rounds"][1]} '
             f'across {st["places"]} places, {st["beats"]} beats by {st["speakers"]} agents, '
-            f'cut into the {st["scenes"]} outlined scenes; read as Figure&nbsp;29. '
-            f'{note}</figcaption>\n</figure>')
+            f'cut into the {st["scenes"]} outlined scenes; read as Figure&nbsp;29 '
+            f'(scroll sideways for the later rounds). {note}</figcaption>\n</figure>')
 
 SCREENPLAY_WORLDS = [("three_kingdoms", "Three Kingdoms 三国演义", "zh"),
                      ("red_chamber", "Red Chamber 红楼梦", "zh"),
@@ -1225,12 +1235,8 @@ Jia Yun, were you just now holding a white embroidered handkerchief with a word 
 
 <h3>A.6 &nbsp;Screenplays</h3>
 <p>The full screenplay of each world&rsquo;s consensus run, rendered from its event log by the pipeline of &sect;5.3: beats are grouped into scenes by place and stretch of time, each scene is dramatized in one grounded pass, and a check-and-repair round catches any beat the renderer dropped. Nothing outside the log may appear &mdash; the cast, the location and every action are constrained to what the run actually produced &mdash; while the wording must be rewritten rather than copied, with no line running longer than a spoken breath and no memo formatting inside dialogue. This is the text the continuation-quality judge reads.</p>
-<figure>
-""" + scene_grid("hamlet") + """
-<figcaption><b>Figure 29. How the scenes were cut &mdash; Hamlet.</b> Every cell is one round at one place. A cell is coloured when an agent acted there and left white when nothing did; hatched cells are rounds where several agents acted in the same place. The outlined rectangles are the scenes the renderer produced, numbered as they appear in the screenplay below. The rule is visible in the picture: a scene is one row (one place) and a run of rounds whose neighbours are no more than five apart, cut at twenty rounds so no scene swallows the story &mdash; which is why the busy hall at Elsinore becomes two scenes (1 and 9) rather than one, and why the single action in Norway at round 3 is a scene of its own (4). Ordering the rectangles by the round they open on is what makes the screenplay read forwards.</figcaption>
-</figure>
 
-<p>The Chinese worlds are given in English with the scenario-language rendering beneath each scene; both are produced directly from the same beats in a single pass, not by translating one into the other. Each screenplay is long &mdash; between """ + screenplay_span() + """ scenes &mdash; so they are collapsed by default.</p>
+<p>Each screenplay is long &mdash; between """ + screenplay_span() + """ scenes &mdash; so the four are collapsed by default and printed after the grids below.</p>
 <div class="tw"><table>
 <caption><b>Table A5. The four screenplays.</b> &ldquo;Beats&rdquo; are the dramatizable events the run produced after deduplication (one utterance is one beat, however many recipients it was logged against); &ldquo;scenes&rdquo; are the groupings of those beats by place and stretch of time that each become one render call. Length is the rendered markdown; the Chinese worlds carry two renderings of the same beats.</caption>
 <thead><tr><th>world</th><th>rounds</th><th>scenes</th><th>beats</th><th>speakers</th><th>places</th><th>English</th><th>source language</th></tr></thead>
@@ -1241,22 +1247,31 @@ Jia Yun, were you just now holding a white embroidered handkerchief with a word 
 
 <p style="font-size:14px;color:var(--muted)">A note on register: the dialogue reads administratively because the simulation does. Agents can speak, set goals and report, so they write like officers filing returns; the screenplay can stage that exchange, give it voices and cut it into speakable lines, but it cannot make a supply conference lyrical. &sect;A.2 makes the same point from the raw transcripts.</p>
 
+<p><b>How the scenes were cut.</b> One figure per world: every cell is one round at one place, coloured when an agent acted there. The four are read the same way, so the first is annotated in full and the rest carry only what is particular to that world.</p>
+<figure>
+""" + scene_grid("hamlet") + """
+<figcaption><b>Figure 29. How the scenes were cut &mdash; Hamlet.</b> Every cell is one round at one place. A cell is coloured when an agent acted there and left white when nothing did; hatched cells are rounds where several agents acted in the same place. The outlined rectangles are the scenes the renderer produced, numbered as they appear in the screenplay below. The rule is visible in the picture: a scene is one row (one place) and a run of rounds whose neighbours are no more than five apart, cut at twenty rounds so no scene swallows the story &mdash; which is why the busy hall at Elsinore becomes two scenes (1 and 9) rather than one, and why the single action in Norway at round 3 is a scene of its own (4). Ordering the rectangles by the round they open on is what makes the screenplay read forwards.</figcaption>
+</figure>
+
 """ + grid_figure("three_kingdoms", 30, "Three Kingdoms (三国演义)",
     "The pattern of a campaign narrative: four places carry the war "
     "(Xuchang, Xinye, Fancheng, Jiangdong) in long unbroken bands, while a "
     "dozen others are visited once and become one-cell scenes.") + """
-""" + screenplay_block("three_kingdoms", "Three Kingdoms 三国演义", " &middot; 80 rounds", True) + """
 """ + grid_figure("red_chamber", 31, "Red Chamber (红楼梦)",
     "The densest world in the set: the household keeps returning to the same "
     "handful of courtyards, so Daguanlou, Hengwuyuan, Yihong Yuan and "
     "Rongguofu each split into three or four scenes across the eighty "
     "rounds.") + """
-""" + screenplay_block("red_chamber", "Red Chamber 红楼梦", " &middot; 80 rounds", True) + """
 """ + grid_figure("russia_ukraine", 32, "Russia&ndash;Ukraine",
     "Institutional actors work from fixed seats, so activity concentrates in "
     "a few capitals and headquarters; the hatched cells are where several "
     "institutions act in the same place and round, which is also where the "
     "many-witness merges of &sect;5.1 come from.") + """
+
+<p>The screenplays themselves follow, one collapsible block per world, in the same order. """ + """The Chinese worlds are given in English with the scenario-language rendering beneath each scene; both are produced directly from the same beats in a single pass, not by translating one into the other.</p>
+
+""" + screenplay_block("three_kingdoms", "Three Kingdoms 三国演义", " &middot; 80 rounds", True) + """
+""" + screenplay_block("red_chamber", "Red Chamber 红楼梦", " &middot; 80 rounds", True) + """
 """ + screenplay_block("russia_ukraine", "Russia&ndash;Ukraine", " &middot; 40 rounds", False) + """
 """ + screenplay_block("hamlet", "Hamlet", " &middot; 40 rounds", False) + f"""
 
