@@ -25,6 +25,7 @@ FIGS = {
     "hl_growth": "runs/paper_figs_hl40/growth_q.png",
     "hl_latency": "runs/paper_figs_hl40/latency_q.png",
     "struct_all": "runs/paper_figs_all/structure_all_q.png",
+    "ablation": "runs/paper_figs_ablation/ablation_q.png",
     "hl_relpanels": "runs/hl40full_consensus/case_study/relationship_panels_q.png",
 }
 IMG = {k: "data:image/png;base64," + base64.b64encode(open(v, "rb").read()).decode()
@@ -116,6 +117,30 @@ QUAL = {"Three Kingdoms": Q, "Red Chamber": QC, "Russia-Ukraine": QR, "Hamlet": 
 # how often an agent acted with nothing on its goal stack, per world/backend
 # (experiments/goal_timeline.py --stats); the goal-pursuit score is only
 # meaningful next to it
+# One-factor-at-a-time ablation of the consensus backend (三国, 40 rounds),
+# experiments/score_ablation.py
+ABL = json.load(open("runs/ablation_results.json", encoding="utf-8"))
+ABLFP = {c: json.load(open(f"runs/abl_{c}/result.json", encoding="utf-8"))["footprint"]
+         for c in ABL}
+
+
+def ablation_rows():
+    """Table 3, live from the ablation runs."""
+    label = {"on_fifo": ("on", "fifo <i>(as published)</i>"),
+             "on_relevance": ("on", "relevance"), "on_hybrid": ("on", "hybrid"),
+             "off_fifo": ("<b>off</b>", "fifo")}
+    rows = []
+    for c, (m, k) in label.items():
+        v, fp = ABL[c], ABLFP[c]
+        hi = ' class="hi"' if c == "on_fifo" else ""
+        rows.append(f"<tr{hi}><td>{m}</td><td>{k}</td><td>{fp['entries']:,}</td>"
+                    f"<td>{v['sim_new']}</td><td>{v['sh_pct']}%</td><td>{v['aff_pct']}%</td>"
+                    f"<td>{v['max_owners']}</td>"
+                    f"<td>{v['gr_m']:.2f}&plusmn;{v['gr_s']:.2f}</td>"
+                    f"<td>{v['wall_min']:.0f} min</td></tr>")
+    return "\n".join(rows)
+
+
 GSTACK = json.load(open("runs/goal_stack_stats.json", encoding="utf-8"))
 _GPCT = [b["goalless_pct"] for w in GSTACK.values() for b in w.values()]
 _GOALS = [q[k]["agg"]["goal"]["mean"] for q in QUAL.values() for k in q]
@@ -232,7 +257,7 @@ def grid_figure(world, number, title, note):
     return (f'<figure>\n{svg}\n<figcaption><b>Figure {number}. How the scenes were '
             f'cut &mdash; {title}.</b> Rounds {st["rounds"][0]}&ndash;{st["rounds"][1]} '
             f'across {st["places"]} places, {st["beats"]} beats by {st["speakers"]} agents, '
-            f'cut into the {st["scenes"]} outlined scenes; read as Figure&nbsp;29 &mdash; the '
+            f'cut into the {st["scenes"]} outlined scenes; read as Figure&nbsp;30 &mdash; the '
             f'cells narrow as the run lengthens, so the whole run stays on one screen. '
             f'{note}</figcaption>\n</figure>')
 
@@ -1131,6 +1156,29 @@ HTML = CSS + f"""
 <h3>5.6 &nbsp;Agents do not manage memory &mdash; mechanisms must</h3>
 <p>Across all four backends and both models tested, agents issued <b>zero</b> calls to every discretionary memory-management action &mdash; linking (<code>add/set/remove_affiliated</code>), explicit link-reading (<code>get_affiliated</code>), forgetting, and revision &mdash; despite documentation, worked skill examples, and the id-free query interface. In contrast, the two mechanism-embedded operations carried everything: <code>remember</code> (with atomization, merging, auto-affiliation inside) and <code>recall</code> (with auto-expansion inside; {AE['with_expansion']}/{AE['recalls']} recalls returned linked context). We take this as a design principle for agent memory systems: <b>structure must be a side-effect of the operations agents already perform, not a task delegated to them.</b></p>
 
+<h3>5.7 &nbsp;Ablation: which knob does the work</h3>
+<p>Everything above compares consensus against other designs. This section takes consensus apart. Four cells, one factor at a time from the configuration the paper reports (merge on, FIFO short-term cache), all run on Three Kingdoms (三国演义) for 40 rounds from the same sedimented start under the same code, so only the knob differs. The published run is <i>rerun</i> here rather than reused: the reported run predates the content-language directive of &sect;A.4, and comparing against it would mix a knob with a prompt change. That rerun also serves as a replication &mdash; it lands within 1% of the published numbers ({ABLFP['on_fifo']['entries']:,} entries against 6,551, sharing {100 * ABLFP['on_fifo']['shared'] / ABLFP['on_fifo']['entries']:.0f}% against 84%), which is worth knowing given that every number in this paper comes from a single stochastic run.</p>
+
+<figure>
+  <img src="{IMG['ablation']}" alt="Ablation of the consensus backend">
+  <figcaption><b>Figure 29. What each knob does &mdash; consensus on Three Kingdoms (三国演义), 40 rounds.</b> Left: entries in the whole store (sediment plus simulation) and in the simulation-written part alone. Right: the two structural properties of the simulation-written entries. Turning the merge off is the only change visible in either panel, and it moves sharing and store size while leaving linking untouched.</figcaption>
+</figure>
+
+<div class="tw"><table>
+<caption><b>Table 3. One factor at a time from the published configuration.</b> Structure is deterministic, read from each run&rsquo;s own export under the same simulation-only accounting as Table&nbsp;1; grounding is LLM-judged, mean&plusmn;1 std over 3 scorings. Wall-clock is one run on one machine and is indicative only.</caption>
+<thead><tr><th>merge</th><th>cache</th><th>whole store</th><th>sim entries</th><th>shared</th><th>linked</th><th>deepest merge</th><th>grounding</th><th>wall-clock</th></tr></thead>
+<tbody>
+{ablation_rows()}
+</tbody></table></div>
+
+<p><b>The merge is doing the work.</b> Disabling it multiplies the store by {ABLFP['off_fifo']['entries'] / ABLFP['on_fifo']['entries']:.1f}&times; ({ABLFP['off_fifo']['entries']:,} entries against {ABLFP['on_fifo']['entries']:,}), and the multiplication is concentrated in the sedimented history &mdash; {(ABLFP['off_fifo']['entries'] - ABL['off_fifo']['sim_new']) / (ABLFP['on_fifo']['entries'] - ABL['on_fifo']['sim_new']):.1f}&times; there against {ABL['off_fifo']['sim_new'] / ABL['on_fifo']['sim_new']:.2f}&times; for what the simulation itself writes &mdash; because a novel deposits one canonical event once per witness. This is the redundancy of P1 measured against its own control rather than against a different system: the same events, the same atomizer, the same agents, with only the equivalence test removed. Sharing goes to exactly zero and the deepest record falls from {ABL['on_fifo']['max_owners']} owners to one.</p>
+
+<p><b>Sharing and linking are separable, and we had been treating them as one thing.</b> With the merge off, sharing is 0% but linking is {ABL['off_fifo']['aff_pct']}% &mdash; statistically the same as the {ABL['on_fifo']['aff_pct']}% of the published configuration. The two structures come from different mechanisms: sharing from the equivalence merge, linking from the atomizer, which mutually affiliates the pieces of one compound deposit whether or not anything is ever merged. A system that wanted the memory graph without the compression could have it, and &sect;5.4&rsquo;s three-layer alignment rests on the linking half, which the merge does not create.</p>
+
+<p><b>The short-term cache policy is not a research variable.</b> Relevance- and hybrid-based eviction leave every structural quantity where FIFO leaves it (sharing 18&ndash;21%, linking 96%), while costing 15&ndash;19% more wall-clock, since each cached line must be embedded to be scored. They do write {ABL['on_relevance']['sim_new'] - ABL['on_fifo']['sim_new']}&ndash;{ABL['on_hybrid']['sim_new'] - ABL['on_fifo']['sim_new']} more entries, but that is agents holding different context and therefore saying different things, not a property of the memory mechanism. FIFO is reported as the default because nothing recommends the alternatives, not because they were tuned away.</p>
+
+<p><b>Grounding does not separate on the merge.</b> The published cell scores lowest of the four ({ABL['on_fifo']['gr_m']:.2f}&plusmn;{ABL['on_fifo']['gr_s']:.2f} against {ABL['off_fifo']['gr_m']:.2f}&plusmn;{ABL['off_fifo']['gr_s']:.2f} with the merge off), which read alone would suggest that merging costs factual consistency &mdash; plausibly, since a merge keeps the shorter of two equivalent texts and discards whatever detail the longer one carried. But the two cells that keep the merge and only change the cache score {ABL['on_relevance']['gr_m']:.2f} and {ABL['on_hybrid']['gr_m']:.2f}, level with the merge-off cell. The variation tracks the cache knob rather than the merge knob, which at three scorings per cell is what noise looks like. We therefore claim no grounding effect for the merge; testing the keep-the-shorter-text policy properly needs its own cell, which we have not run.</p>
+
 <h2><span class="n">6</span> Discussion and Limitations</h2>
 <p><b>What consensus buys.</b> Under equal granularity and sim-only accounting, consensus dominates structurally &mdash; fewest entries, all sharing, all graph structure &mdash; and buys this at no measurable cost in judged quality: across four worlds and three metrics the four backends land within noise of one another, with no backend leading everywhere and consensus leading three cells of twelve (&sect;5.3). The three-layer alignment argues the structure is meaningful: it recovers the story&rsquo;s social organization from the memory substrate alone.</p>
 <p><b>Limitations.</b> (i) Quality metrics are LLM-judged and noisy; we report 3-scoring means with std, but ranking claims beyond narrative should be treated cautiously. (ii) Results cover one scenario (Three Kingdoms) and one 60-round horizon; the protocol ports directly to other sedimented worlds and longer runs (checkpoints exist), but those runs remain future work. (iii) Auto-expansion is deliberately uncapped, appending &asymp;{AE['items']//max(AE['recalls'],1)} linked memories per recall; this enriches context but grows prompts, and its cost&ndash;benefit curve is unmeasured. (iv) The equivalence judge and atomizer consume extra LLM calls per deposit &mdash; the price of compression is paid at write time. (v) One baseline artifact: G-Memory re-runs distillation on resume (its distill bookkeeping is not check-pointed); sim-only accounting excludes distillation nodes, so reported numbers are unaffected.</p>
@@ -1296,19 +1344,19 @@ Jia Yun, were you just now holding a white embroidered handkerchief with a word 
 <p><b>How the scenes were cut.</b> One figure per world: every cell is one round at one place, coloured when an agent acted there. The four are read the same way, so the first is annotated in full and the rest carry only what is particular to that world.</p>
 <figure>
 """ + scene_grid("hamlet") + """
-<figcaption><b>Figure 29. How the scenes were cut &mdash; Hamlet.</b> Every cell is one round at one place. A cell is coloured when an agent acted there and left white when nothing did; hatched cells are rounds where several agents acted in the same place. The outlined rectangles are the scenes the renderer produced, numbered as they appear in the screenplay below. The rule is visible in the picture: a scene is one row (one place) and a run of rounds whose neighbours are no more than five apart, cut at twenty rounds so no scene swallows the story &mdash; which is why the busy hall at Elsinore becomes two scenes (1 and 9) rather than one, and why the single action in Norway at round 3 is a scene of its own (4). Rounds are numbered as the kernel numbers them, from zero, so a forty-round run reads 0&ndash;39 and an eighty-round run 0&ndash;79. Ordering the rectangles by the round they open on is what makes the screenplay read forwards.</figcaption>
+<figcaption><b>Figure 30. How the scenes were cut &mdash; Hamlet.</b> Every cell is one round at one place. A cell is coloured when an agent acted there and left white when nothing did; hatched cells are rounds where several agents acted in the same place. The outlined rectangles are the scenes the renderer produced, numbered as they appear in the screenplay below. The rule is visible in the picture: a scene is one row (one place) and a run of rounds whose neighbours are no more than five apart, cut at twenty rounds so no scene swallows the story &mdash; which is why the busy hall at Elsinore becomes two scenes (1 and 9) rather than one, and why the single action in Norway at round 3 is a scene of its own (4). Rounds are numbered as the kernel numbers them, from zero, so a forty-round run reads 0&ndash;39 and an eighty-round run 0&ndash;79. Ordering the rectangles by the round they open on is what makes the screenplay read forwards.</figcaption>
 </figure>
 
-""" + grid_figure("three_kingdoms", 30, "Three Kingdoms (三国演义)",
+""" + grid_figure("three_kingdoms", 31, "Three Kingdoms (三国演义)",
     "The pattern of a campaign narrative: four places carry the war "
     "(Xuchang, Xinye, Fancheng, Jiangdong) in long unbroken bands, while a "
     "dozen others are visited once and become one-cell scenes.") + """
-""" + grid_figure("red_chamber", 31, "Red Chamber (红楼梦)",
+""" + grid_figure("red_chamber", 32, "Red Chamber (红楼梦)",
     "The densest world in the set: the household keeps returning to the same "
     "handful of courtyards, so Daguanlou, Hengwuyuan, Yihong Yuan and "
     "Rongguofu each split into three or four scenes across the eighty "
     "rounds.") + """
-""" + grid_figure("russia_ukraine", 32, "Russia&ndash;Ukraine",
+""" + grid_figure("russia_ukraine", 33, "Russia&ndash;Ukraine",
     "Institutional actors work from fixed seats, so activity concentrates in "
     "a few capitals and headquarters; the hatched cells are where several "
     "institutions act in the same place and round, which is also where the "
