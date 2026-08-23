@@ -374,6 +374,17 @@ off is the only change visible in either panel.}
 \label{fig:ablation}
 \end{figure}
 
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/ablation_latency.png}
+\caption{What the merge costs per call: mean seconds per \code{remember}
+(left) and \code{recall} (right), 5-round bins. The equivalence judge is a
+second LLM call on the write path, so merging roughly doubles the cost of a
+deposit and the gap widens as the store grows; reads are unaffected, since
+owner-scoped retrieval and one-hop expansion call no model.}
+\label{fig:ablation_latency}
+\end{figure}
+
 Disabling the merge multiplies the store by \AblFactor{}$\times$
 (\AblOffEntries{} entries against \AblOnEntries{}) and takes sharing to exactly
 zero: P1 measured against its own control rather than against a different
@@ -383,7 +394,9 @@ are \emph{separable}: with the merge off, linking is still \AblOffAff{}, against
 merge. Second, the short-term cache policy is not a research variable---
 relevance and hybrid eviction leave every structural quantity where FIFO leaves
 it, at 15--19\% more wall-clock. The quality columns do not separate on the merge
-either.
+either. What the merge does cost is write latency
+(Figure~\ref{fig:ablation_latency}): a deposit runs an extra judge call, so
+\code{remember} takes about twice as long, while \code{recall} is unchanged.
 
 \section{Discussion and limitations}
 Consensus compression buys structure and footprint at no measurable cost in

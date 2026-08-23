@@ -26,6 +26,7 @@ FIGS = {
     "hl_latency": "runs/paper_figs_hl40/latency_q.png",
     "struct_all": "runs/paper_figs_all/structure_all_q.png",
     "ablation": "runs/paper_figs_ablation/ablation_q.png",
+    "ablation_latency": "runs/paper_figs_ablation/ablation_latency_q.png",
     "hl_relpanels": "runs/hl40full_consensus/case_study/relationship_panels_q.png",
 }
 IMG = {k: "data:image/png;base64," + base64.b64encode(open(v, "rb").read()).decode()
@@ -122,6 +123,25 @@ QUAL = {"Three Kingdoms": Q, "Red Chamber": QC, "Russia-Ukraine": QR, "Hamlet": 
 ABL = json.load(open("runs/ablation_results.json", encoding="utf-8"))
 ABLFP = {c: json.load(open(f"runs/abl_{c}/result.json", encoding="utf-8"))["footprint"]
          for c in ABL}
+
+
+def _abl_latency():
+    """Mean seconds per remember/recall call, per ablation cell."""
+    out = {}
+    for c in ABL:
+        per = {}
+        path = f"runs/abl_{c}/mem_ops.jsonl"
+        if os.path.exists(path):
+            for line in open(path, encoding="utf-8"):
+                r = json.loads(line)
+                per.setdefault(r["op"], []).append(r["s"])
+        out[c] = {k: sum(v) / len(v) for k, v in per.items() if v}
+    return out
+
+
+_ALAT = _abl_latency()
+_ALAT_RC_LO = min(v.get("recall", 0) for v in _ALAT.values() if v.get("recall"))
+_ALAT_RC_HI = max(v.get("recall", 0) for v in _ALAT.values() if v.get("recall"))
 
 
 def ablation_rows():
@@ -266,7 +286,7 @@ def grid_figure(world, number, title, note):
     return (f'<figure>\n{svg}\n<figcaption><b>Figure {number}. How the scenes were '
             f'cut &mdash; {title}.</b> Rounds {st["rounds"][0]}&ndash;{st["rounds"][1]} '
             f'across {st["places"]} places, {st["beats"]} beats by {st["speakers"]} agents, '
-            f'cut into the {st["scenes"]} outlined scenes; read as Figure&nbsp;30 &mdash; the '
+            f'cut into the {st["scenes"]} outlined scenes; read as Figure&nbsp;31 &mdash; the '
             f'cells narrow as the run lengthens, so the whole run stays on one screen. '
             f'{note}</figcaption>\n</figure>')
 
@@ -1186,6 +1206,11 @@ HTML = CSS + f"""
 
 <p><b>The short-term cache policy is not a research variable.</b> Relevance- and hybrid-based eviction leave every structural quantity where FIFO leaves it (sharing 18&ndash;21%, linking 96%), while costing 15&ndash;19% more wall-clock, since each cached line must be embedded to be scored. They do write {ABL['on_relevance']['sim_new'] - ABL['on_fifo']['sim_new']}&ndash;{ABL['on_hybrid']['sim_new'] - ABL['on_fifo']['sim_new']} more entries, but that is agents holding different context and therefore saying different things, not a property of the memory mechanism. FIFO is reported as the default because nothing recommends the alternatives, not because they were tuned away.</p>
 
+<figure>
+  <img src="{IMG['ablation_latency']}" alt="Memory-operation latency across the ablation cells">
+  <figcaption><b>Figure 30. What the merge costs per call &mdash; consensus on Three Kingdoms (三国演义), 40 rounds.</b> Mean wall-clock seconds per <code>remember</code> (left) and <code>recall</code> (right) call in 5-round bins, read the same way as Figure&nbsp;5. The equivalence judge is a second LLM call on the write path, so merging roughly doubles the cost of a deposit ({_ALAT['on_fifo']['remember']:.0f}s against {_ALAT['off_fifo']['remember']:.0f}s with the merge off) and the gap widens as the store grows and more candidates clear the pre-filter. Reads are unaffected: every cell sits between {_ALAT_RC_LO:.2f}s and {_ALAT_RC_HI:.2f}s, because owner-scoped retrieval and one-hop expansion do not call an LLM at all.</figcaption>
+</figure>
+
 <p><b>None of the four quality metrics separates on the merge.</b> Grounding lands at {ABL["on_fifo"]["grnd_m"]:.2f}, {ABL["on_relevance"]["grnd_m"]:.2f}, {ABL["on_hybrid"]["grnd_m"]:.2f} and {ABL["off_fifo"]["grnd_m"]:.2f} across the four cells &mdash; a band narrower than one cell&rsquo;s own scoring spread &mdash; and goal pursuit is flat at {ABL["off_fifo"]["goal_m"]:.2f}&ndash;{ABL["on_relevance"]["goal_m"]:.2f}, as it is everywhere else in this paper. Narrative is the widest spread ({ABL["off_fifo"]["narr_m"]:.2f} with the merge off against {ABL["on_relevance"]["narr_m"]:.2f} for relevance eviction) and trajectory the only one that orders the cells the way the mechanism would predict ({ABL["on_fifo"]["traj_m"]:.2f} and {ABL["on_hybrid"]["traj_m"]:.2f} with the merge on against {ABL["off_fifo"]["traj_m"]:.2f} without it), which is what agents acting on one merged record rather than several drifting copies should buy &mdash; but at three scorings per cell we report it as suggestive, not as an effect. An earlier version of this ablation scored grounding from a transcript that carried only speech, and produced a spread that looked like a merge penalty; feeding the judge every logged action instead removed it. What the merge changes is the store, not the story.</p>
 
 <h2><span class="n">6</span> Discussion and Limitations</h2>
@@ -1353,19 +1378,19 @@ Jia Yun, were you just now holding a white embroidered handkerchief with a word 
 <p><b>How the scenes were cut.</b> One figure per world: every cell is one round at one place, coloured when an agent acted there. The four are read the same way, so the first is annotated in full and the rest carry only what is particular to that world.</p>
 <figure>
 """ + scene_grid("hamlet") + """
-<figcaption><b>Figure 30. How the scenes were cut &mdash; Hamlet.</b> Every cell is one round at one place. A cell is coloured when an agent acted there and left white when nothing did; hatched cells are rounds where several agents acted in the same place. The outlined rectangles are the scenes the renderer produced, numbered as they appear in the screenplay below. The rule is visible in the picture: a scene is one row (one place) and a run of rounds whose neighbours are no more than five apart, cut at twenty rounds so no scene swallows the story &mdash; which is why the busy hall at Elsinore becomes two scenes (1 and 9) rather than one, and why the single action in Norway at round 3 is a scene of its own (4). Rounds are numbered as the kernel numbers them, from zero, so a forty-round run reads 0&ndash;39 and an eighty-round run 0&ndash;79. Ordering the rectangles by the round they open on is what makes the screenplay read forwards.</figcaption>
+<figcaption><b>Figure 31. How the scenes were cut &mdash; Hamlet.</b> Every cell is one round at one place. A cell is coloured when an agent acted there and left white when nothing did; hatched cells are rounds where several agents acted in the same place. The outlined rectangles are the scenes the renderer produced, numbered as they appear in the screenplay below. The rule is visible in the picture: a scene is one row (one place) and a run of rounds whose neighbours are no more than five apart, cut at twenty rounds so no scene swallows the story &mdash; which is why the busy hall at Elsinore becomes two scenes (1 and 9) rather than one, and why the single action in Norway at round 3 is a scene of its own (4). Rounds are numbered as the kernel numbers them, from zero, so a forty-round run reads 0&ndash;39 and an eighty-round run 0&ndash;79. Ordering the rectangles by the round they open on is what makes the screenplay read forwards.</figcaption>
 </figure>
 
-""" + grid_figure("three_kingdoms", 31, "Three Kingdoms (三国演义)",
+""" + grid_figure("three_kingdoms", 32, "Three Kingdoms (三国演义)",
     "The pattern of a campaign narrative: four places carry the war "
     "(Xuchang, Xinye, Fancheng, Jiangdong) in long unbroken bands, while a "
     "dozen others are visited once and become one-cell scenes.") + """
-""" + grid_figure("red_chamber", 32, "Red Chamber (红楼梦)",
+""" + grid_figure("red_chamber", 33, "Red Chamber (红楼梦)",
     "The densest world in the set: the household keeps returning to the same "
     "handful of courtyards, so Daguanlou, Hengwuyuan, Yihong Yuan and "
     "Rongguofu each split into three or four scenes across the eighty "
     "rounds.") + """
-""" + grid_figure("russia_ukraine", 33, "Russia&ndash;Ukraine",
+""" + grid_figure("russia_ukraine", 34, "Russia&ndash;Ukraine",
     "Institutional actors work from fixed seats, so activity concentrates in "
     "a few capitals and headquarters; the hatched cells are where several "
     "institutions act in the same place and round, which is also where the "
