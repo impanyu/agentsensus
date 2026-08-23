@@ -249,20 +249,27 @@ def _talkers(body):
     return out
 
 
-def _trim(body, cap=1400):
+def _trim(body, cap=1400, focus=None):
     """A scene short enough prints whole; a long one is cut at a speaker
-    boundary once at least two characters have talked. Returns (text, cut)."""
+    boundary once at least two characters have talked. With `focus`, the
+    window opens one block before that character's first line instead of at
+    the top of the scene. Returns (text, cut)."""
     if len(body) <= cap + 300:
         return body, False
     segs = re.split(r"(?m)^(\S[^\n:]{0,30}):\s*$", body)
+    blocks = [(n.strip(), t.strip()) for n, t in zip(segs[1::2], segs[2::2])]
+    start = 0
+    if focus:
+        hit = next((i for i, (n, t) in enumerate(blocks)
+                    if n == focus and t and not t.startswith(("(", "\uff08"))), 0)
+        start = max(0, hit - 1)
     out, talk, ln = [], set(), 0
-    for name, text in zip(segs[1::2], segs[2::2]):
-        t = text.strip()
+    for name, t in blocks[start:]:
         out.append(f"{name}:\n{t}")
         ln += len(t)
         if t and not t.startswith(("(", "\uff08")):
-            talk.add(name.strip())
-        if ln >= cap and len(talk) >= 2:
+            talk.add(name)
+        if ln >= cap and len(talk) >= 2 and (not focus or focus in talk):
             break
     return "\n\n".join(out), True
 
@@ -278,6 +285,9 @@ def samples():
     """
     out = ["% generated -- sample scenes from the rendered screenplays"]
     zh_worlds = {"three_kingdoms", "red_chamber"}
+    # a world may name one required speaker per half: Russia--Ukraine samples
+    # the two principals, who never share a place, one scene each
+    stars = {"russia_ukraine": ("Volodymyr Zelenskyy", "Vladimir Putin")}
     for w, title, _, _, _ in WORLDS:
         en = _scenes(f"runs/screenplays/{w}.en.md")
         zh = _scenes(f"runs/screenplays/{w}.zh.md") if w in zh_worlds else []
@@ -288,24 +298,27 @@ def samples():
             parts = h.lstrip('# ').split('\u00b7')
             return parts[1].strip() if len(parts) > 1 else ""
 
-        def pick(rng, avoid=None):
+        def pick(rng, avoid=None, need=None):
             # a sample should read as people talking: scenes carrying long
             # machine artifacts (hash fingerprints, transfer URIs) are the
             # world's style but not a dialogue sample
             arty = re.compile(r"(?:[0-9A-Fa-f]{2}:){8,}|\w+://\S+")
             c = [(i, h, b) for i, (h, b) in enumerate(en)
                  if rng[0] <= i < rng[1] and len(b) >= 350
-                 and len(_talkers(b)) >= 2 and not arty.search(b)]
+                 and len(_talkers(b)) >= 2 and not arty.search(b)
+                 and (need is None or need in _talkers(b))]
             # two samples from one world should show two places when they can
             c2 = [x for x in c if place(x[1]) != avoid] if avoid else c
             c = c2 or c
             return min(c, key=lambda x: len(x[2])) if c else None
-        first = pick((0, half))
-        second = pick((half, len(en)), avoid=place(first[1]) if first else None)
-        picks = [p for p in (first, second) if p]
+        need = stars.get(w, (None, None))
+        first = pick((0, half), need=need[0])
+        second = pick((half, len(en)), avoid=place(first[1]) if first else None,
+                      need=need[1])
+        picks = [(p, n) for p, n in ((first, need[0]), (second, need[1])) if p]
         out.append(f"\\subsection*{{{title}}}")
-        for i, head, body in picks:
-            body, cut = _trim(body)
+        for (i, head, body), need_sp in picks:
+            body, cut = _trim(body, focus=need_sp)
             head = head.lstrip('# ') + (" (excerpt)" if cut else "")
             out.append(f"\\paragraph{{{_lx(head)}}}\\mbox{{}}\\\\[2pt]")
             out.append("\\begin{zhblock}\\small\\setlength{\\parskip}{3pt}")
