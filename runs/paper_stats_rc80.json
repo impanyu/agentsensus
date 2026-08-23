@@ -1,0 +1,102 @@
+{
+ "consensus": {
+  "sim_new": 438,
+  "multi_owner": 107,
+  "sh_pct": 24,
+  "aff_pct": 94
+ },
+ "merge_examples": [
+  {
+   "owners": [
+    "jiabaoyu",
+    "jiamu",
+    "jiazhen",
+    "liulaolao",
+    "wangxifeng",
+    "xuebaochai"
+   ],
+   "text": "贾母只留下贾宝玉、林黛玉与薛宝钗到贾母身边相见。"
+  },
+  {
+   "owners": [
+    "jiahuan",
+    "jiazheng",
+    "mingyan",
+    "pinger",
+    "xiren"
+   ],
+   "text": "贾政召唤贾宝玉到贾政的书房。"
+  },
+  {
+   "owners": [
+    "jiahuan",
+    "jiazheng",
+    "pinger",
+    "qingwen",
+    "xiren"
+   ],
+   "text": "平儿在门廊与院外寻找贾宝玉。"
+  },
+  {
+   "owners": [
+    "jiabaoyu",
+    "jiamu",
+    "jiazhen",
+    "wangxifeng",
+    "xiaohong"
+   ],
+   "text": "贾宝玉随薛宝钗到贾母身边就座。"
+  },
+  {
+   "owners": [
+    "jiahuan",
+    "mingyan",
+    "pinger",
+    "xiren"
+   ],
+   "text": "平儿向茗烟和贾环通报，贾政命令召贾宝玉到贾政的书房。"
+  }
+ ],
+ "max_owners": 6,
+ "n_3plus": 24,
+ "generative_agents": {
+  "sim_new": 785,
+  "multi_owner": 0,
+  "sh_pct": 0,
+  "aff_pct": 0
+ },
+ "g_memory": {
+  "sim_new": 882,
+  "multi_owner": 0,
+  "sh_pct": 0,
+  "aff_pct": 0
+ },
+ "collaborative": {
+  "sim_new": 789,
+  "multi_owner": 0,
+  "sh_pct": 0,
+  "aff_pct": 0
+ },
+ "auto_expand": {
+  "recalls": 19,
+  "with_expansion": 19,
+  "items": 728
+ },
+ "relations": {
+  "AO": {
+   "talk_n": 75,
+   "talk_mean": 0.0644,
+   "non_n": 745,
+   "non_mean": 0.0012
+  },
+  "MO": {
+   "link_n": 1027,
+   "link_mean": 0.669,
+   "non_mean": 0.03
+  },
+  "AM": {
+   "talk_mean": 17.69,
+   "non_mean": 0.259
+  }
+ }
+}

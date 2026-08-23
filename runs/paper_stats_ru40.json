@@ -1,0 +1,117 @@
+{
+ "consensus": {
+  "sim_new": 814,
+  "multi_owner": 113,
+  "sh_pct": 14,
+  "aff_pct": 99
+ },
+ "merge_examples": [
+  {
+   "owners": [
+    "budanov",
+    "klitschko",
+    "klymenko",
+    "oleshchuk",
+    "podolyak",
+    "sbu",
+    "ukrainian_government",
+    "ukrainian_mod",
+    "yermak",
+    "zelenskyy"
+   ],
+   "text": "President Volodymyr Zelenskyy authorized immediate raising of the nationwide air-defense posture."
+  },
+  {
+   "owners": [
+    "budanov",
+    "klitschko",
+    "klymenko",
+    "oleshchuk",
+    "podolyak",
+    "sbu",
+    "ukrainian_mod",
+    "yermak",
+    "zelenskyy"
+   ],
+   "text": "President Volodymyr Zelenskyy authorized temporarily redeploying Ukrainian mobile air‑defence assets to southern sectors of Ukraine."
+  },
+  {
+   "owners": [
+    "budanov",
+    "oleshchuk",
+    "podolyak",
+    "syrskyi",
+    "ukrainian_government",
+    "ukrainian_mod",
+    "yermak"
+   ],
+   "text": "Ukrainian Air Force commander Mykola Oleshchuk committed to deliver a phased redeployment timeline within 45 minutes."
+  },
+  {
+   "owners": [
+    "budanov",
+    "gur",
+    "klymenko",
+    "podolyak",
+    "sbu",
+    "syrskyi",
+    "zelenskyy"
+   ],
+   "text": "Ukraine's Security Service (SBU) and GUR will begin a joint forensic debris recovery operation."
+  },
+  {
+   "owners": [
+    "budanov",
+    "klitschko",
+    "klymenko",
+    "kyrylenko",
+    "sbu",
+    "ukrainian_mod",
+    "yermak"
+   ],
+   "text": "In Kyiv, President Volodymyr Zelenskyy authorized activating shelters and prepositioning emergency medical and humanitarian teams immediately."
+  }
+ ],
+ "max_owners": 10,
+ "n_3plus": 23,
+ "generative_agents": {
+  "sim_new": 1268,
+  "multi_owner": 0,
+  "sh_pct": 0,
+  "aff_pct": 0
+ },
+ "g_memory": {
+  "sim_new": 1191,
+  "multi_owner": 0,
+  "sh_pct": 0,
+  "aff_pct": 0
+ },
+ "collaborative": {
+  "sim_new": 1091,
+  "multi_owner": 0,
+  "sh_pct": 0,
+  "aff_pct": 0
+ },
+ "auto_expand": {
+  "recalls": 41,
+  "with_expansion": 23,
+  "items": 114
+ },
+ "relations": {
+  "AO": {
+   "talk_n": 137,
+   "talk_mean": 0.0559,
+   "non_n": 1189,
+   "non_mean": 0.0004
+  },
+  "MO": {
+   "link_n": 4796,
+   "link_mean": 0.825,
+   "non_mean": 0.024
+  },
+  "AM": {
+   "talk_mean": 33.85,
+   "non_mean": 0.009
+  }
+ }
+}

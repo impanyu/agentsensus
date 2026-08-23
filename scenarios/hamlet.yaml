@@ -1,0 +1,264 @@
+scenario: hamlet
+language: en
+agents:
+- id: hamlet
+  kind: character
+  brain: llm
+  profile: 丹麦王子，前国王之子，因父死母嫁而陷入复仇与疯狂。
+  status:
+    location: queen_closet
+  goals: []
+  name: 哈姆雷特
+- id: claudius
+  kind: character
+  brain: llm
+  profile: 现任丹麦国王，哈姆雷特的叔父，弑兄篡位者。
+  status:
+    location: great_hall
+  goals: []
+  name: 克劳狄斯
+- id: gertrude
+  kind: character
+  brain: llm
+  profile: 丹麦王后，哈姆雷特之母，改嫁克劳狄斯。
+  status:
+    location: queen_closet
+  goals: []
+  name: 格特鲁德
+- id: polonius
+  kind: character
+  brain: llm
+  profile: 御前大臣，奥菲莉亚与雷欧提斯之父，多管闲事。
+  status:
+    location: queen_closet
+  goals: []
+  name: 波洛涅斯
+  archived: true
+- id: ophelia
+  kind: character
+  brain: llm
+  profile: 波洛涅斯之女，哈姆雷特的恋人。
+  status:
+    location: great_hall
+  goals: []
+  name: 奥菲莉亚
+- id: laertes
+  kind: character
+  brain: llm
+  profile: 波洛涅斯之子，热衷法国的贵族青年。
+  status:
+    location: france
+  goals: []
+  name: 雷欧提斯
+- id: horatio
+  kind: character
+  brain: llm
+  profile: 哈姆雷特的挚友与谋臣。
+  status:
+    location: great_hall
+  goals: []
+  name: 霍拉旭
+- id: marcellus
+  kind: character
+  brain: llm
+  profile: 守夜军官，目击鬼魂。
+  status:
+    location: remote_understage
+  goals: []
+  name: 马塞勒斯
+- id: barnardo
+  kind: character
+  brain: llm
+  profile: 守夜哨兵，最先看见鬼魂。
+  status:
+    location: great_hall
+  goals: []
+  name: 巴纳多
+- id: francisco
+  kind: character
+  brain: llm
+  profile: 守夜哨兵，交岗换班。
+  status:
+    location: battlements
+  goals: []
+  name: 弗朗西斯科
+- id: ghost
+  kind: character
+  brain: llm
+  profile: 哈姆雷特之父的亡灵，揭露谋杀真相。
+  status:
+    location: remote_understage
+  goals: []
+  name: 鬼魂
+  archived: true
+- id: rosencrantz
+  kind: character
+  brain: llm
+  profile: 哈姆雷特的同学，受命刺探王子。
+  status:
+    location: great_hall
+  goals: []
+  name: 罗森克兰茨
+- id: guildenstern
+  kind: character
+  brain: llm
+  profile: 哈姆雷特的同学，与罗森克兰茨同谋。
+  status:
+    location: great_hall
+  goals: []
+  name: 吉尔登斯特恩
+- id: voltemand
+  kind: character
+  brain: llm
+  profile: 丹麦使臣，出使挪威。
+  status:
+    location: elsinore
+  goals: []
+  name: 伏提曼德
+- id: cornelius
+  kind: character
+  brain: llm
+  profile: 丹麦使臣，与伏提曼德同行。
+  status:
+    location: elsinore
+  goals: []
+  name: 考尼律斯
+- id: reynaldo
+  kind: character
+  brain: llm
+  profile: 波洛涅斯的仆人，被派往巴黎监视雷欧提斯。
+  status:
+    location: france
+  goals: []
+  name: 雷纳尔多
+- id: first_player
+  kind: character
+  brain: llm
+  profile: 戏班的首席演员，朗诵慷慨悲歌。
+  status:
+    location: great_hall
+  goals: []
+  name: 第一伶人
+- id: player_king
+  kind: character
+  brain: llm
+  profile: 戏中戏的国王角色。
+  status:
+    location: great_hall
+  goals: []
+  name: 伶王
+- id: player_queen
+  kind: character
+  brain: llm
+  profile: 戏中戏的王后角色。
+  status:
+    location: great_hall
+  goals: []
+  name: 伶后
+- id: lucianus
+  kind: character
+  brain: llm
+  profile: 戏中戏里用毒药杀死伶王的侄儿。
+  status:
+    location: great_hall
+  goals: []
+  name: 卢西安纳斯
+- id: prologue
+  kind: character
+  brain: llm
+  profile: 戏中戏开幕致辞的演员。
+  status:
+    location: great_hall
+  goals: []
+  name: 致辞者
+- id: fortinbras
+  kind: character
+  brain: llm
+  profile: 挪威王子,为父复仇整军备战,借道丹麦征波兰,最终接管丹麦王位。
+  status:
+    location: norway
+  goals: []
+  name: 福丁布拉斯
+- id: elsinore
+  kind: environment
+  brain: rule
+  profile: 丹麦王室城堡，全部剧情发生地。
+  name: 厄耳锡诺城堡
+- id: battlements
+  kind: environment
+  brain: rule
+  profile: 厄耳锡诺城堡的瞭望露台,守夜与鬼魂现身之处。
+  name: 城堡露台
+- id: great_hall
+  kind: environment
+  brain: rule
+  profile: 王室聚会与戏中戏演出的大厅。
+  name: 城堡大厅
+- id: queen_closet
+  kind: environment
+  brain: rule
+  profile: 格特鲁德的私室,哈姆雷特质问母亲、误杀波洛涅斯之处。
+  name: 王后寝宫
+- id: polonius_chambers
+  kind: environment
+  brain: rule
+  profile: 波洛涅斯一家在城堡中的居所。
+  name: 波洛涅斯居所
+- id: norway
+  kind: environment
+  brain: rule
+  profile: 邻国,福丁布拉斯整军之地。
+  name: 挪威
+- id: england
+  kind: environment
+  brain: rule
+  profile: 丹麦属国,克劳狄斯欲借刀杀人之地。
+  name: 英格兰
+- id: france
+  kind: environment
+  brain: rule
+  profile: 雷欧提斯求学游历之地。
+  name: 法国
+- id: wittenberg
+  kind: environment
+  brain: rule
+  profile: 哈姆雷特与霍拉旭就读的大学城。
+  name: 威登堡
+- id: remote_understage
+  kind: environment
+  brain: rule
+  profile: 厄耳锡诺城堡中一处偏远隐蔽的角落，并可通向舞台下方的地下空间。
+  name: 城堡偏远区域及舞台下方
+- id: love_letter
+  kind: info_carrier
+  brain: retrieval
+  profile: 哈姆雷特向奥菲莉亚表达爱慕的信件，被波洛涅斯呈给国王。
+  status: {}
+  corpus: corpora/love_letter.txt
+  name: 哈姆雷特致奥菲莉亚的情书
+- id: sealed_commission
+  kind: info_carrier
+  brain: retrieval
+  profile: 密封国书，命令英格兰王处死哈姆雷特。
+  status: {}
+  corpus: corpora/sealed_commission.txt
+  name: 克劳狄斯的密信
+- id: gonzago_script
+  kind: info_carrier
+  brain: retrieval
+  profile: 戏班演出的旧剧本,哈姆雷特插入十余行新台词,用以试探克劳狄斯。
+  status: {}
+  corpus: corpora/gonzago_script.txt
+  name: 《贡扎古之死》戏文
+map:
+  default_distance: 20
+  edges: []
+kickoff:
+- to:
+  - hamlet
+  - claudius
+  - gertrude
+  - ophelia
+  kind: system
+  content: 波洛涅斯的尸体在王后寝宫被发现，克劳狄斯闻讯后立即下令封锁城堡并彻查凶手，格特鲁德陷入沉默，哈姆雷特暂未离开现场，奥菲莉亚在大厅听到父亲死讯后晕厥。
+ltm_file: hamlet.yaml.ltm.json

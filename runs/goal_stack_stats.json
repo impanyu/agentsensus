@@ -1,0 +1,106 @@
+{
+ "three_kingdoms": {
+  "consensus": {
+   "actions": 1286,
+   "goalless": 18,
+   "pushed": 414,
+   "goalless_pct": 1.3996889580093312
+  },
+  "generative_agents": {
+   "actions": 1191,
+   "goalless": 15,
+   "pushed": 450,
+   "goalless_pct": 1.2594458438287153
+  },
+  "g_memory": {
+   "actions": 1392,
+   "goalless": 10,
+   "pushed": 380,
+   "goalless_pct": 0.7183908045977011
+  },
+  "collaborative": {
+   "actions": 1278,
+   "goalless": 14,
+   "pushed": 425,
+   "goalless_pct": 1.0954616588419406
+  }
+ },
+ "red_chamber": {
+  "consensus": {
+   "actions": 1327,
+   "goalless": 6,
+   "pushed": 429,
+   "goalless_pct": 0.45214770158251694
+  },
+  "generative_agents": {
+   "actions": 1315,
+   "goalless": 12,
+   "pushed": 469,
+   "goalless_pct": 0.9125475285171103
+  },
+  "g_memory": {
+   "actions": 1378,
+   "goalless": 10,
+   "pushed": 489,
+   "goalless_pct": 0.7256894049346879
+  },
+  "collaborative": {
+   "actions": 1317,
+   "goalless": 9,
+   "pushed": 405,
+   "goalless_pct": 0.683371298405467
+  }
+ },
+ "russia_ukraine": {
+  "consensus": {
+   "actions": 1124,
+   "goalless": 18,
+   "pushed": 424,
+   "goalless_pct": 1.601423487544484
+  },
+  "generative_agents": {
+   "actions": 1114,
+   "goalless": 18,
+   "pushed": 425,
+   "goalless_pct": 1.6157989228007181
+  },
+  "g_memory": {
+   "actions": 1118,
+   "goalless": 15,
+   "pushed": 468,
+   "goalless_pct": 1.3416815742397137
+  },
+  "collaborative": {
+   "actions": 1180,
+   "goalless": 11,
+   "pushed": 392,
+   "goalless_pct": 0.9322033898305084
+  }
+ },
+ "hamlet": {
+  "consensus": {
+   "actions": 346,
+   "goalless": 3,
+   "pushed": 123,
+   "goalless_pct": 0.8670520231213873
+  },
+  "generative_agents": {
+   "actions": 361,
+   "goalless": 3,
+   "pushed": 129,
+   "goalless_pct": 0.8310249307479224
+  },
+  "g_memory": {
+   "actions": 376,
+   "goalless": 2,
+   "pushed": 142,
+   "goalless_pct": 0.5319148936170213
+  },
+  "collaborative": {
+   "actions": 322,
+   "goalless": 2,
+   "pushed": 116,
+   "goalless_pct": 0.6211180124223602
+  }
+ }
+}

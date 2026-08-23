@@ -1,0 +1,88 @@
+{
+ "consensus": {
+  "sim_new": 110,
+  "multi_owner": 29,
+  "sh_pct": 26,
+  "aff_pct": 98
+ },
+ "merge_examples": [
+  {
+   "owners": [
+    "first_player",
+    "guildenstern",
+    "prologue"
+   ],
+   "text": "The troupe of players began the performance of that play at Elsinore."
+  },
+  {
+   "owners": [
+    "guildenstern",
+    "rosencrantz"
+   ],
+   "text": "在厄耳锡诺城堡，吉尔登斯特恩与罗森克兰茨决定分头监视哈姆雷特。"
+  },
+  {
+   "owners": [
+    "first_player",
+    "prologue"
+   ],
+   "text": "At Elsinore, the First Player recited the Pyrrhus/Hecuba speech beginning 'The rugged Pyrrhus...'."
+  },
+  {
+   "owners": [
+    "france",
+    "laertes"
+   ],
+   "text": "Laertes, while in France, composes a letter addressed to his father Polonius."
+  },
+  {
+   "owners": [
+    "horatio",
+    "lucianus"
+   ],
+   "text": "在城堡大厅，卢西安纳斯向霍拉旭提议在戏中安排以毒药毒死伶王侄儿的一幕，借此刺探伶王的反应。"
+  }
+ ],
+ "max_owners": 3,
+ "n_3plus": 1,
+ "generative_agents": {
+  "sim_new": 152,
+  "multi_owner": 0,
+  "sh_pct": 0,
+  "aff_pct": 0
+ },
+ "g_memory": {
+  "sim_new": 152,
+  "multi_owner": 0,
+  "sh_pct": 0,
+  "aff_pct": 0
+ },
+ "collaborative": {
+  "sim_new": 151,
+  "multi_owner": 0,
+  "sh_pct": 0,
+  "aff_pct": 0
+ },
+ "auto_expand": {
+  "recalls": 3,
+  "with_expansion": 3,
+  "items": 117
+ },
+ "relations": {
+  "AO": {
+   "talk_n": 22,
+   "talk_mean": 0.074,
+   "non_n": 131,
+   "non_mean": 0.0061
+  },
+  "MO": {
+   "link_n": 218,
+   "link_mean": 0.793,
+   "non_mean": 0.052
+  },
+  "AM": {
+   "talk_mean": 5.64,
+   "non_mean": 0.092
+  }
+ }
+}

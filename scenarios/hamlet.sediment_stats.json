@@ -1,0 +1,11 @@
+{
+ "name": "hamlet",
+ "ok": true,
+ "wall_clock_s": 1868.4,
+ "memories": 1135,
+ "usage": {
+  "calls": 212,
+  "tokens": 867964
+ },
+ "warnings": 10
+}

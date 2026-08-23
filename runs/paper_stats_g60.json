@@ -1,0 +1,119 @@
+{
+ "consensus": {
+  "sim_new": 717,
+  "multi_owner": 138,
+  "sh_pct": 19,
+  "aff_pct": 96
+ },
+ "merge_examples": [
+  {
+   "owners": [
+    "hanxiandi",
+    "xiahoudun",
+    "xiahouyuan",
+    "xushu",
+    "yuejin",
+    "yujin"
+   ],
+   "text": "夏侯渊率三百轻骑分三路从许昌出城侦察。"
+  },
+  {
+   "owners": [
+    "hanxiandi",
+    "xiahoudun",
+    "xushu",
+    "yujin",
+    "zhangliao"
+   ],
+   "text": "乐进督管许昌的粮草与军需。"
+  },
+  {
+   "owners": [
+    "hanxiandi",
+    "xiahoudun",
+    "xushu",
+    "yuejin",
+    "yujin"
+   ],
+   "text": "张辽被任为许昌防务的总摄指挥。"
+  },
+  {
+   "owners": [
+    "longzhong",
+    "tonger"
+   ],
+   "text": "在诸葛亮草庐内检查文书存放处：开柜查看书卷、信札及文房四宝摆放是否整齐、是否有外人动过的痕迹，并记录发现情况。"
+  },
+  {
+   "owners": [
+    "bowangpo",
+    "caohong"
+   ],
+   "text": "巡视博望坡周围，呼喊曹操，搜索马蹄印、血迹、旗帜等痕迹以确认曹操下落。"
+  }
+ ],
+ "max_owners": 6,
+ "n_3plus": 29,
+ "generative_agents": {
+  "sim_new": 920,
+  "multi_owner": 0,
+  "sh_pct": 0,
+  "aff_pct": 0
+ },
+ "g_memory": {
+  "sim_new": 1133,
+  "multi_owner": 0,
+  "sh_pct": 0,
+  "aff_pct": 0
+ },
+ "collaborative": {
+  "sim_new": 1066,
+  "multi_owner": 0,
+  "sh_pct": 0,
+  "aff_pct": 0
+ },
+ "growth": {
+  "ticks": [
+   20,
+   40,
+   60
+  ],
+  "sim_new": [
+   278,
+   500,
+   717
+  ],
+  "multi_owner": [
+   59,
+   110,
+   138
+  ],
+  "aff_edges": [
+   1244,
+   2327,
+   3905
+  ]
+ },
+ "auto_expand": {
+  "recalls": 39,
+  "with_expansion": 39,
+  "items": 1103
+ },
+ "relations": {
+  "AO": {
+   "talk_n": 51,
+   "talk_mean": 0.0651,
+   "non_n": 895,
+   "non_mean": 0.0028
+  },
+  "MO": {
+   "link_n": 3905,
+   "link_mean": 0.751,
+   "non_mean": 0.045
+  },
+  "AM": {
+   "talk_mean": 90.08,
+   "non_mean": 0.027
+  }
+ }
+}

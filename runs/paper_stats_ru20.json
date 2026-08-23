@@ -1,0 +1,91 @@
+{
+ "consensus": {
+  "sim_new": 491,
+  "multi_owner": 44,
+  "sh_pct": 9,
+  "aff_pct": 99
+ },
+ "merge_examples": [
+  {
+   "owners": [
+    "klymenko",
+    "podolyak",
+    "sbu"
+   ],
+   "text": "In Kyiv, President Volodymyr Zelenskyy authorized raising the nationwide air-defence posture immediately."
+  },
+  {
+   "owners": [
+    "klymenko",
+    "podolyak",
+    "sbu"
+   ],
+   "text": "In Kyiv, President Volodymyr Zelenskyy authorized temporarily reallocating mobile air-defense assets to high-risk southern sectors of Ukraine."
+  },
+  {
+   "owners": [
+    "klymenko",
+    "podolyak",
+    "sbu"
+   ],
+   "text": "In Kyiv, President Volodymyr Zelenskyy authorized the Security Service of Ukraine (SBU) and the Main Intelligence Directorate (GUR) to begin joint forensic debris recovery."
+  },
+  {
+   "owners": [
+    "klymenko",
+    "podolyak",
+    "sbu"
+   ],
+   "text": "President Volodymyr Zelenskyy authorized immediate implementation of adviser Podolyak's recommendation that the SBU and GUR nominate liaisons to the Ukrainian Ministry of Defence."
+  },
+  {
+   "owners": [
+    "guterres",
+    "un"
+   ],
+   "text": "António Guterres at UN Headquarters in New York endorsed the proposed agenda to renew the Black Sea grain agreement."
+  }
+ ],
+ "max_owners": 3,
+ "n_3plus": 4,
+ "generative_agents": {
+  "sim_new": 729,
+  "multi_owner": 0,
+  "sh_pct": 0,
+  "aff_pct": 0
+ },
+ "g_memory": {
+  "sim_new": 692,
+  "multi_owner": 0,
+  "sh_pct": 0,
+  "aff_pct": 0
+ },
+ "collaborative": {
+  "sim_new": 583,
+  "multi_owner": 0,
+  "sh_pct": 0,
+  "aff_pct": 0
+ },
+ "auto_expand": {
+  "recalls": 37,
+  "with_expansion": 19,
+  "items": 33
+ },
+ "relations": {
+  "AO": {
+   "talk_n": 102,
+   "talk_mean": 0.0169,
+   "non_n": 1074,
+   "non_mean": 0.0006
+  },
+  "MO": {
+   "link_n": 2678,
+   "link_mean": 0.909,
+   "non_mean": 0.018
+  },
+  "AM": {
+   "talk_mean": 5.7,
+   "non_mean": 0.017
+  }
+ }
+}

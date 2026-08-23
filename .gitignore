@@ -13,3 +13,13 @@ config_flash.json
 
 # generated continuation scenarios (per-method, from run_continue.py)
 scenarios/*.cont_*.sim.yaml
+
+# runs/ is ignored above (checkpoints, stores and event logs are huge and
+# regenerable), but the small result files ARE the paper's data: every number
+# in docs/index.html is read from them at build time, so they are tracked.
+!runs/
+runs/*
+!runs/results_*.json
+!runs/paper_stats_*.json
+!runs/ablation_results.json
+!runs/goal_stack_stats.json

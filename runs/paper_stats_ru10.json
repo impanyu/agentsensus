@@ -1,0 +1,72 @@
+{
+ "consensus": {
+  "sim_new": 248,
+  "multi_owner": 16,
+  "sh_pct": 6,
+  "aff_pct": 99
+ },
+ "merge_examples": [
+  {
+   "owners": [
+    "guterres",
+    "un"
+   ],
+   "text": "António Guterres at UN Headquarters in New York endorsed the proposed agenda to "
+  },
+  {
+   "owners": [
+    "guterres",
+    "un"
+   ],
+   "text": "António Guterres at UN Headquarters in New York asked the United Nations to asse"
+  },
+  {
+   "owners": [
+    "podolyak",
+    "ukrainian_government"
+   ],
+   "text": "Mykhailo Podolyak reported that overnight Russian drone strikes struck Dnipropet"
+  }
+ ],
+ "max_owners": 2,
+ "generative_agents": {
+  "sim_new": 354,
+  "multi_owner": 0,
+  "sh_pct": 0,
+  "aff_pct": 0
+ },
+ "g_memory": {
+  "sim_new": 349,
+  "multi_owner": 0,
+  "sh_pct": 0,
+  "aff_pct": 0
+ },
+ "collaborative": {
+  "sim_new": 306,
+  "multi_owner": 0,
+  "sh_pct": 0,
+  "aff_pct": 0
+ },
+ "auto_expand": {
+  "recalls": 34,
+  "with_expansion": 16,
+  "items": 28
+ },
+ "relations": {
+  "AO": {
+   "talk_n": 49,
+   "talk_mean": 0.024,
+   "non_n": 617,
+   "non_mean": 0.0005
+  },
+  "MO": {
+   "link_n": 1305,
+   "link_mean": 0.939,
+   "non_mean": 0.046
+  },
+  "AM": {
+   "talk_mean": 3.24,
+   "non_mean": 0.016
+  }
+ }
+}
