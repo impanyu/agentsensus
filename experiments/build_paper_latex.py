@@ -201,7 +201,8 @@ def _lx(t):
     """Escape LaTeX specials in screenplay text."""
     for a, b in [("\\", "\\textbackslash{}"), ("&", "\\&"), ("%", "\\%"),
                  ("$", "\\$"), ("#", "\\#"), ("_", "\\_"), ("{", "\\{"),
-                 ("}", "\\}"), ("~", "\\textasciitilde{}"), ("^", "\\textasciicircum{}")]:
+                 ("}", "\\}"), ("~", "\\textasciitilde{}"), ("^", "\\textasciicircum{}"),
+                 ("<", "\\textless{}"), (">", "\\textgreater{}")]:
         t = t.replace(a, b)
     return t
 
@@ -283,12 +284,25 @@ def samples():
         if not en:
             continue
         half = len(en) // 2
-        def pick(rng):
+        def place(h):
+            parts = h.lstrip('# ').split('\u00b7')
+            return parts[1].strip() if len(parts) > 1 else ""
+
+        def pick(rng, avoid=None):
+            # a sample should read as people talking: scenes carrying long
+            # machine artifacts (hash fingerprints, transfer URIs) are the
+            # world's style but not a dialogue sample
+            arty = re.compile(r"(?:[0-9A-Fa-f]{2}:){8,}|\w+://\S+")
             c = [(i, h, b) for i, (h, b) in enumerate(en)
                  if rng[0] <= i < rng[1] and len(b) >= 350
-                 and len(_talkers(b)) >= 2]
+                 and len(_talkers(b)) >= 2 and not arty.search(b)]
+            # two samples from one world should show two places when they can
+            c2 = [x for x in c if place(x[1]) != avoid] if avoid else c
+            c = c2 or c
             return min(c, key=lambda x: len(x[2])) if c else None
-        picks = [p for p in (pick((0, half)), pick((half, len(en)))) if p]
+        first = pick((0, half))
+        second = pick((half, len(en)), avoid=place(first[1]) if first else None)
+        picks = [p for p in (first, second) if p]
         out.append(f"\\subsection*{{{title}}}")
         for i, head, body in picks:
             body, cut = _trim(body)
