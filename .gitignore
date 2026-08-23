@@ -14,38 +14,7 @@ config_flash.json
 # generated continuation scenarios (per-method, from run_continue.py)
 scenarios/*.cont_*.sim.yaml
 
-# runs/ holds the experiments. Stores, checkpoints and transcripts are large
-# and rebuildable, so the default is to ignore everything under it and let
-# back in exactly what the paper is built from: the result files it reads,
-# the derived figures and screenplays it embeds, and the event logs those
-# are computed from. A clone can then rebuild docs/index.html without
-# re-running a simulation.
-!runs/
-runs/*
-runs/*/*
-runs/*/*/*
-
-# the paper's data
-!runs/results_*.json
-!runs/paper_stats_*.json
-!runs/ablation_results.json
-!runs/goal_stack_stats.json
-
-# derived artefacts the paper embeds
-!runs/paper_figs_*/
-!runs/paper_figs_*/*_q.png
-!runs/screenplays/
-!runs/screenplays/*.md
-!runs/scene_grid_*.svg
-!runs/*full_consensus/
-!runs/*full_consensus/case_study/
-!runs/*full_consensus/case_study/graphs.json
-!runs/*full_consensus/case_study/translations.json
-!runs/*full_consensus/case_study/*_q.png
-
-# Event logs stay out: 52 MB, and everything the paper needs from them is
-# cached by experiments/cache_derived.py (the action census of A1 and the
-# screenplay geometry of A5). Rerunning regenerates both.
-!runs/derived_tables.json
-!runs/abl_*/
-!runs/abl_*/result.json
+# Everything a run produces stays out of the repository: stores, checkpoints,
+# event logs, statistics, scored results and generated figures. The repository
+# carries the method -- code, scenarios, source texts -- and the built paper.
+# See REPRODUCE.md for how to regenerate the data from scratch.

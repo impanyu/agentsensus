@@ -7,9 +7,13 @@ the shape of the result — consensus writing the fewest entries, being the only
 backend whose memories become shared, and the sharing rate rising with the
 horizon.
 
-`README.md` covers the framework itself (config,
-scenario format, checkpointing, architecture); this file covers only the
-experiments.
+The repository carries the method and the paper, not the data: nothing a run
+produces — stores, checkpoints, event logs, statistics, scored results,
+generated figures — is committed. Steps 1 through 5 below regenerate all of
+it into `runs/`, and step 6 builds the paper from what they wrote, so run
+them in order rather than expecting `build_paper_academic.py` to work on a
+bare clone. `README.md` covers the framework itself (config, scenario format,
+checkpointing, architecture); this file covers only the experiments.
 
 ## 0. Setup
 
@@ -120,20 +124,22 @@ venv/bin/python -m experiments.scene_grid_fig
 venv/bin/python -m experiments.build_paper_academic     # -> docs/index.html
 ```
 
-`build_paper_academic.py` reads the stats, results and derived artefacts and
-writes the whole paper as a single self-contained HTML file. Everything it
-reads is tracked, so it runs on a fresh clone before you have run anything.
+`build_paper_academic.py` reads what steps 1&ndash;5 wrote into `runs/` and
+emits the whole paper as one self-contained HTML file — every figure, table
+and number inlined. It needs those steps to have run for the worlds it
+reports; `docs/index.html` in the repository is the built result for our runs.
 
-Two appendix tables are counted out of whole event logs, which are too large
-to carry here; their counts live in `runs/derived_tables.json`. After a rerun,
-refresh it so the tables follow the new logs:
+Two appendix tables are counted by reading whole event logs. If you have run
+the worlds, the logs are there and are used directly. If you are rebuilding
+from a partial set, cache the counts once and the builder will fall back to
+them:
 
 ```bash
-venv/bin/python -m experiments.cache_derived
+venv/bin/python -m experiments.cache_derived   # -> runs/derived_tables.json
 ```
 
-When the logs are present they take precedence over the cache, so a rerun you
-forget to cache still reports its own numbers rather than ours.
+Logs take precedence over the cache, so your rerun always reports its own
+numbers.
 
 ## Costs
 
