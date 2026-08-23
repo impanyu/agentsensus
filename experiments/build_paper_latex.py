@@ -10,6 +10,7 @@ from the data the way a typed number does.
 Run: venv/bin/python -m experiments.build_paper_latex
 """
 import json
+import re
 import os
 import sys
 
@@ -127,7 +128,7 @@ def tab_quality():
             a = Q[w][b]["agg"]
             first = f"\\multirow{{4}}{{*}}{{{title}}}" if i == 0 else ""
             cells = " & ".join(
-                f"{a[k]['mean']:.2f}" + ("" if a[k]["std"] == 0 else f"\\tiny$\\pm${a[k]['std']:.2f}")
+                f"{a[k]['mean']:.2f}\\tiny$\\pm${a[k]['std']:.2f}"
                 for k in ("grnd", "traj", "narr", "goal"))
             rows.append(f"{first} & {LBL[b]} & {cells} \\\\")
         rows.append("\\midrule")
@@ -235,11 +236,44 @@ def tab_screenplays():
             "\\midrule\n" + "\n".join(rows) + "\n\\bottomrule\n\\end{tabular}\n")
 
 
+def _talkers(body):
+    """Characters in a scene with actual dialogue: a speaker line followed by
+    text that is not just a parenthesised stage direction."""
+    segs = re.split(r"(?m)^(\S[^\n:]{0,30}):\s*$", body)
+    out = set()
+    for name, text in zip(segs[1::2], segs[2::2]):
+        t = text.strip()
+        if t and not t.startswith(("(", "\uff08")):
+            out.add(name.strip())
+    return out
+
+
+def _trim(body, cap=1400):
+    """A scene short enough prints whole; a long one is cut at a speaker
+    boundary once at least two characters have talked. Returns (text, cut)."""
+    if len(body) <= cap + 300:
+        return body, False
+    segs = re.split(r"(?m)^(\S[^\n:]{0,30}):\s*$", body)
+    out, talk, ln = [], set(), 0
+    for name, text in zip(segs[1::2], segs[2::2]):
+        t = text.strip()
+        out.append(f"{name}:\n{t}")
+        ln += len(t)
+        if t and not t.startswith(("(", "\uff08")):
+            talk.add(name.strip())
+        if ln >= cap and len(talk) >= 2:
+            break
+    return "\n\n".join(out), True
+
+
 def samples():
     """Two sample scenes per world, bilingual where the world is Chinese.
 
-    Chosen by length: the shortest scenes above a floor, one from each half of
-    the run, so the samples read whole rather than excerpted.
+    Only scenes where at least two characters actually talk qualify -- a
+    movement-only scene or a monologue is not a sample of dialogue. Among
+    those, the shortest above a floor is taken from each half of the run;
+    where every candidate is long (Russia--Ukraine's institutional scenes),
+    the shortest is excerpted at a speaker boundary instead of skipped.
     """
     out = ["% generated -- sample scenes from the rendered screenplays"]
     zh_worlds = {"three_kingdoms", "red_chamber"}
@@ -250,18 +284,25 @@ def samples():
             continue
         half = len(en) // 2
         def pick(rng):
-            c = [(i, h, b) for i, (h, b) in enumerate(en) if rng[0] <= i < rng[1]
-                 and 350 <= len(b) <= 1400]
+            c = [(i, h, b) for i, (h, b) in enumerate(en)
+                 if rng[0] <= i < rng[1] and len(b) >= 350
+                 and len(_talkers(b)) >= 2]
             return min(c, key=lambda x: len(x[2])) if c else None
         picks = [p for p in (pick((0, half)), pick((half, len(en)))) if p]
         out.append(f"\\subsection*{{{title}}}")
         for i, head, body in picks:
-            out.append(f"\\paragraph{{{_lx(head.lstrip('# '))}}}\\mbox{{}}\\\\[2pt]")
+            body, cut = _trim(body)
+            head = head.lstrip('# ') + (" (excerpt)" if cut else "")
+            out.append(f"\\paragraph{{{_lx(head)}}}\\mbox{{}}\\\\[2pt]")
             out.append("\\begin{zhblock}\\small\\setlength{\\parskip}{3pt}")
             out.append(_lx(body).replace("\n\n", "\n\\par "))
+            if cut:
+                out.append("\\par\\textit{[\\,scene continues\\,]}")
             if zh and i < len(zh):
+                zbody, zcut = _trim(zh[i][1])
                 out.append("\\par\\textcolor{gray}{\\rule{0.3\\textwidth}{0.4pt}}\\par")
-                out.append("{\\color{gray} " + _lx(zh[i][1]).replace("\n\n", "\n\\par ") + "}")
+                out.append("{\\color{gray} " + _lx(zbody).replace("\n\n", "\n\\par ")
+                           + ("\\par\\textit{[\\,\\zh{后续从略}\\,]}" if zcut else "") + "}")
             out.append("\\end{zhblock}")
     return "\n".join(out) + "\n"
 
