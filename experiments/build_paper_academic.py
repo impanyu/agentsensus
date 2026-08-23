@@ -133,11 +133,11 @@ def ablation_rows():
     for c, (m, k) in label.items():
         v, fp = ABL[c], ABLFP[c]
         hi = ' class="hi"' if c == "on_fifo" else ""
+        q = "".join(f"<td>{v[f'{x}_m']:.2f}&plusmn;{v[f'{x}_s']:.2f}</td>"
+                    for x in ("grnd", "traj", "narr", "goal"))
         rows.append(f"<tr{hi}><td>{m}</td><td>{k}</td><td>{fp['entries']:,}</td>"
                     f"<td>{v['sim_new']}</td><td>{v['sh_pct']}%</td><td>{v['aff_pct']}%</td>"
-                    f"<td>{v['max_owners']}</td>"
-                    f"<td>{v['gr_m']:.2f}&plusmn;{v['gr_s']:.2f}</td>"
-                    f"<td>{v['wall_min']:.0f} min</td></tr>")
+                    f"<td>{v['max_owners']}</td>{q}</tr>")
     return "\n".join(rows)
 
 
@@ -1174,8 +1174,8 @@ HTML = CSS + f"""
 </figure>
 
 <div class="tw"><table>
-<caption><b>Table 3. One factor at a time from the published configuration.</b> Structure is deterministic, read from each run&rsquo;s own export under the same simulation-only accounting as Table&nbsp;1; grounding is LLM-judged, mean&plusmn;1 std over 3 scorings. Wall-clock is one run on one machine and is indicative only.</caption>
-<thead><tr><th>merge</th><th>cache</th><th>whole store</th><th>sim entries</th><th>shared</th><th>linked</th><th>deepest merge</th><th>grounding</th><th>wall-clock</th></tr></thead>
+<caption><b>Table 3. One factor at a time from the published configuration.</b> Structure is deterministic, read from each run&rsquo;s own export under the same simulation-only accounting as Table&nbsp;1. The four quality metrics are LLM-judged, mean&plusmn;1 std over 3 scorings, and all four read the <i>event log</i> rather than a rendered screenplay: rendering would put a separate LLM pass between each cell and its score, which an ablation would then read as mechanism. They therefore compare across cells, not against Table&nbsp;2.</caption>
+<thead><tr><th>merge</th><th>cache</th><th>whole store</th><th>sim entries</th><th>shared</th><th>linked</th><th>deepest</th><th>grounding</th><th>trajectory</th><th>narrative</th><th>goal</th></tr></thead>
 <tbody>
 {ablation_rows()}
 </tbody></table></div>
@@ -1186,7 +1186,7 @@ HTML = CSS + f"""
 
 <p><b>The short-term cache policy is not a research variable.</b> Relevance- and hybrid-based eviction leave every structural quantity where FIFO leaves it (sharing 18&ndash;21%, linking 96%), while costing 15&ndash;19% more wall-clock, since each cached line must be embedded to be scored. They do write {ABL['on_relevance']['sim_new'] - ABL['on_fifo']['sim_new']}&ndash;{ABL['on_hybrid']['sim_new'] - ABL['on_fifo']['sim_new']} more entries, but that is agents holding different context and therefore saying different things, not a property of the memory mechanism. FIFO is reported as the default because nothing recommends the alternatives, not because they were tuned away.</p>
 
-<p><b>Grounding does not separate on the merge.</b> The published cell scores lowest of the four ({ABL['on_fifo']['gr_m']:.2f}&plusmn;{ABL['on_fifo']['gr_s']:.2f} against {ABL['off_fifo']['gr_m']:.2f}&plusmn;{ABL['off_fifo']['gr_s']:.2f} with the merge off), which read alone would suggest that merging costs factual consistency &mdash; plausibly, since a merge keeps the shorter of two equivalent texts and discards whatever detail the longer one carried. But the two cells that keep the merge and only change the cache score {ABL['on_relevance']['gr_m']:.2f} and {ABL['on_hybrid']['gr_m']:.2f}, level with the merge-off cell. The variation tracks the cache knob rather than the merge knob, which at three scorings per cell is what noise looks like. We therefore claim no grounding effect for the merge; testing the keep-the-shorter-text policy properly needs its own cell, which we have not run.</p>
+<p><b>None of the four quality metrics separates on the merge.</b> Grounding lands at {ABL["on_fifo"]["grnd_m"]:.2f}, {ABL["on_relevance"]["grnd_m"]:.2f}, {ABL["on_hybrid"]["grnd_m"]:.2f} and {ABL["off_fifo"]["grnd_m"]:.2f} across the four cells &mdash; a band narrower than one cell&rsquo;s own scoring spread &mdash; and goal pursuit is flat at {ABL["off_fifo"]["goal_m"]:.2f}&ndash;{ABL["on_relevance"]["goal_m"]:.2f}, as it is everywhere else in this paper. Narrative is the widest spread ({ABL["off_fifo"]["narr_m"]:.2f} with the merge off against {ABL["on_relevance"]["narr_m"]:.2f} for relevance eviction) and trajectory the only one that orders the cells the way the mechanism would predict ({ABL["on_fifo"]["traj_m"]:.2f} and {ABL["on_hybrid"]["traj_m"]:.2f} with the merge on against {ABL["off_fifo"]["traj_m"]:.2f} without it), which is what agents acting on one merged record rather than several drifting copies should buy &mdash; but at three scorings per cell we report it as suggestive, not as an effect. An earlier version of this ablation scored grounding from a transcript that carried only speech, and produced a spread that looked like a merge penalty; feeding the judge every logged action instead removed it. What the merge changes is the store, not the story.</p>
 
 <h2><span class="n">6</span> Discussion and Limitations</h2>
 <p><b>What consensus buys.</b> Under equal granularity and sim-only accounting, consensus dominates structurally &mdash; fewest entries, all sharing, all graph structure &mdash; and buys this at no measurable cost in judged quality: across four worlds and three metrics the four backends land within noise of one another, with no backend leading everywhere and consensus leading three cells of twelve (&sect;5.3). The three-layer alignment argues the structure is meaningful: it recovers the story&rsquo;s social organization from the memory substrate alone.</p>

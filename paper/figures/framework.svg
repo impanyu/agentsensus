@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 560" role="img" aria-label="The framework shared by all four backends: a source text is sedimented into owner-tagged events that seed one long-term memory store, which every agent writes to and reads from, while characters also talk to each other through kernel-held threads" style="max-width:100%;height:auto">
+  <defs>
+    <marker id="f1a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker>
+    <marker id="f1b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/></marker>
+    <marker id="f1c" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--good)"/></marker>
+  </defs>
+  <g fill="none" stroke="currentColor" stroke-width="1.3" font-family="system-ui,sans-serif">
+
+    <text x="14" y="24" font-size="13.5" stroke="none" fill="currentColor" opacity=".6" font-weight="600">OFFLINE &mdash; sedimentation (&sect;3.4)</text>
+    <path d="M20 48 h60 a8 8 0 0 1 8 8 v62 a8 8 0 0 1 -8 8 h-60 z"/>
+    <line x1="31" y1="48" x2="31" y2="126"/>
+    <line x1="42" y1="70" x2="78" y2="70"/><line x1="42" y1="86" x2="78" y2="86"/><line x1="42" y1="102" x2="72" y2="102"/>
+    <text x="54" y="150" text-anchor="middle" font-size="14" stroke="none" fill="currentColor">source text</text>
+    <line x1="92" y1="87" x2="126" y2="87" marker-end="url(#f1a)"/>
+    <path d="M132 54 h74 l-23 29 v40 l-28 12 v-52 z"/>
+    <text x="169" y="150" text-anchor="middle" font-size="14" stroke="none" fill="currentColor">extract + attribute</text>
+    <line x1="212" y1="87" x2="246" y2="87" marker-end="url(#f1a)"/>
+    <rect x="250" y="56" width="96" height="19" rx="3"/><text x="298" y="70" text-anchor="middle" font-size="12" stroke="none" fill="currentColor">event | A, B</text>
+    <rect x="250" y="79" width="96" height="19" rx="3"/><text x="298" y="93" text-anchor="middle" font-size="12" stroke="none" fill="currentColor">event | C</text>
+    <rect x="250" y="102" width="96" height="19" rx="3"/><text x="298" y="116" text-anchor="middle" font-size="12" stroke="none" fill="currentColor">event | A, D</text>
+    <text x="298" y="150" text-anchor="middle" font-size="14" stroke="none" fill="currentColor">owner-tagged events</text>
+    <path d="M352 90 C 432 96 424 214 200 236" stroke="var(--accent)" marker-end="url(#f1b)"/>
+    <text x="398" y="150" font-size="13" stroke="none" fill="var(--accent)" font-weight="600">seed the store</text>
+
+    <line x1="14" y1="178" x2="826" y2="178" opacity=".25"/>
+    <text x="14" y="200" font-size="13.5" stroke="none" fill="currentColor" opacity=".6" font-weight="600">RUNTIME &mdash; one world, one store</text>
+
+    <ellipse cx="120" cy="240" rx="62" ry="16" stroke="var(--accent)" stroke-width="1.7"/>
+    <path d="M58 240 v104 a62 16 0 0 0 124 0 v-104" stroke="var(--accent)" stroke-width="1.7"/>
+    <text x="120" y="286" text-anchor="middle" font-size="15" stroke="none" fill="var(--accent)" font-weight="700">long-term</text>
+    <text x="120" y="306" text-anchor="middle" font-size="15" stroke="none" fill="var(--accent)" font-weight="700">memory</text>
+    <text x="120" y="330" text-anchor="middle" font-size="12" stroke="none" fill="currentColor" opacity=".75">shared by all</text>
+    <text x="120" y="378" text-anchor="middle" font-size="12" stroke="none" fill="currentColor" opacity=".75">internal structure</text>
+    <text x="120" y="394" text-anchor="middle" font-size="12" stroke="none" fill="currentColor" opacity=".75">differs per backend</text>
+    <text x="120" y="410" text-anchor="middle" font-size="12" stroke="none" fill="var(--accent)" font-weight="600">&rarr; Figure 2</text>
+
+    <path d="M184 252 C 240 252 244 232 292 232" stroke="var(--accent)" marker-end="url(#f1b)"/>
+    <text x="238" y="224" text-anchor="middle" font-size="13" stroke="none" fill="var(--accent)" font-weight="600">recall</text>
+    <path d="M292 330 C 244 330 240 310 184 310" stroke="var(--accent)" marker-end="url(#f1b)"/>
+    <text x="238" y="348" text-anchor="middle" font-size="13" stroke="none" fill="var(--accent)" font-weight="600">remember</text>
+    <text x="238" y="364" text-anchor="middle" font-size="12" stroke="none" fill="currentColor" opacity=".7">both owner-scoped</text>
+
+    <rect x="300" y="196" width="526" height="234" rx="10" stroke-dasharray="5 4" opacity=".5"/>
+    <text x="816" y="216" text-anchor="end" font-size="12.5" stroke="none" fill="currentColor" opacity=".65">the society</text>
+
+    <g stroke="var(--accent)"><circle cx="392" cy="248" r="10"/><path d="M379 276 a13 15 0 0 1 26 0"/></g>
+    <text x="392" y="322" text-anchor="middle" font-size="13" stroke="none" fill="currentColor">character</text>
+
+    <g stroke="var(--accent)"><circle cx="566" cy="248" r="10"/><path d="M553 276 a13 15 0 0 1 26 0"/></g>
+    <text x="566" y="322" text-anchor="middle" font-size="13" stroke="none" fill="currentColor">character</text>
+
+    <g stroke="var(--accent)"><circle cx="392" cy="368" r="10"/><path d="M379 396 a13 15 0 0 1 26 0"/></g>
+    <text x="392" y="424" text-anchor="middle" font-size="13" stroke="none" fill="currentColor">character</text>
+
+    <line x1="406" y1="248" x2="552" y2="248" marker-end="url(#f1a)" marker-start="url(#f1a)"/>
+    <text x="479" y="240" text-anchor="middle" font-size="12" stroke="none" fill="currentColor" opacity=".85">say &middot; kernel-held thread</text>
+    <line x1="402" y1="352" x2="556" y2="266" marker-end="url(#f1a)"/>
+    <text x="500" y="300" text-anchor="middle" font-size="12" stroke="none" fill="currentColor" opacity=".85">delivery delayed by distance</text>
+
+    <g stroke="var(--good)"><path d="M700 244 a12 12 0 1 1 0.01 0"/><path d="M690 253 l10 22 l10 -22"/></g>
+    <text x="700" y="296" text-anchor="middle" font-size="13" stroke="none" fill="var(--good)">environment</text>
+    <text x="700" y="312" text-anchor="middle" font-size="12" stroke="none" fill="currentColor" opacity=".7">owns memories,</text>
+    <text x="700" y="326" text-anchor="middle" font-size="12" stroke="none" fill="currentColor" opacity=".7">never takes a turn</text>
+
+    <g stroke="var(--warn)"><path d="M676 356 h38 l12 12 v32 h-50 z"/><path d="M714 356 v12 h12"/>
+      <line x1="684" y1="380" x2="716" y2="380"/><line x1="684" y1="391" x2="710" y2="391"/></g>
+    <text x="701" y="420" text-anchor="middle" font-size="13" stroke="none" fill="var(--warn)">info carrier</text>
+
+    <line x1="584" y1="248" x2="672" y2="248" marker-end="url(#f1c)"/>
+    <text x="628" y="240" text-anchor="middle" font-size="12" stroke="none" fill="var(--good)">act_on</text>
+    <line x1="418" y1="376" x2="668" y2="376" marker-end="url(#f1c)"/>
+    <text x="540" y="368" text-anchor="middle" font-size="12" stroke="none" fill="var(--good)">read</text>
+
+    <line x1="14" y1="452" x2="826" y2="452" opacity=".25"/>
+    <text x="14" y="474" font-size="13" stroke="none" fill="currentColor" opacity=".9">A character emits <tspan font-weight="600">one action per round</tspan>, from a single repertoire:</text>
+    <g font-size="12.5">
+      <rect x="14" y="486" width="40" height="22" rx="11"/><text x="34" y="501" text-anchor="middle" stroke="none" fill="currentColor">say</text>
+      <rect x="60" y="486" width="88" height="22" rx="11"/><text x="104" y="501" text-anchor="middle" stroke="none" fill="currentColor">read_thread</text>
+      <rect x="154" y="486" width="84" height="22" rx="11" stroke="var(--accent)"/><text x="196" y="501" text-anchor="middle" stroke="none" fill="var(--accent)" font-weight="600">remember</text>
+      <rect x="244" y="486" width="60" height="22" rx="11" stroke="var(--accent)"/><text x="274" y="501" text-anchor="middle" stroke="none" fill="var(--accent)" font-weight="600">recall</text>
+      <rect x="310" y="486" width="80" height="22" rx="11"/><text x="350" y="501" text-anchor="middle" stroke="none" fill="currentColor">push_goal</text>
+      <rect x="396" y="486" width="74" height="22" rx="11"/><text x="433" y="501" text-anchor="middle" stroke="none" fill="currentColor">pop_goal</text>
+      <rect x="476" y="486" width="52" height="22" rx="11" stroke="var(--good)"/><text x="502" y="501" text-anchor="middle" stroke="none" fill="var(--good)">move</text>
+      <rect x="534" y="486" width="78" height="22" rx="11" stroke="var(--good)"/><text x="573" y="501" text-anchor="middle" stroke="none" fill="var(--good)">observe</text>
+      <rect x="618" y="486" width="62" height="22" rx="11" stroke="var(--good)"/><text x="649" y="501" text-anchor="middle" stroke="none" fill="var(--good)">act_on</text>
+      <rect x="686" y="486" width="48" height="22" rx="11" stroke="var(--good)"/><text x="710" y="501" text-anchor="middle" stroke="none" fill="var(--good)">read</text>
+      <rect x="740" y="486" width="46" height="22" rx="11"/><text x="763" y="501" text-anchor="middle" stroke="none" fill="currentColor">wait</text>
+      <rect x="14" y="514" width="232" height="22" rx="11" stroke-dasharray="3 3" opacity=".5"/><text x="130" y="529" text-anchor="middle" stroke="none" fill="currentColor" opacity=".75">6 memory-management: never used</text>
+    </g>
+    <text x="262" y="522" font-size="12" stroke="none" fill="currentColor" opacity=".8">Blue actions touch long-term memory, green ones the world. Each round freezes all views at the barrier,</text>
+    <text x="262" y="538" font-size="12" stroke="none" fill="currentColor" opacity=".8">decisions issue concurrently, then apply in a fixed order &mdash; event order is reproducible.</text>
+  </g>
+</svg>
