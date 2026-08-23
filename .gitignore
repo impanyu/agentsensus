@@ -14,12 +14,40 @@ config_flash.json
 # generated continuation scenarios (per-method, from run_continue.py)
 scenarios/*.cont_*.sim.yaml
 
-# runs/ is ignored above (checkpoints, stores and event logs are huge and
-# regenerable), but the small result files ARE the paper's data: every number
-# in docs/index.html is read from them at build time, so they are tracked.
+# runs/ holds the experiments. Stores, checkpoints and transcripts are large
+# and rebuildable, so the default is to ignore everything under it and let
+# back in exactly what the paper is built from: the result files it reads,
+# the derived figures and screenplays it embeds, and the event logs those
+# are computed from. A clone can then rebuild docs/index.html without
+# re-running a simulation.
 !runs/
 runs/*
+runs/*/*
+runs/*/*/*
+
+# the paper's data
 !runs/results_*.json
 !runs/paper_stats_*.json
 !runs/ablation_results.json
 !runs/goal_stack_stats.json
+
+# derived artefacts the paper embeds
+!runs/paper_figs_*/
+!runs/paper_figs_*/*_q.png
+!runs/screenplays/
+!runs/screenplays/*.md
+!runs/scene_grid_*.svg
+!runs/*full_consensus/
+!runs/*full_consensus/case_study/
+!runs/*full_consensus/case_study/graphs.json
+!runs/*full_consensus/case_study/translations.json
+!runs/*full_consensus/case_study/*_q.png
+
+# the raw record: one event log per reported run
+!runs/g[0-9]*_*/
+!runs/rc[0-9]*_*/
+!runs/ru[0-9]*_*/
+!runs/hl[0-9]*_*/
+!runs/abl_*/
+!runs/*/events.jsonl
+!runs/abl_*/result.json
