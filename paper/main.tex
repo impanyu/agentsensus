@@ -210,7 +210,7 @@ but the memory substrate it comes from.
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\textwidth]{figures/framework.pdf}
+\includegraphics[width=0.82\textwidth]{figures/framework.pdf}
 \caption{The framework shared by all four backends. A source text is sedimented
 into owner-tagged events that seed one long-term memory store; a round-barrier
 kernel then steps every awake agent, and the actions they take deposit into and
@@ -251,7 +251,7 @@ along affiliation into records the caller also owns.
 \subsection{How the four designs differ}
 \begin{figure}[t]
 \centering
-\includegraphics[width=\textwidth]{figures/backends.pdf}
+\includegraphics[width=0.78\textwidth]{figures/backends.pdf}
 \caption{The long-term memory structure of the four backends: private streams
 with importance scores and a reflection tree; a two-tier interaction/insight
 graph; an access-controlled single store; and the consensus store, whose records
@@ -310,7 +310,7 @@ owners or links; the baselines are at exactly zero on both by construction.}
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.85\textwidth]{figures/structure_all.png}
+\includegraphics[width=0.58\textwidth]{figures/structure_all.png}
 \caption{Sharing and linking across the four worlds. Only consensus is nonzero
 on either axis.}
 \label{fig:structure}
@@ -325,6 +325,33 @@ tuning. The deepest merge reaches \MaxOwners{} witnesses---a presidential
 air-defense directive co-owned by the president, his chief of staff and adviser,
 the interior minister, the air-force and intelligence commanders, and the
 security service.
+
+\subsection{Growth and operation latency}
+\label{sec:growth}
+
+\begin{figure}[t]
+\centering
+\begin{subfigure}{0.49\textwidth}
+  \includegraphics[width=\textwidth]{figures/tk_growth.png}
+  \caption{Cumulative entries per round.}
+\end{subfigure}\hfill
+\begin{subfigure}{0.49\textwidth}
+  \includegraphics[width=\textwidth]{figures/tk_latency.png}
+  \caption{Seconds per call, 5-round bins.}
+\end{subfigure}
+\caption{Growth and per-call cost, Three Kingdoms, 80 rounds. The consensus
+store grows more slowly than any baseline from the first rounds on, and the
+gap widens rather than closing. Deposits cost more because of the equivalence
+judge; recalls do not, since owner-scoped retrieval and one-hop expansion call
+no model.}
+\label{fig:growth}
+\end{figure}
+
+The separation is not an end-state artefact: the consensus curve is below
+every baseline from the opening rounds and the gap widens
+(Figure~\ref{fig:growth}), because each merge removes an entry that would
+otherwise have been written and would itself have been re-recorded by later
+witnesses.
 
 \subsection{Structure compounds with horizon}
 Sharing is not a fixed property but a function of how long the world has run:
@@ -344,6 +371,33 @@ everywhere and no world has one leader on all four metrics.}
 \resizebox{\textwidth}{!}{\input{tab_quality}}
 \end{table}
 
+\begin{figure}[t]
+\centering
+\begin{subfigure}{0.49\textwidth}
+  \includegraphics[width=\textwidth]{figures/tk_quality.png}
+  \caption{Three Kingdoms, 80 rounds.}
+\end{subfigure}\hfill
+\begin{subfigure}{0.49\textwidth}
+  \includegraphics[width=\textwidth]{figures/rc_quality.png}
+  \caption{Red Chamber, 80 rounds.}
+\end{subfigure}
+
+\vspace{4pt}
+\begin{subfigure}{0.49\textwidth}
+  \includegraphics[width=\textwidth]{figures/ru_quality.png}
+  \caption{Russia--Ukraine, 40 rounds.}
+\end{subfigure}\hfill
+\begin{subfigure}{0.49\textwidth}
+  \includegraphics[width=\textwidth]{figures/hl_quality.png}
+  \caption{Hamlet, 40 rounds.}
+\end{subfigure}
+\caption{Continuation quality per world: grounding, trajectory, narrative and
+goal pursuit, bars are means over three scorings with $\pm1$ std whiskers.
+The first three panels of each are scored from the rendered screenplay, the
+fourth from the event log.}
+\label{fig:quality}
+\end{figure}
+
 Of the \QualityCells{} world-metric cells, consensus is best in \QualityLeads{}
 and trails elsewhere by margins the size of the spread across three scorings of
 the same text. We report this as a wash rather than a win: compression neither
@@ -354,6 +408,16 @@ of actions are taken with no goal held---so it certifies the agent loop and
 separates nothing.
 
 \subsection{The memory graph tracks the social graph}
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.92\textwidth]{figures/relationship_panels.png}
+\caption{The three pairwise relations, Three Kingdoms. Each panel contrasts
+pairs that have the property with pairs that do not: agents who converse
+against agents who do not, linked memories against unlinked ones, and
+cross-agent memory links against the rest.}
+\label{fig:relations}
+\end{figure}
+
 Three layers of the same run can be compared: who talked to whom, which memories
 are affiliated, and who owns what. Agents who converse overlap in memory an
 order of magnitude more than those who do not, linked memories share witnesses
@@ -386,7 +450,7 @@ they compare across cells rather than against Table~\ref{tab:quality}.}
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\textwidth]{figures/ablation.png}
+\includegraphics[width=0.92\textwidth]{figures/ablation.png}
 \caption{What each knob does. Left: entries in the whole store and in the
 simulation-written part. Right: the two structural properties. Turning the merge
 off is the only change visible in either panel.}
@@ -395,7 +459,7 @@ off is the only change visible in either panel.}
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\textwidth]{figures/ablation_latency.png}
+\includegraphics[width=0.92\textwidth]{figures/ablation_latency.png}
 \caption{What the merge costs per call: mean seconds per \code{remember}
 (left) and \code{recall} (right), 5-round bins. The equivalence judge is a
 second LLM call on the write path, so merging roughly doubles the cost of a
@@ -439,25 +503,156 @@ baselines. The broader lesson is that memory structure in multi-agent systems
 must be mechanized, not delegated: agents reliably use only \code{remember} and
 \code{recall}, so that is where the structure has to live.
 
+\section*{Reproducibility Statement}
+Everything needed to run the method is released: the framework, all four
+memory backends, the four scenarios with their source texts and information
+carriers, and the scripts for every stage of the pipeline --- sedimentation,
+the runs, the structure statistics, the four quality metrics, the ablation
+grid, and the figures. \texttt{REPRODUCE.md} walks a clone through that
+pipeline in order, with the command for each stage and its measured cost;
+Hamlet at 40 rounds is the cheapest entry point that still shows every
+structural effect we report. What is deliberately \emph{not} released is the
+data a run produces --- stores, checkpoints, event logs --- which is large and
+regenerable. Reproduction is of the method rather than of the numbers: every
+stage calls an LLM, so a fresh run differs in its particulars. What should
+reproduce is the shape of the result: the fewest entries at equal
+granularity, sharing and linking exclusive to consensus, and sharing rising
+with the horizon. The one cell we reran under identical settings landed
+within 1\% of its original (\S\ref{sec:ablation}).
+
 \IfFileExists{iclr2026_conference.bst}{\bibliographystyle{iclr2026_conference}}{}
 \bibliography{references}
 
 \appendix
-\section{Appendix}
 
-\subsection{How the scenes were cut}
+\section{What agents actually call}
+\label{app:actions}
+
+Table~\ref{tab:actions} is the census behind \S\ref{sec:nomgmt}: every action
+every backend invoked, counted from the event logs of each world's final
+stage. Two facts are visible at once. \code{remember} and \code{recall} are
+called constantly, and the seven discretionary memory-management actions
+--- \code{forget}, \code{revise\_memory}, \code{add/remove/set\_affiliated},
+\code{get\_affiliated} --- do not appear at all, in any world, for any
+backend, which is why they are absent from the table rather than shown as
+rows of zeros. The actions were documented in the same skill text as the two
+that are used, with worked examples and an id-free query interface, and were
+available in every round of every run.
+
+\begin{table}[h]
+\centering
+\caption{Actions called per backend, by world, over each world's final stage.
+Counted from the event logs. Discretionary memory-management actions are
+omitted because every count is zero.}
+\label{tab:actions}
+\resizebox{0.8\textwidth}{!}{\input{tab_actions}}
+\end{table}
+
+\section{Merge depth, graph density and expansion}
+\label{app:structure}
+
+\S\ref{sec:structure} reports what fraction of memories are shared and linked;
+Table~\ref{tab:structure} gives the distribution behind those fractions and
+what recall does with the graph.
+
+\begin{table}[h]
+\centering
+\caption{Consensus structure per world at the final stage. ``3+'' counts
+entries with three or more witnesses, ``Max'' is the deepest merge,
+``Expanded'' is the fraction of recalls that returned at least one memory
+reached along an affiliated edge, and ``Linked/call'' the mean number of such
+memories per expanding call.}
+\label{tab:structure}
+\resizebox{\textwidth}{!}{\input{tab_structure}}
+\end{table}
+
+Merge depth is a property of the world's staging rather than of the
+mechanism. Russia--Ukraine reaches ten witnesses on a single presidential
+air-defense directive, because a real command chain issues one instruction to
+many named institutions at once; Hamlet tops out at three, and only once, on
+the players' performance --- the one scene in the play that assembles an
+audience --- because Shakespeare stages almost everything as a two-person
+exchange. The novels sit between, at six. Expansion behaves differently for a
+different reason: it returns few linked memories in Russia--Ukraine because
+institutional deposits are short and rarely split into several atoms, so there
+are fewer siblings to link, while a single compound recollection in a novel
+atomizes into many pieces.
+
+\section{How the scenes were cut}
+\label{app:grids}
+
+The screenplays that \S\ref{sec:quality} scores are cut out of spacetime: a
+scene is one place and a run of rounds whose neighbours are no more than five
+apart, capped at twenty rounds. Figure~\ref{fig:grid} shows the rule directly
+for Hamlet, and Figures~\ref{fig:grid_tk}--\ref{fig:grid_ru} for the other
+three worlds. Every cell is one round at one place, coloured by the agent that
+acted there, hatched where several acted in the same place and round, white
+where nothing happened; the outlined rectangles are the scenes, numbered as
+they appear in the screenplay.
+
 \begin{figure}[h]
 \centering
 \includegraphics[width=\textwidth]{figures/grid_hamlet.pdf}
-\caption{Every cell is one round at one place, coloured when an agent acted
-there and white when nothing did; hatched cells are rounds where several agents
-acted in the same place. Outlined rectangles are the scenes the screenplay
-renderer produced.}
+\caption{Hamlet, 40 rounds: 117 beats across six places cut into twelve
+scenes. The busy hall at Elsinore becomes two scenes rather than one because
+the twenty-round cap divides it; the single action in Norway is a scene of its
+own.}
 \label{fig:grid}
 \end{figure}
 
-Further material---the full screenplays of all four worlds, the action census
-per backend, per-world scene grids, the language composition of the runs, and
-merge-depth distributions---is available in the extended version.
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth]{figures/grid_three_kingdoms.pdf}
+\caption{Three Kingdoms, 80 rounds: the pattern of a campaign narrative. Four
+places carry the war in long unbroken bands while a dozen others are visited
+once and become one-cell scenes.}
+\label{fig:grid_tk}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth]{figures/grid_red_chamber.pdf}
+\caption{Red Chamber, 80 rounds: the densest world in the set. The household
+keeps returning to the same handful of courtyards, so four of them split into
+three or four scenes each.}
+\label{fig:grid_rc}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth]{figures/grid_russia_ukraine.pdf}
+\caption{Russia--Ukraine, 40 rounds: institutional actors work from fixed
+seats, so activity concentrates in a few capitals and headquarters. The
+hatched cells --- several institutions acting in one place and round --- are
+where the many-witness merges of \S\ref{sec:structure} come from.}
+\label{fig:grid_ru}
+\end{figure}
+
+\section{Language of the runs}
+\label{app:language}
+
+Each world declares a language: the two novels run in Chinese, Russia--Ukraine
+and Hamlet in English. The declaration selects the action-skill document and
+the output-format block, and the sedimented history is in the source language
+throughout. In the runs reported here it did not otherwise constrain what
+agents wrote: the language of a memory followed the profile and whatever the
+agent recalled, and drifted where those disagreed --- 62\% of Hamlet's
+memories came out in Chinese, and Russia--Ukraine mixed Chinese and Russian
+into English. The runs are reported as they happened; the screenplays the
+judge reads are rendered into the scenario language, so scoring sees one
+language regardless. A content-language directive has since been added to the
+agent prompt, and the ablation of \S\ref{sec:ablation}, run under it,
+reproduces the published structural numbers to within 1\%.
+
+\section{Beyond this paper}
+\label{app:more}
+
+An extended version of this paper, built from the same runs, carries material
+that does not fit here: the full screenplays of all four worlds --- 176 scenes
+in total, the Chinese worlds in both English and their own language --- the
+per-method transcript excerpts these were rendered from, the sedimentation
+cost and cast composition per world, and interactive versions of the three
+case-study graphs, in which the interaction graph, the memory-affiliation
+graph and the ownership relation can be explored node by node.
 
 \end{document}

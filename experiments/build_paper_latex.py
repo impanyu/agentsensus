@@ -122,10 +122,54 @@ def tab_ablation():
             "\\midrule\n" + "\n".join(rows) + "\n\\bottomrule\n\\end{tabular}\n")
 
 
+def tab_structure():
+    """Table A1: merge depth, graph density and what expansion returns."""
+    rows = []
+    for w, title, tag, _, rounds in WORLDS:
+        S = load(f"paper_stats_{tag}")
+        c, ae = S["consensus"], S["auto_expand"]
+        sh = round(c["sim_new"] * c["sh_pct"] / 100)
+        per = ae["items"] / max(ae["with_expansion"], 1)
+        rows.append(f"{title} ({rounds}r) & {c['sim_new']} & {sh} ({c['sh_pct']}\\%) & "
+                    f"{S['n_3plus']} & {S['max_owners']} & {c['aff_pct']}\\% & "
+                    f"{ae['with_expansion']}/{ae['recalls']} & {per:.0f} \\\\")
+    return ("% generated\n\\begin{tabular}{lrrrrrrr}\n\\toprule\n"
+            "World & Sim entries & Shared & 3+ & Max & Linked & Expanded & Linked/call \\\\\n"
+            "\\midrule\n" + "\n".join(rows) + "\n\\bottomrule\n\\end{tabular}\n")
+
+
+ACTS = ["say", "read_thread", "observe", "move", "act_on", "read", "think",
+        "conclude", "push_goal", "pop_goal", "replace_goal", "update_status",
+        "remember", "recall", "wait"]
+NEVER = ["gesture", "forget", "revise_memory", "add_affiliated",
+         "remove_affiliated", "set_affiliated", "get_affiliated"]
+
+
+def tab_actions():
+    """Table A2: every action every backend called, per world."""
+    cache = load("derived_tables")["actions"]
+    rows = []
+    for w, title, tag, _, _ in WORLDS:
+        per = cache.get(tag, {})
+        rows.append(f"\\multicolumn{{5}}{{l}}{{\\emph{{{title}}}}} \\\\")
+        for a in ACTS:
+            vals = [per.get(b, {}).get(a, 0) for b in BACKENDS]
+            if not sum(vals):
+                continue
+            rows.append(f"\\quad\\texttt{{{a.replace('_', chr(92) + '_')}}} & "
+                        + " & ".join(str(v) for v in vals) + " \\\\")
+        rows.append("\\midrule")
+    head = " & ".join(LBL[b] for b in BACKENDS)
+    return ("% generated\n\\begin{tabular}{lrrrr}\n\\toprule\n"
+            f"Action & {head} \\\\\n\\midrule\n"
+            + "\n".join(rows[:-1]) + "\n\\bottomrule\n\\end{tabular}\n")
+
+
 def main():
     os.makedirs(OUT, exist_ok=True)
     for name, text in [("numbers", macros()), ("tab_footprint", tab_footprint()),
-                       ("tab_quality", tab_quality()), ("tab_ablation", tab_ablation())]:
+                       ("tab_quality", tab_quality()), ("tab_ablation", tab_ablation()),
+                       ("tab_structure", tab_structure()), ("tab_actions", tab_actions())]:
         open(f"{OUT}/{name}.tex", "w", encoding="utf-8").write(text)
         print(f"wrote {OUT}/{name}.tex")
 
