@@ -215,7 +215,7 @@ def draw(world, case):
 
     plt.tight_layout()
     out = f"paper/figures/case_{world}.png"
-    plt.savefig(out, dpi=150); plt.close()
+    plt.savefig(out, dpi=150, bbox_inches='tight', pad_inches=0.12); plt.close()
     print("wrote", out)
 
 
