@@ -9,7 +9,18 @@
 % math_commands.tex) that ship with the Overleaf ICLR template.
 
 \documentclass{article}
-\usepackage{iclr2026_conference,times}
+
+% The ICLR style files are not redistributed here. With them present the
+% paper typesets in the submission format; without them it falls back to a
+% plain two-column-free article so the draft still compiles and can be read.
+\IfFileExists{iclr2026_conference.sty}{%
+  \usepackage{iclr2026_conference,times}%
+}{%
+  \usepackage[margin=1in]{geometry}%
+  \usepackage{natbib}%
+  \bibliographystyle{plainnat}%
+  \typeout{^^JNOTE: iclr2026_conference.sty not found -- using article layout.^^J}%
+}
 
 \usepackage{amsmath,amssymb}
 \usepackage{graphicx}
@@ -420,8 +431,8 @@ baselines. The broader lesson is that memory structure in multi-agent systems
 must be mechanized, not delegated: agents reliably use only \code{remember} and
 \code{recall}, so that is where the structure has to live.
 
+\IfFileExists{iclr2026_conference.bst}{\bibliographystyle{iclr2026_conference}}{}
 \bibliography{references}
-\bibliographystyle{iclr2026_conference}
 
 \appendix
 \section{Appendix}
