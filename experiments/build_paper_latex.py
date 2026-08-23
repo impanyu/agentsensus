@@ -73,19 +73,50 @@ def macros():
 
 
 def tab_footprint():
-    S = {w: load(f"paper_stats_{tag}") for w, _, tag, _, _ in WORLDS}
+    """Table 1, matching the HTML paper: sediment / sim / total per backend,
+    grouped by world. Sediment is each mechanism's own ingest of the identical
+    source events; sim is what the run added, the comparison the fairness
+    protocol licenses; structure lives in the figure, not here."""
+    # source-event counts as in Appendix A.3 (Three Kingdoms ingests one
+    # event pair merged at sedimentation, hence 6,052 events / 6,051 rows)
+    META = {"three_kingdoms": ("fiction, 80 rounds", "g80", 6052),
+            "red_chamber": ("fiction, 80 rounds", "rc80", 6506),
+            "russia_ukraine": ("real world, 40 rounds", "ru40", 1533),
+            "hamlet": ("fiction, 40 rounds", "hl40", 1135)}
     rows = []
-    for w, title, _, _, rounds in WORLDS:
-        for i, b in enumerate(BACKENDS):
-            s = S[w][b]
-            first = f"\\multirow{{4}}{{*}}{{{title} ({rounds}r)}}" if i == 0 else ""
-            bold = "\\textbf" if b == "consensus" else "{}"
-            rows.append(f"{first} & {LBL[b]} & {bold}{{{s['sim_new']}}} & "
-                        f"{s['sh_pct']}\\% & {s['aff_pct']}\\% \\\\")
+    for w, title, tag, _, _ in WORLDS:
+        S = load(f"paper_stats_{tag}")
+        note, pref, src = META[w]
+        for b in BACKENDS:
+            total = json.load(open(f"runs/{pref}_{b}/result.json",
+                                   encoding="utf-8"))["footprint"]["entries"]
+            sed = total - S[b]["sim_new"]
+            if b == "consensus":
+                rows.append(f"\\multicolumn{{4}}{{l}}{{\\emph{{{title} --- {note}, "
+                            f"{src:,} source events}}}} \\\\")
+            fmt = (lambda v: f"\\textbf{{{v:,}}}") if b == "consensus" else (lambda v: f"{v:,}")
+            rows.append(f"\\quad {LBL[b]} & {fmt(sed)} & {fmt(S[b]['sim_new'])} & "
+                        f"{total:,} \\\\")
         rows.append("\\midrule")
-    return ("% generated\n\\begin{tabular}{llrrr}\n\\toprule\n"
-            "World & Backend & Sim entries & Shared & Linked \\\\\n\\midrule\n"
+    return ("% generated\n\\begin{tabular}{lrrr}\n\\toprule\n"
+            "Backend & Sediment & Sim & Total \\\\\n\\midrule\n"
             + "\n".join(rows[:-1]) + "\n\\bottomrule\n\\end{tabular}\n")
+
+
+def tab_structure_main():
+    """Table 2 of the main text: the structural claim, replacing the bar
+    figure -- sharing and linking per world for consensus, with the baselines
+    stated once since they are identically zero."""
+    rows = []
+    for w, title, tag, _, rounds in WORLDS:
+        c = load(f"paper_stats_{tag}")["consensus"]
+        sh = round(c["sim_new"] * c["sh_pct"] / 100)
+        af = round(c["sim_new"] * c["aff_pct"] / 100)
+        rows.append(f"{title} ({rounds}r) & {c['sim_new']:,} & {sh:,} ({c['sh_pct']}\\%) & "
+                    f"{af:,} ({c['aff_pct']}\\%) \\\\")
+    return ("% generated\n\\begin{tabular}{lrrr}\n\\toprule\n"
+            "World & Sim entries & Shared (multi-owner) & Linked (affiliated) \\\\\n"
+            "\\midrule\n" + "\n".join(rows) + "\n\\bottomrule\n\\end{tabular}\n")
 
 
 def tab_quality():
@@ -238,6 +269,7 @@ def samples():
 def main():
     os.makedirs(OUT, exist_ok=True)
     for name, text in [("numbers", macros()), ("tab_footprint", tab_footprint()),
+                       ("tab_structure_main", tab_structure_main()),
                        ("tab_quality", tab_quality()), ("tab_ablation", tab_ablation()),
                        ("tab_structure", tab_structure()), ("tab_actions", tab_actions()),
                        ("tab_screenplays", tab_screenplays()), ("samples", samples())]:

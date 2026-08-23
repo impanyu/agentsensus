@@ -305,20 +305,20 @@ goal management never becomes a dramatizable beat.
 
 \begin{table}[t]
 \centering
-\caption{Simulation-written memory at equal granularity. Consensus writes the
-fewest entries in every world and is the only backend whose memories acquire
-owners or links; the baselines are at exactly zero on both by construction.}
+\caption{Store size by backend and world. ``Sediment'' is the store at round~0, produced by each mechanism's own ingest of the identical source events --- one row per event under consensus, one row per witness under every baseline, plus each backend's own by-products (Generative-Agents reflections, G-Memory insight nodes). ``Sim'' is what the simulation then added and is the comparison the fairness protocol licenses: all four backends atomize identically, so entry counts are comparable by construction. Structure --- what fraction of the sim entries becomes shared and linked --- is Table~\ref{tab:structuremain}.}
 \label{tab:footprint}
 \input{tab_footprint}
 \end{table}
 
-\begin{figure}[t]
+\begin{table}[t]
 \centering
-\includegraphics[width=0.58\textwidth]{figures/structure_all.png}
-\caption{Sharing and linking across the four worlds. Only consensus is nonzero
-on either axis.}
-\label{fig:structure}
-\end{figure}
+\caption{Sharing and linking across the four worlds, consensus store. Every
+baseline is at exactly 0\% on both columns in every world --- by construction,
+since no baseline merges records across agents or links atoms --- so they are
+stated here rather than tabulated.}
+\label{tab:structuremain}
+\input{tab_structure_main}
+\end{table}
 
 At equal granularity consensus writes \SaveRange{} fewer entries than the
 closest baseline in each world (Table~\ref{tab:footprint}), because merging
