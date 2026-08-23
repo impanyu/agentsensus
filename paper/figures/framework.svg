@@ -1,93 +1,76 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 560" role="img" aria-label="The framework shared by all four backends: a source text is sedimented into owner-tagged events that seed one long-term memory store, which every agent writes to and reads from, while characters also talk to each other through kernel-held threads" style="max-width:100%;height:auto">
-  <defs>
-    <marker id="f1a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker>
-    <marker id="f1b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/></marker>
-    <marker id="f1c" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--good)"/></marker>
-  </defs>
-  <g fill="none" stroke="currentColor" stroke-width="1.3" font-family="system-ui,sans-serif">
-
-    <text x="14" y="24" font-size="13.5" stroke="none" fill="currentColor" opacity=".6" font-weight="600">OFFLINE &mdash; sedimentation (&sect;3.4)</text>
-    <path d="M20 48 h60 a8 8 0 0 1 8 8 v62 a8 8 0 0 1 -8 8 h-60 z"/>
-    <line x1="31" y1="48" x2="31" y2="126"/>
-    <line x1="42" y1="70" x2="78" y2="70"/><line x1="42" y1="86" x2="78" y2="86"/><line x1="42" y1="102" x2="72" y2="102"/>
-    <text x="54" y="150" text-anchor="middle" font-size="14" stroke="none" fill="currentColor">source text</text>
-    <line x1="92" y1="87" x2="126" y2="87" marker-end="url(#f1a)"/>
-    <path d="M132 54 h74 l-23 29 v40 l-28 12 v-52 z"/>
-    <text x="169" y="150" text-anchor="middle" font-size="14" stroke="none" fill="currentColor">extract + attribute</text>
-    <line x1="212" y1="87" x2="246" y2="87" marker-end="url(#f1a)"/>
-    <rect x="250" y="56" width="96" height="19" rx="3"/><text x="298" y="70" text-anchor="middle" font-size="12" stroke="none" fill="currentColor">event | A, B</text>
-    <rect x="250" y="79" width="96" height="19" rx="3"/><text x="298" y="93" text-anchor="middle" font-size="12" stroke="none" fill="currentColor">event | C</text>
-    <rect x="250" y="102" width="96" height="19" rx="3"/><text x="298" y="116" text-anchor="middle" font-size="12" stroke="none" fill="currentColor">event | A, D</text>
-    <text x="298" y="150" text-anchor="middle" font-size="14" stroke="none" fill="currentColor">owner-tagged events</text>
-    <path d="M352 90 C 432 96 424 214 200 236" stroke="var(--accent)" marker-end="url(#f1b)"/>
-    <text x="398" y="150" font-size="13" stroke="none" fill="var(--accent)" font-weight="600">seed the store</text>
-
-    <line x1="14" y1="178" x2="826" y2="178" opacity=".25"/>
-    <text x="14" y="200" font-size="13.5" stroke="none" fill="currentColor" opacity=".6" font-weight="600">RUNTIME &mdash; one world, one store</text>
-
-    <ellipse cx="120" cy="240" rx="62" ry="16" stroke="var(--accent)" stroke-width="1.7"/>
-    <path d="M58 240 v104 a62 16 0 0 0 124 0 v-104" stroke="var(--accent)" stroke-width="1.7"/>
-    <text x="120" y="286" text-anchor="middle" font-size="15" stroke="none" fill="var(--accent)" font-weight="700">long-term</text>
-    <text x="120" y="306" text-anchor="middle" font-size="15" stroke="none" fill="var(--accent)" font-weight="700">memory</text>
-    <text x="120" y="330" text-anchor="middle" font-size="12" stroke="none" fill="currentColor" opacity=".75">shared by all</text>
-    <text x="120" y="378" text-anchor="middle" font-size="12" stroke="none" fill="currentColor" opacity=".75">internal structure</text>
-    <text x="120" y="394" text-anchor="middle" font-size="12" stroke="none" fill="currentColor" opacity=".75">differs per backend</text>
-    <text x="120" y="410" text-anchor="middle" font-size="12" stroke="none" fill="var(--accent)" font-weight="600">&rarr; Figure 2</text>
-
-    <path d="M184 252 C 240 252 244 232 292 232" stroke="var(--accent)" marker-end="url(#f1b)"/>
-    <text x="238" y="224" text-anchor="middle" font-size="13" stroke="none" fill="var(--accent)" font-weight="600">recall</text>
-    <path d="M292 330 C 244 330 240 310 184 310" stroke="var(--accent)" marker-end="url(#f1b)"/>
-    <text x="238" y="348" text-anchor="middle" font-size="13" stroke="none" fill="var(--accent)" font-weight="600">remember</text>
-    <text x="238" y="364" text-anchor="middle" font-size="12" stroke="none" fill="currentColor" opacity=".7">both owner-scoped</text>
-
-    <rect x="300" y="196" width="526" height="234" rx="10" stroke-dasharray="5 4" opacity=".5"/>
-    <text x="816" y="216" text-anchor="end" font-size="12.5" stroke="none" fill="currentColor" opacity=".65">the society</text>
-
-    <g stroke="var(--accent)"><circle cx="392" cy="248" r="10"/><path d="M379 276 a13 15 0 0 1 26 0"/></g>
-    <text x="392" y="322" text-anchor="middle" font-size="13" stroke="none" fill="currentColor">character</text>
-
-    <g stroke="var(--accent)"><circle cx="566" cy="248" r="10"/><path d="M553 276 a13 15 0 0 1 26 0"/></g>
-    <text x="566" y="322" text-anchor="middle" font-size="13" stroke="none" fill="currentColor">character</text>
-
-    <g stroke="var(--accent)"><circle cx="392" cy="368" r="10"/><path d="M379 396 a13 15 0 0 1 26 0"/></g>
-    <text x="392" y="424" text-anchor="middle" font-size="13" stroke="none" fill="currentColor">character</text>
-
-    <line x1="406" y1="248" x2="552" y2="248" marker-end="url(#f1a)" marker-start="url(#f1a)"/>
-    <text x="479" y="240" text-anchor="middle" font-size="12" stroke="none" fill="currentColor" opacity=".85">say &middot; kernel-held thread</text>
-    <line x1="402" y1="352" x2="556" y2="266" marker-end="url(#f1a)"/>
-    <text x="500" y="300" text-anchor="middle" font-size="12" stroke="none" fill="currentColor" opacity=".85">delivery delayed by distance</text>
-
-    <g stroke="var(--good)"><path d="M700 244 a12 12 0 1 1 0.01 0"/><path d="M690 253 l10 22 l10 -22"/></g>
-    <text x="700" y="296" text-anchor="middle" font-size="13" stroke="none" fill="var(--good)">environment</text>
-    <text x="700" y="312" text-anchor="middle" font-size="12" stroke="none" fill="currentColor" opacity=".7">owns memories,</text>
-    <text x="700" y="326" text-anchor="middle" font-size="12" stroke="none" fill="currentColor" opacity=".7">never takes a turn</text>
-
-    <g stroke="var(--warn)"><path d="M676 356 h38 l12 12 v32 h-50 z"/><path d="M714 356 v12 h12"/>
-      <line x1="684" y1="380" x2="716" y2="380"/><line x1="684" y1="391" x2="710" y2="391"/></g>
-    <text x="701" y="420" text-anchor="middle" font-size="13" stroke="none" fill="var(--warn)">info carrier</text>
-
-    <line x1="584" y1="248" x2="672" y2="248" marker-end="url(#f1c)"/>
-    <text x="628" y="240" text-anchor="middle" font-size="12" stroke="none" fill="var(--good)">act_on</text>
-    <line x1="418" y1="376" x2="668" y2="376" marker-end="url(#f1c)"/>
-    <text x="540" y="368" text-anchor="middle" font-size="12" stroke="none" fill="var(--good)">read</text>
-
-    <line x1="14" y1="452" x2="826" y2="452" opacity=".25"/>
-    <text x="14" y="474" font-size="13" stroke="none" fill="currentColor" opacity=".9">A character emits <tspan font-weight="600">one action per round</tspan>, from a single repertoire:</text>
-    <g font-size="12.5">
-      <rect x="14" y="486" width="40" height="22" rx="11"/><text x="34" y="501" text-anchor="middle" stroke="none" fill="currentColor">say</text>
-      <rect x="60" y="486" width="88" height="22" rx="11"/><text x="104" y="501" text-anchor="middle" stroke="none" fill="currentColor">read_thread</text>
-      <rect x="154" y="486" width="84" height="22" rx="11" stroke="var(--accent)"/><text x="196" y="501" text-anchor="middle" stroke="none" fill="var(--accent)" font-weight="600">remember</text>
-      <rect x="244" y="486" width="60" height="22" rx="11" stroke="var(--accent)"/><text x="274" y="501" text-anchor="middle" stroke="none" fill="var(--accent)" font-weight="600">recall</text>
-      <rect x="310" y="486" width="80" height="22" rx="11"/><text x="350" y="501" text-anchor="middle" stroke="none" fill="currentColor">push_goal</text>
-      <rect x="396" y="486" width="74" height="22" rx="11"/><text x="433" y="501" text-anchor="middle" stroke="none" fill="currentColor">pop_goal</text>
-      <rect x="476" y="486" width="52" height="22" rx="11" stroke="var(--good)"/><text x="502" y="501" text-anchor="middle" stroke="none" fill="var(--good)">move</text>
-      <rect x="534" y="486" width="78" height="22" rx="11" stroke="var(--good)"/><text x="573" y="501" text-anchor="middle" stroke="none" fill="var(--good)">observe</text>
-      <rect x="618" y="486" width="62" height="22" rx="11" stroke="var(--good)"/><text x="649" y="501" text-anchor="middle" stroke="none" fill="var(--good)">act_on</text>
-      <rect x="686" y="486" width="48" height="22" rx="11" stroke="var(--good)"/><text x="710" y="501" text-anchor="middle" stroke="none" fill="var(--good)">read</text>
-      <rect x="740" y="486" width="46" height="22" rx="11"/><text x="763" y="501" text-anchor="middle" stroke="none" fill="currentColor">wait</text>
-      <rect x="14" y="514" width="232" height="22" rx="11" stroke-dasharray="3 3" opacity=".5"/><text x="130" y="529" text-anchor="middle" stroke="none" fill="currentColor" opacity=".75">6 memory-management: never used</text>
-    </g>
-    <text x="262" y="522" font-size="12" stroke="none" fill="currentColor" opacity=".8">Blue actions touch long-term memory, green ones the world. Each round freezes all views at the barrier,</text>
-    <text x="262" y="538" font-size="12" stroke="none" fill="currentColor" opacity=".8">decisions issue concurrently, then apply in a fixed order &mdash; event order is reproducible.</text>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 560" font-family="Helvetica,Arial,sans-serif" style="max-width:100%;height:auto">
+<defs>
+<marker id="mi" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#475569"/></marker><marker id="mb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2563eb"/></marker><marker id="mg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#059669"/></marker><marker id="ma" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#d97706"/></marker>
+</defs>
+<rect width="840" height="560" fill="#ffffff"/>
+<rect x="14" y="10" width="812" height="146" rx="10" fill="#fffbeb" stroke="#fcd34d"/>
+<text x="28" y="32" font-size="13" fill="#92400e" text-anchor="start" font-weight="bold" font-family="Helvetica,Arial,sans-serif">OFFLINE · sedimentation</text>
+<text x="812" y="32" font-size="10.5" fill="#d97706" text-anchor="end" font-family="Helvetica,Arial,sans-serif">runs once, before round 0</text>
+<path d="M 44,52 h 46 l 10,10 v 68 h -56 z" fill="#ffffff" stroke="#d97706" stroke-width="1.6"/><line x1="52" y1="68" x2="92" y2="68" stroke="#d97706" stroke-width="1.2" opacity="0.55"/><line x1="52" y1="80" x2="92" y2="80" stroke="#d97706" stroke-width="1.2" opacity="0.55"/><line x1="52" y1="92" x2="92" y2="92" stroke="#d97706" stroke-width="1.2" opacity="0.55"/>
+<text x="72" y="146" font-size="11" fill="#92400e" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">source text</text>
+<line x1="108" y1="92" x2="142" y2="92" stroke="#475569" stroke-width="1.5" marker-end="url(#mi)"/>
+<path d="M150,56 L242,56 L208,96 L208,122 L184,122 L184,96 Z" fill="#fef3c7" stroke="#d97706" stroke-width="1.6"/>
+<text x="196" y="146" font-size="11" fill="#92400e" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">extract + attribute</text>
+<line x1="250" y1="92" x2="284" y2="92" stroke="#475569" stroke-width="1.5" marker-end="url(#mi)"/>
+<rect x="290" y="54" width="168" height="24" rx="6" fill="#dbeafe" stroke="#2563eb" stroke-width="1.4"/>
+<text x="374" y="70" font-size="10.5" fill="#1e3a8a" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">event · owners {A, B}</text>
+<rect x="290" y="84" width="168" height="24" rx="6" fill="#dbeafe" stroke="#2563eb" stroke-width="1.4"/>
+<text x="374" y="100" font-size="10.5" fill="#1e3a8a" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">event · owners {C}</text>
+<rect x="290" y="114" width="168" height="24" rx="6" fill="#dbeafe" stroke="#2563eb" stroke-width="1.4"/>
+<text x="374" y="130" font-size="10.5" fill="#1e3a8a" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">event · owners {A, D}</text>
+<text x="374" y="148" font-size="11" fill="#1e3a8a" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">owner-tagged events</text>
+<path d="M462,66 C620,66 560,196 200,224" fill="none" stroke="#2563eb" stroke-width="1.8" marker-end="url(#mb)"/>
+<text x="560" y="120" font-size="10.5" fill="#2563eb" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">seeds the store</text>
+<rect x="14" y="164" width="812" height="272" rx="10" fill="#eff6ff" stroke="#bfdbfe"/>
+<text x="28" y="186" font-size="13" fill="#1e3a8a" text-anchor="start" font-weight="bold" font-family="Helvetica,Arial,sans-serif">RUNTIME · one world, one store</text>
+<path d="M42,230 v118 a74,16 0 0 0 148,0 v-118" fill="#dbeafe" stroke="#2563eb" stroke-width="1.8"/>
+<ellipse cx="116" cy="230" rx="74" ry="16" fill="#eff6ff" stroke="#2563eb" stroke-width="1.8"/>
+<text x="116" y="288" font-size="12" fill="#1e3a8a" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">long-term memory</text>
+<text x="116" y="306" font-size="11" fill="#1e3a8a" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">shared by all</text>
+<text x="116" y="396" font-size="10" fill="#64748b" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">internal structure differs per backend</text>
+<rect x="308" y="198" width="504" height="228" rx="12" fill="#ecfdf5" stroke="#34d399" stroke-dasharray="6 4"/>
+<text x="800" y="216" font-size="11.5" fill="#065f46" text-anchor="end" font-family="Helvetica,Arial,sans-serif">the society</text>
+<circle cx="400" cy="248" r="9" fill="#d1fae5" stroke="#059669" stroke-width="1.6"/><path d="M 386,274 C 391,260 409,260 414,274" fill="none" stroke="#059669" stroke-width="1.6" stroke-linecap="round"/>
+<text x="400" y="300" font-size="11" fill="#065f46" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">character</text>
+<circle cx="608" cy="248" r="9" fill="#d1fae5" stroke="#059669" stroke-width="1.6"/><path d="M 594,274 C 599,260 617,260 622,274" fill="none" stroke="#059669" stroke-width="1.6" stroke-linecap="round"/>
+<text x="608" y="300" font-size="11" fill="#065f46" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">character</text>
+<circle cx="400" cy="358" r="9" fill="#d1fae5" stroke="#059669" stroke-width="1.6"/><path d="M 386,384 C 391,370 409,370 414,384" fill="none" stroke="#059669" stroke-width="1.6" stroke-linecap="round"/>
+<text x="400" y="410" font-size="11" fill="#065f46" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">character</text>
+<line x1="422" y1="244" x2="586" y2="244" stroke="#2563eb" stroke-width="1.6" marker-start="url(#mb)" marker-end="url(#mb)"/>
+<text x="504" y="234" font-size="10.5" fill="#1d4ed8" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">say · kernel-held thread</text>
+<line x1="420" y1="350" x2="592" y2="262" stroke="#2563eb" stroke-width="1.4" stroke-dasharray="5 4" marker-end="url(#mb)"/>
+<text x="530" y="322" font-size="10" fill="#1d4ed8" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">delivered with distance delay</text>
+<circle cx="742" cy="242" r="12" fill="#ecfdf5" stroke="#059669" stroke-width="1.8"/>
+<path d="M736,239 l6,8 l6,-8" fill="none" stroke="#059669" stroke-width="1.6"/>
+<text x="742" y="274" font-size="10.5" fill="#065f46" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">environment</text>
+<text x="742" y="288" font-size="10" fill="#64748b" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">owns memories,</text>
+<text x="742" y="300" font-size="10" fill="#64748b" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">never takes a turn</text>
+<path d="M 718,340 h 36 l 10,10 v 48 h -46 z" fill="#fef3c7" stroke="#d97706" stroke-width="1.6"/><line x1="726" y1="356" x2="756" y2="356" stroke="#d97706" stroke-width="1.2" opacity="0.55"/><line x1="726" y1="368" x2="756" y2="368" stroke="#d97706" stroke-width="1.2" opacity="0.55"/><line x1="726" y1="380" x2="756" y2="380" stroke="#d97706" stroke-width="1.2" opacity="0.55"/>
+<text x="741" y="416" font-size="10.5" fill="#92400e" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">info carrier</text>
+<line x1="424" y1="364" x2="712" y2="372" stroke="#059669" stroke-width="1.5" marker-end="url(#mg)"/>
+<text x="566" y="356" font-size="10.5" fill="#065f46" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">read</text>
+<line x1="196" y1="248" x2="304" y2="238" stroke="#2563eb" stroke-width="1.7" marker-end="url(#mb)"/>
+<text x="250" y="230" font-size="10.5" fill="#1d4ed8" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">recall</text>
+<line x1="304" y1="296" x2="196" y2="306" stroke="#2563eb" stroke-width="1.7" marker-end="url(#mb)"/>
+<text x="250" y="290" font-size="10.5" fill="#1d4ed8" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">remember</text>
+<text x="250" y="326" font-size="10" fill="#64748b" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">both owner-scoped</text>
+<rect x="14" y="444" width="812" height="106" rx="10" fill="#f8fafc" stroke="#e2e8f0"/>
+<text x="28" y="464" font-size="12" fill="#1f2937" text-anchor="start" font-weight="bold" font-family="Helvetica,Arial,sans-serif">One action per character per round, from a single repertoire</text>
+<rect x="28" y="472" width="40" height="22" rx="11" fill="#d1fae5" stroke="#059669" stroke-width="1.3"/><text x="48.0" y="487" font-size="10.5" fill="#065f46" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">say</text>
+<rect x="74" y="472" width="78" height="22" rx="11" fill="#d1fae5" stroke="#059669" stroke-width="1.3"/><text x="113.0" y="487" font-size="10.5" fill="#065f46" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">read_thread</text>
+<rect x="158" y="472" width="58" height="22" rx="11" fill="#d1fae5" stroke="#059669" stroke-width="1.3"/><text x="187.0" y="487" font-size="10.5" fill="#065f46" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">observe</text>
+<rect x="222" y="472" width="44" height="22" rx="11" fill="#d1fae5" stroke="#059669" stroke-width="1.3"/><text x="244.0" y="487" font-size="10.5" fill="#065f46" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">move</text>
+<rect x="272" y="472" width="52" height="22" rx="11" fill="#d1fae5" stroke="#059669" stroke-width="1.3"/><text x="298.0" y="487" font-size="10.5" fill="#065f46" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">act_on</text>
+<rect x="330" y="472" width="42" height="22" rx="11" fill="#d1fae5" stroke="#059669" stroke-width="1.3"/><text x="351.0" y="487" font-size="10.5" fill="#065f46" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">read</text>
+<rect x="378" y="472" width="44" height="22" rx="11" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.3"/><text x="400.0" y="487" font-size="10.5" fill="#475569" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">think</text>
+<rect x="428" y="472" width="62" height="22" rx="11" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.3"/><text x="459.0" y="487" font-size="10.5" fill="#475569" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">conclude</text>
+<rect x="496" y="472" width="68" height="22" rx="11" fill="#dbeafe" stroke="#2563eb" stroke-width="1.3"/><text x="530.0" y="487" font-size="10.5" fill="#1e3a8a" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">remember</text>
+<rect x="570" y="472" width="50" height="22" rx="11" fill="#dbeafe" stroke="#2563eb" stroke-width="1.3"/><text x="595.0" y="487" font-size="10.5" fill="#1e3a8a" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">recall</text>
+<rect x="28" y="500" width="68" height="22" rx="11" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.3"/><text x="62.0" y="515" font-size="10.5" fill="#5b21b6" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">push_goal</text>
+<rect x="102" y="500" width="62" height="22" rx="11" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.3"/><text x="133.0" y="515" font-size="10.5" fill="#5b21b6" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">pop_goal</text>
+<rect x="170" y="500" width="84" height="22" rx="11" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.3"/><text x="212.0" y="515" font-size="10.5" fill="#5b21b6" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">replace_goal</text>
+<rect x="260" y="500" width="90" height="22" rx="11" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.3"/><text x="305.0" y="515" font-size="10.5" fill="#5b21b6" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">update_status</text>
+<rect x="356" y="500" width="40" height="22" rx="11" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.3"/><text x="376.0" y="515" font-size="10.5" fill="#475569" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">wait</text>
+<rect x="402" y="500" width="252" height="22" rx="11" fill="#fee2e2" stroke="#dc2626" stroke-width="1.3" stroke-dasharray="4 3"/><text x="528.0" y="515" font-size="10.5" fill="#dc2626" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">6 memory-management actions · never used</text>
+<text x="28" y="543" font-size="10" fill="#64748b" text-anchor="start" font-family="Helvetica,Arial,sans-serif">blue = long-term memory · green = the world · purple = goals · each round freezes every view at the barrier, so event order is reproducible</text>
 </svg>

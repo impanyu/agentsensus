@@ -26,6 +26,7 @@
 
 \usepackage{amsmath,amssymb}
 \usepackage{graphicx}
+\graphicspath{{./}{figures/}}
 \usepackage{booktabs}
 \usepackage{multirow}
 \usepackage{subcaption}
@@ -214,7 +215,7 @@ but the memory substrate it comes from.
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.82\textwidth]{figures/framework.pdf}
+\includegraphics[width=0.82\textwidth]{framework.pdf}
 \caption{The framework shared by all four backends. A source text is sedimented
 into owner-tagged events that seed one long-term memory store; a round-barrier
 kernel then steps every awake agent, and the actions they take deposit into and
@@ -255,7 +256,7 @@ along affiliation into records the caller also owns.
 \subsection{How the four designs differ}
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.78\textwidth]{figures/backends.pdf}
+\includegraphics[width=0.78\textwidth]{backends.pdf}
 \caption{The long-term memory structure of the four backends: private streams
 with importance scores and a reflection tree; a two-tier interaction/insight
 graph; an access-controlled single store; and the consensus store, whose records
@@ -461,15 +462,6 @@ they compare across cells rather than against Table~\ref{tab:quality}.}
 \label{tab:ablation}
 \resizebox{\textwidth}{!}{\input{tab_ablation}}
 \end{table}
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.84\textwidth]{figures/ablation.png}
-\caption{What each knob does. Left: entries in the whole store and in the
-simulation-written part. Right: the two structural properties. Turning the merge
-off is the only change visible in either panel.}
-\label{fig:ablation}
-\end{figure}
 
 Disabling the merge multiplies the store by \AblFactor{}$\times$
 (\AblOffEntries{} entries against \AblOnEntries{}) and takes sharing to exactly
