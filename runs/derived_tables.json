@@ -1,0 +1,267 @@
+{
+ "actions": {
+  "g80": {
+   "consensus": {
+    "remember": 48,
+    "read": 8,
+    "act_on": 11,
+    "push_goal": 104,
+    "say": 66,
+    "read_thread": 123,
+    "observe": 28,
+    "wait": 52,
+    "pop_goal": 25,
+    "recall": 12,
+    "update_status": 3,
+    "think": 3,
+    "move": 2
+   },
+   "generative_agents": {
+    "remember": 48,
+    "wait": 64,
+    "push_goal": 117,
+    "read_thread": 110,
+    "say": 50,
+    "read": 12,
+    "pop_goal": 20,
+    "observe": 34,
+    "act_on": 14,
+    "recall": 2,
+    "think": 1,
+    "move": 1
+   },
+   "g_memory": {
+    "push_goal": 77,
+    "think": 3,
+    "wait": 69,
+    "say": 48,
+    "remember": 41,
+    "recall": 9,
+    "read": 36,
+    "pop_goal": 24,
+    "read_thread": 83,
+    "observe": 31,
+    "act_on": 23,
+    "move": 4,
+    "conclude": 2,
+    "update_status": 1,
+    "replace_goal": 1
+   },
+   "collaborative": {
+    "observe": 37,
+    "act_on": 22,
+    "read_thread": 121,
+    "push_goal": 110,
+    "say": 61,
+    "wait": 51,
+    "remember": 52,
+    "pop_goal": 30,
+    "recall": 10,
+    "read": 9,
+    "move": 1,
+    "think": 2,
+    "replace_goal": 1
+   }
+  },
+  "rc80": {
+   "consensus": {
+    "say": 89,
+    "push_goal": 113,
+    "observe": 28,
+    "read_thread": 125,
+    "read": 2,
+    "recall": 3,
+    "wait": 36,
+    "move": 8,
+    "remember": 46,
+    "pop_goal": 29,
+    "act_on": 2,
+    "update_status": 1
+   },
+   "generative_agents": {
+    "observe": 26,
+    "read_thread": 119,
+    "pop_goal": 29,
+    "say": 80,
+    "push_goal": 109,
+    "wait": 32,
+    "move": 7,
+    "remember": 38,
+    "act_on": 2
+   },
+   "g_memory": {
+    "push_goal": 115,
+    "recall": 4,
+    "read_thread": 131,
+    "wait": 25,
+    "say": 84,
+    "observe": 24,
+    "move": 11,
+    "pop_goal": 30,
+    "remember": 43,
+    "act_on": 5
+   },
+   "collaborative": {
+    "read_thread": 93,
+    "push_goal": 85,
+    "say": 72,
+    "move": 12,
+    "pop_goal": 20,
+    "wait": 35,
+    "act_on": 6,
+    "observe": 25,
+    "remember": 36,
+    "read": 1,
+    "recall": 1,
+    "replace_goal": 1
+   }
+  },
+  "ru40": {
+   "consensus": {
+    "say": 144,
+    "push_goal": 177,
+    "pop_goal": 36,
+    "wait": 50,
+    "read_thread": 253,
+    "remember": 62,
+    "act_on": 6,
+    "observe": 20,
+    "read": 7,
+    "conclude": 2,
+    "recall": 4,
+    "update_status": 2,
+    "replace_goal": 1
+   },
+   "generative_agents": {
+    "push_goal": 185,
+    "say": 136,
+    "act_on": 5,
+    "think": 3,
+    "read_thread": 234,
+    "wait": 39,
+    "read": 11,
+    "update_status": 1,
+    "remember": 84,
+    "pop_goal": 77,
+    "recall": 6,
+    "observe": 9,
+    "replace_goal": 1
+   },
+   "g_memory": {
+    "say": 151,
+    "push_goal": 195,
+    "pop_goal": 45,
+    "read_thread": 241,
+    "read": 18,
+    "remember": 76,
+    "observe": 16,
+    "wait": 34,
+    "recall": 11,
+    "think": 2,
+    "replace_goal": 3,
+    "conclude": 7,
+    "act_on": 9
+   },
+   "collaborative": {
+    "read_thread": 263,
+    "say": 156,
+    "remember": 78,
+    "push_goal": 143,
+    "read": 10,
+    "wait": 46,
+    "pop_goal": 40,
+    "recall": 8,
+    "think": 1,
+    "act_on": 16,
+    "observe": 11,
+    "update_status": 1
+   }
+  },
+  "hl40": {
+   "consensus": {
+    "push_goal": 24,
+    "say": 30,
+    "observe": 5,
+    "read_thread": 32,
+    "wait": 6,
+    "remember": 8,
+    "act_on": 1,
+    "pop_goal": 3,
+    "move": 1
+   },
+   "generative_agents": {
+    "observe": 13,
+    "pop_goal": 10,
+    "push_goal": 38,
+    "remember": 12,
+    "read_thread": 36,
+    "say": 29,
+    "wait": 4,
+    "update_status": 1
+   },
+   "g_memory": {
+    "pop_goal": 4,
+    "push_goal": 36,
+    "observe": 17,
+    "say": 28,
+    "read_thread": 42,
+    "wait": 7,
+    "remember": 11,
+    "move": 2
+   },
+   "collaborative": {
+    "read_thread": 31,
+    "pop_goal": 13,
+    "say": 24,
+    "push_goal": 28,
+    "wait": 4,
+    "observe": 8,
+    "remember": 14,
+    "move": 1,
+    "act_on": 1
+   }
+  }
+ },
+ "screenplay": {
+  "three_kingdoms": {
+   "rounds": [
+    0,
+    79
+   ],
+   "scenes": 54,
+   "beats": 312,
+   "speakers": 33,
+   "places": 24
+  },
+  "red_chamber": {
+   "rounds": [
+    0,
+    79
+   ],
+   "scenes": 62,
+   "beats": 390,
+   "speakers": 34,
+   "places": 26
+  },
+  "russia_ukraine": {
+   "rounds": [
+    0,
+    39
+   ],
+   "scenes": 48,
+   "beats": 334,
+   "speakers": 47,
+   "places": 20
+  },
+  "hamlet": {
+   "rounds": [
+    0,
+    39
+   ],
+   "scenes": 12,
+   "beats": 117,
+   "speakers": 16,
+   "places": 6
+  }
+ }
+}

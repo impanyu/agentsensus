@@ -205,6 +205,13 @@ def wins_table():
         rows.append(f"<tr{hi_cls}><td>{world}</td>" + "".join(f"<td>{c}</td>" for c in cells) + "</tr>")
     return "\n".join(rows)
 
+# Two appendix tables are counted out of whole event logs. The logs are not
+# carried in the repository, so the counts are cached by
+# experiments/cache_derived.py; when the logs ARE present they win, so the
+# table can never drift from a rerun that forgot to refresh the cache.
+DERIVED = (json.load(open("runs/derived_tables.json", encoding="utf-8"))
+           if os.path.exists("runs/derived_tables.json") else {})
+
 # Action census per world, read from the runs themselves so the appendix table
 # cannot drift from the logs.
 _ACTS = ["say", "read_thread", "observe", "move", "act_on", "read", "think",
@@ -216,9 +223,11 @@ _NEVER = ["gesture", "noop", "remove_status", "forget", "revise_memory",
 
 def _action_counts(pref):
     per = {b: {} for b in BACKENDS}
+    cached = DERIVED.get("actions", {}).get(pref, {})
     for b in BACKENDS:
         path = f"runs/{pref}_{b}/events.jsonl"
         if not os.path.exists(path):
+            per[b] = dict(cached.get(b, {}))
             continue
         with open(path, encoding="utf-8") as f:
             for line in f:

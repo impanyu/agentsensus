@@ -7,8 +7,7 @@ the shape of the result — consensus writing the fewest entries, being the only
 backend whose memories become shared, and the sharing rate rising with the
 horizon.
 
-The reported runs' event logs are in `runs/` if you would rather read what we
-got than run it again. `README.md` covers the framework itself (config,
+`README.md` covers the framework itself (config,
 scenario format, checkpointing, architecture); this file covers only the
 experiments.
 
@@ -124,6 +123,17 @@ venv/bin/python -m experiments.build_paper_academic     # -> docs/index.html
 `build_paper_academic.py` reads the stats, results and derived artefacts and
 writes the whole paper as a single self-contained HTML file. Everything it
 reads is tracked, so it runs on a fresh clone before you have run anything.
+
+Two appendix tables are counted out of whole event logs, which are too large
+to carry here; their counts live in `runs/derived_tables.json`. After a rerun,
+refresh it so the tables follow the new logs:
+
+```bash
+venv/bin/python -m experiments.cache_derived
+```
+
+When the logs are present they take precedence over the cache, so a rerun you
+forget to cache still reports its own numbers rather than ours.
 
 ## Costs
 

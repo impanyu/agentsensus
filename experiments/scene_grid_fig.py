@@ -203,6 +203,17 @@ def svg(world="hamlet", max_width=790, left=None, data=None):
 
 
 def stats(world):
+    """Cached when the event logs are not in the tree; see the note in
+    experiments/cache_derived.py. Logs win when present."""
+    stages, _, _ = WORLDS[world]
+    if not os.path.exists(f"runs/{stages[0]}_consensus/events.jsonl"):
+        cache = json.load(open("runs/derived_tables.json", encoding="utf-8"))
+        got = cache["screenplay"][world]
+        return {**got, "rounds": tuple(got["rounds"])}
+    return _stats_from_logs(world)
+
+
+def _stats_from_logs(world):
     """What the screenplay of `world` was cut from: rounds, scenes, beats, cast, places.
 
     Read from the event log, not from the rendered markdown, so the numbers hold
