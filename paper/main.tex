@@ -15,6 +15,8 @@
 % plain two-column-free article so the draft still compiles and can be read.
 \IfFileExists{iclr2026_conference.sty}{%
   \usepackage{iclr2026_conference,times}%
+  \IfFileExists{math_commands.tex}{\input{math_commands.tex}}{}%
+  % \iclrfinalcopy  % uncomment for the camera-ready, NOT for submission
 }{%
   \usepackage[margin=1in]{geometry}%
   \usepackage{natbib}%
@@ -36,7 +38,13 @@
 
 \title{Agentsensus: Consensus-Compressed Shared Memory\\for Multi-Agent Story Worlds}
 
-\author{Anonymous authors\\Paper under double-blind review}
+% The ICLR style prints "Anonymous authors / Paper under double-blind review"
+% by itself while \iclrfinalcopy is commented out; this block is what appears
+% in the camera-ready instead.
+\author{Author Name\\
+Department\\
+Institution\\
+\texttt{email@institution.edu}}
 
 \newcommand{\code}[1]{\texttt{\small #1}}
 
