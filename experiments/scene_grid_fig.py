@@ -90,7 +90,17 @@ def build(world="hamlet"):
     return names, cells, locations, rounds, actors, colour, scenes
 
 
-LABEL_CAP = 150  # one over-long place name should not eat the grid
+def _letter(i):
+    """Row label for place i: A..Z, then AA, AB, ..."""
+    out = ""
+    while True:
+        out = chr(65 + i % 26) + out
+        i = i // 26 - 1
+        if i < 0:
+            return out
+
+
+LABEL_CAP = 220  # one over-long place name should not eat its legend column
 
 
 def _elide(text, max_px=LABEL_CAP):
@@ -102,12 +112,6 @@ def _elide(text, max_px=LABEL_CAP):
     return out.rstrip() + "\u2026"
 
 
-def label_width(world, data=None):
-    """Width the place-name column needs for one world, over-long names elided."""
-    names, _, locations, *_ = data or build(world)
-    return 14 + max(_advance(_elide(names.get(l, l))) for l in locations)
-
-
 def _advance(text):  # rough advance width at 11.5px, CJK counted double
     return sum(11.5 if ord(c) > 0x2E80 else 6.2 for c in text)
 
@@ -117,13 +121,15 @@ def svg(world="hamlet", max_width=790, left=None, data=None):
 
     The cell is what shrinks when a run is long -- a colour block stays
     readable at six pixels wide, where scaling the whole drawing down would
-    take the labels with it. Scene numbers sit in the gap above their
-    rectangle so they never cover a cell, however narrow it gets.
+    take the labels with it. Rows carry only a letter; the letters and the
+    agent colours are both resolved in the legend below the grid. Scene
+    numbers sit in the gap above their rectangle so they never cover a cell.
     """
     names, cells, locations, rounds, actors, colour, scenes = data or build(world)
-    # one label column for all four worlds, so a cell is the same width in
-    # every figure and the runs can be compared by eye
-    left = max(118, left or label_width(world, (names, cells, locations)))
+    # rows are lettered A, B, C ... and the letters are resolved to place
+    # names in a legend below, so the label column costs almost nothing and
+    # the cells get the width instead
+    left = 34
     cw = min(17, max(5, (max_width - left - 16) / len(rounds)))
     gap = 2 if cw >= 12 else (1.5 if cw >= 8 else 1)
     # narrow cells get shorter rows too, so a cell stays a block rather than
@@ -132,7 +138,8 @@ def svg(world="hamlet", max_width=790, left=None, data=None):
     top = 46
     W = left + cw * len(rounds) + 16
     legend_rows = (len(actors) + 3) // 4
-    H = top + ch * len(locations) + 36 + legend_rows * 20 + 24
+    place_rows = (len(locations) + 2) // 3
+    H = top + ch * len(locations) + 36 + legend_rows * 20 + 24 + 22 + place_rows * 20
     ri = {r: i for i, r in enumerate(rounds)}
     li = {l: i for i, l in enumerate(locations)}
     every = 5 if cw >= 12 else (10 if cw >= 7 else 20)
@@ -153,7 +160,7 @@ def svg(world="hamlet", max_width=790, left=None, data=None):
     for loc in locations:
         y = top + li[loc] * ch
         out.append(f'<text x="{left-8:.0f}" y="{y+cellh/2+4:.1f}" text-anchor="end" '
-                   f'font-size="11.5">{_elide(names.get(loc, loc))}</text>')
+                   f'font-size="10.5" font-weight="600" fill="#6b7280">{_letter(li[loc])}</text>')
         for r in rounds:
             x = left + ri[r] * cw
             who = cells.get((loc, r))
@@ -173,8 +180,8 @@ def svg(world="hamlet", max_width=790, left=None, data=None):
         out.append(f'<rect x="{x0-2:.1f}" y="{y-2}" width="{x1-x0+4:.1f}" height="{cellh+4}" '
                    f'rx="3" fill="none" stroke="#1f2937" stroke-width="1.3"/>')
         # the number lives in the gap above its scene, never on top of a cell
-        out.append(f'<text x="{x0-1:.1f}" y="{y-4}" font-size="9" font-weight="700" '
-                   f'fill="#1f2937" stroke="#ffffff" stroke-width="2.4" '
+        out.append(f'<text x="{x0-1:.1f}" y="{y-4}" font-size="9" font-weight="500" '
+                   f'fill="#111827" stroke="#ffffff" stroke-width="1.4" '
                    f'paint-order="stroke">{n}</text>')
 
     ly = top + ch * len(locations) + 26
@@ -193,6 +200,17 @@ def svg(world="hamlet", max_width=790, left=None, data=None):
     out.append(f'<rect x="{W//4+4:.0f}" y="{y-9}" width="11" height="11" rx="2" fill="#ffffff" '
                f'stroke="#cbd5e1"/>')
     out.append(f'<text x="{W//4+20:.0f}" y="{y}" font-size="11">nothing happened</text>')
+
+    py0 = y + 22
+    out.append(f'<text x="4" y="{py0}" font-size="11.5" opacity=".75">places:</text>')
+    for i, loc in enumerate(locations):
+        col, row = i % 3, i // 3
+        x = 4 + col * ((W - 8) // 3)
+        yy = py0 + 16 + row * 20
+        out.append(f'<text x="{x:.0f}" y="{yy}" font-size="11" font-weight="600" '
+                   f'fill="#6b7280">{_letter(i)}</text>')
+        out.append(f'<text x="{x+22:.0f}" y="{yy}" font-size="11">'
+                   f'{_elide(names.get(loc, loc))}</text>')
 
     out.insert(1, '<defs><pattern id="mix" width="5" height="5" patternUnits="userSpaceOnUse" '
                   'patternTransform="rotate(45)"><rect width="5" height="5" fill="#2563eb" '
@@ -227,9 +245,7 @@ def _stats_from_logs(world):
 
 if __name__ == "__main__":
     worlds = sys.argv[1:] or list(WORLDS)
-    data = {w: build(w) for w in worlds}
-    shared = max(label_width(w, d) for w, d in data.items())
-    for w, d in data.items():
+    for w in worlds:
         path = f"runs/scene_grid_{w}.svg"
-        open(path, "w", encoding="utf-8").write(svg(w, left=shared, data=d))
-        print(f"wrote {path} (label column {shared:.0f}px)")
+        open(path, "w", encoding="utf-8").write(svg(w))
+        print(f"wrote {path}")

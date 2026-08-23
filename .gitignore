@@ -20,3 +20,4 @@ scenarios/*.cont_*.sim.yaml
 # event logs, statistics, scored results and generated figures. The repository
 # carries the method -- code, scenarios, source texts -- and the built paper.
 # See REPRODUCE.md for how to regenerate the data from scratch.
+scenarios/memory_review/
