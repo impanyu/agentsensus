@@ -165,11 +165,82 @@ def tab_actions():
             + "\n".join(rows[:-1]) + "\n\\bottomrule\n\\end{tabular}\n")
 
 
+def _lx(t):
+    """Escape LaTeX specials in screenplay text."""
+    for a, b in [("\\", "\\textbackslash{}"), ("&", "\\&"), ("%", "\\%"),
+                 ("$", "\\$"), ("#", "\\#"), ("_", "\\_"), ("{", "\\{"),
+                 ("}", "\\}"), ("~", "\\textasciitilde{}"), ("^", "\\textasciicircum{}")]:
+        t = t.replace(a, b)
+    return t
+
+
+def _scenes(path):
+    import re
+    if not os.path.exists(path):
+        return []
+    text = open(path, encoding="utf-8").read()
+    parts = re.split(r"(?m)^## ", text)
+    return [("## " + p.split("\n", 1)[0].strip(), p.split("\n", 1)[1].strip())
+            for p in parts[1:]]
+
+
+def tab_screenplays():
+    """Table: the four screenplays' geometry, from the derived cache."""
+    st = load("derived_tables")["screenplay"]
+    rows = []
+    langs = {"three_kingdoms": True, "red_chamber": True}
+    for w, title, _, _, _ in WORLDS:
+        v = st[w]
+        def chars(lang):
+            p = f"runs/screenplays/{w}.{lang}.md"
+            return (f"{len(open(p, encoding='utf-8').read()) // 1000}k"
+                    if os.path.exists(p) else "--")
+        src = f"{chars('zh')} (zh)" if w in langs else "-- (en)"
+        rows.append(f"{title} & {v['rounds'][0]}--{v['rounds'][1]} & {v['scenes']} & "
+                    f"{v['beats']} & {v['speakers']} & {v['places']} & "
+                    f"{chars('en')} & {src} \\\\")
+    return ("% generated\n\\begin{tabular}{lrrrrrrr}\n\\toprule\n"
+            "World & Rounds & Scenes & Beats & Speakers & Places & English & Source lang. \\\\\n"
+            "\\midrule\n" + "\n".join(rows) + "\n\\bottomrule\n\\end{tabular}\n")
+
+
+def samples():
+    """Two sample scenes per world, bilingual where the world is Chinese.
+
+    Chosen by length: the shortest scenes above a floor, one from each half of
+    the run, so the samples read whole rather than excerpted.
+    """
+    out = ["% generated -- sample scenes from the rendered screenplays"]
+    zh_worlds = {"three_kingdoms", "red_chamber"}
+    for w, title, _, _, _ in WORLDS:
+        en = _scenes(f"runs/screenplays/{w}.en.md")
+        zh = _scenes(f"runs/screenplays/{w}.zh.md") if w in zh_worlds else []
+        if not en:
+            continue
+        half = len(en) // 2
+        def pick(rng):
+            c = [(i, h, b) for i, (h, b) in enumerate(en) if rng[0] <= i < rng[1]
+                 and 350 <= len(b) <= 1400]
+            return min(c, key=lambda x: len(x[2])) if c else None
+        picks = [p for p in (pick((0, half)), pick((half, len(en)))) if p]
+        out.append(f"\\subsection*{{{title}}}")
+        for i, head, body in picks:
+            out.append(f"\\paragraph{{{_lx(head.lstrip('# '))}}}\\mbox{{}}\\\\[2pt]")
+            out.append("\\begin{zhblock}\\small\\setlength{\\parskip}{3pt}")
+            out.append(_lx(body).replace("\n\n", "\n\\par "))
+            if zh and i < len(zh):
+                out.append("\\par\\textcolor{gray}{\\rule{0.3\\textwidth}{0.4pt}}\\par")
+                out.append("\\textcolor{gray}{" + _lx(zh[i][1]).replace("\n\n", "\n\\par ") + "}")
+            out.append("\\end{zhblock}")
+    return "\n".join(out) + "\n"
+
+
 def main():
     os.makedirs(OUT, exist_ok=True)
     for name, text in [("numbers", macros()), ("tab_footprint", tab_footprint()),
                        ("tab_quality", tab_quality()), ("tab_ablation", tab_ablation()),
-                       ("tab_structure", tab_structure()), ("tab_actions", tab_actions())]:
+                       ("tab_structure", tab_structure()), ("tab_actions", tab_actions()),
+                       ("tab_screenplays", tab_screenplays()), ("samples", samples())]:
         open(f"{OUT}/{name}.tex", "w", encoding="utf-8").write(text)
         print(f"wrote {OUT}/{name}.tex")
 

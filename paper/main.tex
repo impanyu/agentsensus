@@ -34,6 +34,10 @@
 \usepackage{hyperref}
 \usepackage{url}
 
+\usepackage{CJKutf8}
+\newcommand{\zh}[1]{\begin{CJK}{UTF8}{gbsn}#1\end{CJK}}
+\newenvironment{zhblock}{\begin{CJK}{UTF8}{gbsn}}{\end{CJK}}
+
 \input{numbers}
 
 \title{Agentsensus: Consensus-Compressed Shared Memory\\for Multi-Agent Story Worlds}
@@ -371,33 +375,6 @@ everywhere and no world has one leader on all four metrics.}
 \resizebox{\textwidth}{!}{\input{tab_quality}}
 \end{table}
 
-\begin{figure}[t]
-\centering
-\begin{subfigure}{0.49\textwidth}
-  \includegraphics[width=\textwidth]{figures/tk_quality.png}
-  \caption{Three Kingdoms, 80 rounds.}
-\end{subfigure}\hfill
-\begin{subfigure}{0.49\textwidth}
-  \includegraphics[width=\textwidth]{figures/rc_quality.png}
-  \caption{Red Chamber, 80 rounds.}
-\end{subfigure}
-
-\vspace{4pt}
-\begin{subfigure}{0.49\textwidth}
-  \includegraphics[width=\textwidth]{figures/ru_quality.png}
-  \caption{Russia--Ukraine, 40 rounds.}
-\end{subfigure}\hfill
-\begin{subfigure}{0.49\textwidth}
-  \includegraphics[width=\textwidth]{figures/hl_quality.png}
-  \caption{Hamlet, 40 rounds.}
-\end{subfigure}
-\caption{Continuation quality per world: grounding, trajectory, narrative and
-goal pursuit, bars are means over three scorings with $\pm1$ std whiskers.
-The first three panels of each are scored from the rendered screenplay, the
-fourth from the event log.}
-\label{fig:quality}
-\end{figure}
-
 Of the \QualityCells{} world-metric cells, consensus is best in \QualityLeads{}
 and trails elsewhere by margins the size of the spread across three scorings of
 the same text. We report this as a wash rather than a win: compression neither
@@ -531,12 +508,12 @@ within 1\% of its original (\S\ref{sec:ablation}).
 Table~\ref{tab:actions} is the census behind \S\ref{sec:nomgmt}: every action
 every backend invoked, counted from the event logs of each world's final
 stage. Two facts are visible at once. \code{remember} and \code{recall} are
-called constantly, and the seven discretionary memory-management actions
---- \code{forget}, \code{revise\_memory}, \code{add/remove/set\_affiliated},
+called constantly, and the seven discretionary memory-management actions ---
+\code{forget}, \code{revise\_memory}, \code{add/remove/set\_affiliated},
 \code{get\_affiliated} --- do not appear at all, in any world, for any
-backend, which is why they are absent from the table rather than shown as
-rows of zeros. The actions were documented in the same skill text as the two
-that are used, with worked examples and an id-free query interface, and were
+backend, which is why they are absent from the table rather than shown as rows
+of zeros. The actions were documented in the same skill text as the two that
+are used, with worked examples and an id-free query interface, and were
 available in every round of every run.
 
 \begin{table}[h]
@@ -545,47 +522,54 @@ available in every round of every run.
 Counted from the event logs. Discretionary memory-management actions are
 omitted because every count is zero.}
 \label{tab:actions}
-\resizebox{0.8\textwidth}{!}{\input{tab_actions}}
+\resizebox{0.75\textwidth}{!}{\input{tab_actions}}
 \end{table}
 
-\section{Merge depth, graph density and expansion}
-\label{app:structure}
+\section{Transcript excerpts and screenplay samples}
+\label{app:excerpts}
 
-\S\ref{sec:structure} reports what fraction of memories are shared and linked;
-Table~\ref{tab:structure} gives the distribution behind those fractions and
-what recall does with the graph.
+\subsection{One message per backend}
+One deduplicated \code{say} message per backend, from each world's final
+stage, chosen by length so a block fits here; only the recipient list is
+abridged. The two Chinese worlds are given in English with the original
+beneath; the two English worlds are given as written. The point of the
+comparison is not prose quality --- \S\ref{sec:quality} measures that and
+finds the backends within error bars of one another --- but what a memory
+design looks like from the outside.
+
+\input{excerpts}
+
+\subsection{The rendered screenplays}
+\label{app:screenplays}
+
+The continuation-quality judge of \S\ref{sec:quality} reads a screenplay
+rendered from each run's event log: beats are grouped into scenes by place and
+stretch of time, each scene is dramatized in one grounded pass, and nothing
+outside the log may appear --- the cast, the location and every action are
+constrained to what the run produced, while the wording must be rewritten
+rather than copied. Table~\ref{tab:screenplays} gives each screenplay's
+geometry; the full texts (176 scenes) are in the supplementary material, and
+two sample scenes per world follow, the Chinese worlds with the
+source-language rendering beneath the English --- both produced from the same
+beats in one pass each, not by translating one into the other.
 
 \begin{table}[h]
 \centering
-\caption{Consensus structure per world at the final stage. ``3+'' counts
-entries with three or more witnesses, ``Max'' is the deepest merge,
-``Expanded'' is the fraction of recalls that returned at least one memory
-reached along an affiliated edge, and ``Linked/call'' the mean number of such
-memories per expanding call.}
-\label{tab:structure}
-\resizebox{\textwidth}{!}{\input{tab_structure}}
+\caption{The four screenplays. ``Beats'' are the dramatizable events after
+deduplication; ``scenes'' the groupings by place and stretch of time that each
+become one render call. Length is the rendered markdown; the Chinese worlds
+carry two renderings of the same beats.}
+\label{tab:screenplays}
+\resizebox{0.9\textwidth}{!}{\input{tab_screenplays}}
 \end{table}
 
-Merge depth is a property of the world's staging rather than of the
-mechanism. Russia--Ukraine reaches ten witnesses on a single presidential
-air-defense directive, because a real command chain issues one instruction to
-many named institutions at once; Hamlet tops out at three, and only once, on
-the players' performance --- the one scene in the play that assembles an
-audience --- because Shakespeare stages almost everything as a two-person
-exchange. The novels sit between, at six. Expansion behaves differently for a
-different reason: it returns few linked memories in Russia--Ukraine because
-institutional deposits are short and rarely split into several atoms, so there
-are fewer siblings to link, while a single compound recollection in a novel
-atomizes into many pieces.
+\input{samples}
 
-\section{How the scenes were cut}
+\subsection{How the scenes were cut}
 \label{app:grids}
 
-The screenplays that \S\ref{sec:quality} scores are cut out of spacetime: a
-scene is one place and a run of rounds whose neighbours are no more than five
-apart, capped at twenty rounds. Figure~\ref{fig:grid} shows the rule directly
-for Hamlet, and Figures~\ref{fig:grid_tk}--\ref{fig:grid_ru} for the other
-three worlds. Every cell is one round at one place, coloured by the agent that
+Figures~\ref{fig:grid}--\ref{fig:grid_ru} show the scene-splitting rule
+directly. Every cell is one round at one place, coloured by the agent that
 acted there, hatched where several acted in the same place and round, white
 where nothing happened; the outlined rectangles are the scenes, numbered as
 they appear in the screenplay.
@@ -628,7 +612,40 @@ where the many-witness merges of \S\ref{sec:structure} come from.}
 \label{fig:grid_ru}
 \end{figure}
 
-\section{Language of the runs}
+\section{Sedimentation and cast selection}
+\label{app:sediment}
+
+Each world is built by the sedimentation pipeline and then reduced to a
+simulable cast. A character participates iff it owns more than a per-world
+threshold of sediment memories; below-threshold characters remain owners of
+their memories but are never scheduled. Environments are kept if an active
+character stands there or if they own memories of their own; information
+carriers (letters, commissions, play scripts) are always kept.
+
+\begin{table}[h]
+\centering
+\caption{Sedimentation cost and cast composition. Wall-clock and token figures
+are for the sedimentation pass only, on the consensus store; the per-backend
+ingest of the same events is additional. ``Warn'' counts extraction records
+the pipeline flagged for review.}
+\label{tab:sediment}
+\resizebox{\textwidth}{!}{\input{tab_sediment}}
+\end{table}
+
+Cost tracks source length, not cast size: Russia--Ukraine extracts the fewest
+events yet costs the most tokens, because a timeline entry names many
+institutional actors and attribution must resolve each one. The archived
+column is boundary-state finalization at work: Three Kingdoms archives 38
+characters dead by chapter 40; Red Chamber archives three; Hamlet archives
+Polonius, killed in 3.4, and the Ghost, absent from the canon thereafter;
+Russia--Ukraine archives 14 under real-world semantics, where ``no longer a
+participant'' covers leaving office or being disbanded as well as dying. Two
+cases required overrides no automatic rule would produce: Fortinbras owns zero
+sediment memories --- he never appears before Act~4 --- but is retained
+because the continuation is his, and England is retained as an environment for
+the same reason.
+
+\section{Language composition of the runs}
 \label{app:language}
 
 Each world declares a language: the two novels run in Chinese, Russia--Ukraine
@@ -644,15 +661,97 @@ language regardless. A content-language directive has since been added to the
 agent prompt, and the ablation of \S\ref{sec:ablation}, run under it,
 reproduces the published structural numbers to within 1\%.
 
-\section{Beyond this paper}
-\label{app:more}
+\section{Merge depth, graph density and expansion}
+\label{app:structure}
 
-An extended version of this paper, built from the same runs, carries material
-that does not fit here: the full screenplays of all four worlds --- 176 scenes
-in total, the Chinese worlds in both English and their own language --- the
-per-method transcript excerpts these were rendered from, the sedimentation
-cost and cast composition per world, and interactive versions of the three
-case-study graphs, in which the interaction graph, the memory-affiliation
-graph and the ownership relation can be explored node by node.
+\S\ref{sec:structure} reports what fraction of memories are shared and linked;
+Table~\ref{tab:structure} gives the distribution behind those fractions and
+what recall does with the graph.
+
+\begin{table}[h]
+\centering
+\caption{Consensus structure per world at the final stage. ``3+'' counts
+entries with three or more witnesses, ``Max'' is the deepest merge,
+``Expanded'' the fraction of recalls that returned at least one memory reached
+along an affiliated edge, and ``Linked/call'' the mean number of such memories
+per expanding call.}
+\label{tab:structure}
+\resizebox{\textwidth}{!}{\input{tab_structure}}
+\end{table}
+
+Merge depth is a property of the world's staging rather than of the mechanism.
+Russia--Ukraine reaches ten witnesses on a single presidential air-defense
+directive, because a real command chain issues one instruction to many named
+institutions at once; Hamlet tops out at three, and only once, on the players'
+performance --- the one scene in the play that assembles an audience ---
+because Shakespeare stages almost everything as a two-person exchange. The
+novels sit between, at six. Expansion behaves differently for a different
+reason: institutional deposits are short and rarely split into several atoms,
+so Russia--Ukraine has fewer siblings to link, while a single compound
+recollection in a novel atomizes into many pieces.
+
+\paragraph{What a merged record looks like.} One entry, its owner set, and its
+text, from each world's store:
+
+\begin{quote}\small
+\textbf{owners} = [hanxiandi, xiahoudun, xiahouyuan, xushu, yuejin, yujin]\\
+Xiahou Yuan led three hundred light cavalry out of Xuchang on reconnaissance,
+in three columns.\quad
+\textcolor{gray}{\zh{夏侯渊率三百轻骑分三路从许昌出城侦察。}}
+\end{quote}
+\begin{quote}\small
+\textbf{owners} = [jiabaoyu, jiamu, jiazhen, liulaolao, wangxifeng, xuebaochai]\\
+Grandmother Jia kept only Jia Baoyu, Lin Daiyu and Xue Baochai by her side to
+receive them.\quad
+\textcolor{gray}{\zh{贾母只留下贾宝玉、林黛玉与薛宝钗到贾母身边相见。}}
+\end{quote}
+\begin{quote}\small
+\textbf{owners} = [first\_player, guildenstern, prologue]\\
+The troupe of players began the performance of that play at Elsinore.
+\end{quote}
+
+The deepest record in the set is Russia--Ukraine's presidential air-defense
+directive, one entry co-owned by ten institutional witnesses
+(\S\ref{sec:structure}).
+
+\section{Case-study graphs}
+\label{app:case}
+
+The three-layer analysis of \S\ref{sec:structure} is carried by three graphs
+per world: who talked to whom, who owns memories with whom, and the full
+agents--memories--ownership picture. In the HTML version of this paper these
+are interactive --- pannable, zoomable, with per-node detail --- which a PDF
+cannot carry; Figures~\ref{fig:case_tk}--\ref{fig:case_hl} are static renders
+of the same data at the same layout.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth]{figures/case_three_kingdoms.png}
+\caption{Three Kingdoms. Left: interaction graph, node size by degree, colour
+by community. Middle: shared-ownership heatmap (log counts). Right: agents,
+memories, and the ownership and affiliation edges between them.}
+\label{fig:case_tk}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth]{figures/case_red_chamber.png}
+\caption{Red Chamber, same panels.}
+\label{fig:case_rc}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth]{figures/case_russia_ukraine.png}
+\caption{Russia--Ukraine, same panels.}
+\label{fig:case_ru}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth]{figures/case_hamlet.png}
+\caption{Hamlet, same panels.}
+\label{fig:case_hl}
+\end{figure}
 
 \end{document}
