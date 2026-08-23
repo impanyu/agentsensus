@@ -7,6 +7,9 @@
 共识压缩机制。完整设计见 `docs/specs/2026-07-08-agent-society-design.md`,
 action 参考手册见 `docs/actions.md`。
 
+> 想复现论文里的那套实验(沉淀 → 四后端运行 → 打分 → ablation → 构建论文),
+> 见 [REPRODUCE.md](REPRODUCE.md);本文件讲的是框架本身。
+
 ## 快速开始(Quickstart)
 
 ### 1. 环境准备
