@@ -261,7 +261,7 @@ def samples():
             out.append(_lx(body).replace("\n\n", "\n\\par "))
             if zh and i < len(zh):
                 out.append("\\par\\textcolor{gray}{\\rule{0.3\\textwidth}{0.4pt}}\\par")
-                out.append("\\textcolor{gray}{" + _lx(zh[i][1]).replace("\n\n", "\n\\par ") + "}")
+                out.append("{\\color{gray} " + _lx(zh[i][1]).replace("\n\n", "\n\\par ") + "}")
             out.append("\\end{zhblock}")
     return "\n".join(out) + "\n"
 

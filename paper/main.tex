@@ -335,27 +335,39 @@ security service.
 
 \begin{figure}[t]
 \centering
-\begin{subfigure}{0.49\textwidth}
-  \includegraphics[width=\textwidth]{figures/tk_growth.png}
-  \caption{Cumulative entries per round.}
-\end{subfigure}\hfill
-\begin{subfigure}{0.49\textwidth}
-  \includegraphics[width=\textwidth]{figures/tk_latency.png}
-  \caption{Seconds per call, 5-round bins.}
-\end{subfigure}
-\caption{Growth and per-call cost, Three Kingdoms, 80 rounds. The consensus
-store grows more slowly than any baseline from the first rounds on, and the
-gap widens rather than closing. Deposits cost more because of the equivalence
-judge; recalls do not, since owner-scoped retrieval and one-hop expansion call
-no model.}
+\includegraphics[width=0.86\textwidth]{figures/tk_growth.png}
+\caption{Memory growth, Three Kingdoms, 80 rounds. Left: cumulative
+simulation-written entries per round for all four backends, under the same
+accounting as Table~\ref{tab:footprint} --- the consensus store is below
+every baseline from the opening rounds and the gap widens, because each merge
+removes an entry that would otherwise have been written and re-recorded by
+later witnesses. Right: per-agent owned memories in the consensus run,
+busiest six agents labelled. The other three worlds repeat the pattern
+(Appendix~\ref{app:growth}).}
 \label{fig:growth}
 \end{figure}
 
-The separation is not an end-state artefact: the consensus curve is below
-every baseline from the opening rounds and the gap widens
-(Figure~\ref{fig:growth}), because each merge removes an entry that would
-otherwise have been written and would itself have been re-recorded by later
-witnesses.
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.86\textwidth]{figures/tk_latency.png}
+\caption{Memory-operation latency, Three Kingdoms: mean seconds per
+\code{remember} (left) and \code{recall} (right), 5-round bins. Writes cost
+tens of seconds wherever the mechanism calls a model on the write path ---
+consensus for the equivalence judge, Generative-Agents for importance and
+reflection --- while reads stay under about a second for every backend,
+because retrieval calls no model. The profile repeats in the other three
+worlds (Appendix~\ref{app:growth}).}
+\label{fig:latency}
+\end{figure}
+
+The separation of Table~\ref{tab:footprint} is not an end-state artefact: the
+consensus curve is below every baseline from the opening rounds and the gap
+widens rather than closing (Figure~\ref{fig:growth}), and the per-agent panel
+shows the same mechanism from the agent's side --- a handful of principals
+accumulate most of what a world learns. The latency profile
+(Figure~\ref{fig:latency}) locates the cost of a memory design on its write
+path, with reads uniformly cheap; both hold unchanged in the other three
+worlds (Appendix~\ref{app:growth}).
 
 \subsection{Structure compounds with horizon}
 Sharing is not a fixed property but a function of how long the world has run:
@@ -367,13 +379,16 @@ compounds rather than saturating early.
 \subsection{Continuation quality}
 \label{sec:quality}
 
-\begin{table}[t]
+\begin{figure}[t]
 \centering
-\caption{Continuation quality, means over three scorings. No backend leads
-everywhere and no world has one leader on all four metrics.}
-\label{tab:quality}
-\resizebox{\textwidth}{!}{\input{tab_quality}}
-\end{table}
+\includegraphics[width=0.94\textwidth]{figures/tk_quality.png}
+\caption{Continuation quality --- Three Kingdoms, 80 rounds: grounding,
+trajectory, narrative and goal pursuit, bars are means over three scorings
+with $\pm1$ std whiskers. The first three panels are scored from the rendered
+screenplay, the fourth from the event log. The other three worlds, and the
+full table of means, are in Appendix~\ref{app:quality}.}
+\label{fig:quality}
+\end{figure}
 
 Of the \QualityCells{} world-metric cells, consensus is best in \QualityLeads{}
 and trails elsewhere by margins the size of the spread across three scorings of
@@ -387,7 +402,29 @@ separates nothing.
 \subsection{The memory graph tracks the social graph}
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.92\textwidth]{figures/relationship_panels.png}
+\includegraphics[width=0.88\textwidth]{figures/case_three_kingdoms.png}
+\caption{The three layers of one run --- Three Kingdoms, 80 rounds.
+(a)~Interaction graph: each node an agent, sized by degree, coloured by
+conversational community; the court around the emperor, the Liu Bei camp and
+the Jiangdong envoys separate without being told apart. (b)~Memory-affiliation
+graph: each node one consensus memory, edges are affiliation, colour is
+cluster; three memories from different clusters are circled with their text
+and owner set --- a cluster is a plotline, and its memories' owner sets name
+the agents living it. (c)~Shared-ownership heatmap: cell $(i,j)$ counts
+memories owned by both agents (log scale); its block structure is (a)'s
+communities seen from the store. (d)~A subset drawn in full: five conversing
+agents (blue edges, weighted), the memories they own (dark lines and larger
+nodes where a memory has several owners), affiliation arcs among those
+memories (purple), and three memories labelled with text and owners ---
+one record, several owners, is what consensus compression produces and what
+every baseline lacks. The other worlds are in Appendix~\ref{app:case}; in
+the HTML version these figures are interactive.}
+\label{fig:case}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.84\textwidth]{figures/relationship_panels.png}
 \caption{The three pairwise relations, Three Kingdoms. Each panel contrasts
 pairs that have the property with pairs that do not: agents who converse
 against agents who do not, linked memories against unlinked ones, and
@@ -396,7 +433,7 @@ cross-agent memory links against the rest.}
 \end{figure}
 
 Three layers of the same run can be compared: who talked to whom, which memories
-are affiliated, and who owns what. Agents who converse overlap in memory an
+are affiliated, and who owns what (Figure~\ref{fig:case}). Agents who converse overlap in memory an
 order of magnitude more than those who do not, linked memories share witnesses
 far more often than unlinked ones, and cross-agent memory links run almost
 exclusively between conversing pairs. The structure the mechanism produces is
@@ -427,22 +464,11 @@ they compare across cells rather than against Table~\ref{tab:quality}.}
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.92\textwidth]{figures/ablation.png}
+\includegraphics[width=0.84\textwidth]{figures/ablation.png}
 \caption{What each knob does. Left: entries in the whole store and in the
 simulation-written part. Right: the two structural properties. Turning the merge
 off is the only change visible in either panel.}
 \label{fig:ablation}
-\end{figure}
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.92\textwidth]{figures/ablation_latency.png}
-\caption{What the merge costs per call: mean seconds per \code{remember}
-(left) and \code{recall} (right), 5-round bins. The equivalence judge is a
-second LLM call on the write path, so merging roughly doubles the cost of a
-deposit and the gap widens as the store grows; reads are unaffected, since
-owner-scoped retrieval and one-hop expansion call no model.}
-\label{fig:ablation_latency}
 \end{figure}
 
 Disabling the merge multiplies the store by \AblFactor{}$\times$
@@ -714,6 +740,77 @@ The deepest record in the set is Russia--Ukraine's presidential air-defense
 directive, one entry co-owned by ten institutional witnesses
 (\S\ref{sec:structure}).
 
+\section{Growth and latency in the other worlds}
+\label{app:growth}
+
+Figures~\ref{fig:gl_rc}--\ref{fig:gl_hl} repeat \S\ref{sec:growth}'s two
+readings for the remaining worlds. In every one, the consensus store grows
+below every baseline from the opening rounds, and the write path carries the
+cost of whatever the mechanism does there while reads stay under about a
+second.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/rc_growth.png}\\[2pt]
+\includegraphics[width=0.85\textwidth]{figures/rc_latency.png}
+\caption{Red Chamber, 80 rounds: growth (top) and per-call latency (bottom),
+read as Figures~\ref{fig:growth} and~\ref{fig:latency}.}
+\label{fig:gl_rc}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/ru_growth.png}\\[2pt]
+\includegraphics[width=0.85\textwidth]{figures/ru_latency.png}
+\caption{Russia--Ukraine, 40 rounds: growth and per-call latency.}
+\label{fig:gl_ru}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/hl_growth.png}\\[2pt]
+\includegraphics[width=0.85\textwidth]{figures/hl_latency.png}
+\caption{Hamlet, 40 rounds: growth and per-call latency.}
+\label{fig:gl_hl}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.84\textwidth]{figures/ablation_latency.png}
+\caption{What the merge costs per call: mean seconds per \code{remember}
+(left) and \code{recall} (right), 5-round bins. The equivalence judge is a
+second LLM call on the write path, so merging roughly doubles the cost of a
+deposit and the gap widens as the store grows; reads are unaffected, since
+owner-scoped retrieval and one-hop expansion call no model.}
+\label{fig:ablation_latency}
+\end{figure}
+
+\section{Continuation quality in the other worlds}
+\label{app:quality}
+
+Figure~\ref{fig:quality_rest} repeats \S\ref{sec:quality}'s panels for the
+remaining worlds, and Table~\ref{tab:quality} carries every mean the bars
+summarize.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/rc_quality.png}\\[2pt]
+\includegraphics[width=0.9\textwidth]{figures/ru_quality.png}\\[2pt]
+\includegraphics[width=0.9\textwidth]{figures/hl_quality.png}
+\caption{Continuation quality: Red Chamber (top), Russia--Ukraine (middle),
+Hamlet (bottom), read as Figure~\ref{fig:quality}.}
+\label{fig:quality_rest}
+\end{figure}
+
+\begin{table}[h]
+\centering
+\caption{Continuation quality, means over three scorings, all worlds and
+backends. No backend leads everywhere and no world has one leader on all four
+metrics.}
+\label{tab:quality}
+\resizebox{\textwidth}{!}{\input{tab_quality}}
+\end{table}
+
 \section{Case-study graphs}
 \label{app:case}
 
@@ -721,22 +818,14 @@ The three-layer analysis of \S\ref{sec:structure} is carried by three graphs
 per world: who talked to whom, who owns memories with whom, and the full
 agents--memories--ownership picture. In the HTML version of this paper these
 are interactive --- pannable, zoomable, with per-node detail --- which a PDF
-cannot carry; Figures~\ref{fig:case_tk}--\ref{fig:case_hl} are static renders
-of the same data at the same layout.
-
-\begin{figure}[h]
-\centering
-\includegraphics[width=\textwidth]{figures/case_three_kingdoms.png}
-\caption{Three Kingdoms. Left: interaction graph, node size by degree, colour
-by community. Middle: shared-ownership heatmap (log counts). Right: agents,
-memories, and the ownership and affiliation edges between them.}
-\label{fig:case_tk}
-\end{figure}
+cannot carry; Figures~\ref{fig:case_rc}--\ref{fig:case_hl} are static renders
+of the same data at the same layout for the worlds not shown in
+\S\ref{sec:structure}; the panels read as Figure~\ref{fig:case}.
 
 \begin{figure}[h]
 \centering
 \includegraphics[width=\textwidth]{figures/case_red_chamber.png}
-\caption{Red Chamber, same panels.}
+\caption{Red Chamber, read as Figure~\ref{fig:case}.}
 \label{fig:case_rc}
 \end{figure}
 
