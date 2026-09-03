@@ -1,233 +1,203 @@
 """Figures 1 and 2 of the paper, drawn as self-contained SVG.
 
-Styled after the panel-and-icon convention common in recent survey figures:
-a thick rounded panel per stage in its own hue, dashed sub-panels for the
-parts inside it, emoji for the entities and heavy coral arrows for the flow
-between them. Everything is inline -- no page CSS, no external assets -- so
-the standalone PDF looks exactly like the figure on the page. Emoji are
-rasterised into the PDF as colour bitmaps by the Chrome print step.
+Drawn in the poster idiom the survey figures use: one heavy rounded panel per
+stage, a big black title on it, dashed sub-panels inside, large flat icons
+carrying the entities, blocky coral arrows for the flow, and labels of two to
+four words. Explanatory prose belongs in the \\caption, not on the canvas.
+
+The icons are OpenMoji (openmoji.org, CC BY-SA 4.0), vendored under
+paper/figures/icons and inlined as vector groups. They are NOT the system
+emoji font: Apple Color Emoji is glossy and shaded, where this figure needs
+the flat fill and uniform black outline the reference style is built on. Same
+codepoints, different artwork -- that difference is the whole look.
 
 Run: venv/bin/python -m experiments.method_figs
 """
+import math
 import os
+import re
 import sys
 
 os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))); sys.path.insert(0, ".")
 
-INK, MUT = "#111827", "#6b7280"
-ARROW = "#e05a5a"
+BLACK, GREY = "#161616", "#5b6470"
+CORAL = "#e0564e"
 F = 'font-family="Helvetica,Arial,sans-serif"'
-EF = ('font-family="Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,'
-      'sans-serif"')
+ICONS = "paper/figures/icons"
+_cache = {}
 
-# panel hue: (border, fill, sub-fill, title ink)
+# panel hue: (border, panel fill, sub fill)
 HUES = {
-    "amber": ("#e8a33d", "#fdf3e3", "#fffaf0", "#8a5a12"),
-    "blue":  ("#5b8fd4", "#e8f1fc", "#f5f9ff", "#1e3a8a"),
-    "green": ("#5aab7a", "#e9f7ee", "#f4fcf7", "#0f6b3f"),
-    "red":   ("#d97a7a", "#fdeaea", "#fff6f6", "#9b1c1c"),
-    "purple": ("#9b8ad4", "#efeafb", "#f8f5ff", "#4c1d95"),
-    "slate": ("#9aa4b2", "#eef1f5", "#f8fafc", "#334155"),
+    "orange": ("#e0a05a", "#fbead6", "#fffaf3"),
+    "blue":   ("#5b93cf", "#dfeef9", "#f5fbff"),
+    "green":  ("#6fb87f", "#e6f5e4", "#f6fdf5"),
+    "pink":   ("#df8c8c", "#fbe6e6", "#fff8f8"),
+    "taupe":  ("#b09a86", "#f0e9e2", "#fbf8f5"),
 }
 
-DEFS = f'''<defs>
-<marker id="ar" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="5.2"
-        markerHeight="5.2" orient="auto-start-reverse">
-  <path d="M0,0.5 L11,6 L0,11.5 Z" fill="{ARROW}"/>
-</marker>
-<marker id="ard" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="4.4"
-        markerHeight="4.4" orient="auto-start-reverse">
-  <path d="M0,0.5 L11,6 L0,11.5 Z" fill="#7c3aed"/>
-</marker>
-<marker id="ai" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="4.2"
-        markerHeight="4.2" orient="auto-start-reverse">
-  <path d="M0,1 L10,6 L0,11 Z" fill="#475569"/>
-</marker>
-</defs>'''
+
+def icon(x, y, name, size=52):
+    """One OpenMoji glyph, centred on (x, y), inlined as vector.
+
+    The files share viewBox 0 0 72 72 and carry no internal url(#) references,
+    so their ids can be dropped -- which they must be, or a second copy of the
+    same glyph would collide with the first."""
+    if name not in _cache:
+        t = open(f"{ICONS}/{name}.svg", encoding="utf-8").read()
+        t = re.sub(r"<svg[^>]*>", "", t, count=1).replace("</svg>", "")
+        t = re.sub(r'\s+id="[^"]*"', "", t)
+        _cache[name] = t.strip()
+    k = size / 72.0
+    return (f'<g transform="translate({x - size / 2:.1f},{y - size / 2:.1f}) '
+            f'scale({k:.4f})">{_cache[name]}</g>')
 
 
-def T(x, y, s, size=13, fill=INK, anchor="middle", weight="bold", style=None):
-    st = f' font-style="{style}"' if style else ""
+def T(x, y, s, size=15, fill=BLACK, anchor="middle", weight="bold"):
     return (f'<text x="{x}" y="{y}" font-size="{size}" fill="{fill}" '
-            f'text-anchor="{anchor}" font-weight="{weight}"{st} {F}>{s}</text>')
+            f'text-anchor="{anchor}" font-weight="{weight}" {F}>{s}</text>')
 
 
-def E(x, y, ch, size=44):
-    """One emoji, horizontally centred on x, baseline at y."""
-    return (f'<text x="{x}" y="{y}" font-size="{size}" text-anchor="middle" '
-            f'{EF}>{ch}</text>')
+def panel(x, y, w, h, hue, title, size=26):
+    b, fill, _ = HUES[hue]
+    return [f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="20" '
+            f'fill="{fill}" stroke="{b}" stroke-width="4"/>',
+            T(x + w / 2, y + 46, title, size)]
 
 
-def panel(x, y, w, h, hue, title, title_size=19):
-    """Outer stage panel: thick rounded border, tinted fill, bold title."""
-    b, fill, _, tink = HUES[hue]
-    return [f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="16" '
-            f'fill="{fill}" stroke="{b}" stroke-width="3"/>',
-            T(x + w / 2, y + 30, title, title_size, tink)]
-
-
-def sub(x, y, w, h, hue, label=None, label_size=14):
-    """Dashed sub-panel inside a stage."""
-    b, _, fill, tink = HUES[hue]
-    out = [f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="11" '
-           f'fill="{fill}" stroke="{b}" stroke-width="1.8" '
-           f'stroke-dasharray="7 5"/>']
-    if label:
-        out.append(T(x + w / 2, y + 22, label, label_size, tink))
+def sub(x, y, w, h, hue, title=None, size=18):
+    b, _, fill = HUES[hue]
+    out = [f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="15" '
+           f'fill="{fill}" stroke="{b}" stroke-width="2.6" '
+           f'stroke-dasharray="9 6"/>']
+    if title:
+        out.append(T(x + w / 2, y + 30, title, size))
     return out
 
 
-def arrow(x1, y1, x2, y2, width=5):
-    return (f'<line x1="{x1}" y1="{y1}" x2="{x2}" y2="{y2}" stroke="{ARROW}" '
-            f'stroke-width="{width}" stroke-linecap="round" '
-            f'marker-end="url(#ar)"/>')
+def fat(x1, y1, x2, y2, shaft=11, head=24, colour=CORAL):
+    """A blocky filled arrow -- the reference draws arrow shapes, not strokes
+    with a marker glued on the end."""
+    dx, dy = x2 - x1, y2 - y1
+    L = math.hypot(dx, dy) or 1
+    ux, uy = dx / L, dy / L
+    px, py = -uy, ux
+    s, hw = shaft / 2, head / 2
+    bx, by = x2 - ux * head, y2 - uy * head
+    pts = " ".join(f"{a:.1f},{b:.1f}" for a, b in [
+        (x1 + px * s, y1 + py * s), (bx + px * s, by + py * s),
+        (bx + px * hw, by + py * hw), (x2, y2),
+        (bx - px * hw, by - py * hw), (bx - px * s, by - py * s),
+        (x1 - px * s, y1 - py * s)])
+    return f'<polygon points="{pts}" fill="{colour}"/>'
 
 
-def curve(d, colour=ARROW, width=5, marker="ar", dash=None):
-    da = f' stroke-dasharray="{dash}"' if dash else ""
-    return (f'<path d="{d}" fill="none" stroke="{colour}" stroke-width="{width}" '
-            f'stroke-linecap="round"{da} marker-end="url(#{marker})"/>')
+def box(x, y, w, label, border, fill="#ffffff", h=28, dashed=False, size=14):
+    d = ' stroke-dasharray="6 4"' if dashed else ""
+    return (f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="7" fill="{fill}" '
+            f'stroke="{border}" stroke-width="2.6"{d}/>'
+            + T(x + w / 2, y + h / 2 + 5, label, size))
 
 
-def rowbox(x, y, w, label, border, fill, tink, h=25, dashed=False, size=11.5,
-           weight="bold"):
-    """A stored row: chunky outlined box with centred label."""
-    d = ' stroke-dasharray="5 4"' if dashed else ""
-    return (f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="6" fill="{fill}" '
-            f'stroke="{border}" stroke-width="2"{d}/>'
-            + T(x + w / 2, y + h / 2 + 4, label, size, tink, weight=weight))
-
-
-def pill(x, y, w, label, border, fill, tink, dashed=False):
-    d = ' stroke-dasharray="5 4"' if dashed else ""
-    return (f'<rect x="{x}" y="{y}" width="{w}" height="26" rx="13" fill="{fill}" '
-            f'stroke="{border}" stroke-width="1.9"{d}/>'
-            + T(x + w / 2, y + 17.5, label, 11.5, tink))
+def pill(x, y, w, label, border, fill, dashed=False, size=13):
+    d = ' stroke-dasharray="6 4"' if dashed else ""
+    return (f'<rect x="{x}" y="{y}" width="{w}" height="30" rx="15" fill="{fill}" '
+            f'stroke="{border}" stroke-width="2.4"{d}/>'
+            + T(x + w / 2, y + 20, label, size))
 
 
 # --------------------------------------------------------------- figure 1
 
 def framework():
-    W, H = 1020, 704
+    W, H = 1060, 752
     s = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" {F} '
-         f'style="max-width:100%;height:auto">', DEFS,
+         f'style="max-width:100%;height:auto">',
          f'<rect width="{W}" height="{H}" fill="#ffffff"/>']
 
-    # ============ stage 1: offline sedimentation (amber) ============
-    s += panel(12, 10, 996, 198, "amber", "Offline · Sedimentation")
-    s.append(T(986, 30, "runs once, before round 0", 11.5, "#a97528", "end",
-               weight="normal", style="italic"))
+    # ---------------- stage 1: offline ----------------
+    s += panel(14, 12, 1032, 214, "orange", "Offline · Sedimentation")
 
-    s += sub(30, 44, 236, 148, "amber", "Source Text")
-    s.append(E(148, 118, "📖", 48))
-    s.append(T(148, 146, "novel · play · timeline", 11, MUT, weight="normal"))
-    s.append(T(148, 168, "held-out tail kept", 11, MUT, weight="normal"))
-    s.append(T(148, 182, "for scoring", 11, MUT, weight="normal"))
+    s += sub(36, 74, 296, 138, "orange", "Source Text")
+    s.append(icon(184, 140, "book", 54))
+    s.append(T(184, 192, "Novel · Play · Timeline", 14))
 
-    s.append(arrow(276, 118, 320, 118))
+    s.append(fat(344, 143, 388, 143))
 
-    s += sub(330, 44, 236, 148, "amber", "Extract &amp; Attribute")
-    s.append(E(448, 112, "🔍", 42))
-    s.append(T(448, 140, "who witnessed", 11.5, "#8a5a12"))
-    s.append(T(448, 158, "each event?", 11.5, "#8a5a12"))
-    s.append(T(448, 182, "one LLM pass per span", 11, MUT, weight="normal"))
+    s += sub(400, 74, 296, 138, "orange", "Extract &amp; Attribute")
+    s.append(icon(548, 140, "glass", 50))
+    s.append(T(548, 192, "Who Witnessed It?", 14))
 
-    s.append(arrow(576, 118, 620, 118))
+    s.append(fat(708, 143, 752, 143))
 
-    s += sub(630, 44, 358, 148, "blue", "Owner-Tagged Events")
-    for i, lab in enumerate(["e &#183; owners {A, B}", "&#8230; &#183; owners {C}",
-                             "&#8230; &#183; owners {A, D}"]):
-        s.append(rowbox(676, 74 + i * 32, 266, lab, "#3b82f6", "#ffffff", "#1e3a8a"))
-    s.append(T(809, 182, "an event, not a copy per witness", 11, MUT, weight="normal"))
+    s += sub(764, 74, 282, 138, "blue", "Owner-Tagged Events")
+    for i, lab in enumerate(["e &#183; {A, B}", "&#8230; &#183; {C}",
+                             "&#8230; &#183; {A, D}"]):
+        s.append(box(818, 112 + i * 34, 174, lab, "#2f6fd0", "#ffffff"))
 
-    # ============ stage 2: runtime (blue) ============
-    # sits 40px below stage 1 so the seeding arrow has a lane of its own
-    s += panel(12, 248, 996, 288, "blue", "Runtime · One World, One Shared Store")
+    # ---------------- between the stages ----------------
+    s.append(fat(530, 232, 530, 264, shaft=14, head=26))
+    s.append(T(556, 257, "seeds the store", 16, CORAL, "start"))
 
-    # --- the store
-    s += sub(30, 284, 268, 234, "blue", "Shared Long-Term Memory")
-    s.append(E(164, 352, "🧠", 44))
-    s.append(f'<path d="M96,374 v66 a68,15 0 0 0 136,0 v-66" fill="#dbeafe" '
-             f'stroke="#2563eb" stroke-width="2.5"/>')
-    s.append(f'<ellipse cx="164" cy="374" rx="68" ry="15" fill="#eff6ff" '
-             f'stroke="#2563eb" stroke-width="2.5"/>')
-    s.append(T(164, 414, "one store,", 12.5, "#1e3a8a"))
-    s.append(T(164, 432, "all characters", 12.5, "#1e3a8a"))
-    s.append(T(164, 488, "internal structure", 11, MUT, weight="normal"))
-    s.append(T(164, 502, "differs per backend", 11, MUT, weight="normal"))
+    # ---------------- stage 2: runtime ----------------
+    s += panel(14, 276, 1032, 296, "blue", "Runtime · One Shared Store")
 
-    # drawn here, on top of the panel it lands in: it runs flat through the
-    # gap, then drops well left of the panel title
-    s.append(curve("M809,200 C640,216 400,216 176,278", width=5))
-    s.append(T(600, 238, "seeds the store", 12.5, ARROW))
+    s += sub(36, 338, 296, 216, "blue", "Shared Memory")
+    s.append(icon(184, 400, "brain", 50))
+    s.append(f'<path d="M112,436 v56 a72,16 0 0 0 144,0 v-56" fill="#cfe4f7" '
+             f'stroke="#2f6fd0" stroke-width="3"/>')
+    s.append(f'<ellipse cx="184" cy="436" rx="72" ry="16" fill="#eaf4fd" '
+             f'stroke="#2f6fd0" stroke-width="3"/>')
+    s.append(T(184, 472, "One Store,", 15))
+    s.append(T(184, 492, "All Agents", 15))
+    s.append(T(184, 534, "Structure differs per backend", 12.5, GREY))
 
-    # --- recall / remember
-    s.append(arrow(306, 342, 372, 342))
-    s.append(T(339, 330, "recall", 12, ARROW))
-    s.append(arrow(372, 422, 306, 422))
-    s.append(T(339, 410, "remember", 12, ARROW))
-    s.append(T(339, 454, "both", 11, MUT, weight="normal"))
-    s.append(T(339, 468, "owner-scoped", 11, MUT, weight="normal"))
+    s.append(fat(340, 394, 396, 394))
+    s.append(T(368, 380, "recall", 15, CORAL))
+    s.append(fat(396, 472, 340, 472))
+    s.append(T(368, 458, "remember", 15, CORAL))
+    s.append(T(368, 512, "Owner-Scoped", 11))
 
-    # --- the society
-    s += sub(382, 284, 606, 234, "green", "The Society")
+    s += sub(410, 338, 636, 216, "green", "The Society")
 
-    s.append(E(470, 344, "🤖", 40))
-    s.append(T(470, 366, "character", 11.5, "#0f6b3f"))
-    s.append(E(700, 344, "🤖", 40))
-    s.append(T(700, 366, "character", 11.5, "#0f6b3f"))
-    s.append(E(470, 450, "🤖", 40))
-    s.append(T(470, 472, "character", 11.5, "#0f6b3f"))
+    s.append(icon(506, 400, "robot", 50))
+    s.append(T(506, 448, "Agent", 15))
+    s.append(icon(726, 400, "robot", 50))
+    s.append(T(726, 448, "Agent", 15))
+    s.append(icon(948, 398, "globe", 50))
+    s.append(T(948, 448, "World", 15))
+    s.append(icon(608, 504, "page", 40))
+    s.append(T(676, 510, "Letters &amp; Edicts", 14, BLACK, "start"))
 
-    # say thread
-    s.append(f'<line x1="502" y1="330" x2="668" y2="330" stroke="{ARROW}" '
-             f'stroke-width="4" stroke-linecap="round" marker-start="url(#ar)" '
-             f'marker-end="url(#ar)"/>')
-    s.append(T(585, 320, "say · kernel-held thread", 11.5, ARROW))
-    s.append(curve("M500,442 L664,360", width=3.4, dash="7 5"))
-    s.append(T(672, 438, "delivered with distance delay", 10.5, ARROW,
-               weight="normal"))
+    s.append(fat(546, 388, 686, 388, shaft=9, head=20))
+    s.append(T(616, 374, "say", 15, CORAL))
+    s.append(T(948, 470, "Places · Objects", 12.5, GREY))
 
-    # environment + carrier
-    s.append(E(892, 342, "🌍", 40))
-    s.append(T(892, 364, "environment", 11.5, "#0f6b3f"))
-    s.append(T(892, 380, "owns memories,", 10.5, MUT, weight="normal"))
-    s.append(T(892, 394, "never takes a turn", 10.5, MUT, weight="normal"))
-    s.append(E(892, 462, "📄", 36))
-    s.append(T(892, 484, "info carrier", 11.5, "#8a5a12"))
-    s.append(arrow(508, 460, 856, 464, 3.4))
-    s.append(T(680, 492, "read", 12, ARROW))
+    # ---------------- stage 3: the repertoire ----------------
+    s += panel(14, 588, 1032, 150, "taupe",
+               "One Action per Agent per Round", 22)
 
-    # ============ stage 3: the action repertoire (slate) ============
-    s += panel(12, 554, 996, 138, "slate",
-               "One Action per Character per Round, from a Single Repertoire", 17)
+    GRN, GRN_L = "#0f8a5f", "#d6f5e6"
+    BLU, BLU_L = "#2f6fd0", "#dceafa"
+    PUR, PUR_L = "#7c4dd6", "#e9e0fb"
+    SL, SL_L = "#8a94a3", "#eef1f5"
+    RED, RED_L = "#d63b3b", "#fbdede"
 
-    GRN, GRN_L, GRN_D = "#059669", "#d1fae5", "#065f46"
-    BLU, BLU_L, BLU_D = "#2563eb", "#dbeafe", "#1e3a8a"
-    PUR, PUR_L, PUR_D = "#7c3aed", "#ede9fe", "#5b21b6"
-    SL, SL_L, SL_D = "#94a3b8", "#f1f5f9", "#475569"
-    RED, RED_L = "#dc2626", "#fee2e2"
+    world = ("say", "read_thread", "observe", "move", "act_on", "read")
+    x = 40
+    for lab, w in [("say", 54), ("read_thread", 104), ("observe", 82),
+                   ("move", 62), ("act_on", 72), ("read", 58),
+                   ("think", 62), ("conclude", 86), ("wait", 56)]:
+        s.append(pill(x, 652, w, lab, *((GRN, GRN_L) if lab in world else (SL, SL_L))))
+        x += w + 8
+    for lab, w in [("remember", 94), ("recall", 68)]:
+        s.append(pill(x, 652, w, lab, BLU, BLU_L)); x += w + 8
 
-    x = 34
-    for lab, w in [("say", 48), ("read_thread", 92), ("observe", 70),
-                   ("move", 54), ("act_on", 62), ("read", 50)]:
-        s.append(pill(x, 598, w, lab, GRN, GRN_L, GRN_D)); x += w + 7
-    for lab, w in [("think", 54), ("conclude", 74)]:
-        s.append(pill(x, 598, w, lab, SL, SL_L, SL_D)); x += w + 7
-    for lab, w in [("remember", 82), ("recall", 60)]:
-        s.append(pill(x, 598, w, lab, BLU, BLU_L, BLU_D)); x += w + 7
-    s.append(pill(x, 598, 48, "wait", SL, SL_L, SL_D))
+    x = 40
+    for lab, w in [("push_goal", 92), ("pop_goal", 84), ("replace_goal", 112),
+                   ("update_status", 122)]:
+        s.append(pill(x, 690, w, lab, PUR, PUR_L)); x += w + 8
+    s.append(pill(x + 24, 690, 322, "6 memory-management actions · never used",
+                  RED, RED_L, dashed=True))
 
-    x = 34
-    for lab, w in [("push_goal", 80), ("pop_goal", 74), ("replace_goal", 98),
-                   ("update_status", 106)]:
-        s.append(pill(x, 632, w, lab, PUR, PUR_L, PUR_D)); x += w + 7
-    s.append(pill(x + 14, 632, 306, "6 memory-management actions · never used",
-                  RED, RED_L, "#b91c1c", dashed=True))
-
-    s.append(T(34, 680, "green = the world · blue = long-term memory · purple = goals · "
-                        "grey = cognitive · red dashed = offered but never called",
-               11, MUT, "start", weight="normal"))
     s.append('</svg>')
     return "\n".join(s)
 
@@ -235,110 +205,83 @@ def framework():
 # --------------------------------------------------------------- figure 2
 
 def backends():
-    W, H = 1020, 752
+    W, H = 1060, 786
     s = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" {F} '
-         f'style="max-width:100%;height:auto">', DEFS,
+         f'style="max-width:100%;height:auto">',
          f'<rect width="{W}" height="{H}" fill="#ffffff"/>']
 
-    GRN, GRN_L, GRN_D = "#059669", "#d1fae5", "#0f6b3f"
-    AMB, AMB_L, AMB_D = "#d97706", "#fef3c7", "#8a5a12"
-    RED, RED_L, RED_D = "#dc2626", "#fee2e2", "#9b1c1c"
-    BLU, BLU_L, BLU_D = "#2563eb", "#dbeafe", "#1e3a8a"
-    PUR, PUR_L, PUR_D = "#7c3aed", "#ede9fe", "#4c1d95"
+    GRN, GRN_L = "#0f8a5f", "#d6f5e6"
+    AMB, AMB_L = "#c97e14", "#fceccb"
+    RED, RED_L = "#cf4444", "#fbdede"
+    BLU, BLU_L = "#2f6fd0", "#dceafa"
+    PUR, PUR_L = "#7c4dd6", "#e9e0fb"
 
     # ---------------- (a) Generative Agents ----------------
-    s += panel(12, 10, 494, 336, "green", "(a) Generative Agents")
-    s += sub(30, 44, 458, 226, "green", "One Private Stream per Agent")
-    for cx, who in [(140, "A"), (378, "B")]:
-        s.append(E(cx, 96, "🤖", 32))
-        s.append(T(cx + 26, 90, who, 13, INK))
-    for i, lab in enumerate(["e &#183; imp .8", "&#8230; &#183; .4", "&#8230; &#183; .9"]):
-        s.append(rowbox(66, 108 + i * 30, 148, lab, GRN, "#ffffff", GRN_D, h=24))
-    for i, lab in enumerate(["e &#183; imp .7", "&#8230; &#183; .5", "&#8230; &#183; .6"]):
-        s.append(rowbox(304, 108 + i * 30, 148, lab, GRN, "#ffffff", GRN_D, h=24))
-    s.append(E(259, 128, "🌳", 26))
-    s.append(rowbox(66, 202, 148, "reflection", GRN, GRN_L, GRN_D, h=24, dashed=True))
-    s.append(rowbox(304, 202, 148, "reflection", GRN, GRN_L, GRN_D, h=24, dashed=True))
-    s.append(T(259, 220, "no edge", 10.5, MUT, weight="normal"))
-    s.append(T(259, 233, "crosses", 10.5, MUT, weight="normal"))
-    s.append(T(259, 246, "the lanes", 10.5, MUT, weight="normal"))
-    s.append(T(259, 292, "The same event e is stored once per witness.", 12, GRN_D))
-    s.append(T(259, 314, "Recall scores recency × importance × relevance.",
-               11, MUT, weight="normal"))
-    s.append(T(259, 334, "streams + a private reflection tree", 11, MUT,
-               weight="normal", style="italic"))
+    s += panel(14, 12, 512, 376, "green", "(a) Generative Agents")
+    s += sub(36, 76, 468, 220, "green", "One Private Stream per Agent")
+    for cx, who in [(146, "A"), (394, "B")]:
+        s.append(icon(cx - 16, 134, "robot", 44))
+        s.append(T(cx + 22, 142, who, 18))
+        s.append(box(cx - 66, 166, 132, "e", GRN, "#ffffff", h=26))
+        s.append(box(cx - 66, 200, 132, "&#8230;", GRN, "#ffffff", h=26))
+        s.append(box(cx - 66, 240, 132, "reflection", GRN, GRN_L, h=26,
+                     dashed=True, size=13))
+    s.append(icon(270, 206, "no", 36))
+    s.append(T(270, 248, "no link", 13.5))
+    s.append(T(270, 336, "One Copy per Witness", 19))
+    s.append(T(270, 362, "recency × importance × relevance", 14, GREY))
 
     # ---------------- (b) G-Memory ----------------
-    s += panel(514, 10, 494, 336, "amber", "(b) G-Memory")
-    s += sub(532, 44, 458, 226, "amber", "Two-Tier Graph, per Owner")
-    for cx, who in [(642, "A"), (880, "B")]:
-        s.append(E(cx, 96, "🤖", 32))
-        s.append(T(cx + 26, 90, who, 13, INK))
-        s.append(f'<ellipse cx="{cx}" cy="132" rx="52" ry="18" fill="{AMB_L}" '
-                 f'stroke="{AMB}" stroke-width="2" stroke-dasharray="5 4"/>')
-        s.append(T(cx, 137, "insight", 12, AMB_D))
+    s += panel(534, 12, 512, 376, "orange", "(b) G-Memory")
+    s += sub(556, 76, 468, 220, "orange", "Two-Tier Graph, per Owner")
+    for cx, who in [(666, "A"), (914, "B")]:
+        s.append(icon(cx - 16, 132, "robot", 42))
+        s.append(T(cx + 22, 140, who, 18))
+        s.append(f'<ellipse cx="{cx}" cy="192" rx="62" ry="21" fill="{AMB_L}" '
+                 f'stroke="{AMB}" stroke-width="2.6" stroke-dasharray="6 4"/>')
+        s.append(T(cx, 198, "insight", 15))
         for i in range(3):
-            bx = cx - 78 + i * 52
-            s.append(rowbox(bx, 208, 44, "e" if i == 0 else "&#8230;", AMB,
-                            "#ffffff", AMB_D, h=24))
-            s.append(f'<line x1="{cx}" y1="152" x2="{bx + 22}" y2="204" '
-                     f'stroke="{AMB}" stroke-width="1.6" marker-end="url(#ai)"/>')
-    s.append(E(761, 142, "🕸️", 26))
-    s.append(T(761, 186, "derived_from", 11, AMB_D))
-    s.append(T(761, 250, "insight tier distilled every 20 rounds", 11, MUT,
-               weight="normal"))
-    s.append(T(761, 292, "Recall hits both tiers, then walks the edges.", 12, AMB_D))
-    s.append(T(761, 314, "A real graph — but never across owners.", 11, MUT,
-               weight="normal", style="italic"))
+            bx = cx - 72 + i * 50
+            s.append(box(bx, 248, 44, "e" if i == 0 else "&#8230;", AMB,
+                         "#ffffff", h=26, size=13))
+            s.append(fat(cx, 214, bx + 22, 244, shaft=4.5, head=11, colour=AMB))
+    s.append(T(790, 200, "derived_from", 13, GREY))
+    s.append(T(790, 336, "A Graph — Never Across Owners", 18))
+    s.append(T(790, 362, "insights distilled every 20 rounds", 14, GREY))
 
     # ---------------- (c) Collaborative ----------------
-    s += panel(12, 362, 494, 354, "red", "(c) Collaborative")
-    s += sub(30, 396, 458, 226, "red", "One Store, Partitioned by Permission")
-    for cx, who in [(140, "A"), (378, "B")]:
-        s.append(E(cx, 448, "🤖", 32))
-        s.append(T(cx + 26, 442, who, 13, INK))
-    s.append(rowbox(60, 470, 168, "e &#183; acl {A}", RED, RED_L, RED_D))
-    s.append(rowbox(290, 470, 168, "e &#183; acl {A, B}", RED, RED_L, RED_D))
-    s.append(rowbox(60, 506, 168, "&#8230; &#183; acl {A}", RED, "#ffffff", RED_D))
-    s.append(rowbox(290, 506, 168, "&#8230; &#183; acl {B}", RED, "#ffffff", RED_D))
-    s.append(E(259, 492, "🔒", 26))
-    s.append(curve("M144,544 C180,584 338,584 374,544", colour=RED, width=2.6,
-                   marker="ai", dash="6 4"))
-    s.append(T(259, 588, "grant", 12, RED_D))
-    s.append(T(259, 610, "two rows, one event", 11, MUT, weight="normal"))
-    s.append(T(259, 654, "B may be granted access to A's copy —", 12, RED_D))
-    s.append(T(259, 674, "but the copy remains.", 12, RED_D))
-    s.append(T(259, 700, "sharing is a permission, not a merge", 11, MUT,
-               weight="normal", style="italic"))
+    s += panel(14, 400, 512, 376, "pink", "(c) Collaborative")
+    s += sub(36, 464, 468, 220, "pink", "One Store, Split by Permission")
+    for cx, who in [(146, "A"), (394, "B")]:
+        s.append(icon(cx - 16, 522, "robot", 44))
+        s.append(T(cx + 22, 530, who, 18))
+    s.append(box(80, 554, 132, "e &#183; {A}", RED, RED_L))
+    s.append(box(328, 554, 132, "e &#183; {A, B}", RED, RED_L))
+    s.append(box(80, 592, 132, "&#8230; &#183; {A}", RED, "#ffffff"))
+    s.append(box(328, 592, 132, "&#8230; &#183; {B}", RED, "#ffffff"))
+    s.append(icon(270, 574, "lock", 38))
+    s.append(fat(214, 644, 326, 644, shaft=7, head=17, colour=RED))
+    s.append(T(270, 672, "grant", 14))
+    s.append(T(270, 724, "A Permission, Not a Merge", 19))
+    s.append(T(270, 750, "two rows survive, one event", 14, GREY))
 
     # ---------------- (d) Consensus ----------------
-    s += panel(514, 362, 494, 354, "blue", "(d) Consensus  (ours)")
-    s += sub(532, 396, 458, 226, "blue", "One Record, Several Owners")
-    for cx, who, tx in [(628, "A", 672), (760, "B", 760), (892, "C", 848)]:
-        s.append(E(cx, 448, "🤖", 32))
-        s.append(T(cx + 24, 442, who, 13, INK))
-        s.append(f'<line x1="{cx}" y1="458" x2="{tx}" y2="482" stroke="{ARROW}" '
-                 f'stroke-width="3" stroke-linecap="round" marker-end="url(#ar)"/>')
-    s.append(rowbox(600, 490, 320, "e &#183; owners {A, B, C}", BLU, BLU_L, BLU_D,
-                    h=30, size=13.5))
-    s.append(T(760, 538, "equivalent deposits merged · owners unioned",
-               11, MUT, weight="normal"))
-    s.append(E(760, 578, "🔗", 24))
-    s.append(rowbox(566, 560, 152, "sibling &#183; {A, B}", PUR, PUR_L, PUR_D, h=24))
-    s.append(rowbox(802, 560, 140, "sibling &#183; {C}", PUR, PUR_L, PUR_D, h=24))
-    s.append(f'<line x1="606" y1="520" x2="642" y2="556" stroke="{PUR}" '
-             f'stroke-width="1.8" marker-end="url(#ard)"/>')
-    s.append(f'<line x1="914" y1="520" x2="872" y2="556" stroke="{PUR}" '
-             f'stroke-width="1.8" marker-end="url(#ard)"/>')
-    s.append(T(760, 604, "affiliated", 11, PUR_D))
-    s.append(T(760, 654, "Recall returns the rows you own,", 12, BLU_D))
-    s.append(T(760, 674, "then walks one hop along the affiliation edges.", 12, BLU_D))
-    s.append(T(760, 700, "sharing is computed at deposit time", 11, MUT,
-               weight="normal", style="italic"))
+    s += panel(534, 400, 512, 376, "blue", "(d) Consensus  (ours)")
+    s += sub(556, 464, 468, 220, "blue", "One Record, Several Owners")
+    for cx, who, tx in [(672, "A", 700), (790, "B", 790), (908, "C", 880)]:
+        s.append(icon(cx - 14, 520, "robot", 42))
+        s.append(T(cx + 24, 528, who, 18))
+        s.append(fat(cx, 546, tx, 578, shaft=8, head=18))
+    s.append(box(610, 584, 360, "e &#183; owners {A, B, C}", BLU, BLU_L, h=34,
+                 size=16))
+    s.append(box(586, 634, 142, "sibling &#183; {A, B}", PUR, PUR_L, size=13))
+    s.append(box(852, 634, 130, "sibling &#183; {C}", PUR, PUR_L, size=13))
+    s.append(fat(626, 620, 648, 632, shaft=6, head=14, colour=PUR))
+    s.append(fat(954, 620, 932, 632, shaft=6, head=14, colour=PUR))
+    s.append(T(790, 654, "affiliated", 13.5))
+    s.append(T(790, 724, "Computed at Deposit Time", 19))
+    s.append(T(790, 750, "owner set is the union", 14, GREY))
 
-    s.append(T(510, 740, "the same event e in every panel · 🤖 = owner · "
-                         "solid box = a stored row · dashed = generated by the mechanism",
-               11, MUT, weight="normal"))
     s.append('</svg>')
     return "\n".join(s)
 

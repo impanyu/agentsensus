@@ -1,113 +1,334 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1020 752" font-family="Helvetica,Arial,sans-serif" style="max-width:100%;height:auto">
-<defs>
-<marker id="ar" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="5.2"
-        markerHeight="5.2" orient="auto-start-reverse">
-  <path d="M0,0.5 L11,6 L0,11.5 Z" fill="#e05a5a"/>
-</marker>
-<marker id="ard" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="4.4"
-        markerHeight="4.4" orient="auto-start-reverse">
-  <path d="M0,0.5 L11,6 L0,11.5 Z" fill="#7c3aed"/>
-</marker>
-<marker id="ai" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="4.2"
-        markerHeight="4.2" orient="auto-start-reverse">
-  <path d="M0,1 L10,6 L0,11 Z" fill="#475569"/>
-</marker>
-</defs>
-<rect width="1020" height="752" fill="#ffffff"/>
-<rect x="12" y="10" width="494" height="336" rx="16" fill="#e9f7ee" stroke="#5aab7a" stroke-width="3"/>
-<text x="259.0" y="40" font-size="19" fill="#0f6b3f" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">(a) Generative Agents</text>
-<rect x="30" y="44" width="458" height="226" rx="11" fill="#f4fcf7" stroke="#5aab7a" stroke-width="1.8" stroke-dasharray="7 5"/>
-<text x="259.0" y="66" font-size="14" fill="#0f6b3f" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">One Private Stream per Agent</text>
-<text x="140" y="96" font-size="32" text-anchor="middle" font-family="Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif">🤖</text>
-<text x="166" y="90" font-size="13" fill="#111827" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">A</text>
-<text x="378" y="96" font-size="32" text-anchor="middle" font-family="Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif">🤖</text>
-<text x="404" y="90" font-size="13" fill="#111827" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">B</text>
-<rect x="66" y="108" width="148" height="24" rx="6" fill="#ffffff" stroke="#059669" stroke-width="2"/><text x="140.0" y="124.0" font-size="11.5" fill="#0f6b3f" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">e &#183; imp .8</text>
-<rect x="66" y="138" width="148" height="24" rx="6" fill="#ffffff" stroke="#059669" stroke-width="2"/><text x="140.0" y="154.0" font-size="11.5" fill="#0f6b3f" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">&#8230; &#183; .4</text>
-<rect x="66" y="168" width="148" height="24" rx="6" fill="#ffffff" stroke="#059669" stroke-width="2"/><text x="140.0" y="184.0" font-size="11.5" fill="#0f6b3f" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">&#8230; &#183; .9</text>
-<rect x="304" y="108" width="148" height="24" rx="6" fill="#ffffff" stroke="#059669" stroke-width="2"/><text x="378.0" y="124.0" font-size="11.5" fill="#0f6b3f" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">e &#183; imp .7</text>
-<rect x="304" y="138" width="148" height="24" rx="6" fill="#ffffff" stroke="#059669" stroke-width="2"/><text x="378.0" y="154.0" font-size="11.5" fill="#0f6b3f" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">&#8230; &#183; .5</text>
-<rect x="304" y="168" width="148" height="24" rx="6" fill="#ffffff" stroke="#059669" stroke-width="2"/><text x="378.0" y="184.0" font-size="11.5" fill="#0f6b3f" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">&#8230; &#183; .6</text>
-<text x="259" y="128" font-size="26" text-anchor="middle" font-family="Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif">🌳</text>
-<rect x="66" y="202" width="148" height="24" rx="6" fill="#d1fae5" stroke="#059669" stroke-width="2" stroke-dasharray="5 4"/><text x="140.0" y="218.0" font-size="11.5" fill="#0f6b3f" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">reflection</text>
-<rect x="304" y="202" width="148" height="24" rx="6" fill="#d1fae5" stroke="#059669" stroke-width="2" stroke-dasharray="5 4"/><text x="378.0" y="218.0" font-size="11.5" fill="#0f6b3f" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">reflection</text>
-<text x="259" y="220" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal" font-family="Helvetica,Arial,sans-serif">no edge</text>
-<text x="259" y="233" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal" font-family="Helvetica,Arial,sans-serif">crosses</text>
-<text x="259" y="246" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal" font-family="Helvetica,Arial,sans-serif">the lanes</text>
-<text x="259" y="292" font-size="12" fill="#0f6b3f" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">The same event e is stored once per witness.</text>
-<text x="259" y="314" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal" font-family="Helvetica,Arial,sans-serif">Recall scores recency × importance × relevance.</text>
-<text x="259" y="334" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal" font-style="italic" font-family="Helvetica,Arial,sans-serif">streams + a private reflection tree</text>
-<rect x="514" y="10" width="494" height="336" rx="16" fill="#fdf3e3" stroke="#e8a33d" stroke-width="3"/>
-<text x="761.0" y="40" font-size="19" fill="#8a5a12" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">(b) G-Memory</text>
-<rect x="532" y="44" width="458" height="226" rx="11" fill="#fffaf0" stroke="#e8a33d" stroke-width="1.8" stroke-dasharray="7 5"/>
-<text x="761.0" y="66" font-size="14" fill="#8a5a12" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">Two-Tier Graph, per Owner</text>
-<text x="642" y="96" font-size="32" text-anchor="middle" font-family="Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif">🤖</text>
-<text x="668" y="90" font-size="13" fill="#111827" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">A</text>
-<ellipse cx="642" cy="132" rx="52" ry="18" fill="#fef3c7" stroke="#d97706" stroke-width="2" stroke-dasharray="5 4"/>
-<text x="642" y="137" font-size="12" fill="#8a5a12" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">insight</text>
-<rect x="564" y="208" width="44" height="24" rx="6" fill="#ffffff" stroke="#d97706" stroke-width="2"/><text x="586.0" y="224.0" font-size="11.5" fill="#8a5a12" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">e</text>
-<line x1="642" y1="152" x2="586" y2="204" stroke="#d97706" stroke-width="1.6" marker-end="url(#ai)"/>
-<rect x="616" y="208" width="44" height="24" rx="6" fill="#ffffff" stroke="#d97706" stroke-width="2"/><text x="638.0" y="224.0" font-size="11.5" fill="#8a5a12" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">&#8230;</text>
-<line x1="642" y1="152" x2="638" y2="204" stroke="#d97706" stroke-width="1.6" marker-end="url(#ai)"/>
-<rect x="668" y="208" width="44" height="24" rx="6" fill="#ffffff" stroke="#d97706" stroke-width="2"/><text x="690.0" y="224.0" font-size="11.5" fill="#8a5a12" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">&#8230;</text>
-<line x1="642" y1="152" x2="690" y2="204" stroke="#d97706" stroke-width="1.6" marker-end="url(#ai)"/>
-<text x="880" y="96" font-size="32" text-anchor="middle" font-family="Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif">🤖</text>
-<text x="906" y="90" font-size="13" fill="#111827" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">B</text>
-<ellipse cx="880" cy="132" rx="52" ry="18" fill="#fef3c7" stroke="#d97706" stroke-width="2" stroke-dasharray="5 4"/>
-<text x="880" y="137" font-size="12" fill="#8a5a12" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">insight</text>
-<rect x="802" y="208" width="44" height="24" rx="6" fill="#ffffff" stroke="#d97706" stroke-width="2"/><text x="824.0" y="224.0" font-size="11.5" fill="#8a5a12" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">e</text>
-<line x1="880" y1="152" x2="824" y2="204" stroke="#d97706" stroke-width="1.6" marker-end="url(#ai)"/>
-<rect x="854" y="208" width="44" height="24" rx="6" fill="#ffffff" stroke="#d97706" stroke-width="2"/><text x="876.0" y="224.0" font-size="11.5" fill="#8a5a12" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">&#8230;</text>
-<line x1="880" y1="152" x2="876" y2="204" stroke="#d97706" stroke-width="1.6" marker-end="url(#ai)"/>
-<rect x="906" y="208" width="44" height="24" rx="6" fill="#ffffff" stroke="#d97706" stroke-width="2"/><text x="928.0" y="224.0" font-size="11.5" fill="#8a5a12" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">&#8230;</text>
-<line x1="880" y1="152" x2="928" y2="204" stroke="#d97706" stroke-width="1.6" marker-end="url(#ai)"/>
-<text x="761" y="142" font-size="26" text-anchor="middle" font-family="Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif">🕸️</text>
-<text x="761" y="186" font-size="11" fill="#8a5a12" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">derived_from</text>
-<text x="761" y="250" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal" font-family="Helvetica,Arial,sans-serif">insight tier distilled every 20 rounds</text>
-<text x="761" y="292" font-size="12" fill="#8a5a12" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">Recall hits both tiers, then walks the edges.</text>
-<text x="761" y="314" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal" font-style="italic" font-family="Helvetica,Arial,sans-serif">A real graph — but never across owners.</text>
-<rect x="12" y="362" width="494" height="354" rx="16" fill="#fdeaea" stroke="#d97a7a" stroke-width="3"/>
-<text x="259.0" y="392" font-size="19" fill="#9b1c1c" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">(c) Collaborative</text>
-<rect x="30" y="396" width="458" height="226" rx="11" fill="#fff6f6" stroke="#d97a7a" stroke-width="1.8" stroke-dasharray="7 5"/>
-<text x="259.0" y="418" font-size="14" fill="#9b1c1c" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">One Store, Partitioned by Permission</text>
-<text x="140" y="448" font-size="32" text-anchor="middle" font-family="Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif">🤖</text>
-<text x="166" y="442" font-size="13" fill="#111827" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">A</text>
-<text x="378" y="448" font-size="32" text-anchor="middle" font-family="Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif">🤖</text>
-<text x="404" y="442" font-size="13" fill="#111827" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">B</text>
-<rect x="60" y="470" width="168" height="25" rx="6" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/><text x="144.0" y="486.5" font-size="11.5" fill="#9b1c1c" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">e &#183; acl {A}</text>
-<rect x="290" y="470" width="168" height="25" rx="6" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/><text x="374.0" y="486.5" font-size="11.5" fill="#9b1c1c" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">e &#183; acl {A, B}</text>
-<rect x="60" y="506" width="168" height="25" rx="6" fill="#ffffff" stroke="#dc2626" stroke-width="2"/><text x="144.0" y="522.5" font-size="11.5" fill="#9b1c1c" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">&#8230; &#183; acl {A}</text>
-<rect x="290" y="506" width="168" height="25" rx="6" fill="#ffffff" stroke="#dc2626" stroke-width="2"/><text x="374.0" y="522.5" font-size="11.5" fill="#9b1c1c" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">&#8230; &#183; acl {B}</text>
-<text x="259" y="492" font-size="26" text-anchor="middle" font-family="Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif">🔒</text>
-<path d="M144,544 C180,584 338,584 374,544" fill="none" stroke="#dc2626" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="6 4" marker-end="url(#ai)"/>
-<text x="259" y="588" font-size="12" fill="#9b1c1c" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">grant</text>
-<text x="259" y="610" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal" font-family="Helvetica,Arial,sans-serif">two rows, one event</text>
-<text x="259" y="654" font-size="12" fill="#9b1c1c" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">B may be granted access to A's copy —</text>
-<text x="259" y="674" font-size="12" fill="#9b1c1c" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">but the copy remains.</text>
-<text x="259" y="700" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal" font-style="italic" font-family="Helvetica,Arial,sans-serif">sharing is a permission, not a merge</text>
-<rect x="514" y="362" width="494" height="354" rx="16" fill="#e8f1fc" stroke="#5b8fd4" stroke-width="3"/>
-<text x="761.0" y="392" font-size="19" fill="#1e3a8a" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">(d) Consensus  (ours)</text>
-<rect x="532" y="396" width="458" height="226" rx="11" fill="#f5f9ff" stroke="#5b8fd4" stroke-width="1.8" stroke-dasharray="7 5"/>
-<text x="761.0" y="418" font-size="14" fill="#1e3a8a" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">One Record, Several Owners</text>
-<text x="628" y="448" font-size="32" text-anchor="middle" font-family="Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif">🤖</text>
-<text x="652" y="442" font-size="13" fill="#111827" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">A</text>
-<line x1="628" y1="458" x2="672" y2="482" stroke="#e05a5a" stroke-width="3" stroke-linecap="round" marker-end="url(#ar)"/>
-<text x="760" y="448" font-size="32" text-anchor="middle" font-family="Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif">🤖</text>
-<text x="784" y="442" font-size="13" fill="#111827" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">B</text>
-<line x1="760" y1="458" x2="760" y2="482" stroke="#e05a5a" stroke-width="3" stroke-linecap="round" marker-end="url(#ar)"/>
-<text x="892" y="448" font-size="32" text-anchor="middle" font-family="Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif">🤖</text>
-<text x="916" y="442" font-size="13" fill="#111827" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">C</text>
-<line x1="892" y1="458" x2="848" y2="482" stroke="#e05a5a" stroke-width="3" stroke-linecap="round" marker-end="url(#ar)"/>
-<rect x="600" y="490" width="320" height="30" rx="6" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/><text x="760.0" y="509.0" font-size="13.5" fill="#1e3a8a" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">e &#183; owners {A, B, C}</text>
-<text x="760" y="538" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal" font-family="Helvetica,Arial,sans-serif">equivalent deposits merged · owners unioned</text>
-<text x="760" y="578" font-size="24" text-anchor="middle" font-family="Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif">🔗</text>
-<rect x="566" y="560" width="152" height="24" rx="6" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/><text x="642.0" y="576.0" font-size="11.5" fill="#4c1d95" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">sibling &#183; {A, B}</text>
-<rect x="802" y="560" width="140" height="24" rx="6" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/><text x="872.0" y="576.0" font-size="11.5" fill="#4c1d95" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">sibling &#183; {C}</text>
-<line x1="606" y1="520" x2="642" y2="556" stroke="#7c3aed" stroke-width="1.8" marker-end="url(#ard)"/>
-<line x1="914" y1="520" x2="872" y2="556" stroke="#7c3aed" stroke-width="1.8" marker-end="url(#ard)"/>
-<text x="760" y="604" font-size="11" fill="#4c1d95" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">affiliated</text>
-<text x="760" y="654" font-size="12" fill="#1e3a8a" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">Recall returns the rows you own,</text>
-<text x="760" y="674" font-size="12" fill="#1e3a8a" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">then walks one hop along the affiliation edges.</text>
-<text x="760" y="700" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal" font-style="italic" font-family="Helvetica,Arial,sans-serif">sharing is computed at deposit time</text>
-<text x="510" y="740" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal" font-family="Helvetica,Arial,sans-serif">the same event e in every panel · 🤖 = owner · solid box = a stored row · dashed = generated by the mechanism</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1060 786" font-family="Helvetica,Arial,sans-serif" style="max-width:100%;height:auto">
+<rect width="1060" height="786" fill="#ffffff"/>
+<rect x="14" y="12" width="512" height="376" rx="20" fill="#e6f5e4" stroke="#6fb87f" stroke-width="4"/>
+<text x="270.0" y="58" font-size="26" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">(a) Generative Agents</text>
+<rect x="36" y="76" width="468" height="220" rx="15" fill="#f6fdf5" stroke="#6fb87f" stroke-width="2.6" stroke-dasharray="9 6"/>
+<text x="270.0" y="106" font-size="18" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">One Private Stream per Agent</text>
+<g transform="translate(108.0,112.0) scale(0.6111)"><g>
+    <path fill="#D22F27" d="M34,16.1123v-2.5109c0-1.3807,1.1193-2.5,2.5-2.5l0,0c1.3807,0,2.5,1.1193,2.5,2.5v2.5"/>
+    <path fill="#D0CFCE" d="M13.5,41.1014L13.5,41.1014c-1.3807,0-2.5-1.1193-2.5-2.5v-8c0-1.3807,1.1193-2.5,2.5-2.5l0,0 c1.3807,0,2.5,1.1193,2.5,2.5v8C16,39.9821,14.8807,41.1014,13.5,41.1014z"/>
+    <path fill="#D0CFCE" d="M58.5,41.1014L58.5,41.1014c1.3807,0,2.5-1.1193,2.5-2.5v-8c0-1.3807-1.1193-2.5-2.5-2.5l0,0 c-1.3807,0-2.5,1.1193-2.5,2.5v8C56,39.9821,57.1193,41.1014,58.5,41.1014z"/>
+    <path fill="#D0CFCE" d="M47.4505,56.1123h-22.901c-4.7022,0-8.5495-3.8473-8.5495-8.5495v-22.901 c0-4.7022,3.8473-8.5495,8.5495-8.5495h22.901c4.7022,0,8.5495,3.8473,8.5495,8.5495v22.901 C56,52.2649,52.1527,56.1123,47.4505,56.1123z"/>
+    <path fill="#9B9B9A" d="M35.4977,56.1115h13.2865c3.9687,0,7.2158-3.8473,7.2158-8.5495V24.661 c0-4.7022-3.2471-8.5495-7.2158-8.5495h-2.3526"/>
+    <ellipse cx="44.8346" cy="29.0027" rx="2.8338" ry="2.8338" fill="#FFFFFF"/>
+    <ellipse cx="27.3342" cy="29.0022" rx="2.8338" ry="2.8338" fill="#FFFFFF"/>
+    <path fill="#FFFFFF" d="M44.5,47.5005h-17c-2.2,0-4-1.8-4-4l0,0c0-2.2,1.8-4,4-4h17c2.2,0,4,1.8,4,4l0,0 C48.5,45.7005,46.7,47.5005,44.5,47.5005z"/>
+  </g>
+  <g/>
+  <g/>
+  <g/>
+  <g>
+    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M34,16.0109V13.5c0-1.3807,1.1193-2.5,2.5-2.5l0,0c1.3807,0,2.5,1.1193,2.5,2.5V16"/>
+    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M47.4505,56h-22.901C19.8473,56,16,52.1527,16,47.4505v-22.901C16,19.8473,19.8473,16,24.5495,16h22.901 C52.1527,16,56,19.8473,56,24.5495v22.901C56,52.1527,52.1527,56,47.4505,56z"/>
+    <ellipse cx="44.8346" cy="29.0022" rx="2.8338" ry="2.8338" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
+    <ellipse cx="27.3342" cy="29.0017" rx="2.8338" ry="2.8338" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
+    <path fill="none" stroke="#000000" stroke-miterlimit="2" stroke-width="2" d="M44.5,47.5h-17c-2.2,0-4-1.8-4-4l0,0 c0-2.2,1.8-4,4-4h17c2.2,0,4,1.8,4,4l0,0C48.5,45.7,46.7,47.5,44.5,47.5z"/>
+    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M13.5,41L13.5,41c-1.3807,0-2.5-1.1193-2.5-2.5v-8c0-1.3807,1.1193-2.5,2.5-2.5l0,0c1.3807,0,2.5,1.1193,2.5,2.5v8 C16,39.8807,14.8807,41,13.5,41z"/>
+    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M58.5,41L58.5,41c1.3807,0,2.5-1.1193,2.5-2.5v-8c0-1.3807-1.1193-2.5-2.5-2.5l0,0c-1.3807,0-2.5,1.1193-2.5,2.5v8 C56,39.8807,57.1193,41,58.5,41z"/>
+    <line x1="28" x2="28" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
+    <line x1="33" x2="33" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
+    <line x1="38" x2="38" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
+    <line x1="43" x2="43" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
+  </g></g>
+<text x="168" y="142" font-size="18" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">A</text>
+<rect x="80" y="166" width="132" height="26" rx="7" fill="#ffffff" stroke="#0f8a5f" stroke-width="2.6"/><text x="146.0" y="184.0" font-size="14" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">e</text>
+<rect x="80" y="200" width="132" height="26" rx="7" fill="#ffffff" stroke="#0f8a5f" stroke-width="2.6"/><text x="146.0" y="218.0" font-size="14" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">&#8230;</text>
+<rect x="80" y="240" width="132" height="26" rx="7" fill="#d6f5e6" stroke="#0f8a5f" stroke-width="2.6" stroke-dasharray="6 4"/><text x="146.0" y="258.0" font-size="13" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">reflection</text>
+<g transform="translate(356.0,112.0) scale(0.6111)"><g>
+    <path fill="#D22F27" d="M34,16.1123v-2.5109c0-1.3807,1.1193-2.5,2.5-2.5l0,0c1.3807,0,2.5,1.1193,2.5,2.5v2.5"/>
+    <path fill="#D0CFCE" d="M13.5,41.1014L13.5,41.1014c-1.3807,0-2.5-1.1193-2.5-2.5v-8c0-1.3807,1.1193-2.5,2.5-2.5l0,0 c1.3807,0,2.5,1.1193,2.5,2.5v8C16,39.9821,14.8807,41.1014,13.5,41.1014z"/>
+    <path fill="#D0CFCE" d="M58.5,41.1014L58.5,41.1014c1.3807,0,2.5-1.1193,2.5-2.5v-8c0-1.3807-1.1193-2.5-2.5-2.5l0,0 c-1.3807,0-2.5,1.1193-2.5,2.5v8C56,39.9821,57.1193,41.1014,58.5,41.1014z"/>
+    <path fill="#D0CFCE" d="M47.4505,56.1123h-22.901c-4.7022,0-8.5495-3.8473-8.5495-8.5495v-22.901 c0-4.7022,3.8473-8.5495,8.5495-8.5495h22.901c4.7022,0,8.5495,3.8473,8.5495,8.5495v22.901 C56,52.2649,52.1527,56.1123,47.4505,56.1123z"/>
+    <path fill="#9B9B9A" d="M35.4977,56.1115h13.2865c3.9687,0,7.2158-3.8473,7.2158-8.5495V24.661 c0-4.7022-3.2471-8.5495-7.2158-8.5495h-2.3526"/>
+    <ellipse cx="44.8346" cy="29.0027" rx="2.8338" ry="2.8338" fill="#FFFFFF"/>
+    <ellipse cx="27.3342" cy="29.0022" rx="2.8338" ry="2.8338" fill="#FFFFFF"/>
+    <path fill="#FFFFFF" d="M44.5,47.5005h-17c-2.2,0-4-1.8-4-4l0,0c0-2.2,1.8-4,4-4h17c2.2,0,4,1.8,4,4l0,0 C48.5,45.7005,46.7,47.5005,44.5,47.5005z"/>
+  </g>
+  <g/>
+  <g/>
+  <g/>
+  <g>
+    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M34,16.0109V13.5c0-1.3807,1.1193-2.5,2.5-2.5l0,0c1.3807,0,2.5,1.1193,2.5,2.5V16"/>
+    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M47.4505,56h-22.901C19.8473,56,16,52.1527,16,47.4505v-22.901C16,19.8473,19.8473,16,24.5495,16h22.901 C52.1527,16,56,19.8473,56,24.5495v22.901C56,52.1527,52.1527,56,47.4505,56z"/>
+    <ellipse cx="44.8346" cy="29.0022" rx="2.8338" ry="2.8338" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
+    <ellipse cx="27.3342" cy="29.0017" rx="2.8338" ry="2.8338" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
+    <path fill="none" stroke="#000000" stroke-miterlimit="2" stroke-width="2" d="M44.5,47.5h-17c-2.2,0-4-1.8-4-4l0,0 c0-2.2,1.8-4,4-4h17c2.2,0,4,1.8,4,4l0,0C48.5,45.7,46.7,47.5,44.5,47.5z"/>
+    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M13.5,41L13.5,41c-1.3807,0-2.5-1.1193-2.5-2.5v-8c0-1.3807,1.1193-2.5,2.5-2.5l0,0c1.3807,0,2.5,1.1193,2.5,2.5v8 C16,39.8807,14.8807,41,13.5,41z"/>
+    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M58.5,41L58.5,41c1.3807,0,2.5-1.1193,2.5-2.5v-8c0-1.3807-1.1193-2.5-2.5-2.5l0,0c-1.3807,0-2.5,1.1193-2.5,2.5v8 C56,39.8807,57.1193,41,58.5,41z"/>
+    <line x1="28" x2="28" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
+    <line x1="33" x2="33" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
+    <line x1="38" x2="38" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
+    <line x1="43" x2="43" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
+  </g></g>
+<text x="416" y="142" font-size="18" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">B</text>
+<rect x="328" y="166" width="132" height="26" rx="7" fill="#ffffff" stroke="#0f8a5f" stroke-width="2.6"/><text x="394.0" y="184.0" font-size="14" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">e</text>
+<rect x="328" y="200" width="132" height="26" rx="7" fill="#ffffff" stroke="#0f8a5f" stroke-width="2.6"/><text x="394.0" y="218.0" font-size="14" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">&#8230;</text>
+<rect x="328" y="240" width="132" height="26" rx="7" fill="#d6f5e6" stroke="#0f8a5f" stroke-width="2.6" stroke-dasharray="6 4"/><text x="394.0" y="258.0" font-size="13" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">reflection</text>
+<g transform="translate(252.0,188.0) scale(0.5000)"><g>
+    <circle cx="36" cy="36" r="26" fill="#fff"/>
+    <path fill="#ea5a47" stroke-miterlimit="10" d="m36 7c-16.02 0-29 12.98-29 29s12.98 29 29 29 29-12.98 29-29-12.98-29-29-29zm-25.21 29.27c0-5.075 3.417-12.69 6.202-16.49l35.2 35.27c-3.805 2.784-10.93 5.904-16.01 5.904-12.7 0-25.39-11.98-25.39-24.68zm44.87 15.18-35.06-35.13c3.805-2.784 10.77-5.441 15.84-5.441 12.7 0 24.68 12.25 24.68 24.95 0 5.075-2.686 11.81-5.47 15.62z"/>
+  </g>
+  <g/>
+  <g/>
+  <g/>
+  <g>
+    <circle cx="36" cy="36" r="30" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+    <path fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m55.66 51.44a24.99 24.99 0 0 0-35.06-35.13z"/>
+    <path fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m16.99 19.77a24.99 24.99 0 0 0 35.2 35.27z"/>
+  </g></g>
+<text x="270" y="248" font-size="13.5" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">no link</text>
+<text x="270" y="336" font-size="19" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">One Copy per Witness</text>
+<text x="270" y="362" font-size="14" fill="#5b6470" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">recency × importance × relevance</text>
+<rect x="534" y="12" width="512" height="376" rx="20" fill="#fbead6" stroke="#e0a05a" stroke-width="4"/>
+<text x="790.0" y="58" font-size="26" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">(b) G-Memory</text>
+<rect x="556" y="76" width="468" height="220" rx="15" fill="#fffaf3" stroke="#e0a05a" stroke-width="2.6" stroke-dasharray="9 6"/>
+<text x="790.0" y="106" font-size="18" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">Two-Tier Graph, per Owner</text>
+<g transform="translate(629.0,111.0) scale(0.5833)"><g>
+    <path fill="#D22F27" d="M34,16.1123v-2.5109c0-1.3807,1.1193-2.5,2.5-2.5l0,0c1.3807,0,2.5,1.1193,2.5,2.5v2.5"/>
+    <path fill="#D0CFCE" d="M13.5,41.1014L13.5,41.1014c-1.3807,0-2.5-1.1193-2.5-2.5v-8c0-1.3807,1.1193-2.5,2.5-2.5l0,0 c1.3807,0,2.5,1.1193,2.5,2.5v8C16,39.9821,14.8807,41.1014,13.5,41.1014z"/>
+    <path fill="#D0CFCE" d="M58.5,41.1014L58.5,41.1014c1.3807,0,2.5-1.1193,2.5-2.5v-8c0-1.3807-1.1193-2.5-2.5-2.5l0,0 c-1.3807,0-2.5,1.1193-2.5,2.5v8C56,39.9821,57.1193,41.1014,58.5,41.1014z"/>
+    <path fill="#D0CFCE" d="M47.4505,56.1123h-22.901c-4.7022,0-8.5495-3.8473-8.5495-8.5495v-22.901 c0-4.7022,3.8473-8.5495,8.5495-8.5495h22.901c4.7022,0,8.5495,3.8473,8.5495,8.5495v22.901 C56,52.2649,52.1527,56.1123,47.4505,56.1123z"/>
+    <path fill="#9B9B9A" d="M35.4977,56.1115h13.2865c3.9687,0,7.2158-3.8473,7.2158-8.5495V24.661 c0-4.7022-3.2471-8.5495-7.2158-8.5495h-2.3526"/>
+    <ellipse cx="44.8346" cy="29.0027" rx="2.8338" ry="2.8338" fill="#FFFFFF"/>
+    <ellipse cx="27.3342" cy="29.0022" rx="2.8338" ry="2.8338" fill="#FFFFFF"/>
+    <path fill="#FFFFFF" d="M44.5,47.5005h-17c-2.2,0-4-1.8-4-4l0,0c0-2.2,1.8-4,4-4h17c2.2,0,4,1.8,4,4l0,0 C48.5,45.7005,46.7,47.5005,44.5,47.5005z"/>
+  </g>
+  <g/>
+  <g/>
+  <g/>
+  <g>
+    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M34,16.0109V13.5c0-1.3807,1.1193-2.5,2.5-2.5l0,0c1.3807,0,2.5,1.1193,2.5,2.5V16"/>
+    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M47.4505,56h-22.901C19.8473,56,16,52.1527,16,47.4505v-22.901C16,19.8473,19.8473,16,24.5495,16h22.901 C52.1527,16,56,19.8473,56,24.5495v22.901C56,52.1527,52.1527,56,47.4505,56z"/>
+    <ellipse cx="44.8346" cy="29.0022" rx="2.8338" ry="2.8338" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
+    <ellipse cx="27.3342" cy="29.0017" rx="2.8338" ry="2.8338" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
+    <path fill="none" stroke="#000000" stroke-miterlimit="2" stroke-width="2" d="M44.5,47.5h-17c-2.2,0-4-1.8-4-4l0,0 c0-2.2,1.8-4,4-4h17c2.2,0,4,1.8,4,4l0,0C48.5,45.7,46.7,47.5,44.5,47.5z"/>
+    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M13.5,41L13.5,41c-1.3807,0-2.5-1.1193-2.5-2.5v-8c0-1.3807,1.1193-2.5,2.5-2.5l0,0c1.3807,0,2.5,1.1193,2.5,2.5v8 C16,39.8807,14.8807,41,13.5,41z"/>
+    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M58.5,41L58.5,41c1.3807,0,2.5-1.1193,2.5-2.5v-8c0-1.3807-1.1193-2.5-2.5-2.5l0,0c-1.3807,0-2.5,1.1193-2.5,2.5v8 C56,39.8807,57.1193,41,58.5,41z"/>
+    <line x1="28" x2="28" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
+    <line x1="33" x2="33" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
+    <line x1="38" x2="38" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
+    <line x1="43" x2="43" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
+  </g></g>
+<text x="688" y="140" font-size="18" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">A</text>
+<ellipse cx="666" cy="192" rx="62" ry="21" fill="#fceccb" stroke="#c97e14" stroke-width="2.6" stroke-dasharray="6 4"/>
+<text x="666" y="198" font-size="15" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">insight</text>
+<rect x="594" y="248" width="44" height="26" rx="7" fill="#ffffff" stroke="#c97e14" stroke-width="2.6"/><text x="616.0" y="266.0" font-size="13" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">e</text>
+<polygon points="664.8,212.1 624.3,236.4 622.6,233.6 616.0,244.0 628.3,243.1 626.6,240.3 667.2,215.9" fill="#c97e14"/>
+<rect x="644" y="248" width="44" height="26" rx="7" fill="#ffffff" stroke="#c97e14" stroke-width="2.6"/><text x="666.0" y="266.0" font-size="13" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">&#8230;</text>
+<polygon points="663.8,214.0 663.8,233.0 660.5,233.0 666.0,244.0 671.5,233.0 668.2,233.0 668.2,214.0" fill="#c97e14"/>
+<rect x="694" y="248" width="44" height="26" rx="7" fill="#ffffff" stroke="#c97e14" stroke-width="2.6"/><text x="716.0" y="266.0" font-size="13" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">&#8230;</text>
+<polygon points="664.8,215.9 705.4,240.3 703.7,243.1 716.0,244.0 709.4,233.6 707.7,236.4 667.2,212.1" fill="#c97e14"/>
+<g transform="translate(877.0,111.0) scale(0.5833)"><g>
+    <path fill="#D22F27" d="M34,16.1123v-2.5109c0-1.3807,1.1193-2.5,2.5-2.5l0,0c1.3807,0,2.5,1.1193,2.5,2.5v2.5"/>
+    <path fill="#D0CFCE" d="M13.5,41.1014L13.5,41.1014c-1.3807,0-2.5-1.1193-2.5-2.5v-8c0-1.3807,1.1193-2.5,2.5-2.5l0,0 c1.3807,0,2.5,1.1193,2.5,2.5v8C16,39.9821,14.8807,41.1014,13.5,41.1014z"/>
+    <path fill="#D0CFCE" d="M58.5,41.1014L58.5,41.1014c1.3807,0,2.5-1.1193,2.5-2.5v-8c0-1.3807-1.1193-2.5-2.5-2.5l0,0 c-1.3807,0-2.5,1.1193-2.5,2.5v8C56,39.9821,57.1193,41.1014,58.5,41.1014z"/>
+    <path fill="#D0CFCE" d="M47.4505,56.1123h-22.901c-4.7022,0-8.5495-3.8473-8.5495-8.5495v-22.901 c0-4.7022,3.8473-8.5495,8.5495-8.5495h22.901c4.7022,0,8.5495,3.8473,8.5495,8.5495v22.901 C56,52.2649,52.1527,56.1123,47.4505,56.1123z"/>
+    <path fill="#9B9B9A" d="M35.4977,56.1115h13.2865c3.9687,0,7.2158-3.8473,7.2158-8.5495V24.661 c0-4.7022-3.2471-8.5495-7.2158-8.5495h-2.3526"/>
+    <ellipse cx="44.8346" cy="29.0027" rx="2.8338" ry="2.8338" fill="#FFFFFF"/>
+    <ellipse cx="27.3342" cy="29.0022" rx="2.8338" ry="2.8338" fill="#FFFFFF"/>
+    <path fill="#FFFFFF" d="M44.5,47.5005h-17c-2.2,0-4-1.8-4-4l0,0c0-2.2,1.8-4,4-4h17c2.2,0,4,1.8,4,4l0,0 C48.5,45.7005,46.7,47.5005,44.5,47.5005z"/>
+  </g>
+  <g/>
+  <g/>
+  <g/>
+  <g>
+    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M34,16.0109V13.5c0-1.3807,1.1193-2.5,2.5-2.5l0,0c1.3807,0,2.5,1.1193,2.5,2.5V16"/>
+    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M47.4505,56h-22.901C19.8473,56,16,52.1527,16,47.4505v-22.901C16,19.8473,19.8473,16,24.5495,16h22.901 C52.1527,16,56,19.8473,56,24.5495v22.901C56,52.1527,52.1527,56,47.4505,56z"/>
+    <ellipse cx="44.8346" cy="29.0022" rx="2.8338" ry="2.8338" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
+    <ellipse cx="27.3342" cy="29.0017" rx="2.8338" ry="2.8338" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
+    <path fill="none" stroke="#000000" stroke-miterlimit="2" stroke-width="2" d="M44.5,47.5h-17c-2.2,0-4-1.8-4-4l0,0 c0-2.2,1.8-4,4-4h17c2.2,0,4,1.8,4,4l0,0C48.5,45.7,46.7,47.5,44.5,47.5z"/>
+    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M13.5,41L13.5,41c-1.3807,0-2.5-1.1193-2.5-2.5v-8c0-1.3807,1.1193-2.5,2.5-2.5l0,0c1.3807,0,2.5,1.1193,2.5,2.5v8 C16,39.8807,14.8807,41,13.5,41z"/>
+    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M58.5,41L58.5,41c1.3807,0,2.5-1.1193,2.5-2.5v-8c0-1.3807-1.1193-2.5-2.5-2.5l0,0c-1.3807,0-2.5,1.1193-2.5,2.5v8 C56,39.8807,57.1193,41,58.5,41z"/>
+    <line x1="28" x2="28" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
+    <line x1="33" x2="33" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
+    <line x1="38" x2="38" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
+    <line x1="43" x2="43" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
+  </g></g>
+<text x="936" y="140" font-size="18" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">B</text>
+<ellipse cx="914" cy="192" rx="62" ry="21" fill="#fceccb" stroke="#c97e14" stroke-width="2.6" stroke-dasharray="6 4"/>
+<text x="914" y="198" font-size="15" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">insight</text>
+<rect x="842" y="248" width="44" height="26" rx="7" fill="#ffffff" stroke="#c97e14" stroke-width="2.6"/><text x="864.0" y="266.0" font-size="13" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">e</text>
+<polygon points="912.8,212.1 872.3,236.4 870.6,233.6 864.0,244.0 876.3,243.1 874.6,240.3 915.2,215.9" fill="#c97e14"/>
+<rect x="892" y="248" width="44" height="26" rx="7" fill="#ffffff" stroke="#c97e14" stroke-width="2.6"/><text x="914.0" y="266.0" font-size="13" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">&#8230;</text>
+<polygon points="911.8,214.0 911.8,233.0 908.5,233.0 914.0,244.0 919.5,233.0 916.2,233.0 916.2,214.0" fill="#c97e14"/>
+<rect x="942" y="248" width="44" height="26" rx="7" fill="#ffffff" stroke="#c97e14" stroke-width="2.6"/><text x="964.0" y="266.0" font-size="13" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">&#8230;</text>
+<polygon points="912.8,215.9 953.4,240.3 951.7,243.1 964.0,244.0 957.4,233.6 955.7,236.4 915.2,212.1" fill="#c97e14"/>
+<text x="790" y="200" font-size="13" fill="#5b6470" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">derived_from</text>
+<text x="790" y="336" font-size="18" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">A Graph — Never Across Owners</text>
+<text x="790" y="362" font-size="14" fill="#5b6470" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">insights distilled every 20 rounds</text>
+<rect x="14" y="400" width="512" height="376" rx="20" fill="#fbe6e6" stroke="#df8c8c" stroke-width="4"/>
+<text x="270.0" y="446" font-size="26" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">(c) Collaborative</text>
+<rect x="36" y="464" width="468" height="220" rx="15" fill="#fff8f8" stroke="#df8c8c" stroke-width="2.6" stroke-dasharray="9 6"/>
+<text x="270.0" y="494" font-size="18" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">One Store, Split by Permission</text>
+<g transform="translate(108.0,500.0) scale(0.6111)"><g>
+    <path fill="#D22F27" d="M34,16.1123v-2.5109c0-1.3807,1.1193-2.5,2.5-2.5l0,0c1.3807,0,2.5,1.1193,2.5,2.5v2.5"/>
+    <path fill="#D0CFCE" d="M13.5,41.1014L13.5,41.1014c-1.3807,0-2.5-1.1193-2.5-2.5v-8c0-1.3807,1.1193-2.5,2.5-2.5l0,0 c1.3807,0,2.5,1.1193,2.5,2.5v8C16,39.9821,14.8807,41.1014,13.5,41.1014z"/>
+    <path fill="#D0CFCE" d="M58.5,41.1014L58.5,41.1014c1.3807,0,2.5-1.1193,2.5-2.5v-8c0-1.3807-1.1193-2.5-2.5-2.5l0,0 c-1.3807,0-2.5,1.1193-2.5,2.5v8C56,39.9821,57.1193,41.1014,58.5,41.1014z"/>
+    <path fill="#D0CFCE" d="M47.4505,56.1123h-22.901c-4.7022,0-8.5495-3.8473-8.5495-8.5495v-22.901 c0-4.7022,3.8473-8.5495,8.5495-8.5495h22.901c4.7022,0,8.5495,3.8473,8.5495,8.5495v22.901 C56,52.2649,52.1527,56.1123,47.4505,56.1123z"/>
+    <path fill="#9B9B9A" d="M35.4977,56.1115h13.2865c3.9687,0,7.2158-3.8473,7.2158-8.5495V24.661 c0-4.7022-3.2471-8.5495-7.2158-8.5495h-2.3526"/>
+    <ellipse cx="44.8346" cy="29.0027" rx="2.8338" ry="2.8338" fill="#FFFFFF"/>
+    <ellipse cx="27.3342" cy="29.0022" rx="2.8338" ry="2.8338" fill="#FFFFFF"/>
+    <path fill="#FFFFFF" d="M44.5,47.5005h-17c-2.2,0-4-1.8-4-4l0,0c0-2.2,1.8-4,4-4h17c2.2,0,4,1.8,4,4l0,0 C48.5,45.7005,46.7,47.5005,44.5,47.5005z"/>
+  </g>
+  <g/>
+  <g/>
+  <g/>
+  <g>
+    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M34,16.0109V13.5c0-1.3807,1.1193-2.5,2.5-2.5l0,0c1.3807,0,2.5,1.1193,2.5,2.5V16"/>
+    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M47.4505,56h-22.901C19.8473,56,16,52.1527,16,47.4505v-22.901C16,19.8473,19.8473,16,24.5495,16h22.901 C52.1527,16,56,19.8473,56,24.5495v22.901C56,52.1527,52.1527,56,47.4505,56z"/>
+    <ellipse cx="44.8346" cy="29.0022" rx="2.8338" ry="2.8338" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
+    <ellipse cx="27.3342" cy="29.0017" rx="2.8338" ry="2.8338" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
+    <path fill="none" stroke="#000000" stroke-miterlimit="2" stroke-width="2" d="M44.5,47.5h-17c-2.2,0-4-1.8-4-4l0,0 c0-2.2,1.8-4,4-4h17c2.2,0,4,1.8,4,4l0,0C48.5,45.7,46.7,47.5,44.5,47.5z"/>
+    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M13.5,41L13.5,41c-1.3807,0-2.5-1.1193-2.5-2.5v-8c0-1.3807,1.1193-2.5,2.5-2.5l0,0c1.3807,0,2.5,1.1193,2.5,2.5v8 C16,39.8807,14.8807,41,13.5,41z"/>
+    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M58.5,41L58.5,41c1.3807,0,2.5-1.1193,2.5-2.5v-8c0-1.3807-1.1193-2.5-2.5-2.5l0,0c-1.3807,0-2.5,1.1193-2.5,2.5v8 C56,39.8807,57.1193,41,58.5,41z"/>
+    <line x1="28" x2="28" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
+    <line x1="33" x2="33" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
+    <line x1="38" x2="38" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
+    <line x1="43" x2="43" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
+  </g></g>
+<text x="168" y="530" font-size="18" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">A</text>
+<g transform="translate(356.0,500.0) scale(0.6111)"><g>
+    <path fill="#D22F27" d="M34,16.1123v-2.5109c0-1.3807,1.1193-2.5,2.5-2.5l0,0c1.3807,0,2.5,1.1193,2.5,2.5v2.5"/>
+    <path fill="#D0CFCE" d="M13.5,41.1014L13.5,41.1014c-1.3807,0-2.5-1.1193-2.5-2.5v-8c0-1.3807,1.1193-2.5,2.5-2.5l0,0 c1.3807,0,2.5,1.1193,2.5,2.5v8C16,39.9821,14.8807,41.1014,13.5,41.1014z"/>
+    <path fill="#D0CFCE" d="M58.5,41.1014L58.5,41.1014c1.3807,0,2.5-1.1193,2.5-2.5v-8c0-1.3807-1.1193-2.5-2.5-2.5l0,0 c-1.3807,0-2.5,1.1193-2.5,2.5v8C56,39.9821,57.1193,41.1014,58.5,41.1014z"/>
+    <path fill="#D0CFCE" d="M47.4505,56.1123h-22.901c-4.7022,0-8.5495-3.8473-8.5495-8.5495v-22.901 c0-4.7022,3.8473-8.5495,8.5495-8.5495h22.901c4.7022,0,8.5495,3.8473,8.5495,8.5495v22.901 C56,52.2649,52.1527,56.1123,47.4505,56.1123z"/>
+    <path fill="#9B9B9A" d="M35.4977,56.1115h13.2865c3.9687,0,7.2158-3.8473,7.2158-8.5495V24.661 c0-4.7022-3.2471-8.5495-7.2158-8.5495h-2.3526"/>
+    <ellipse cx="44.8346" cy="29.0027" rx="2.8338" ry="2.8338" fill="#FFFFFF"/>
+    <ellipse cx="27.3342" cy="29.0022" rx="2.8338" ry="2.8338" fill="#FFFFFF"/>
+    <path fill="#FFFFFF" d="M44.5,47.5005h-17c-2.2,0-4-1.8-4-4l0,0c0-2.2,1.8-4,4-4h17c2.2,0,4,1.8,4,4l0,0 C48.5,45.7005,46.7,47.5005,44.5,47.5005z"/>
+  </g>
+  <g/>
+  <g/>
+  <g/>
+  <g>
+    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M34,16.0109V13.5c0-1.3807,1.1193-2.5,2.5-2.5l0,0c1.3807,0,2.5,1.1193,2.5,2.5V16"/>
+    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M47.4505,56h-22.901C19.8473,56,16,52.1527,16,47.4505v-22.901C16,19.8473,19.8473,16,24.5495,16h22.901 C52.1527,16,56,19.8473,56,24.5495v22.901C56,52.1527,52.1527,56,47.4505,56z"/>
+    <ellipse cx="44.8346" cy="29.0022" rx="2.8338" ry="2.8338" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
+    <ellipse cx="27.3342" cy="29.0017" rx="2.8338" ry="2.8338" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
+    <path fill="none" stroke="#000000" stroke-miterlimit="2" stroke-width="2" d="M44.5,47.5h-17c-2.2,0-4-1.8-4-4l0,0 c0-2.2,1.8-4,4-4h17c2.2,0,4,1.8,4,4l0,0C48.5,45.7,46.7,47.5,44.5,47.5z"/>
+    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M13.5,41L13.5,41c-1.3807,0-2.5-1.1193-2.5-2.5v-8c0-1.3807,1.1193-2.5,2.5-2.5l0,0c1.3807,0,2.5,1.1193,2.5,2.5v8 C16,39.8807,14.8807,41,13.5,41z"/>
+    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M58.5,41L58.5,41c1.3807,0,2.5-1.1193,2.5-2.5v-8c0-1.3807-1.1193-2.5-2.5-2.5l0,0c-1.3807,0-2.5,1.1193-2.5,2.5v8 C56,39.8807,57.1193,41,58.5,41z"/>
+    <line x1="28" x2="28" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
+    <line x1="33" x2="33" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
+    <line x1="38" x2="38" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
+    <line x1="43" x2="43" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
+  </g></g>
+<text x="416" y="530" font-size="18" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">B</text>
+<rect x="80" y="554" width="132" height="28" rx="7" fill="#fbdede" stroke="#cf4444" stroke-width="2.6"/><text x="146.0" y="573.0" font-size="14" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">e &#183; {A}</text>
+<rect x="328" y="554" width="132" height="28" rx="7" fill="#fbdede" stroke="#cf4444" stroke-width="2.6"/><text x="394.0" y="573.0" font-size="14" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">e &#183; {A, B}</text>
+<rect x="80" y="592" width="132" height="28" rx="7" fill="#ffffff" stroke="#cf4444" stroke-width="2.6"/><text x="146.0" y="611.0" font-size="14" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">&#8230; &#183; {A}</text>
+<rect x="328" y="592" width="132" height="28" rx="7" fill="#ffffff" stroke="#cf4444" stroke-width="2.6"/><text x="394.0" y="611.0" font-size="14" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">&#8230; &#183; {B}</text>
+<g transform="translate(251.0,555.0) scale(0.5278)"><g>
+    <path fill="#D0CFCE" stroke="#D0CFCE" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="2" d="M21.3751,31.1747c-0.3501-8.7708,6.4491-18.5395,14.387-18.7794c8.0047-0.2419,16.5412,10.9698,14.333,19.052h-4.0394 c0,0,1.5619-7.922-2.2164-11.2535c-1.8494-1.6307-5.2556-4.771-8.6396-4.2922c-2.2829,0.323-6.8677,3.4518-7.9271,5.4209 c-2.0643,3.8367-1.7248,9.8169-1.7248,9.8169L21.3751,31.1747z"/>
+    <polygon fill="#FCEA2B" stroke="none" points="53,32.2969 54.875,32.2969 54.875,59.1719 16.875,59.1719 16.875,32.2969 18.75,32.2969"/>
+    <polygon fill="#F1B31C" stroke="none" points="54.4302,32.493 35.66,58.9944 54.9675,58.9944"/>
+  </g>
+  <g/>
+  <g/>
+  <g/>
+  <g>
+    <polygon fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="2" points="53,32.25 54.875,32.25 54.875,59.125 16.875,59.125 16.875,32.25 18.75,32.25"/>
+    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="2" d="M21.3751,28.9146c0-8.3786,6.4151-16.2744,14.3184-16.523c7.9697-0.2507,15.4098,7.2847,14.7416,16.523"/>
+    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="2" d="M25.5478,28.9146c0-6.3352,4.5755-12.3054,10.2123-12.4934c5.6843-0.1896,10.9908,5.5081,10.5142,12.4934"/>
+  </g></g>
+<polygon points="214.0,647.5 309.0,647.5 309.0,652.5 326.0,644.0 309.0,635.5 309.0,640.5 214.0,640.5" fill="#cf4444"/>
+<text x="270" y="672" font-size="14" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">grant</text>
+<text x="270" y="724" font-size="19" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">A Permission, Not a Merge</text>
+<text x="270" y="750" font-size="14" fill="#5b6470" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">two rows survive, one event</text>
+<rect x="534" y="400" width="512" height="376" rx="20" fill="#dfeef9" stroke="#5b93cf" stroke-width="4"/>
+<text x="790.0" y="446" font-size="26" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">(d) Consensus  (ours)</text>
+<rect x="556" y="464" width="468" height="220" rx="15" fill="#f5fbff" stroke="#5b93cf" stroke-width="2.6" stroke-dasharray="9 6"/>
+<text x="790.0" y="494" font-size="18" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">One Record, Several Owners</text>
+<g transform="translate(637.0,499.0) scale(0.5833)"><g>
+    <path fill="#D22F27" d="M34,16.1123v-2.5109c0-1.3807,1.1193-2.5,2.5-2.5l0,0c1.3807,0,2.5,1.1193,2.5,2.5v2.5"/>
+    <path fill="#D0CFCE" d="M13.5,41.1014L13.5,41.1014c-1.3807,0-2.5-1.1193-2.5-2.5v-8c0-1.3807,1.1193-2.5,2.5-2.5l0,0 c1.3807,0,2.5,1.1193,2.5,2.5v8C16,39.9821,14.8807,41.1014,13.5,41.1014z"/>
+    <path fill="#D0CFCE" d="M58.5,41.1014L58.5,41.1014c1.3807,0,2.5-1.1193,2.5-2.5v-8c0-1.3807-1.1193-2.5-2.5-2.5l0,0 c-1.3807,0-2.5,1.1193-2.5,2.5v8C56,39.9821,57.1193,41.1014,58.5,41.1014z"/>
+    <path fill="#D0CFCE" d="M47.4505,56.1123h-22.901c-4.7022,0-8.5495-3.8473-8.5495-8.5495v-22.901 c0-4.7022,3.8473-8.5495,8.5495-8.5495h22.901c4.7022,0,8.5495,3.8473,8.5495,8.5495v22.901 C56,52.2649,52.1527,56.1123,47.4505,56.1123z"/>
+    <path fill="#9B9B9A" d="M35.4977,56.1115h13.2865c3.9687,0,7.2158-3.8473,7.2158-8.5495V24.661 c0-4.7022-3.2471-8.5495-7.2158-8.5495h-2.3526"/>
+    <ellipse cx="44.8346" cy="29.0027" rx="2.8338" ry="2.8338" fill="#FFFFFF"/>
+    <ellipse cx="27.3342" cy="29.0022" rx="2.8338" ry="2.8338" fill="#FFFFFF"/>
+    <path fill="#FFFFFF" d="M44.5,47.5005h-17c-2.2,0-4-1.8-4-4l0,0c0-2.2,1.8-4,4-4h17c2.2,0,4,1.8,4,4l0,0 C48.5,45.7005,46.7,47.5005,44.5,47.5005z"/>
+  </g>
+  <g/>
+  <g/>
+  <g/>
+  <g>
+    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M34,16.0109V13.5c0-1.3807,1.1193-2.5,2.5-2.5l0,0c1.3807,0,2.5,1.1193,2.5,2.5V16"/>
+    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M47.4505,56h-22.901C19.8473,56,16,52.1527,16,47.4505v-22.901C16,19.8473,19.8473,16,24.5495,16h22.901 C52.1527,16,56,19.8473,56,24.5495v22.901C56,52.1527,52.1527,56,47.4505,56z"/>
+    <ellipse cx="44.8346" cy="29.0022" rx="2.8338" ry="2.8338" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
+    <ellipse cx="27.3342" cy="29.0017" rx="2.8338" ry="2.8338" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
+    <path fill="none" stroke="#000000" stroke-miterlimit="2" stroke-width="2" d="M44.5,47.5h-17c-2.2,0-4-1.8-4-4l0,0 c0-2.2,1.8-4,4-4h17c2.2,0,4,1.8,4,4l0,0C48.5,45.7,46.7,47.5,44.5,47.5z"/>
+    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M13.5,41L13.5,41c-1.3807,0-2.5-1.1193-2.5-2.5v-8c0-1.3807,1.1193-2.5,2.5-2.5l0,0c1.3807,0,2.5,1.1193,2.5,2.5v8 C16,39.8807,14.8807,41,13.5,41z"/>
+    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M58.5,41L58.5,41c1.3807,0,2.5-1.1193,2.5-2.5v-8c0-1.3807-1.1193-2.5-2.5-2.5l0,0c-1.3807,0-2.5,1.1193-2.5,2.5v8 C56,39.8807,57.1193,41,58.5,41z"/>
+    <line x1="28" x2="28" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
+    <line x1="33" x2="33" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
+    <line x1="38" x2="38" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
+    <line x1="43" x2="43" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
+  </g></g>
+<text x="696" y="528" font-size="18" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">A</text>
+<polygon points="669.0,548.6 685.1,567.1 681.4,570.4 700.0,578.0 694.9,558.5 691.2,561.8 675.0,543.4" fill="#e0564e"/>
+<g transform="translate(755.0,499.0) scale(0.5833)"><g>
+    <path fill="#D22F27" d="M34,16.1123v-2.5109c0-1.3807,1.1193-2.5,2.5-2.5l0,0c1.3807,0,2.5,1.1193,2.5,2.5v2.5"/>
+    <path fill="#D0CFCE" d="M13.5,41.1014L13.5,41.1014c-1.3807,0-2.5-1.1193-2.5-2.5v-8c0-1.3807,1.1193-2.5,2.5-2.5l0,0 c1.3807,0,2.5,1.1193,2.5,2.5v8C16,39.9821,14.8807,41.1014,13.5,41.1014z"/>
+    <path fill="#D0CFCE" d="M58.5,41.1014L58.5,41.1014c1.3807,0,2.5-1.1193,2.5-2.5v-8c0-1.3807-1.1193-2.5-2.5-2.5l0,0 c-1.3807,0-2.5,1.1193-2.5,2.5v8C56,39.9821,57.1193,41.1014,58.5,41.1014z"/>
+    <path fill="#D0CFCE" d="M47.4505,56.1123h-22.901c-4.7022,0-8.5495-3.8473-8.5495-8.5495v-22.901 c0-4.7022,3.8473-8.5495,8.5495-8.5495h22.901c4.7022,0,8.5495,3.8473,8.5495,8.5495v22.901 C56,52.2649,52.1527,56.1123,47.4505,56.1123z"/>
+    <path fill="#9B9B9A" d="M35.4977,56.1115h13.2865c3.9687,0,7.2158-3.8473,7.2158-8.5495V24.661 c0-4.7022-3.2471-8.5495-7.2158-8.5495h-2.3526"/>
+    <ellipse cx="44.8346" cy="29.0027" rx="2.8338" ry="2.8338" fill="#FFFFFF"/>
+    <ellipse cx="27.3342" cy="29.0022" rx="2.8338" ry="2.8338" fill="#FFFFFF"/>
+    <path fill="#FFFFFF" d="M44.5,47.5005h-17c-2.2,0-4-1.8-4-4l0,0c0-2.2,1.8-4,4-4h17c2.2,0,4,1.8,4,4l0,0 C48.5,45.7005,46.7,47.5005,44.5,47.5005z"/>
+  </g>
+  <g/>
+  <g/>
+  <g/>
+  <g>
+    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M34,16.0109V13.5c0-1.3807,1.1193-2.5,2.5-2.5l0,0c1.3807,0,2.5,1.1193,2.5,2.5V16"/>
+    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M47.4505,56h-22.901C19.8473,56,16,52.1527,16,47.4505v-22.901C16,19.8473,19.8473,16,24.5495,16h22.901 C52.1527,16,56,19.8473,56,24.5495v22.901C56,52.1527,52.1527,56,47.4505,56z"/>
+    <ellipse cx="44.8346" cy="29.0022" rx="2.8338" ry="2.8338" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
+    <ellipse cx="27.3342" cy="29.0017" rx="2.8338" ry="2.8338" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
+    <path fill="none" stroke="#000000" stroke-miterlimit="2" stroke-width="2" d="M44.5,47.5h-17c-2.2,0-4-1.8-4-4l0,0 c0-2.2,1.8-4,4-4h17c2.2,0,4,1.8,4,4l0,0C48.5,45.7,46.7,47.5,44.5,47.5z"/>
+    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M13.5,41L13.5,41c-1.3807,0-2.5-1.1193-2.5-2.5v-8c0-1.3807,1.1193-2.5,2.5-2.5l0,0c1.3807,0,2.5,1.1193,2.5,2.5v8 C16,39.8807,14.8807,41,13.5,41z"/>
+    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M58.5,41L58.5,41c1.3807,0,2.5-1.1193,2.5-2.5v-8c0-1.3807-1.1193-2.5-2.5-2.5l0,0c-1.3807,0-2.5,1.1193-2.5,2.5v8 C56,39.8807,57.1193,41,58.5,41z"/>
+    <line x1="28" x2="28" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
+    <line x1="33" x2="33" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
+    <line x1="38" x2="38" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
+    <line x1="43" x2="43" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
+  </g></g>
+<text x="814" y="528" font-size="18" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">B</text>
+<polygon points="786.0,546.0 786.0,560.0 781.0,560.0 790.0,578.0 799.0,560.0 794.0,560.0 794.0,546.0" fill="#e0564e"/>
+<g transform="translate(873.0,499.0) scale(0.5833)"><g>
+    <path fill="#D22F27" d="M34,16.1123v-2.5109c0-1.3807,1.1193-2.5,2.5-2.5l0,0c1.3807,0,2.5,1.1193,2.5,2.5v2.5"/>
+    <path fill="#D0CFCE" d="M13.5,41.1014L13.5,41.1014c-1.3807,0-2.5-1.1193-2.5-2.5v-8c0-1.3807,1.1193-2.5,2.5-2.5l0,0 c1.3807,0,2.5,1.1193,2.5,2.5v8C16,39.9821,14.8807,41.1014,13.5,41.1014z"/>
+    <path fill="#D0CFCE" d="M58.5,41.1014L58.5,41.1014c1.3807,0,2.5-1.1193,2.5-2.5v-8c0-1.3807-1.1193-2.5-2.5-2.5l0,0 c-1.3807,0-2.5,1.1193-2.5,2.5v8C56,39.9821,57.1193,41.1014,58.5,41.1014z"/>
+    <path fill="#D0CFCE" d="M47.4505,56.1123h-22.901c-4.7022,0-8.5495-3.8473-8.5495-8.5495v-22.901 c0-4.7022,3.8473-8.5495,8.5495-8.5495h22.901c4.7022,0,8.5495,3.8473,8.5495,8.5495v22.901 C56,52.2649,52.1527,56.1123,47.4505,56.1123z"/>
+    <path fill="#9B9B9A" d="M35.4977,56.1115h13.2865c3.9687,0,7.2158-3.8473,7.2158-8.5495V24.661 c0-4.7022-3.2471-8.5495-7.2158-8.5495h-2.3526"/>
+    <ellipse cx="44.8346" cy="29.0027" rx="2.8338" ry="2.8338" fill="#FFFFFF"/>
+    <ellipse cx="27.3342" cy="29.0022" rx="2.8338" ry="2.8338" fill="#FFFFFF"/>
+    <path fill="#FFFFFF" d="M44.5,47.5005h-17c-2.2,0-4-1.8-4-4l0,0c0-2.2,1.8-4,4-4h17c2.2,0,4,1.8,4,4l0,0 C48.5,45.7005,46.7,47.5005,44.5,47.5005z"/>
+  </g>
+  <g/>
+  <g/>
+  <g/>
+  <g>
+    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M34,16.0109V13.5c0-1.3807,1.1193-2.5,2.5-2.5l0,0c1.3807,0,2.5,1.1193,2.5,2.5V16"/>
+    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M47.4505,56h-22.901C19.8473,56,16,52.1527,16,47.4505v-22.901C16,19.8473,19.8473,16,24.5495,16h22.901 C52.1527,16,56,19.8473,56,24.5495v22.901C56,52.1527,52.1527,56,47.4505,56z"/>
+    <ellipse cx="44.8346" cy="29.0022" rx="2.8338" ry="2.8338" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
+    <ellipse cx="27.3342" cy="29.0017" rx="2.8338" ry="2.8338" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
+    <path fill="none" stroke="#000000" stroke-miterlimit="2" stroke-width="2" d="M44.5,47.5h-17c-2.2,0-4-1.8-4-4l0,0 c0-2.2,1.8-4,4-4h17c2.2,0,4,1.8,4,4l0,0C48.5,45.7,46.7,47.5,44.5,47.5z"/>
+    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M13.5,41L13.5,41c-1.3807,0-2.5-1.1193-2.5-2.5v-8c0-1.3807,1.1193-2.5,2.5-2.5l0,0c1.3807,0,2.5,1.1193,2.5,2.5v8 C16,39.8807,14.8807,41,13.5,41z"/>
+    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M58.5,41L58.5,41c1.3807,0,2.5-1.1193,2.5-2.5v-8c0-1.3807-1.1193-2.5-2.5-2.5l0,0c-1.3807,0-2.5,1.1193-2.5,2.5v8 C56,39.8807,57.1193,41,58.5,41z"/>
+    <line x1="28" x2="28" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
+    <line x1="33" x2="33" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
+    <line x1="38" x2="38" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
+    <line x1="43" x2="43" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
+  </g></g>
+<text x="932" y="528" font-size="18" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">C</text>
+<polygon points="905.0,543.4 888.8,561.8 885.1,558.5 880.0,578.0 898.6,570.4 894.9,567.1 911.0,548.6" fill="#e0564e"/>
+<rect x="610" y="584" width="360" height="34" rx="7" fill="#dceafa" stroke="#2f6fd0" stroke-width="2.6"/><text x="790.0" y="606.0" font-size="16" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">e &#183; owners {A, B, C}</text>
+<rect x="586" y="634" width="142" height="28" rx="7" fill="#e9e0fb" stroke="#7c4dd6" stroke-width="2.6"/><text x="657.0" y="653.0" font-size="13" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">sibling &#183; {A, B}</text>
+<rect x="852" y="634" width="130" height="28" rx="7" fill="#e9e0fb" stroke="#7c4dd6" stroke-width="2.6"/><text x="917.0" y="653.0" font-size="13" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">sibling &#183; {C}</text>
+<polygon points="624.6,622.6 634.3,627.9 632.4,631.4 648.0,632.0 639.1,619.2 637.1,622.7 627.4,617.4" fill="#7c4dd6"/>
+<polygon points="952.6,617.4 942.9,622.7 940.9,619.2 932.0,632.0 947.6,631.4 945.7,627.9 955.4,622.6" fill="#7c4dd6"/>
+<text x="790" y="654" font-size="13.5" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">affiliated</text>
+<text x="790" y="724" font-size="19" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">Computed at Deposit Time</text>
+<text x="790" y="750" font-size="14" fill="#5b6470" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">owner set is the union</text>
 </svg>
