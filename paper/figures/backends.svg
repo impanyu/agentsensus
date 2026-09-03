@@ -1,104 +1,113 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 660" font-family="Helvetica,Arial,sans-serif" style="max-width:100%;height:auto">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1020 752" font-family="Helvetica,Arial,sans-serif" style="max-width:100%;height:auto">
 <defs>
-<marker id="mi" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#475569"/></marker><marker id="mb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2563eb"/></marker><marker id="mg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#059669"/></marker><marker id="ma" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#d97706"/></marker>
+<marker id="ar" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="5.2"
+        markerHeight="5.2" orient="auto-start-reverse">
+  <path d="M0,0.5 L11,6 L0,11.5 Z" fill="#e05a5a"/>
+</marker>
+<marker id="ard" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="4.4"
+        markerHeight="4.4" orient="auto-start-reverse">
+  <path d="M0,0.5 L11,6 L0,11.5 Z" fill="#7c3aed"/>
+</marker>
+<marker id="ai" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="4.2"
+        markerHeight="4.2" orient="auto-start-reverse">
+  <path d="M0,1 L10,6 L0,11 Z" fill="#475569"/>
+</marker>
 </defs>
-<rect width="840" height="660" fill="#ffffff"/>
-<text x="20" y="26" font-size="12.5" fill="#065f46" text-anchor="start" font-weight="bold" font-family="Helvetica,Arial,sans-serif">(a) Generative-Agents — private streams + reflection tree</text>
-<rect x="14" y="36" width="400" height="280" rx="12" fill="#f0fdf9" stroke="#a7f3d0" stroke-width="1.3"/>
-<circle cx="110" cy="66" r="9" fill="#d1fae5" stroke="#059669" stroke-width="1.6"/><path d="M 96,92 C 101,78 119,78 124,92" fill="none" stroke="#059669" stroke-width="1.6" stroke-linecap="round"/>
-<text x="130" y="70" font-size="11" fill="#1f2937" text-anchor="start" font-weight="bold" font-family="Helvetica,Arial,sans-serif">A</text>
-<circle cx="250" cy="66" r="9" fill="#d1fae5" stroke="#059669" stroke-width="1.6"/><path d="M 236,92 C 241,78 259,78 264,92" fill="none" stroke="#059669" stroke-width="1.6" stroke-linecap="round"/>
-<text x="270" y="70" font-size="11" fill="#1f2937" text-anchor="start" font-weight="bold" font-family="Helvetica,Arial,sans-serif">B</text>
-<rect x="50" y="96" width="124" height="22" rx="5" fill="#ffffff" stroke="#059669" stroke-width="1.4"/><text x="112.0" y="111" font-size="10.5" fill="#065f46" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">e · importance .8</text>
-<rect x="50" y="126" width="124" height="22" rx="5" fill="#ffffff" stroke="#059669" stroke-width="1.4"/><text x="112.0" y="141" font-size="10.5" fill="#065f46" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">… · .4</text>
-<rect x="50" y="156" width="124" height="22" rx="5" fill="#ffffff" stroke="#059669" stroke-width="1.4"/><text x="112.0" y="171" font-size="10.5" fill="#065f46" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">… · .9</text>
-<rect x="196" y="96" width="112" height="22" rx="5" fill="#ffffff" stroke="#059669" stroke-width="1.4"/><text x="252.0" y="111" font-size="10.5" fill="#065f46" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">e · importance .7</text>
-<rect x="196" y="126" width="112" height="22" rx="5" fill="#ffffff" stroke="#059669" stroke-width="1.4"/><text x="252.0" y="141" font-size="10.5" fill="#065f46" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">… · .5</text>
-<rect x="196" y="156" width="112" height="22" rx="5" fill="#ffffff" stroke="#059669" stroke-width="1.4"/><text x="252.0" y="171" font-size="10.5" fill="#065f46" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">… · .6</text>
-<rect x="50" y="196" width="96" height="22" rx="5" fill="#d1fae5" stroke="#059669" stroke-width="1.4" stroke-dasharray="4 3"/><text x="98.0" y="211" font-size="10.5" fill="#065f46" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">reflection</text>
-<rect x="50" y="226" width="108" height="22" rx="5" fill="#d1fae5" stroke="#059669" stroke-width="1.4" stroke-dasharray="4 3"/><text x="104.0" y="241" font-size="10.5" fill="#065f46" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">reflection²</text>
-<path d="M85,186 v6 M105,186 v6" stroke="#059669" stroke-width="1.3"/>
-<text x="170" y="212" font-size="10" fill="#64748b" text-anchor="start" font-family="Helvetica,Arial,sans-serif">evidence links,</text>
-<text x="170" y="224" font-size="10" fill="#64748b" text-anchor="start" font-family="Helvetica,Arial,sans-serif">reflections stack in the lane</text>
-<text x="322" y="120" font-size="10.5" fill="#64748b" text-anchor="start" font-family="Helvetica,Arial,sans-serif">recall scores</text>
-<text x="322" y="133" font-size="10.5" fill="#64748b" text-anchor="start" font-family="Helvetica,Arial,sans-serif">recency ×</text>
-<text x="322" y="146" font-size="10.5" fill="#64748b" text-anchor="start" font-family="Helvetica,Arial,sans-serif">importance ×</text>
-<text x="322" y="159" font-size="10.5" fill="#64748b" text-anchor="start" font-family="Helvetica,Arial,sans-serif">relevance</text>
-<text x="214" y="268" font-size="10.5" fill="#065f46" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">event e stored once per witness;</text>
-<text x="214" y="281" font-size="10.5" fill="#065f46" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">no edge crosses lanes</text>
-<text x="214" y="304" font-size="10" fill="#64748b" text-anchor="middle" font-style="italic" font-family="Helvetica,Arial,sans-serif">streams + a private reflection tree</text>
-<text x="446" y="26" font-size="12.5" fill="#92400e" text-anchor="start" font-weight="bold" font-family="Helvetica,Arial,sans-serif">(b) G-Memory — two-tier graph, per owner</text>
-<rect x="426" y="36" width="400" height="280" rx="12" fill="#fffdf5" stroke="#fcd34d" stroke-width="1.3"/>
-<circle cx="540" cy="66" r="9" fill="#fef3c7" stroke="#d97706" stroke-width="1.6"/><path d="M 526,92 C 531,78 549,78 554,92" fill="none" stroke="#d97706" stroke-width="1.6" stroke-linecap="round"/>
-<text x="560" y="70" font-size="11" fill="#1f2937" text-anchor="start" font-weight="bold" font-family="Helvetica,Arial,sans-serif">A</text>
-<circle cx="720" cy="66" r="9" fill="#fef3c7" stroke="#d97706" stroke-width="1.6"/><path d="M 706,92 C 711,78 729,78 734,92" fill="none" stroke="#d97706" stroke-width="1.6" stroke-linecap="round"/>
-<text x="740" y="70" font-size="11" fill="#1f2937" text-anchor="start" font-weight="bold" font-family="Helvetica,Arial,sans-serif">B</text>
-<text x="444" y="118" font-size="10.5" fill="#64748b" text-anchor="start" font-family="Helvetica,Arial,sans-serif">insight tier</text>
-<text x="690" y="104" font-size="10" fill="#64748b" text-anchor="start" font-family="Helvetica,Arial,sans-serif">distilled every 20</text>
-<ellipse cx="540" cy="132" rx="42" ry="16" fill="#fef3c7" stroke="#d97706" stroke-width="1.4" stroke-dasharray="4 3"/>
-<text x="540" y="136" font-size="10.5" fill="#92400e" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">insight</text>
-<ellipse cx="720" cy="132" rx="42" ry="16" fill="#fef3c7" stroke="#d97706" stroke-width="1.4" stroke-dasharray="4 3"/>
-<text x="720" y="136" font-size="10.5" fill="#92400e" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">insight</text>
-<line x1="444" y1="166" x2="808" y2="166" stroke="#d97706" stroke-dasharray="3 4" opacity="0.5"/>
-<text x="444" y="200" font-size="10.5" fill="#64748b" text-anchor="start" font-family="Helvetica,Arial,sans-serif">interaction tier</text>
-<rect x="478" y="212" width="40" height="22" rx="5" fill="#ffffff" stroke="#d97706" stroke-width="1.4"/><text x="498.0" y="227" font-size="10.5" fill="#92400e" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">e</text>
-<rect x="524" y="212" width="40" height="22" rx="5" fill="#ffffff" stroke="#d97706" stroke-width="1.4"/><text x="544.0" y="227" font-size="10.5" fill="#92400e" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">…</text>
-<rect x="570" y="212" width="40" height="22" rx="5" fill="#ffffff" stroke="#d97706" stroke-width="1.4"/><text x="590.0" y="227" font-size="10.5" fill="#92400e" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">…</text>
-<line x1="540" y1="148" x2="498" y2="210" stroke="#d97706" stroke-width="1.2" marker-end="url(#ma)"/>
-<line x1="540" y1="148" x2="544" y2="210" stroke="#d97706" stroke-width="1.2" marker-end="url(#ma)"/>
-<line x1="540" y1="148" x2="590" y2="210" stroke="#d97706" stroke-width="1.2" marker-end="url(#ma)"/>
-<rect x="658" y="212" width="40" height="22" rx="5" fill="#ffffff" stroke="#d97706" stroke-width="1.4"/><text x="678.0" y="227" font-size="10.5" fill="#92400e" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">e</text>
-<rect x="704" y="212" width="40" height="22" rx="5" fill="#ffffff" stroke="#d97706" stroke-width="1.4"/><text x="724.0" y="227" font-size="10.5" fill="#92400e" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">…</text>
-<rect x="750" y="212" width="40" height="22" rx="5" fill="#ffffff" stroke="#d97706" stroke-width="1.4"/><text x="770.0" y="227" font-size="10.5" fill="#92400e" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">…</text>
-<line x1="720" y1="148" x2="678" y2="210" stroke="#d97706" stroke-width="1.2" marker-end="url(#ma)"/>
-<line x1="720" y1="148" x2="724" y2="210" stroke="#d97706" stroke-width="1.2" marker-end="url(#ma)"/>
-<line x1="720" y1="148" x2="770" y2="210" stroke="#d97706" stroke-width="1.2" marker-end="url(#ma)"/>
-<text x="626" y="190" font-size="10" fill="#92400e" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">derived_from</text>
-<text x="626" y="262" font-size="10.5" fill="#92400e" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">recall hits both tiers, then walks derived_from</text>
-<text x="626" y="304" font-size="10" fill="#64748b" text-anchor="middle" font-style="italic" font-family="Helvetica,Arial,sans-serif">a real graph — never across owners</text>
-<text x="20" y="348" font-size="12.5" fill="#991b1b" text-anchor="start" font-weight="bold" font-family="Helvetica,Arial,sans-serif">(c) Collaborative — one store, ACL-partitioned</text>
-<rect x="14" y="358" width="400" height="282" rx="12" fill="#fffafa" stroke="#fecaca" stroke-width="1.3"/>
-<circle cx="110" cy="390" r="9" fill="#fee2e2" stroke="#dc2626" stroke-width="1.6"/><path d="M 96,416 C 101,402 119,402 124,416" fill="none" stroke="#dc2626" stroke-width="1.6" stroke-linecap="round"/>
-<text x="130" y="394" font-size="11" fill="#1f2937" text-anchor="start" font-weight="bold" font-family="Helvetica,Arial,sans-serif">A</text>
-<circle cx="250" cy="390" r="9" fill="#fee2e2" stroke="#dc2626" stroke-width="1.6"/><path d="M 236,416 C 241,402 259,402 264,416" fill="none" stroke="#dc2626" stroke-width="1.6" stroke-linecap="round"/>
-<text x="270" y="394" font-size="11" fill="#1f2937" text-anchor="start" font-weight="bold" font-family="Helvetica,Arial,sans-serif">B</text>
-<rect x="40" y="428" width="348" height="128" rx="10" fill="#ffffff" stroke="#dc2626" stroke-width="1.5"/>
-<text x="214" y="446" font-size="10" fill="#64748b" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">one physical collection, no merge</text>
-<rect x="56" y="456" width="150" height="22" rx="5" fill="#fee2e2" stroke="#dc2626" stroke-width="1.4"/><text x="131.0" y="471" font-size="10.5" fill="#991b1b" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">e · acl {A}</text>
-<rect x="222" y="456" width="150" height="22" rx="5" fill="#fee2e2" stroke="#dc2626" stroke-width="1.4"/><text x="297.0" y="471" font-size="10.5" fill="#991b1b" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">e · acl {A, B}</text>
-<rect x="56" y="488" width="150" height="22" rx="5" fill="#ffffff" stroke="#dc2626" stroke-width="1.4"/><text x="131.0" y="503" font-size="10.5" fill="#991b1b" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">… · acl {A}</text>
-<rect x="222" y="488" width="150" height="22" rx="5" fill="#ffffff" stroke="#dc2626" stroke-width="1.4"/><text x="297.0" y="503" font-size="10.5" fill="#991b1b" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">… · acl {B}</text>
-<line x1="120" y1="400" x2="128" y2="452" stroke="#dc2626" stroke-width="1.2" marker-end="url(#mi)"/>
-<line x1="256" y1="400" x2="290" y2="452" stroke="#dc2626" stroke-width="1.2" marker-end="url(#mi)"/>
-<line x1="208" y1="467" x2="220" y2="467" stroke="#dc2626" stroke-width="1.2" stroke-dasharray="3 3"/>
-<text x="214" y="540" font-size="9.5" fill="#991b1b" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">grant</text>
-<path d="M131,478 C150,522 278,522 297,478" fill="none" stroke="#dc2626" stroke-width="1.1" stroke-dasharray="4 3" marker-end="url(#mi)"/>
-<text x="214" y="580" font-size="10.5" fill="#991b1b" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">B may be granted access to A's copy; the copy remains.</text>
-<text x="214" y="594" font-size="10.5" fill="#991b1b" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">Sharing is a permission, not a merge.</text>
-<text x="214" y="622" font-size="10" fill="#64748b" text-anchor="middle" font-style="italic" font-family="Helvetica,Arial,sans-serif">access control over intact per-owner rows</text>
-<text x="446" y="348" font-size="12.5" fill="#1e3a8a" text-anchor="start" font-weight="bold" font-family="Helvetica,Arial,sans-serif">(d) Consensus — one record, several owners</text>
-<rect x="426" y="358" width="400" height="282" rx="12" fill="#f7faff" stroke="#bfdbfe" stroke-width="1.3"/>
-<circle cx="520" cy="392" r="9" fill="#dbeafe" stroke="#2563eb" stroke-width="1.6"/><path d="M 506,418 C 511,404 529,404 534,418" fill="none" stroke="#2563eb" stroke-width="1.6" stroke-linecap="round"/>
-<text x="538" y="396" font-size="11" fill="#1f2937" text-anchor="start" font-weight="bold" font-family="Helvetica,Arial,sans-serif">A</text>
-<circle cx="626" cy="392" r="9" fill="#dbeafe" stroke="#2563eb" stroke-width="1.6"/><path d="M 612,418 C 617,404 635,404 640,418" fill="none" stroke="#2563eb" stroke-width="1.6" stroke-linecap="round"/>
-<text x="644" y="396" font-size="11" fill="#1f2937" text-anchor="start" font-weight="bold" font-family="Helvetica,Arial,sans-serif">B</text>
-<circle cx="732" cy="392" r="9" fill="#dbeafe" stroke="#2563eb" stroke-width="1.6"/><path d="M 718,418 C 723,404 741,404 746,418" fill="none" stroke="#2563eb" stroke-width="1.6" stroke-linecap="round"/>
-<text x="750" y="396" font-size="11" fill="#1f2937" text-anchor="start" font-weight="bold" font-family="Helvetica,Arial,sans-serif">C</text>
-<rect x="500" y="446" width="252" height="26" rx="7" fill="#dbeafe" stroke="#2563eb" stroke-width="1.7"/>
-<text x="626" y="463" font-size="11" fill="#1e3a8a" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">e · owners {A, B, C}</text>
-<line x1="520" y1="404" x2="538" y2="442" stroke="#2563eb" stroke-width="1.3" marker-end="url(#mb)"/>
-<line x1="626" y1="404" x2="626" y2="442" stroke="#2563eb" stroke-width="1.3" marker-end="url(#mb)"/>
-<line x1="732" y1="404" x2="714" y2="442" stroke="#2563eb" stroke-width="1.3" marker-end="url(#mb)"/>
-<text x="626" y="492" font-size="10" fill="#64748b" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">equivalent deposits merged; owner set is the union</text>
-<text x="626" y="522" font-size="10.5" fill="#5b21b6" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">affiliated</text>
-<rect x="478" y="532" width="128" height="22" rx="5" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.4"/><text x="542.0" y="547" font-size="10.5" fill="#5b21b6" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">sibling · {A, B}</text>
-<rect x="650" y="532" width="118" height="22" rx="5" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.4"/><text x="709.0" y="547" font-size="10.5" fill="#5b21b6" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">sibling · {C}</text>
-<line x1="560" y1="472" x2="545" y2="528" stroke="#7c3aed" stroke-width="1.2"/>
-<line x1="692" y1="472" x2="706" y2="528" stroke="#7c3aed" stroke-width="1.2"/>
-<line x1="608" y1="543" x2="648" y2="543" stroke="#7c3aed" stroke-width="1.2" stroke-dasharray="4 3"/>
-<text x="626" y="580" font-size="10.5" fill="#1e3a8a" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">recall: rows you own, then one hop</text>
-<text x="626" y="594" font-size="10.5" fill="#1e3a8a" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">along the affiliation edges</text>
-<text x="626" y="622" font-size="10" fill="#64748b" text-anchor="middle" font-style="italic" font-family="Helvetica,Arial,sans-serif">sharing computed at deposit time</text>
-<line x1="14" y1="648" x2="826" y2="648" stroke="#e2e8f0"/>
-<text x="420" y="659" font-size="10" fill="#64748b" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">the same event e in every panel · person = owner · solid box = stored row · dashed = mechanism-generated</text>
+<rect width="1020" height="752" fill="#ffffff"/>
+<rect x="12" y="10" width="494" height="336" rx="16" fill="#e9f7ee" stroke="#5aab7a" stroke-width="3"/>
+<text x="259.0" y="40" font-size="19" fill="#0f6b3f" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">(a) Generative Agents</text>
+<rect x="30" y="44" width="458" height="226" rx="11" fill="#f4fcf7" stroke="#5aab7a" stroke-width="1.8" stroke-dasharray="7 5"/>
+<text x="259.0" y="66" font-size="14" fill="#0f6b3f" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">One Private Stream per Agent</text>
+<text x="140" y="96" font-size="32" text-anchor="middle" font-family="Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif">🤖</text>
+<text x="166" y="90" font-size="13" fill="#111827" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">A</text>
+<text x="378" y="96" font-size="32" text-anchor="middle" font-family="Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif">🤖</text>
+<text x="404" y="90" font-size="13" fill="#111827" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">B</text>
+<rect x="66" y="108" width="148" height="24" rx="6" fill="#ffffff" stroke="#059669" stroke-width="2"/><text x="140.0" y="124.0" font-size="11.5" fill="#0f6b3f" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">e &#183; imp .8</text>
+<rect x="66" y="138" width="148" height="24" rx="6" fill="#ffffff" stroke="#059669" stroke-width="2"/><text x="140.0" y="154.0" font-size="11.5" fill="#0f6b3f" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">&#8230; &#183; .4</text>
+<rect x="66" y="168" width="148" height="24" rx="6" fill="#ffffff" stroke="#059669" stroke-width="2"/><text x="140.0" y="184.0" font-size="11.5" fill="#0f6b3f" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">&#8230; &#183; .9</text>
+<rect x="304" y="108" width="148" height="24" rx="6" fill="#ffffff" stroke="#059669" stroke-width="2"/><text x="378.0" y="124.0" font-size="11.5" fill="#0f6b3f" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">e &#183; imp .7</text>
+<rect x="304" y="138" width="148" height="24" rx="6" fill="#ffffff" stroke="#059669" stroke-width="2"/><text x="378.0" y="154.0" font-size="11.5" fill="#0f6b3f" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">&#8230; &#183; .5</text>
+<rect x="304" y="168" width="148" height="24" rx="6" fill="#ffffff" stroke="#059669" stroke-width="2"/><text x="378.0" y="184.0" font-size="11.5" fill="#0f6b3f" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">&#8230; &#183; .6</text>
+<text x="259" y="128" font-size="26" text-anchor="middle" font-family="Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif">🌳</text>
+<rect x="66" y="202" width="148" height="24" rx="6" fill="#d1fae5" stroke="#059669" stroke-width="2" stroke-dasharray="5 4"/><text x="140.0" y="218.0" font-size="11.5" fill="#0f6b3f" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">reflection</text>
+<rect x="304" y="202" width="148" height="24" rx="6" fill="#d1fae5" stroke="#059669" stroke-width="2" stroke-dasharray="5 4"/><text x="378.0" y="218.0" font-size="11.5" fill="#0f6b3f" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">reflection</text>
+<text x="259" y="220" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal" font-family="Helvetica,Arial,sans-serif">no edge</text>
+<text x="259" y="233" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal" font-family="Helvetica,Arial,sans-serif">crosses</text>
+<text x="259" y="246" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal" font-family="Helvetica,Arial,sans-serif">the lanes</text>
+<text x="259" y="292" font-size="12" fill="#0f6b3f" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">The same event e is stored once per witness.</text>
+<text x="259" y="314" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal" font-family="Helvetica,Arial,sans-serif">Recall scores recency × importance × relevance.</text>
+<text x="259" y="334" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal" font-style="italic" font-family="Helvetica,Arial,sans-serif">streams + a private reflection tree</text>
+<rect x="514" y="10" width="494" height="336" rx="16" fill="#fdf3e3" stroke="#e8a33d" stroke-width="3"/>
+<text x="761.0" y="40" font-size="19" fill="#8a5a12" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">(b) G-Memory</text>
+<rect x="532" y="44" width="458" height="226" rx="11" fill="#fffaf0" stroke="#e8a33d" stroke-width="1.8" stroke-dasharray="7 5"/>
+<text x="761.0" y="66" font-size="14" fill="#8a5a12" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">Two-Tier Graph, per Owner</text>
+<text x="642" y="96" font-size="32" text-anchor="middle" font-family="Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif">🤖</text>
+<text x="668" y="90" font-size="13" fill="#111827" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">A</text>
+<ellipse cx="642" cy="132" rx="52" ry="18" fill="#fef3c7" stroke="#d97706" stroke-width="2" stroke-dasharray="5 4"/>
+<text x="642" y="137" font-size="12" fill="#8a5a12" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">insight</text>
+<rect x="564" y="208" width="44" height="24" rx="6" fill="#ffffff" stroke="#d97706" stroke-width="2"/><text x="586.0" y="224.0" font-size="11.5" fill="#8a5a12" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">e</text>
+<line x1="642" y1="152" x2="586" y2="204" stroke="#d97706" stroke-width="1.6" marker-end="url(#ai)"/>
+<rect x="616" y="208" width="44" height="24" rx="6" fill="#ffffff" stroke="#d97706" stroke-width="2"/><text x="638.0" y="224.0" font-size="11.5" fill="#8a5a12" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">&#8230;</text>
+<line x1="642" y1="152" x2="638" y2="204" stroke="#d97706" stroke-width="1.6" marker-end="url(#ai)"/>
+<rect x="668" y="208" width="44" height="24" rx="6" fill="#ffffff" stroke="#d97706" stroke-width="2"/><text x="690.0" y="224.0" font-size="11.5" fill="#8a5a12" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">&#8230;</text>
+<line x1="642" y1="152" x2="690" y2="204" stroke="#d97706" stroke-width="1.6" marker-end="url(#ai)"/>
+<text x="880" y="96" font-size="32" text-anchor="middle" font-family="Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif">🤖</text>
+<text x="906" y="90" font-size="13" fill="#111827" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">B</text>
+<ellipse cx="880" cy="132" rx="52" ry="18" fill="#fef3c7" stroke="#d97706" stroke-width="2" stroke-dasharray="5 4"/>
+<text x="880" y="137" font-size="12" fill="#8a5a12" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">insight</text>
+<rect x="802" y="208" width="44" height="24" rx="6" fill="#ffffff" stroke="#d97706" stroke-width="2"/><text x="824.0" y="224.0" font-size="11.5" fill="#8a5a12" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">e</text>
+<line x1="880" y1="152" x2="824" y2="204" stroke="#d97706" stroke-width="1.6" marker-end="url(#ai)"/>
+<rect x="854" y="208" width="44" height="24" rx="6" fill="#ffffff" stroke="#d97706" stroke-width="2"/><text x="876.0" y="224.0" font-size="11.5" fill="#8a5a12" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">&#8230;</text>
+<line x1="880" y1="152" x2="876" y2="204" stroke="#d97706" stroke-width="1.6" marker-end="url(#ai)"/>
+<rect x="906" y="208" width="44" height="24" rx="6" fill="#ffffff" stroke="#d97706" stroke-width="2"/><text x="928.0" y="224.0" font-size="11.5" fill="#8a5a12" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">&#8230;</text>
+<line x1="880" y1="152" x2="928" y2="204" stroke="#d97706" stroke-width="1.6" marker-end="url(#ai)"/>
+<text x="761" y="142" font-size="26" text-anchor="middle" font-family="Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif">🕸️</text>
+<text x="761" y="186" font-size="11" fill="#8a5a12" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">derived_from</text>
+<text x="761" y="250" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal" font-family="Helvetica,Arial,sans-serif">insight tier distilled every 20 rounds</text>
+<text x="761" y="292" font-size="12" fill="#8a5a12" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">Recall hits both tiers, then walks the edges.</text>
+<text x="761" y="314" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal" font-style="italic" font-family="Helvetica,Arial,sans-serif">A real graph — but never across owners.</text>
+<rect x="12" y="362" width="494" height="354" rx="16" fill="#fdeaea" stroke="#d97a7a" stroke-width="3"/>
+<text x="259.0" y="392" font-size="19" fill="#9b1c1c" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">(c) Collaborative</text>
+<rect x="30" y="396" width="458" height="226" rx="11" fill="#fff6f6" stroke="#d97a7a" stroke-width="1.8" stroke-dasharray="7 5"/>
+<text x="259.0" y="418" font-size="14" fill="#9b1c1c" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">One Store, Partitioned by Permission</text>
+<text x="140" y="448" font-size="32" text-anchor="middle" font-family="Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif">🤖</text>
+<text x="166" y="442" font-size="13" fill="#111827" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">A</text>
+<text x="378" y="448" font-size="32" text-anchor="middle" font-family="Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif">🤖</text>
+<text x="404" y="442" font-size="13" fill="#111827" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">B</text>
+<rect x="60" y="470" width="168" height="25" rx="6" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/><text x="144.0" y="486.5" font-size="11.5" fill="#9b1c1c" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">e &#183; acl {A}</text>
+<rect x="290" y="470" width="168" height="25" rx="6" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/><text x="374.0" y="486.5" font-size="11.5" fill="#9b1c1c" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">e &#183; acl {A, B}</text>
+<rect x="60" y="506" width="168" height="25" rx="6" fill="#ffffff" stroke="#dc2626" stroke-width="2"/><text x="144.0" y="522.5" font-size="11.5" fill="#9b1c1c" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">&#8230; &#183; acl {A}</text>
+<rect x="290" y="506" width="168" height="25" rx="6" fill="#ffffff" stroke="#dc2626" stroke-width="2"/><text x="374.0" y="522.5" font-size="11.5" fill="#9b1c1c" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">&#8230; &#183; acl {B}</text>
+<text x="259" y="492" font-size="26" text-anchor="middle" font-family="Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif">🔒</text>
+<path d="M144,544 C180,584 338,584 374,544" fill="none" stroke="#dc2626" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="6 4" marker-end="url(#ai)"/>
+<text x="259" y="588" font-size="12" fill="#9b1c1c" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">grant</text>
+<text x="259" y="610" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal" font-family="Helvetica,Arial,sans-serif">two rows, one event</text>
+<text x="259" y="654" font-size="12" fill="#9b1c1c" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">B may be granted access to A's copy —</text>
+<text x="259" y="674" font-size="12" fill="#9b1c1c" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">but the copy remains.</text>
+<text x="259" y="700" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal" font-style="italic" font-family="Helvetica,Arial,sans-serif">sharing is a permission, not a merge</text>
+<rect x="514" y="362" width="494" height="354" rx="16" fill="#e8f1fc" stroke="#5b8fd4" stroke-width="3"/>
+<text x="761.0" y="392" font-size="19" fill="#1e3a8a" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">(d) Consensus  (ours)</text>
+<rect x="532" y="396" width="458" height="226" rx="11" fill="#f5f9ff" stroke="#5b8fd4" stroke-width="1.8" stroke-dasharray="7 5"/>
+<text x="761.0" y="418" font-size="14" fill="#1e3a8a" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">One Record, Several Owners</text>
+<text x="628" y="448" font-size="32" text-anchor="middle" font-family="Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif">🤖</text>
+<text x="652" y="442" font-size="13" fill="#111827" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">A</text>
+<line x1="628" y1="458" x2="672" y2="482" stroke="#e05a5a" stroke-width="3" stroke-linecap="round" marker-end="url(#ar)"/>
+<text x="760" y="448" font-size="32" text-anchor="middle" font-family="Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif">🤖</text>
+<text x="784" y="442" font-size="13" fill="#111827" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">B</text>
+<line x1="760" y1="458" x2="760" y2="482" stroke="#e05a5a" stroke-width="3" stroke-linecap="round" marker-end="url(#ar)"/>
+<text x="892" y="448" font-size="32" text-anchor="middle" font-family="Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif">🤖</text>
+<text x="916" y="442" font-size="13" fill="#111827" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">C</text>
+<line x1="892" y1="458" x2="848" y2="482" stroke="#e05a5a" stroke-width="3" stroke-linecap="round" marker-end="url(#ar)"/>
+<rect x="600" y="490" width="320" height="30" rx="6" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/><text x="760.0" y="509.0" font-size="13.5" fill="#1e3a8a" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">e &#183; owners {A, B, C}</text>
+<text x="760" y="538" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal" font-family="Helvetica,Arial,sans-serif">equivalent deposits merged · owners unioned</text>
+<text x="760" y="578" font-size="24" text-anchor="middle" font-family="Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif">🔗</text>
+<rect x="566" y="560" width="152" height="24" rx="6" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/><text x="642.0" y="576.0" font-size="11.5" fill="#4c1d95" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">sibling &#183; {A, B}</text>
+<rect x="802" y="560" width="140" height="24" rx="6" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/><text x="872.0" y="576.0" font-size="11.5" fill="#4c1d95" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">sibling &#183; {C}</text>
+<line x1="606" y1="520" x2="642" y2="556" stroke="#7c3aed" stroke-width="1.8" marker-end="url(#ard)"/>
+<line x1="914" y1="520" x2="872" y2="556" stroke="#7c3aed" stroke-width="1.8" marker-end="url(#ard)"/>
+<text x="760" y="604" font-size="11" fill="#4c1d95" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">affiliated</text>
+<text x="760" y="654" font-size="12" fill="#1e3a8a" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">Recall returns the rows you own,</text>
+<text x="760" y="674" font-size="12" fill="#1e3a8a" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">then walks one hop along the affiliation edges.</text>
+<text x="760" y="700" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal" font-style="italic" font-family="Helvetica,Arial,sans-serif">sharing is computed at deposit time</text>
+<text x="510" y="740" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal" font-family="Helvetica,Arial,sans-serif">the same event e in every panel · 🤖 = owner · solid box = a stored row · dashed = generated by the mechanism</text>
 </svg>

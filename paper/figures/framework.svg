@@ -1,76 +1,98 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 560" font-family="Helvetica,Arial,sans-serif" style="max-width:100%;height:auto">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1020 704" font-family="Helvetica,Arial,sans-serif" style="max-width:100%;height:auto">
 <defs>
-<marker id="mi" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#475569"/></marker><marker id="mb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2563eb"/></marker><marker id="mg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#059669"/></marker><marker id="ma" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#d97706"/></marker>
+<marker id="ar" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="5.2"
+        markerHeight="5.2" orient="auto-start-reverse">
+  <path d="M0,0.5 L11,6 L0,11.5 Z" fill="#e05a5a"/>
+</marker>
+<marker id="ard" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="4.4"
+        markerHeight="4.4" orient="auto-start-reverse">
+  <path d="M0,0.5 L11,6 L0,11.5 Z" fill="#7c3aed"/>
+</marker>
+<marker id="ai" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="4.2"
+        markerHeight="4.2" orient="auto-start-reverse">
+  <path d="M0,1 L10,6 L0,11 Z" fill="#475569"/>
+</marker>
 </defs>
-<rect width="840" height="560" fill="#ffffff"/>
-<rect x="14" y="10" width="812" height="146" rx="10" fill="#fffbeb" stroke="#fcd34d"/>
-<text x="28" y="32" font-size="13" fill="#92400e" text-anchor="start" font-weight="bold" font-family="Helvetica,Arial,sans-serif">OFFLINE · sedimentation</text>
-<text x="812" y="32" font-size="10.5" fill="#d97706" text-anchor="end" font-family="Helvetica,Arial,sans-serif">runs once, before round 0</text>
-<path d="M 44,52 h 46 l 10,10 v 68 h -56 z" fill="#ffffff" stroke="#d97706" stroke-width="1.6"/><line x1="52" y1="68" x2="92" y2="68" stroke="#d97706" stroke-width="1.2" opacity="0.55"/><line x1="52" y1="80" x2="92" y2="80" stroke="#d97706" stroke-width="1.2" opacity="0.55"/><line x1="52" y1="92" x2="92" y2="92" stroke="#d97706" stroke-width="1.2" opacity="0.55"/>
-<text x="72" y="146" font-size="11" fill="#92400e" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">source text</text>
-<line x1="108" y1="92" x2="142" y2="92" stroke="#475569" stroke-width="1.5" marker-end="url(#mi)"/>
-<path d="M150,56 L242,56 L208,96 L208,122 L184,122 L184,96 Z" fill="#fef3c7" stroke="#d97706" stroke-width="1.6"/>
-<text x="196" y="146" font-size="11" fill="#92400e" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">extract + attribute</text>
-<line x1="250" y1="92" x2="284" y2="92" stroke="#475569" stroke-width="1.5" marker-end="url(#mi)"/>
-<rect x="290" y="54" width="168" height="24" rx="6" fill="#dbeafe" stroke="#2563eb" stroke-width="1.4"/>
-<text x="374" y="70" font-size="10.5" fill="#1e3a8a" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">event · owners {A, B}</text>
-<rect x="290" y="84" width="168" height="24" rx="6" fill="#dbeafe" stroke="#2563eb" stroke-width="1.4"/>
-<text x="374" y="100" font-size="10.5" fill="#1e3a8a" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">event · owners {C}</text>
-<rect x="290" y="114" width="168" height="24" rx="6" fill="#dbeafe" stroke="#2563eb" stroke-width="1.4"/>
-<text x="374" y="130" font-size="10.5" fill="#1e3a8a" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">event · owners {A, D}</text>
-<text x="374" y="148" font-size="11" fill="#1e3a8a" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">owner-tagged events</text>
-<path d="M462,66 C620,66 560,196 200,224" fill="none" stroke="#2563eb" stroke-width="1.8" marker-end="url(#mb)"/>
-<text x="560" y="120" font-size="10.5" fill="#2563eb" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">seeds the store</text>
-<rect x="14" y="164" width="812" height="272" rx="10" fill="#eff6ff" stroke="#bfdbfe"/>
-<text x="28" y="186" font-size="13" fill="#1e3a8a" text-anchor="start" font-weight="bold" font-family="Helvetica,Arial,sans-serif">RUNTIME · one world, one store</text>
-<path d="M42,230 v118 a74,16 0 0 0 148,0 v-118" fill="#dbeafe" stroke="#2563eb" stroke-width="1.8"/>
-<ellipse cx="116" cy="230" rx="74" ry="16" fill="#eff6ff" stroke="#2563eb" stroke-width="1.8"/>
-<text x="116" y="288" font-size="12" fill="#1e3a8a" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">long-term memory</text>
-<text x="116" y="306" font-size="11" fill="#1e3a8a" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">shared by all</text>
-<text x="116" y="396" font-size="10" fill="#64748b" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">internal structure differs per backend</text>
-<rect x="308" y="198" width="504" height="228" rx="12" fill="#ecfdf5" stroke="#34d399" stroke-dasharray="6 4"/>
-<text x="800" y="216" font-size="11.5" fill="#065f46" text-anchor="end" font-family="Helvetica,Arial,sans-serif">the society</text>
-<circle cx="400" cy="248" r="9" fill="#d1fae5" stroke="#059669" stroke-width="1.6"/><path d="M 386,274 C 391,260 409,260 414,274" fill="none" stroke="#059669" stroke-width="1.6" stroke-linecap="round"/>
-<text x="400" y="300" font-size="11" fill="#065f46" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">character</text>
-<circle cx="608" cy="248" r="9" fill="#d1fae5" stroke="#059669" stroke-width="1.6"/><path d="M 594,274 C 599,260 617,260 622,274" fill="none" stroke="#059669" stroke-width="1.6" stroke-linecap="round"/>
-<text x="608" y="300" font-size="11" fill="#065f46" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">character</text>
-<circle cx="400" cy="358" r="9" fill="#d1fae5" stroke="#059669" stroke-width="1.6"/><path d="M 386,384 C 391,370 409,370 414,384" fill="none" stroke="#059669" stroke-width="1.6" stroke-linecap="round"/>
-<text x="400" y="410" font-size="11" fill="#065f46" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">character</text>
-<line x1="422" y1="244" x2="586" y2="244" stroke="#2563eb" stroke-width="1.6" marker-start="url(#mb)" marker-end="url(#mb)"/>
-<text x="504" y="234" font-size="10.5" fill="#1d4ed8" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">say · kernel-held thread</text>
-<line x1="420" y1="350" x2="592" y2="262" stroke="#2563eb" stroke-width="1.4" stroke-dasharray="5 4" marker-end="url(#mb)"/>
-<text x="530" y="322" font-size="10" fill="#1d4ed8" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">delivered with distance delay</text>
-<circle cx="742" cy="242" r="12" fill="#ecfdf5" stroke="#059669" stroke-width="1.8"/>
-<path d="M736,239 l6,8 l6,-8" fill="none" stroke="#059669" stroke-width="1.6"/>
-<text x="742" y="274" font-size="10.5" fill="#065f46" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">environment</text>
-<text x="742" y="288" font-size="10" fill="#64748b" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">owns memories,</text>
-<text x="742" y="300" font-size="10" fill="#64748b" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">never takes a turn</text>
-<path d="M 718,340 h 36 l 10,10 v 48 h -46 z" fill="#fef3c7" stroke="#d97706" stroke-width="1.6"/><line x1="726" y1="356" x2="756" y2="356" stroke="#d97706" stroke-width="1.2" opacity="0.55"/><line x1="726" y1="368" x2="756" y2="368" stroke="#d97706" stroke-width="1.2" opacity="0.55"/><line x1="726" y1="380" x2="756" y2="380" stroke="#d97706" stroke-width="1.2" opacity="0.55"/>
-<text x="741" y="416" font-size="10.5" fill="#92400e" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">info carrier</text>
-<line x1="424" y1="364" x2="712" y2="372" stroke="#059669" stroke-width="1.5" marker-end="url(#mg)"/>
-<text x="566" y="356" font-size="10.5" fill="#065f46" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">read</text>
-<line x1="196" y1="248" x2="304" y2="238" stroke="#2563eb" stroke-width="1.7" marker-end="url(#mb)"/>
-<text x="250" y="230" font-size="10.5" fill="#1d4ed8" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">recall</text>
-<line x1="304" y1="296" x2="196" y2="306" stroke="#2563eb" stroke-width="1.7" marker-end="url(#mb)"/>
-<text x="250" y="290" font-size="10.5" fill="#1d4ed8" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">remember</text>
-<text x="250" y="326" font-size="10" fill="#64748b" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">both owner-scoped</text>
-<rect x="14" y="444" width="812" height="106" rx="10" fill="#f8fafc" stroke="#e2e8f0"/>
-<text x="28" y="464" font-size="12" fill="#1f2937" text-anchor="start" font-weight="bold" font-family="Helvetica,Arial,sans-serif">One action per character per round, from a single repertoire</text>
-<rect x="28" y="472" width="40" height="22" rx="11" fill="#d1fae5" stroke="#059669" stroke-width="1.3"/><text x="48.0" y="487" font-size="10.5" fill="#065f46" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">say</text>
-<rect x="74" y="472" width="78" height="22" rx="11" fill="#d1fae5" stroke="#059669" stroke-width="1.3"/><text x="113.0" y="487" font-size="10.5" fill="#065f46" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">read_thread</text>
-<rect x="158" y="472" width="58" height="22" rx="11" fill="#d1fae5" stroke="#059669" stroke-width="1.3"/><text x="187.0" y="487" font-size="10.5" fill="#065f46" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">observe</text>
-<rect x="222" y="472" width="44" height="22" rx="11" fill="#d1fae5" stroke="#059669" stroke-width="1.3"/><text x="244.0" y="487" font-size="10.5" fill="#065f46" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">move</text>
-<rect x="272" y="472" width="52" height="22" rx="11" fill="#d1fae5" stroke="#059669" stroke-width="1.3"/><text x="298.0" y="487" font-size="10.5" fill="#065f46" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">act_on</text>
-<rect x="330" y="472" width="42" height="22" rx="11" fill="#d1fae5" stroke="#059669" stroke-width="1.3"/><text x="351.0" y="487" font-size="10.5" fill="#065f46" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">read</text>
-<rect x="378" y="472" width="44" height="22" rx="11" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.3"/><text x="400.0" y="487" font-size="10.5" fill="#475569" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">think</text>
-<rect x="428" y="472" width="62" height="22" rx="11" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.3"/><text x="459.0" y="487" font-size="10.5" fill="#475569" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">conclude</text>
-<rect x="496" y="472" width="68" height="22" rx="11" fill="#dbeafe" stroke="#2563eb" stroke-width="1.3"/><text x="530.0" y="487" font-size="10.5" fill="#1e3a8a" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">remember</text>
-<rect x="570" y="472" width="50" height="22" rx="11" fill="#dbeafe" stroke="#2563eb" stroke-width="1.3"/><text x="595.0" y="487" font-size="10.5" fill="#1e3a8a" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">recall</text>
-<rect x="28" y="500" width="68" height="22" rx="11" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.3"/><text x="62.0" y="515" font-size="10.5" fill="#5b21b6" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">push_goal</text>
-<rect x="102" y="500" width="62" height="22" rx="11" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.3"/><text x="133.0" y="515" font-size="10.5" fill="#5b21b6" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">pop_goal</text>
-<rect x="170" y="500" width="84" height="22" rx="11" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.3"/><text x="212.0" y="515" font-size="10.5" fill="#5b21b6" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">replace_goal</text>
-<rect x="260" y="500" width="90" height="22" rx="11" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.3"/><text x="305.0" y="515" font-size="10.5" fill="#5b21b6" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">update_status</text>
-<rect x="356" y="500" width="40" height="22" rx="11" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.3"/><text x="376.0" y="515" font-size="10.5" fill="#475569" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">wait</text>
-<rect x="402" y="500" width="252" height="22" rx="11" fill="#fee2e2" stroke="#dc2626" stroke-width="1.3" stroke-dasharray="4 3"/><text x="528.0" y="515" font-size="10.5" fill="#dc2626" text-anchor="middle" font-family="Helvetica,Arial,sans-serif">6 memory-management actions · never used</text>
-<text x="28" y="543" font-size="10" fill="#64748b" text-anchor="start" font-family="Helvetica,Arial,sans-serif">blue = long-term memory · green = the world · purple = goals · each round freezes every view at the barrier, so event order is reproducible</text>
+<rect width="1020" height="704" fill="#ffffff"/>
+<rect x="12" y="10" width="996" height="198" rx="16" fill="#fdf3e3" stroke="#e8a33d" stroke-width="3"/>
+<text x="510.0" y="40" font-size="19" fill="#8a5a12" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">Offline · Sedimentation</text>
+<text x="986" y="30" font-size="11.5" fill="#a97528" text-anchor="end" font-weight="normal" font-style="italic" font-family="Helvetica,Arial,sans-serif">runs once, before round 0</text>
+<rect x="30" y="44" width="236" height="148" rx="11" fill="#fffaf0" stroke="#e8a33d" stroke-width="1.8" stroke-dasharray="7 5"/>
+<text x="148.0" y="66" font-size="14" fill="#8a5a12" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">Source Text</text>
+<text x="148" y="118" font-size="48" text-anchor="middle" font-family="Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif">📖</text>
+<text x="148" y="146" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal" font-family="Helvetica,Arial,sans-serif">novel · play · timeline</text>
+<text x="148" y="168" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal" font-family="Helvetica,Arial,sans-serif">held-out tail kept</text>
+<text x="148" y="182" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal" font-family="Helvetica,Arial,sans-serif">for scoring</text>
+<line x1="276" y1="118" x2="320" y2="118" stroke="#e05a5a" stroke-width="5" stroke-linecap="round" marker-end="url(#ar)"/>
+<rect x="330" y="44" width="236" height="148" rx="11" fill="#fffaf0" stroke="#e8a33d" stroke-width="1.8" stroke-dasharray="7 5"/>
+<text x="448.0" y="66" font-size="14" fill="#8a5a12" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">Extract &amp; Attribute</text>
+<text x="448" y="112" font-size="42" text-anchor="middle" font-family="Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif">🔍</text>
+<text x="448" y="140" font-size="11.5" fill="#8a5a12" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">who witnessed</text>
+<text x="448" y="158" font-size="11.5" fill="#8a5a12" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">each event?</text>
+<text x="448" y="182" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal" font-family="Helvetica,Arial,sans-serif">one LLM pass per span</text>
+<line x1="576" y1="118" x2="620" y2="118" stroke="#e05a5a" stroke-width="5" stroke-linecap="round" marker-end="url(#ar)"/>
+<rect x="630" y="44" width="358" height="148" rx="11" fill="#f5f9ff" stroke="#5b8fd4" stroke-width="1.8" stroke-dasharray="7 5"/>
+<text x="809.0" y="66" font-size="14" fill="#1e3a8a" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">Owner-Tagged Events</text>
+<rect x="676" y="74" width="266" height="25" rx="6" fill="#ffffff" stroke="#3b82f6" stroke-width="2"/><text x="809.0" y="90.5" font-size="11.5" fill="#1e3a8a" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">e &#183; owners {A, B}</text>
+<rect x="676" y="106" width="266" height="25" rx="6" fill="#ffffff" stroke="#3b82f6" stroke-width="2"/><text x="809.0" y="122.5" font-size="11.5" fill="#1e3a8a" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">&#8230; &#183; owners {C}</text>
+<rect x="676" y="138" width="266" height="25" rx="6" fill="#ffffff" stroke="#3b82f6" stroke-width="2"/><text x="809.0" y="154.5" font-size="11.5" fill="#1e3a8a" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">&#8230; &#183; owners {A, D}</text>
+<text x="809" y="182" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal" font-family="Helvetica,Arial,sans-serif">an event, not a copy per witness</text>
+<rect x="12" y="248" width="996" height="288" rx="16" fill="#e8f1fc" stroke="#5b8fd4" stroke-width="3"/>
+<text x="510.0" y="278" font-size="19" fill="#1e3a8a" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">Runtime · One World, One Shared Store</text>
+<rect x="30" y="284" width="268" height="234" rx="11" fill="#f5f9ff" stroke="#5b8fd4" stroke-width="1.8" stroke-dasharray="7 5"/>
+<text x="164.0" y="306" font-size="14" fill="#1e3a8a" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">Shared Long-Term Memory</text>
+<text x="164" y="352" font-size="44" text-anchor="middle" font-family="Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif">🧠</text>
+<path d="M96,374 v66 a68,15 0 0 0 136,0 v-66" fill="#dbeafe" stroke="#2563eb" stroke-width="2.5"/>
+<ellipse cx="164" cy="374" rx="68" ry="15" fill="#eff6ff" stroke="#2563eb" stroke-width="2.5"/>
+<text x="164" y="414" font-size="12.5" fill="#1e3a8a" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">one store,</text>
+<text x="164" y="432" font-size="12.5" fill="#1e3a8a" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">all characters</text>
+<text x="164" y="488" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal" font-family="Helvetica,Arial,sans-serif">internal structure</text>
+<text x="164" y="502" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal" font-family="Helvetica,Arial,sans-serif">differs per backend</text>
+<path d="M809,200 C640,216 400,216 176,278" fill="none" stroke="#e05a5a" stroke-width="5" stroke-linecap="round" marker-end="url(#ar)"/>
+<text x="600" y="238" font-size="12.5" fill="#e05a5a" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">seeds the store</text>
+<line x1="306" y1="342" x2="372" y2="342" stroke="#e05a5a" stroke-width="5" stroke-linecap="round" marker-end="url(#ar)"/>
+<text x="339" y="330" font-size="12" fill="#e05a5a" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">recall</text>
+<line x1="372" y1="422" x2="306" y2="422" stroke="#e05a5a" stroke-width="5" stroke-linecap="round" marker-end="url(#ar)"/>
+<text x="339" y="410" font-size="12" fill="#e05a5a" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">remember</text>
+<text x="339" y="454" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal" font-family="Helvetica,Arial,sans-serif">both</text>
+<text x="339" y="468" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal" font-family="Helvetica,Arial,sans-serif">owner-scoped</text>
+<rect x="382" y="284" width="606" height="234" rx="11" fill="#f4fcf7" stroke="#5aab7a" stroke-width="1.8" stroke-dasharray="7 5"/>
+<text x="685.0" y="306" font-size="14" fill="#0f6b3f" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">The Society</text>
+<text x="470" y="344" font-size="40" text-anchor="middle" font-family="Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif">🤖</text>
+<text x="470" y="366" font-size="11.5" fill="#0f6b3f" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">character</text>
+<text x="700" y="344" font-size="40" text-anchor="middle" font-family="Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif">🤖</text>
+<text x="700" y="366" font-size="11.5" fill="#0f6b3f" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">character</text>
+<text x="470" y="450" font-size="40" text-anchor="middle" font-family="Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif">🤖</text>
+<text x="470" y="472" font-size="11.5" fill="#0f6b3f" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">character</text>
+<line x1="502" y1="330" x2="668" y2="330" stroke="#e05a5a" stroke-width="4" stroke-linecap="round" marker-start="url(#ar)" marker-end="url(#ar)"/>
+<text x="585" y="320" font-size="11.5" fill="#e05a5a" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">say · kernel-held thread</text>
+<path d="M500,442 L664,360" fill="none" stroke="#e05a5a" stroke-width="3.4" stroke-linecap="round" stroke-dasharray="7 5" marker-end="url(#ar)"/>
+<text x="672" y="438" font-size="10.5" fill="#e05a5a" text-anchor="middle" font-weight="normal" font-family="Helvetica,Arial,sans-serif">delivered with distance delay</text>
+<text x="892" y="342" font-size="40" text-anchor="middle" font-family="Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif">🌍</text>
+<text x="892" y="364" font-size="11.5" fill="#0f6b3f" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">environment</text>
+<text x="892" y="380" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal" font-family="Helvetica,Arial,sans-serif">owns memories,</text>
+<text x="892" y="394" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal" font-family="Helvetica,Arial,sans-serif">never takes a turn</text>
+<text x="892" y="462" font-size="36" text-anchor="middle" font-family="Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif">📄</text>
+<text x="892" y="484" font-size="11.5" fill="#8a5a12" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">info carrier</text>
+<line x1="508" y1="460" x2="856" y2="464" stroke="#e05a5a" stroke-width="3.4" stroke-linecap="round" marker-end="url(#ar)"/>
+<text x="680" y="492" font-size="12" fill="#e05a5a" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">read</text>
+<rect x="12" y="554" width="996" height="138" rx="16" fill="#eef1f5" stroke="#9aa4b2" stroke-width="3"/>
+<text x="510.0" y="584" font-size="17" fill="#334155" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">One Action per Character per Round, from a Single Repertoire</text>
+<rect x="34" y="598" width="48" height="26" rx="13" fill="#d1fae5" stroke="#059669" stroke-width="1.9"/><text x="58.0" y="615.5" font-size="11.5" fill="#065f46" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">say</text>
+<rect x="89" y="598" width="92" height="26" rx="13" fill="#d1fae5" stroke="#059669" stroke-width="1.9"/><text x="135.0" y="615.5" font-size="11.5" fill="#065f46" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">read_thread</text>
+<rect x="188" y="598" width="70" height="26" rx="13" fill="#d1fae5" stroke="#059669" stroke-width="1.9"/><text x="223.0" y="615.5" font-size="11.5" fill="#065f46" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">observe</text>
+<rect x="265" y="598" width="54" height="26" rx="13" fill="#d1fae5" stroke="#059669" stroke-width="1.9"/><text x="292.0" y="615.5" font-size="11.5" fill="#065f46" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">move</text>
+<rect x="326" y="598" width="62" height="26" rx="13" fill="#d1fae5" stroke="#059669" stroke-width="1.9"/><text x="357.0" y="615.5" font-size="11.5" fill="#065f46" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">act_on</text>
+<rect x="395" y="598" width="50" height="26" rx="13" fill="#d1fae5" stroke="#059669" stroke-width="1.9"/><text x="420.0" y="615.5" font-size="11.5" fill="#065f46" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">read</text>
+<rect x="452" y="598" width="54" height="26" rx="13" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.9"/><text x="479.0" y="615.5" font-size="11.5" fill="#475569" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">think</text>
+<rect x="513" y="598" width="74" height="26" rx="13" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.9"/><text x="550.0" y="615.5" font-size="11.5" fill="#475569" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">conclude</text>
+<rect x="594" y="598" width="82" height="26" rx="13" fill="#dbeafe" stroke="#2563eb" stroke-width="1.9"/><text x="635.0" y="615.5" font-size="11.5" fill="#1e3a8a" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">remember</text>
+<rect x="683" y="598" width="60" height="26" rx="13" fill="#dbeafe" stroke="#2563eb" stroke-width="1.9"/><text x="713.0" y="615.5" font-size="11.5" fill="#1e3a8a" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">recall</text>
+<rect x="750" y="598" width="48" height="26" rx="13" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.9"/><text x="774.0" y="615.5" font-size="11.5" fill="#475569" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">wait</text>
+<rect x="34" y="632" width="80" height="26" rx="13" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.9"/><text x="74.0" y="649.5" font-size="11.5" fill="#5b21b6" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">push_goal</text>
+<rect x="121" y="632" width="74" height="26" rx="13" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.9"/><text x="158.0" y="649.5" font-size="11.5" fill="#5b21b6" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">pop_goal</text>
+<rect x="202" y="632" width="98" height="26" rx="13" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.9"/><text x="251.0" y="649.5" font-size="11.5" fill="#5b21b6" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">replace_goal</text>
+<rect x="307" y="632" width="106" height="26" rx="13" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.9"/><text x="360.0" y="649.5" font-size="11.5" fill="#5b21b6" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">update_status</text>
+<rect x="434" y="632" width="306" height="26" rx="13" fill="#fee2e2" stroke="#dc2626" stroke-width="1.9" stroke-dasharray="5 4"/><text x="587.0" y="649.5" font-size="11.5" fill="#b91c1c" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">6 memory-management actions · never used</text>
+<text x="34" y="680" font-size="11" fill="#6b7280" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">green = the world · blue = long-term memory · purple = goals · grey = cognitive · red dashed = offered but never called</text>
 </svg>
