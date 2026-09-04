@@ -261,9 +261,13 @@ along affiliation into records the caller also owns.
 \centering
 \includegraphics[width=0.78\textwidth]{backends.pdf}
 \caption{The long-term memory structure of the four backends: private streams
-with importance scores and a reflection tree; a two-tier interaction/insight
-graph; an access-controlled single store; and the consensus store, whose records
-carry an owner set and affiliation edges.}
+scored by recency, importance and relevance, over which reflections are
+distilled and themselves become evidence for further reflections; a two-tier
+graph whose insights are distilled from the interaction rows they point back
+to; a single store partitioned by access control, where sharing grants a second
+reader rather than merging the rows; and the consensus store, where equivalent
+deposits merge into one record whose owner set is the union of its witnesses,
+with affiliation edges joining statements split from the same deposit.}
 \label{fig:backends}
 \end{figure}
 Generative-Agents keeps a private stream per agent with importance scores and a
