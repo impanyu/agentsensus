@@ -121,8 +121,13 @@ venv/bin/python experiments/case_study_trilayer.py runs/hl40full_consensus
 venv/bin/python -m experiments.translate_case_study runs/hl40full_consensus
 venv/bin/python -m experiments.appendix_screenplays hamlet
 venv/bin/python -m experiments.scene_grid_fig
+venv/bin/python -m experiments.review_stats
 venv/bin/python -m experiments.build_paper_academic     # -> docs/index.html
 ```
+
+`review_stats.py` needs no LLM: it recomputes what auto-expansion returns,
+what the keep-shorter merge rule discards, and how far the quality metrics sit
+from their ceiling, straight from the event logs and final stores.
 
 `build_paper_academic.py` reads what steps 1&ndash;5 wrote into `runs/` and
 emits the whole paper as one self-contained HTML file — every figure, table

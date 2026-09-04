@@ -55,6 +55,43 @@ def macros():
                   for w, *_ in WORLDS)
     cmd("SaveRange", f"{save[0]}--{save[-1]}\\%")
 
+    # ---- quantities the review asked for; see experiments/review_stats.py.
+    # Skipped rather than faked when the file is absent, so a partial rebuild
+    # still compiles (the prose that uses them is in the discussion).
+    RV = load("review_stats") if os.path.exists("runs/review_stats.json") else None
+    if RV:
+        W = RV["worlds"]
+        rc = {k: v["expansion"]["recall"] for k, v in W.items() if v["expansion"].get("recall")}
+        amp = sorted(v["amplification"] for v in rc.values())
+        cmd("ExpBaseK", RV["base_top_k"])
+        cmd("ExpAmpRange", f"{amp[0]}--{amp[-1]}$\\times$")
+        cmd("ExpAmpMax", f"{amp[-1]}$\\times$")
+        big = rc["three_kingdoms"]
+        cmd("ExpTkTotal", f"{big['median_total']:.0f}")
+        cmd("ExpTkAdded", f"{big['median_expanded']:.0f}")
+        cmd("ExpRuAmp", f"{rc['russia_ukraine']['amplification']}$\\times$")
+        cmd("ExpQBase", f"{big['q_in_base_pct']}--"
+                        f"{rc['red_chamber']['q_in_base_pct']}\\%")
+        cmd("ExpQAdded", f"{big['q_in_expanded_pct']}\\%")
+        kt = {k: v["keeptext"] for k, v in W.items()}
+        drop = sorted(v["median_chars_dropped"] for v in kt.values())
+        cmd("KeepDropRange", f"{drop[0]:.0f}--{drop[-1]:.0f}")
+        cmd("KeepSeen", sum(v["observable_rewrites"] for v in kt.values()))
+        cmd("KeepMerges", sum(v["merges"] for v in kt.values()))
+        d = W["red_chamber"]["store"]["by_depth"]
+        cmd("AffRcLow", f"{d['1']['median_aff']:.0f}")
+        cmd("AffRcHigh", f"{d['4plus']['median_aff']:.0f}")
+        cmd("LenRcLow", f"{d['1']['median_len']:.0f}")
+        cmd("LenRcHigh", f"{d['4plus']['median_len']:.0f}")
+        cmd("StoreRowsMax", f"{max(v['store']['rows'] for v in W.values()):,}")
+        hr = {m: max(v["headroom"][m]["spread"] for v in W.values() if v["headroom"])
+              for m in ("grnd", "traj", "narr", "goal")}
+        cmd("SpreadGoal", f"{hr['goal']:.2f}"); cmd("SpreadTraj", f"{hr['traj']:.2f}")
+        cmd("SpreadNarr", f"{hr['narr']:.2f}")
+        head = {m: min(v["headroom"][m]["headroom_pct"] for v in W.values() if v["headroom"])
+                for m in ("goal", "traj", "narr")}
+        cmd("HeadGoal", f"{head['goal']}\\%"); cmd("HeadNarr", f"{head['narr']}\\%")
+
     goals = [Q[w][b]["agg"]["goal"]["mean"] for w, *_ in WORLDS for b in BACKENDS]
     cmd("GoalLo", f"{min(goals):.2f}"); cmd("GoalHi", f"{max(goals):.2f}")
     leads = sum(1 for w, *_ in WORLDS for k in ("grnd", "traj", "narr", "goal")
@@ -334,13 +371,43 @@ def samples():
     return "\n".join(out) + "\n"
 
 
+def tab_cost():
+    """Appendix table: what the mechanism costs, per world."""
+    RV = load("review_stats")
+    rows = []
+    for w, title, _, _, _ in WORLDS:
+        v = RV["worlds"][w]
+        r = v["expansion"].get("recall")
+        d = v["store"]["by_depth"]
+        kt = v["keeptext"]
+        if not r:
+            continue
+        qb = "--" if r["q_in_base_pct"] is None else f"{r['q_in_base_pct']}\\%"
+        qe = "--" if r["q_in_expanded_pct"] is None else f"{r['q_in_expanded_pct']}\\%"
+        rows.append(
+            f"{title} & {v['store']['rows']:,} & {r['n']} & "
+            f"{r['median_base']:.0f}+{r['median_expanded']:.0f} & "
+            f"{r['amplification']}$\\times$ & {qb} & {qe} & "
+            f"{d['1']['median_aff']:.0f}$\\to${d['4plus']['median_aff']:.0f} & "
+            f"{kt['observable_rewrites']}/{kt['merges']} & "
+            f"{kt['median_chars_dropped']:.0f} \\\\")
+    return ("% generated\n\\begin{tabular}{lrrlrrrrrr}\n\\toprule\n"
+            "& & \\multicolumn{5}{c}{\\emph{recall}} & \\emph{affiliated}"
+            " & \\multicolumn{2}{c}{\\emph{keep-shorter}} \\\\\n"
+            "\\cmidrule(lr){3-7}\\cmidrule(lr){8-8}\\cmidrule(lr){9-10}\n"
+            "World & rows & $n$ & hits+exp. & amp. & q\\,in hits & q\\,in exp."
+            " & 1$\\to$4+ own. & seen & chars \\\\\n\\midrule\n"
+            + "\n".join(rows) + "\n\\bottomrule\n\\end{tabular}\n")
+
+
 def main():
     os.makedirs(OUT, exist_ok=True)
     for name, text in [("numbers", macros()), ("tab_footprint", tab_footprint()),
                        ("tab_structure_main", tab_structure_main()),
                        ("tab_quality", tab_quality()), ("tab_ablation", tab_ablation()),
                        ("tab_structure", tab_structure()), ("tab_actions", tab_actions()),
-                       ("tab_screenplays", tab_screenplays()), ("samples", samples())]:
+                       ("tab_screenplays", tab_screenplays()), ("samples", samples()),
+                       ("tab_cost", tab_cost())]:
         open(f"{OUT}/{name}.tex", "w", encoding="utf-8").write(text)
         print(f"wrote {OUT}/{name}.tex")
 

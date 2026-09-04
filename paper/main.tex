@@ -153,8 +153,8 @@ runs inside \code{remember} and \code{recall} themselves.
   memory structure tracks the story's social structure.
 \item Two \textbf{negative results} that constrain how such systems should be
   designed and evaluated: agents never perform discretionary memory management,
-  so structure must be mechanized; and judged narrative quality is insensitive
-  to the memory architecture at this scale.
+  so structure left to agent-side curation does not arrive; and judged narrative
+  quality is insensitive to the memory architecture at this scale.
 \end{itemize}
 
 \section{Related Work}
@@ -294,7 +294,12 @@ scenarios and vector store, so the memory mechanism is the only difference.
 \emph{same} atomizer with the same self-containment requirement, so entry counts
 are directly comparable and the only remaining difference is what each mechanism
 does with identical atoms. All counts are simulation-only: the seeded history is
-excluded, since it is identical by construction.
+excluded, since it is identical by construction. It equalises what is
+\emph{written}, not what is read: consensus recall expands one hop along
+affiliation edges and no baseline does, so a consensus agent sees a median of
+\ExpTkTotal{} rows per recall against \ExpBaseK{} for a baseline
+(Appendix~\ref{app:cost}). The asymmetry favours consensus, which makes the
+quality wash of \S\ref{sec:quality} the harder result to explain away.
 
 \paragraph{Metrics.} Structural quantities (entries, multi-owner fraction,
 affiliated fraction, merge depth) are deterministic. Continuation quality is
@@ -405,9 +410,19 @@ buys judged quality nor costs it, and the case for consensus rests on
 \S\ref{sec:structure}. Goal pursuit saturates at \GoalLo{}--\GoalHi{} for every
 backend---the goal stack is in every prompt and only \GoallessLo{}--\GoallessHi{}
 of actions are taken with no goal held---so it certifies the agent loop and
-separates nothing.
+separates nothing. The wash is not a ceiling artefact
+throughout: goal pursuit is ceiling-bound (\HeadGoal{} of range unused, spread
+at most \SpreadGoal{} within a world) but narrative is not (\HeadNarr{} unused,
+spread up to \SpreadNarr{}), so that rubric has room to separate the backends
+and does not. The 40--80 round horizon remains a live alternative.
 
 \subsection{The memory graph tracks the social graph}
+\label{sec:social}
+That conversing agents share more memories is what the merge rule is built to
+produce, and alone would be a check that it runs. The finding is that the
+\emph{partition} is recoverable from the store alone---the heatmap's block
+structure reproduces the conversational communities without reading the
+interaction log.
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.95\textwidth]{case_three_kingdoms.png}
@@ -454,9 +469,11 @@ Across all four backends and both models tested, agents issued zero calls to
 every discretionary memory-management action---linking, forgetting, revising,
 graph traversal by id---while calling \code{remember} and \code{recall}
 constantly. This is why every structural mechanism in \S\ref{sec:consensus} runs
-inside those two operations. A memory architecture that depends on agent-side
-curation does not acquire structure in practice, however well the operations are
-designed.
+inside those two operations. Zero calls under one regime is not proof that
+agent-side curation cannot work: we did not vary the actions' prominence in the
+prompt, attach incentives, or run past 80 rounds, and each is an untested
+alternative. What it establishes is the weaker claim---structure cannot be
+\emph{assumed} to arrive from agent-side curation.
 
 \subsection{Ablation}
 \label{sec:ablation}
@@ -484,15 +501,25 @@ either. What the merge does cost is write latency
 \code{remember} takes about twice as long, while \code{recall} is unchanged.
 
 \section{Discussion and limitations}
+\label{sec:discussion}
 Consensus compression buys structure and footprint at no measurable cost in
-judged behaviour. The mechanism has three costs we can name. Merging keeps the
-shorter of two equivalent texts, discarding detail the longer one carried, and we
-have not isolated what that costs. Auto-expansion is uncapped, enriching context
-but growing prompts. And equivalence is decided by a single LLM call over five
-candidates with no verification, so a wrong merge is permanent; the judge sees
-text alone, without owners or time, which makes routine repeated events the
-plausible failure mode. Every number here comes from single stochastic runs; the
-one cell we reran replicated to within 1\%.
+judged behaviour. What is new is not the components---atomization, an embedding
+pre-filter and an LLM equivalence judge are each standard---but making ownership
+a property of the record rather than of the store. Three costs follow, measured
+in Appendix~\ref{app:cost}. Keeping the shorter of two equivalent texts discards
+the longer, though where both are recoverable the median loss is
+\KeepDropRange{} characters and surviving text does not erode with merge depth.
+Auto-expansion is the expensive one: recall appends every affiliated sibling the
+agent owns, unranked and uncapped, returning \ExpAmpRange{} the rows, and those
+rows are markedly less on-query than the semantic hits---and the payload grows
+with the very merging that shrinks the store. Equivalence is decided by a single
+LLM call over five candidates with no verification, so a wrong merge is
+permanent; we report no precision for that judge, which is the largest gap here.
+Scale bounds all of it: the largest store is \StoreRowsMax{} rows, where a
+vector index is not under strain, so the case at this size is footprint and
+structure rather than retrieval feasibility, and merging roughly doubles write
+latency (\S\ref{sec:ablation}). Every number comes from single stochastic runs;
+the one cell we reran replicated to within 1\%.
 
 \section{Conclusion}
 Agentsensus treats a story world's memory as a single consensus store: equivalent
@@ -501,9 +528,10 @@ walks that graph automatically. Across four worlds this yields the smallest
 memory footprint at equal granularity, the only shared and linked memory
 structure among four backends, and an emergent graph that mirrors the story's
 social structure, while judged continuation quality stays within noise of the
-baselines. The broader lesson is that memory structure in multi-agent systems
-must be mechanized, not delegated: agents reliably use only \code{remember} and
-\code{recall}, so that is where the structure has to live.
+baselines. The broader lesson is narrower than it looks: agents
+reliably used only \code{remember} and \code{recall}, so a design that waits for
+agent-side curation gets no structure---at this horizon, and under the one
+prompting regime we tested.
 
 \section*{Reproducibility Statement}
 Everything needed to run the method is released: the framework, all four
@@ -579,6 +607,60 @@ similar to the incoming one by embedding cosine, and \code{hybrid} scores
 $\alpha\cdot\text{recency} + (1-\alpha)\cdot\text{relevance}$ with
 $\alpha = 0.5$. The pair being appended is always kept. \S\ref{sec:ablation}
 varies this policy and finds it changes no structural quantity.
+
+\section{What the mechanism costs}
+\label{app:cost}
+
+Table~\ref{tab:cost} collects the measurements behind \S\ref{sec:discussion}.
+All of it is arithmetic over event logs and final stores already on disk
+(\code{experiments/review\_stats.py}); no rerun is involved.
+
+\paragraph{Auto-expansion.} A \code{recall} runs a semantic query for
+\ExpBaseK{} rows the agent owns, then follows each hit's affiliation edges one
+hop and appends every linked row the agent also owns. The appended rows never
+compete on similarity and there is no cap, so what returns is
+\ExpAmpRange{} the semantic result. The same path serves \code{read}, since
+\code{recall} is a one-line call into it, so information carriers are read
+through the same expansion. Affiliation links exist because atomization splits a
+compound deposit into self-contained statements; expansion reassembles them at
+read time. That also means a row accumulates siblings as it absorbs deposits:
+in Red Chamber the median row carries \AffRcLow{} affiliated siblings at one
+owner and \AffRcHigh{} at four or more, so the read-side payload grows with the
+same merging that shrinks the store. Russia--Ukraine is the control: its
+institutional deposits rarely split, so it has almost no siblings to follow and
+almost no expansion. The principled repair is to rank affiliated rows into the
+candidate pool and truncate, rather than append them; we have not run that, nor
+run the mechanism with expansion off, so the \emph{benefit} of expansion is
+unmeasured here even though its cost is not.
+
+\paragraph{Keeping the shorter text.} A merge reveals both texts only when the
+surviving text changes, which happens when the incoming atom is the shorter one;
+a merge into a row that was already shorter leaves the discarded text unlogged.
+The ``seen'' column is therefore an observable subset and the character counts a
+lower bound. On that subset the rule is cheap, and the store shows no erosion
+with depth: Red Chamber's median row grows from \LenRcLow{} to \LenRcHigh{}
+characters between one and four-or-more owners, and no world shrinks by more
+than a sixth.
+
+\paragraph{Two caveats on the relevance columns.} Whether a returned row
+contains the query string is a keyword proxy: it counts a row as off-query when
+it is merely worded differently, so both columns understate relevance and only
+their \emph{ratio} carries weight. It fails outright on Hamlet, whose queries
+are English clauses rather than names---hence \(0\%\) in both columns, which
+should be read as ``proxy inapplicable'', not ``nothing relevant''. Hamlet also
+issued only three recalls in forty rounds, too few to carry an estimate.
+
+\begin{table}[h]
+\centering
+\caption{What the mechanism costs, per world. \emph{recall}: number of calls,
+median semantic hits plus rows added by one-hop expansion, the resulting
+amplification, and how often the query string appears in each group.
+\emph{affiliated}: median siblings carried by a row at one owner versus four or
+more. \emph{keep-shorter}: merges where both texts are observable, over all
+merges, and the median characters discarded there.}
+\label{tab:cost}
+\resizebox{\textwidth}{!}{\input{tab_cost}}
+\end{table}
 
 \section{What agents actually call}
 \label{app:actions}
