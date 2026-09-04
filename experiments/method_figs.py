@@ -121,6 +121,37 @@ def _lock():
             '<path d="M36 47 v6" stroke-width="3.4"/></g>')
 
 
+def _goals():
+    """A stack of layers -- goals are pushed and popped, index 0 the bottom."""
+    return (f'<g stroke="{BLACK}" stroke-width="3" stroke-linejoin="round" fill="none">'
+            '<rect x="10" y="43" width="52" height="15" rx="5" fill="#c9b6f2"/>'
+            '<rect x="10" y="27" width="52" height="15" rx="5" fill="#a98ae8"/>'
+            '<rect x="10" y="11" width="52" height="15" rx="5" fill="#7c4dd6"/>'
+            '<path d="M36 15 v7 M32.5 18.5 h7" stroke="#ffffff" stroke-width="2.6"/></g>')
+
+
+def _status():
+    """A gauge: the status register is the agent's readable state."""
+    return (f'<g stroke="{BLACK}" stroke-width="3" stroke-linejoin="round" '
+            'stroke-linecap="round" fill="none">'
+            '<path d="M10 50 a26 26 0 0 1 52 0 z" fill="#eceff3"/>'
+            '<path d="M17 50 a19 19 0 0 1 38 0" stroke="#b9c2cc" stroke-width="6"/>'
+            '<path d="M36 50 L51 31" stroke-width="4.5"/>'
+            f'<circle cx="36" cy="50" r="5" fill="{BLACK}"/>'
+            '<path d="M8 50 h56" stroke-width="3.2"/></g>')
+
+
+def _cache():
+    """Two cards and an arrow: the cache holds (action, result) pairs."""
+    return (f'<g stroke="{BLACK}" stroke-width="3" stroke-linejoin="round" fill="none">'
+            '<rect x="7" y="20" width="24" height="32" rx="5" fill="#d3f0ee"/>'
+            '<rect x="41" y="20" width="24" height="32" rx="5" fill="#8fd9d3"/>'
+            '<path d="M32 36 h8" stroke="#12857e" stroke-width="4"/>'
+            '<path d="M36 31 l6 5 l-6 5 z" fill="#12857e" stroke="none"/>'
+            '<path d="M13 29 h12 M13 37 h12 M47 29 h12 M47 37 h12" '
+            'stroke-width="2.4"/></g>')
+
+
 def _city():
     return (f'<g stroke="{BLACK}" stroke-width="3" stroke-linejoin="round" fill="none">'
             '<rect x="9" y="33" width="20" height="29" fill="#8fb8d9"/>'
@@ -143,7 +174,8 @@ def _no():
 
 
 GLYPH = {"globe": _globe, "robot": _robot, "book": _book, "glass": _glass,
-         "store": _store, "page": _page, "lock": _lock, "no": _no, "city": _city}
+         "store": _store, "page": _page, "lock": _lock, "no": _no, "city": _city,
+         "goals": _goals, "status": _status, "cache": _cache}
 
 
 def icon(x, y, name, size=56):
@@ -220,24 +252,24 @@ def framework():
                "Offline · Long-Term Memory Initialization")
 
     s += sub(38, 74, 372, 142, "orange", "Source Text")
-    s.append(icon(224, 146, "book", 58))
-    s.append(T(224, 204, "Novel · Play · Timeline", 16))
+    s.append(icon(224, 144, "book", 72))
+    s.append(T(224, 204, "Novel · Play · Timeline", 17))
 
     s.append(fat(424, 151, 472, 151))
 
     s += sub(486, 74, 372, 142, "orange", "Extract &amp; Attribute")
-    s.append(icon(672, 146, "glass", 56))
-    s.append(T(672, 204, "Who Witnessed It?", 16))
+    s.append(icon(672, 144, "glass", 68))
+    s.append(T(672, 204, "Who Witnessed It?", 17))
 
     s.append(fat(872, 151, 920, 151))
 
-    s += sub(934, 74, 328, 142, "blue", "Owner-Tagged Events")
-    for i2, lab in enumerate(["e &#183; {A, B}", "&#8230; &#183; {C}",
-                              "&#8230; &#183; {A, D}"]):
-        s.append(box(1010, 112 + i2 * 34, 176, lab, "#3f7fc4"))
+    s += sub(934, 74, 328, 142, "blue", "Owner-Tagged Memory Items")
+    for i2, lab in enumerate(["item 1 owned by {Agent A, Agent B}",
+                              "item 2 owned by {Agent C}",
+                              "item 3 owned by {Agent A, Agent C}"]):
+        s.append(box(950, 116 + i2 * 33, 300, lab, "#3f7fc4", h=30, size=15))
 
-    s.append(fat(1098, 248, 1146, 290, shaft=16, head=30))
-    s.append(T(1060, 276, "seeds the store", 19, CORAL, "end"))
+    s.append(fat(1150, 248, 1150, 292, shaft=16, head=30))
 
     # ---- stage 2: runtime -- the actions are drawn where they happen, in
     # the society, so the separate repertoire strip is gone
@@ -247,63 +279,55 @@ def framework():
     # column above feeds straight down into the store it seeds
     s += sub(38, 372, 522, 322, "green", "The Society")
 
-    for cx in (145, 300, 455):
-        s.append(icon(cx, 462, "robot", 72))
-        s.append(T(cx, 512, "Agent", 16))
-    s.append(fat(190, 448, 258, 448, shaft=10, head=22))
-    s.append(T(224, 428, "say", 16, CORAL))
+    for cx, who in ((145, "A"), (300, "B"), (455, "C")):
+        s.append(icon(cx, 458, "robot", 84))
+        s.append(T(cx, 520, f"Agent {who}", 18))
+    s.append(fat(190, 438, 258, 438, shaft=9, head=20))
+    s.append(T(224, 420, "say", 17, CORAL))
+    s.append(fat(258, 472, 190, 472, shaft=9, head=20))
+    s.append(T(224, 500, "read_thread", 15, CORAL))
 
     s.append(fat(141, 528, 117, 574, shaft=8, head=18))
-    s.append(T(158, 556, "observe", 15, CORAL, "start"))
+    s.append(T(160, 556, "observe", 16, CORAL, "start"))
     s.append(fat(294, 528, 250, 574, shaft=8, head=18))
-    s.append(T(312, 556, "move", 15, CORAL, "start"))
-    s.append(fat(461, 528, 492, 572, shaft=8, head=18))
-    s.append(T(506, 556, "read", 15, CORAL, "start"))
+    s.append(T(304, 556, "move", 16, CORAL, "start"))
+    s.append(fat(440, 530, 400, 574, shaft=8, head=18))
+    s.append(T(378, 556, "act_on", 16, CORAL))
+    s.append(fat(474, 530, 500, 574, shaft=8, head=18))
+    s.append(T(518, 556, "read", 16, CORAL, "start"))
 
-    for cx in (110, 240, 370):
-        s.append(icon(cx, 612, "city", 62))
-        s.append(T(cx, 662, "Location", 15))
-    s.append(icon(500, 606, "page", 50))
-    s.append(T(500, 648, "Letters", 15))
-    s.append(T(500, 666, "&amp; Edicts", 15))
+    for cx, n in ((110, 1), (240, 2), (370, 3)):
+        s.append(icon(cx, 612, "city", 74))
+        s.append(T(cx, 670, f"Location {n}", 17))
+    s.append(icon(500, 606, "page", 62))
+    s.append(T(500, 654, "Letters", 16))
+    s.append(T(500, 672, "&amp; Edicts", 16))
 
     s.append(fat(652, 476, 574, 476, shaft=10, head=22))
-    s.append(T(613, 458, "context", 15, CORAL))
+    s.append(T(613, 456, "context", 16, CORAL))
     s.append(fat(574, 564, 652, 564, shaft=10, head=22))
-    s.append(T(613, 546, "result", 15, CORAL))
+    s.append(T(613, 544, "result", 16, CORAL))
 
     # ---- short-term memory: what build_view() hands the brain each round
     s += sub(666, 372, 266, 322, "purple", "Short-Term Memory")
 
-    PUR, PUR_L = "#7c4dd6", "#e9e0fb"
-    SL, SL_L = "#7d8794", "#eceff3"
-    TEA, TEA_L = "#12857e", "#d3f0ee"
-
-    s.append(T(799, 436, "Goal Stack", 16))
-    for k, w in enumerate((150, 168, 186)):
-        s.append(box(799 - w / 2, 444 + k * 20, w, "", PUR, PUR_L, h=17))
-    s.append(T(799, 524, "Status", 16))
-    for k in range(2):
-        s.append(box(714, 532 + k * 20, 170, "", SL, SL_L, h=17))
-    s.append(T(799, 592, "Action–Result Cache", 15))
-    for k in range(3):
-        s.append(box(700, 600 + k * 20, 92, "", TEA, TEA_L, h=17))
-        s.append(box(806, 600 + k * 20, 92, "", TEA, TEA_L, h=17))
-    s.append(T(799, 678, "20 most recent pairs", 13, GREY))
+    for cy, name, lab in [(444, "goals", "Goal Stack"),
+                          (536, "status", "Status"),
+                          (628, "cache", "Action–Result Cache")]:
+        s.append(icon(799, cy, name, 72))
+        s.append(T(799, cy + 50, lab, 18))
 
     s.append(fat(1024, 476, 946, 476))
-    s.append(T(985, 458, "recall", 16, CORAL))
+    s.append(T(985, 456, "recall", 17, CORAL))
     s.append(fat(946, 564, 1024, 564))
-    s.append(T(985, 546, "remember", 16, CORAL))
-    s.append(T(985, 600, "owner-", 13, GREY))
-    s.append(T(985, 616, "scoped", 13, GREY))
+    s.append(T(985, 544, "remember", 17, CORAL))
+    s.append(T(985, 598, "owner-", 14, GREY))
+    s.append(T(985, 616, "scoped", 14, GREY))
 
     s += sub(1038, 372, 224, 322, "blue", "Long-Term Memory")
-    s.append(icon(1150, 492, "store", 88))
-    s.append(T(1150, 578, "One Store,", 17))
-    s.append(T(1150, 600, "All Agents", 17))
-    s.append(T(1150, 634, "structure differs", 14, GREY))
-    s.append(T(1150, 652, "per backend", 14, GREY))
+    s.append(icon(1150, 502, "store", 110))
+    s.append(T(1150, 612, "structure differs", 15, GREY))
+    s.append(T(1150, 632, "per backend", 15, GREY))
 
     s.append('</svg>')
     return "\n".join(s)

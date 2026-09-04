@@ -212,29 +212,30 @@ Agentsensus differs in what it puts under test: not the story that comes out,
 but the memory substrate it comes from.
 
 \section{The Agentsensus framework}
+\label{sec:framework}
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.82\textwidth]{framework.pdf}
 \caption{The framework shared by all four backends. A source text is sedimented
-into owner-tagged events that seed one long-term memory store; a round-barrier
+into owner-tagged memory items that seed one long-term memory store; a round-barrier
 kernel then steps every awake agent, and the actions they take deposit into and
 retrieve from that store through short-term memory --- a goal stack, a status
-register, and a cache of recent action--result pairs. The society panel names
-four of the actions. Only the long-term memory box differs between the
+register, and a cache of recent action--result pairs. The society panel names the six
+actions that act on the world and on other agents. Only the long-term memory box differs between the
 four systems compared in this paper.}
 \label{fig:framework}
 \end{figure}
 
 \subsection{World model and round-barrier kernel}
-Agents are of three kinds. \emph{Characters} are schedulable and act;
-\emph{environments} (places) own memories but never act; \emph{information
-carriers} (letters, edicts, scripts) hold text that a character can read. A
-round is a barrier: every awake agent observes, decides and acts against the
-same world state, and effects become visible in the next round, so a round's
-outcome does not depend on the order agents were stepped in. Messages are held
-by the kernel as conversation threads, delivered with a delay proportional to
-distance, so a letter takes rounds to arrive.
+Agents are of three kinds: \emph{characters} act, \emph{environments} (places)
+own memories but never act, and \emph{information carriers} (letters, edicts,
+scripts) hold text a character can read. A round is a barrier --- every awake
+agent decides against the same world state, and effects become visible only in
+the next round --- so a round's outcome does not depend on the order agents
+were stepped in. Appendix~\ref{app:impl} gives the kernel, the action
+repertoire and the short-term memory in full; none of it differs between the
+four backends.
 
 \subsection{Sedimentation}
 Before simulation, the source text is turned into a world: a cast, a map,
@@ -522,13 +523,66 @@ within 1\% of its original (\S\ref{sec:ablation}).
 
 \appendix
 
+\section{Implementation details}
+\label{app:impl}
+
+Everything in this section is shared by all four backends; only the long-term
+store differs. It is collected here so \S\ref{sec:framework} can stay on the
+memory mechanism.
+
+\paragraph{Agent kinds and scheduling.} Characters are the only schedulable
+agents. Environments and information carriers are passive: the kernel never
+gives them a turn, so an action aimed at one (\code{act\_on}, \code{read})
+is resolved synchronously inside the acting character's own apply step rather
+than on the target's next tick. A character that is dead or absent by the end
+of the source material still gets an agent, so its memories stay in the store
+and remain recallable by the living, but it is never scheduled.
+
+\paragraph{The round barrier.} A round proceeds in two phases. Every awake
+agent first builds its view and decides against the world state as it stood at
+the barrier; only then are the chosen actions applied. Effects therefore become
+visible in the following round, and the outcome of a round does not depend on
+the order agents were stepped in, which is what makes a run reproducible from
+its event log.
+
+\paragraph{Messages and distance.} \code{say} and \code{gesture} are the two
+asynchronous actions: they may only target a character, and they deliver into
+the recipient's inbox, visible from the next round. The kernel holds the
+exchange as a conversation thread that either party can re-read with
+\code{read\_thread}. Delivery is delayed in proportion to the distance between
+speaker and recipient, so a letter across the map takes rounds to arrive.
+
+\paragraph{The action repertoire.} Agents choose one action per round from
+twenty-four: twenty-two synchronous and the two asynchronous ones above. Six
+of the twenty-four are discretionary memory management ---
+\code{forget}, \code{revise\_memory}, \code{add/remove/set\_affiliated} and
+\code{get\_affiliated} --- and were never called (\S\ref{sec:nomgmt},
+Appendix~\ref{app:actions}). Figure~\ref{fig:framework} names the six that act
+on the world or on another agent; the rest are cognitive (\code{think},
+\code{conclude}, \code{wait}, \code{noop}), memory (\code{remember},
+\code{recall}) or short-term bookkeeping.
+
+\paragraph{Short-term memory.} Each character carries a short-term memory of
+three parts, and exactly these three are serialised into the prompt each round:
+a \emph{goal stack} (index zero the most fundamental, maintained by
+\code{push\_goal}, \code{pop\_goal} and \code{replace\_goal}); a
+\emph{status register} of key--value pairs with a private subset, maintained by
+\code{update\_status} and \code{remove\_status}; and a \emph{cache} of the
+twenty most recent \code{(action, result)} pairs. When the cache is full the
+evicted pair is chosen by one of three policies: \code{fifo} drops the oldest
+(the published configuration), \code{relevance} drops the existing pair least
+similar to the incoming one by embedding cosine, and \code{hybrid} scores
+$\alpha\cdot\text{recency} + (1-\alpha)\cdot\text{relevance}$ with
+$\alpha = 0.5$. The pair being appended is always kept. \S\ref{sec:ablation}
+varies this policy and finds it changes no structural quantity.
+
 \section{What agents actually call}
 \label{app:actions}
 
 Table~\ref{tab:actions} is the census behind \S\ref{sec:nomgmt}: every action
 every backend invoked, counted from the event logs of each world's final
 stage. Two facts are visible at once. \code{remember} and \code{recall} are
-called constantly, and the seven discretionary memory-management actions ---
+called constantly, and the six discretionary memory-management actions ---
 \code{forget}, \code{revise\_memory}, \code{add/remove/set\_affiliated},
 \code{get\_affiliated} --- do not appear at all, in any world, for any
 backend, which is why they are absent from the table rather than shown as rows
