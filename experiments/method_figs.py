@@ -337,8 +337,12 @@ def framework():
 
 def backends():
     """Four panels, one per backend. No inner frame and no summary lines: the
-    structure is the argument, and the caption carries the rest."""
-    W, H = 1120, 728
+    structure is the argument, and the caption carries the rest.
+
+    Edge direction follows the stored edge, not the flow of information: a
+    reflection and an insight each carry a provenance pointer down to the rows
+    they were derived from, so the arrows point down."""
+    W, H = 1120, 760
     s = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" {RF} '
          f'style="max-width:100%;height:auto">', DEFS,
          f'<rect width="{W}" height="{H}" fill="#ffffff"/>']
@@ -349,71 +353,69 @@ def backends():
     BLU, BLU_L = "#2f6fd0", "#dceafa"
     PUR, PUR_L = "#7c4dd6", "#e9e0fb"
 
-    # ---- (a) Generative Agents: the reflection tree drawn out. Reflections
-    # are stored back into the stream and linked to their evidence, so a later
-    # reflection can take an earlier one as evidence -- hence the second level.
-    s += panel(14, 12, 542, 340, "green", "(a) Generative Agents")
+    # ---- (a) Generative Agents
+    s += panel(14, 12, 542, 356, "green", "(a) Generative Agents")
     s.append(T(285, 106, "One Private Stream per Agent", 21))
     for cx, who in [(154, "A"), (416, "B")]:
-        s.append(icon(cx - 24, 148, "robot", 52))
-        s.append(T(cx + 28, 154, who, 20))
-        s.append(box(cx - 62, 182, 124, "reflection²", GRN, GRN_L, h=28,
-                     dashed=True, size=13))
-        s.append(fat(cx, 232, cx, 212, shaft=4.5, head=11, colour=GRN, edge=GRN_D))
-        s.append(box(cx - 62, 234, 124, "reflection", GRN, GRN_L, h=28,
-                     dashed=True, size=13))
-        s.append(fat(cx - 52, 290, cx - 18, 266, shaft=4.5, head=11,
+        s.append(icon(cx - 28, 150, "robot", 64))
+        s.append(T(cx + 32, 158, who, 21))
+        s.append(box(cx - 76, 182, 152, "reflection²", GRN, GRN_L, h=32,
+                     dashed=True, size=14))
+        s.append(fat(cx, 216, cx, 234, shaft=5, head=12, colour=GRN, edge=GRN_D))
+        s.append(box(cx - 76, 238, 152, "reflection", GRN, GRN_L, h=32,
+                     dashed=True, size=14))
+        s.append(fat(cx - 20, 272, cx - 56, 296, shaft=5, head=12,
                      colour=GRN, edge=GRN_D))
-        s.append(fat(cx + 52, 290, cx + 18, 266, shaft=4.5, head=11,
+        s.append(fat(cx + 20, 272, cx + 56, 296, shaft=5, head=12,
                      colour=GRN, edge=GRN_D))
-        s.append(box(cx - 106, 296, 100, "memory item", GRN, "#ffffff", h=28, size=13))
-        s.append(box(cx + 6, 296, 100, "&#8230;", GRN, "#ffffff", h=28, size=13))
-    s.append(T(285, 250, "evidence", 14, GREY))
+        s.append(box(cx - 108, 300, 104, "memory item", GRN, "#ffffff", h=32, size=13.5))
+        s.append(box(cx + 4, 300, 104, "&#8230;", GRN, "#ffffff", h=32, size=13.5))
+    s.append(T(285, 258, "evidence", 14, GREY))
 
     # ---- (b) G-Memory
-    s += panel(564, 12, 542, 340, "orange", "(b) G-Memory")
+    s += panel(564, 12, 542, 356, "orange", "(b) G-Memory")
     s.append(T(835, 106, "Two-Tier Graph, per Owner", 21))
     for cx, who in [(704, "A"), (966, "B")]:
-        s.append(icon(cx - 22, 164, "robot", 52))
-        s.append(T(cx + 26, 170, who, 20))
-        s.append(f'<ellipse cx="{cx}" cy="228" rx="66" ry="23" fill="{AMB_L}" '
+        s.append(icon(cx - 26, 164, "robot", 62))
+        s.append(T(cx + 32, 172, who, 21))
+        s.append(f'<ellipse cx="{cx}" cy="234" rx="78" ry="26" fill="{AMB_L}" '
                  f'stroke="{AMB}" stroke-width="3" stroke-dasharray="7 5"/>')
-        s.append(T(cx, 235, "insight", 17))
+        s.append(T(cx, 242, "insight", 18))
         for i2, lab in enumerate(("memory item", "&#8230;")):
-            bx = cx - 108 + i2 * 112
-            s.append(box(bx, 290, 104, lab, AMB, "#ffffff", h=30, size=14))
-            s.append(fat(bx + 52, 286, cx, 255, shaft=5, head=12, colour=AMB,
+            bx = cx - 116 + i2 * 120
+            s.append(box(bx, 300, 112, lab, AMB, "#ffffff", h=32, size=14))
+            s.append(fat(cx, 262, bx + 56, 296, shaft=5.5, head=13, colour=AMB,
                          edge="#9c5f0d"))
-    s.append(T(835, 274, "distilled into", 14, GREY))
+    s.append(T(835, 284, "derived_from", 14, GREY))
 
     # ---- (c) Collaborative
-    s += panel(14, 372, 542, 340, "pink", "(c) Collaborative")
-    s.append(T(285, 466, "One Store, Split by Permission", 21))
+    s += panel(14, 388, 542, 356, "pink", "(c) Collaborative")
+    s.append(T(285, 482, "One Store, Split by Permission", 21))
     for cx, who in [(154, "A"), (416, "B")]:
-        s.append(icon(cx - 22, 516, "robot", 54))
-        s.append(T(cx + 28, 522, who, 20))
-    s.append(box(74, 550, 164, "memory item &#183; {A}", RED, RED_L, h=30, size=13.5))
-    s.append(box(336, 550, 164, "memory item &#183; {A, B}", RED, RED_L, h=30, size=13.5))
-    s.append(box(74, 590, 164, "&#8230; &#183; {A}", RED, "#ffffff", h=30, size=13.5))
-    s.append(box(336, 590, 164, "&#8230; &#183; {B}", RED, "#ffffff", h=30, size=13.5))
-    s.append(icon(285, 572, "lock", 46))
-    s.append(fat(238, 648, 336, 648, shaft=9, head=20, colour=RED, edge="#a33"))
-    s.append(T(285, 678, "grant", 16))
+        s.append(icon(cx - 28, 538, "robot", 64))
+        s.append(T(cx + 32, 546, who, 21))
+    s.append(box(66, 574, 186, "memory item &#183; {A}", RED, RED_L, h=32, size=14.5))
+    s.append(box(318, 574, 186, "memory item &#183; {A, B}", RED, RED_L, h=32, size=14.5))
+    s.append(box(66, 616, 186, "&#8230; &#183; {A}", RED, "#ffffff", h=32, size=14.5))
+    s.append(box(318, 616, 186, "&#8230; &#183; {B}", RED, "#ffffff", h=32, size=14.5))
+    s.append(icon(285, 598, "lock", 54))
+    s.append(fat(256, 676, 316, 676, shaft=10, head=22, colour=RED, edge="#a33"))
+    s.append(T(285, 708, "grant", 17))
 
     # ---- (d) Consensus
-    s += panel(564, 372, 542, 340, "blue", "(d) Consensus  (ours)")
-    s.append(T(835, 466, "One Record, Several Owners", 21))
-    for cx, who, tx in [(712, "A", 742), (835, "B", 835), (958, "C", 928)]:
-        s.append(icon(cx - 20, 516, "robot", 52))
-        s.append(T(cx + 26, 522, who, 20))
-        s.append(fat(cx, 546, tx, 578, shaft=9, head=20))
-    s.append(box(628, 584, 416, "memory item &#183; owners {A, B, C}", BLU, BLU_L,
-                 h=38, size=18))
-    s.append(box(608, 640, 176, "memory item &#183; {A, B}", PUR, PUR_L, h=30, size=13))
-    s.append(box(890, 640, 162, "memory item &#183; {C}", PUR, PUR_L, h=30, size=13))
-    s.append(fat(664, 624, 682, 636, shaft=5, head=12, colour=PUR, edge="#5b2fa8"))
-    s.append(fat(1008, 624, 990, 636, shaft=5, head=12, colour=PUR, edge="#5b2fa8"))
-    s.append(T(835, 662, "affiliated", 14, PUR))
+    s += panel(564, 388, 542, 356, "blue", "(d) Consensus  (ours)")
+    s.append(T(835, 482, "One Record, Several Owners", 21))
+    for cx, who, tx in [(710, "A", 744), (835, "B", 835), (960, "C", 926)]:
+        s.append(icon(cx - 24, 536, "robot", 62))
+        s.append(T(cx + 30, 544, who, 21))
+        s.append(fat(cx, 570, tx, 600, shaft=10, head=22))
+    s.append(box(618, 606, 440, "memory item &#183; owners {A, B, C}", BLU, BLU_L,
+                 h=42, size=19))
+    s.append(box(598, 666, 190, "memory item &#183; {A, B}", PUR, PUR_L, h=34, size=13.5))
+    s.append(box(884, 666, 190, "memory item &#183; {C}", PUR, PUR_L, h=34, size=13.5))
+    s.append(fat(654, 650, 672, 662, shaft=5.5, head=13, colour=PUR, edge="#5b2fa8"))
+    s.append(fat(1022, 650, 1004, 662, shaft=5.5, head=13, colour=PUR, edge="#5b2fa8"))
+    s.append(T(835, 690, "affiliated", 15, PUR))
 
     s.append('</svg>')
     return "\n".join(s)
