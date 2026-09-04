@@ -219,7 +219,9 @@ but the memory substrate it comes from.
 \caption{The framework shared by all four backends. A source text is sedimented
 into owner-tagged events that seed one long-term memory store; a round-barrier
 kernel then steps every awake agent, and the actions they take deposit into and
-retrieve from that store. Only the box marked \emph{memory} differs between the
+retrieve from that store through short-term memory --- a goal stack, a status
+register, and a cache of recent action--result pairs. The society panel names
+four of the actions. Only the long-term memory box differs between the
 four systems compared in this paper.}
 \label{fig:framework}
 \end{figure}

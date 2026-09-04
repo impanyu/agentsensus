@@ -32,6 +32,7 @@ HUES = {                      # (border, panel fill, sub fill)
     "green":  ("#4faa6a", "#e8f6e6", "#f4fdf4"),
     "pink":   ("#d97f7f", "#fbe6e6", "#fff8f8"),
     "taupe":  ("#b09a86", "#f0e9e2", "#fbf8f5"),
+    "purple": ("#8b7fd4", "#ece8fa", "#faf8ff"),
 }
 
 DEFS = ('<defs><pattern id="hx" width="9" height="9" patternUnits="userSpaceOnUse" '
@@ -120,13 +121,29 @@ def _lock():
             '<path d="M36 47 v6" stroke-width="3.4"/></g>')
 
 
+def _city():
+    return (f'<g stroke="{BLACK}" stroke-width="3" stroke-linejoin="round" fill="none">'
+            '<rect x="9" y="33" width="20" height="29" fill="#8fb8d9"/>'
+            '<rect x="27" y="15" width="20" height="47" fill="#c3dcf0"/>'
+            '<rect x="45" y="26" width="18" height="36" fill="#8fb8d9"/>'
+            '<g fill="#f0b429" stroke="none">'
+            '<rect x="14" y="39" width="4.5" height="5"/><rect x="21" y="39" width="4.5" height="5"/>'
+            '<rect x="14" y="48" width="4.5" height="5"/><rect x="21" y="48" width="4.5" height="5"/>'
+            '<rect x="32" y="23" width="4.5" height="5"/><rect x="39" y="23" width="4.5" height="5"/>'
+            '<rect x="32" y="33" width="4.5" height="5"/><rect x="39" y="33" width="4.5" height="5"/>'
+            '<rect x="32" y="43" width="4.5" height="5"/><rect x="39" y="43" width="4.5" height="5"/>'
+            '<rect x="50" y="33" width="4.5" height="5"/><rect x="56" y="33" width="4.5" height="5"/>'
+            '<rect x="50" y="43" width="4.5" height="5"/><rect x="56" y="43" width="4.5" height="5"/>'
+            '</g><path d="M5 62 h62" stroke-width="3.4"/></g>')
+
+
 def _no():
     return ('<circle cx="36" cy="36" r="24" fill="#ffffff" stroke="#d33a3a" stroke-width="6.5"/>'
             '<path d="M19 19 L53 53" stroke="#d33a3a" stroke-width="6.5" stroke-linecap="round"/>')
 
 
 GLYPH = {"globe": _globe, "robot": _robot, "book": _book, "glass": _glass,
-         "store": _store, "page": _page, "lock": _lock, "no": _no}
+         "store": _store, "page": _page, "lock": _lock, "no": _no, "city": _city}
 
 
 def icon(x, y, name, size=56):
@@ -193,88 +210,100 @@ def pill(x, y, w, label, border, fill, dashed=False, size=14):
 # --------------------------------------------------------------- figure 1
 
 def framework():
-    W, H = 1120, 780
+    W, H = 1300, 748
     s = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" {RF} '
          f'style="max-width:100%;height:auto">', DEFS,
          f'<rect width="{W}" height="{H}" fill="#ffffff"/>']
 
     # ---- stage 1: offline
-    s += panel(14, 12, 1092, 228, "orange", "Offline · Sedimentation")
+    s += panel(14, 12, 1272, 228, "orange",
+               "Offline · Long-Term Memory Initialization")
 
-    s += sub(38, 80, 300, 142, "orange", "Source Text")
-    s.append(icon(188, 146, "book", 58))
-    s.append(T(188, 204, "Novel · Play · Timeline", 16))
+    s += sub(38, 74, 372, 142, "orange", "Source Text")
+    s.append(icon(224, 146, "book", 58))
+    s.append(T(224, 204, "Novel · Play · Timeline", 16))
 
-    s.append(fat(350, 151, 402, 151))
+    s.append(fat(424, 151, 472, 151))
 
-    s += sub(414, 80, 300, 142, "orange", "Extract &amp; Attribute")
-    s.append(icon(564, 146, "glass", 56))
-    s.append(T(564, 204, "Who Witnessed It?", 16))
+    s += sub(486, 74, 372, 142, "orange", "Extract &amp; Attribute")
+    s.append(icon(672, 146, "glass", 56))
+    s.append(T(672, 204, "Who Witnessed It?", 16))
 
-    s.append(fat(726, 151, 778, 151))
+    s.append(fat(872, 151, 920, 151))
 
-    s += sub(790, 80, 292, 142, "blue", "Owner-Tagged Events")
-    for i, lab in enumerate(["e &#183; {A, B}", "&#8230; &#183; {C}",
-                             "&#8230; &#183; {A, D}"]):
-        s.append(box(848, 118 + i * 36, 176, lab, "#3f7fc4"))
+    s += sub(934, 74, 328, 142, "blue", "Owner-Tagged Events")
+    for i2, lab in enumerate(["e &#183; {A, B}", "&#8230; &#183; {C}",
+                              "&#8230; &#183; {A, D}"]):
+        s.append(box(1010, 112 + i2 * 34, 176, lab, "#3f7fc4"))
 
-    s.append(fat(560, 248, 560, 286, shaft=16, head=30))
-    s.append(T(596, 276, "seeds the store", 19, CORAL, "start"))
+    s.append(fat(1098, 248, 1146, 290, shaft=16, head=30))
+    s.append(T(1060, 276, "seeds the store", 19, CORAL, "end"))
 
-    # ---- stage 2: runtime
-    s += panel(14, 300, 1092, 314, "blue", "Runtime · One Shared Store")
+    # ---- stage 2: runtime -- the actions are drawn where they happen, in
+    # the society, so the separate repertoire strip is gone
+    s += panel(14, 300, 1272, 424, "blue", "Runtime · Simulation")
 
-    s += sub(38, 368, 292, 224, "blue", "Shared Memory")
-    s.append(icon(184, 448, "store", 82))
-    s.append(T(184, 524, "One Store, All Agents", 17))
-    s.append(T(184, 562, "structure differs per backend", 14, GREY))
+    # society -> short-term -> long-term, left to right, so the offline
+    # column above feeds straight down into the store it seeds
+    s += sub(38, 372, 522, 322, "green", "The Society")
 
-    s.append(fat(340, 428, 424, 428))
-    s.append(T(381, 410, "recall", 16, CORAL))
-    s.append(fat(424, 508, 340, 508))
-    s.append(T(381, 490, "remember", 16, CORAL))
-    s.append(T(381, 544, "owner-", 13, GREY))
-    s.append(T(381, 560, "scoped", 13, GREY))
+    for cx in (145, 300, 455):
+        s.append(icon(cx, 462, "robot", 72))
+        s.append(T(cx, 512, "Agent", 16))
+    s.append(fat(190, 448, 258, 448, shaft=10, head=22))
+    s.append(T(224, 428, "say", 16, CORAL))
 
-    s += sub(432, 368, 650, 224, "green", "The Society")
+    s.append(fat(141, 528, 117, 574, shaft=8, head=18))
+    s.append(T(158, 556, "observe", 15, CORAL, "start"))
+    s.append(fat(294, 528, 250, 574, shaft=8, head=18))
+    s.append(T(312, 556, "move", 15, CORAL, "start"))
+    s.append(fat(461, 528, 492, 572, shaft=8, head=18))
+    s.append(T(506, 556, "read", 15, CORAL, "start"))
 
-    s.append(icon(520, 452, "robot", 74))
-    s.append(T(520, 508, "Agent", 17))
-    s.append(icon(722, 452, "robot", 74))
-    s.append(T(722, 508, "Agent", 17))
-    s.append(icon(916, 448, "globe", 74))
-    s.append(T(916, 508, "World", 17))
-    s.append(icon(620, 546, "page", 46))
-    s.append(T(700, 552, "Letters &amp; Edicts", 16, BLACK, "start"))
+    for cx in (110, 240, 370):
+        s.append(icon(cx, 612, "city", 62))
+        s.append(T(cx, 662, "Location", 15))
+    s.append(icon(500, 606, "page", 50))
+    s.append(T(500, 648, "Letters", 15))
+    s.append(T(500, 666, "&amp; Edicts", 15))
 
-    s.append(fat(568, 438, 674, 438, shaft=11, head=24))
-    s.append(T(621, 418, "say", 18, CORAL))
+    s.append(fat(652, 476, 574, 476, shaft=10, head=22))
+    s.append(T(613, 458, "context", 15, CORAL))
+    s.append(fat(574, 564, 652, 564, shaft=10, head=22))
+    s.append(T(613, 546, "result", 15, CORAL))
 
-    # ---- stage 3: the repertoire
-    s += panel(14, 626, 1092, 142, "taupe", "One Action per Agent per Round", 24)
+    # ---- short-term memory: what build_view() hands the brain each round
+    s += sub(666, 372, 266, 322, "purple", "Short-Term Memory")
 
-    GRN, GRN_L = "#0f8a5f", "#d6f5e6"
-    BLU, BLU_L = "#2f6fd0", "#dceafa"
     PUR, PUR_L = "#7c4dd6", "#e9e0fb"
-    SL, SL_L = "#8a94a3", "#eef1f5"
-    RED, RED_L = "#d63b3b", "#fbdede"
-    world = ("say", "read_thread", "observe", "move", "act_on", "read")
+    SL, SL_L = "#7d8794", "#eceff3"
+    TEA, TEA_L = "#12857e", "#d3f0ee"
 
-    x = 44
-    for lab, w in [("say", 56), ("read_thread", 112), ("observe", 88),
-                   ("move", 66), ("act_on", 78), ("read", 62),
-                   ("think", 66), ("conclude", 92), ("wait", 60)]:
-        s.append(pill(x, 686, w, lab, *((GRN, GRN_L) if lab in world else (SL, SL_L))))
-        x += w + 9
-    for lab, w in [("remember", 100), ("recall", 74)]:
-        s.append(pill(x, 686, w, lab, BLU, BLU_L)); x += w + 9
+    s.append(T(799, 436, "Goal Stack", 16))
+    for k, w in enumerate((150, 168, 186)):
+        s.append(box(799 - w / 2, 444 + k * 20, w, "", PUR, PUR_L, h=17))
+    s.append(T(799, 524, "Status", 16))
+    for k in range(2):
+        s.append(box(714, 532 + k * 20, 170, "", SL, SL_L, h=17))
+    s.append(T(799, 592, "Action–Result Cache", 15))
+    for k in range(3):
+        s.append(box(700, 600 + k * 20, 92, "", TEA, TEA_L, h=17))
+        s.append(box(806, 600 + k * 20, 92, "", TEA, TEA_L, h=17))
+    s.append(T(799, 678, "20 most recent pairs", 13, GREY))
 
-    x = 44
-    for lab, w in [("push_goal", 98), ("pop_goal", 90), ("replace_goal", 120),
-                   ("update_status", 132)]:
-        s.append(pill(x, 728, w, lab, PUR, PUR_L)); x += w + 9
-    s.append(pill(x + 26, 728, 344, "6 memory-management actions · never used",
-                  RED, RED_L, dashed=True))
+    s.append(fat(1024, 476, 946, 476))
+    s.append(T(985, 458, "recall", 16, CORAL))
+    s.append(fat(946, 564, 1024, 564))
+    s.append(T(985, 546, "remember", 16, CORAL))
+    s.append(T(985, 600, "owner-", 13, GREY))
+    s.append(T(985, 616, "scoped", 13, GREY))
+
+    s += sub(1038, 372, 224, 322, "blue", "Long-Term Memory")
+    s.append(icon(1150, 492, "store", 88))
+    s.append(T(1150, 578, "One Store,", 17))
+    s.append(T(1150, 600, "All Agents", 17))
+    s.append(T(1150, 634, "structure differs", 14, GREY))
+    s.append(T(1150, 652, "per backend", 14, GREY))
 
     s.append('</svg>')
     return "\n".join(s)
