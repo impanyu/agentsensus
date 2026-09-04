@@ -1,334 +1,87 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1060 786" font-family="Helvetica,Arial,sans-serif" style="max-width:100%;height:auto">
-<rect width="1060" height="786" fill="#ffffff"/>
-<rect x="14" y="12" width="512" height="376" rx="20" fill="#e6f5e4" stroke="#6fb87f" stroke-width="4"/>
-<text x="270.0" y="58" font-size="26" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">(a) Generative Agents</text>
-<rect x="36" y="76" width="468" height="220" rx="15" fill="#f6fdf5" stroke="#6fb87f" stroke-width="2.6" stroke-dasharray="9 6"/>
-<text x="270.0" y="106" font-size="18" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">One Private Stream per Agent</text>
-<g transform="translate(108.0,112.0) scale(0.6111)"><g>
-    <path fill="#D22F27" d="M34,16.1123v-2.5109c0-1.3807,1.1193-2.5,2.5-2.5l0,0c1.3807,0,2.5,1.1193,2.5,2.5v2.5"/>
-    <path fill="#D0CFCE" d="M13.5,41.1014L13.5,41.1014c-1.3807,0-2.5-1.1193-2.5-2.5v-8c0-1.3807,1.1193-2.5,2.5-2.5l0,0 c1.3807,0,2.5,1.1193,2.5,2.5v8C16,39.9821,14.8807,41.1014,13.5,41.1014z"/>
-    <path fill="#D0CFCE" d="M58.5,41.1014L58.5,41.1014c1.3807,0,2.5-1.1193,2.5-2.5v-8c0-1.3807-1.1193-2.5-2.5-2.5l0,0 c-1.3807,0-2.5,1.1193-2.5,2.5v8C56,39.9821,57.1193,41.1014,58.5,41.1014z"/>
-    <path fill="#D0CFCE" d="M47.4505,56.1123h-22.901c-4.7022,0-8.5495-3.8473-8.5495-8.5495v-22.901 c0-4.7022,3.8473-8.5495,8.5495-8.5495h22.901c4.7022,0,8.5495,3.8473,8.5495,8.5495v22.901 C56,52.2649,52.1527,56.1123,47.4505,56.1123z"/>
-    <path fill="#9B9B9A" d="M35.4977,56.1115h13.2865c3.9687,0,7.2158-3.8473,7.2158-8.5495V24.661 c0-4.7022-3.2471-8.5495-7.2158-8.5495h-2.3526"/>
-    <ellipse cx="44.8346" cy="29.0027" rx="2.8338" ry="2.8338" fill="#FFFFFF"/>
-    <ellipse cx="27.3342" cy="29.0022" rx="2.8338" ry="2.8338" fill="#FFFFFF"/>
-    <path fill="#FFFFFF" d="M44.5,47.5005h-17c-2.2,0-4-1.8-4-4l0,0c0-2.2,1.8-4,4-4h17c2.2,0,4,1.8,4,4l0,0 C48.5,45.7005,46.7,47.5005,44.5,47.5005z"/>
-  </g>
-  <g/>
-  <g/>
-  <g/>
-  <g>
-    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M34,16.0109V13.5c0-1.3807,1.1193-2.5,2.5-2.5l0,0c1.3807,0,2.5,1.1193,2.5,2.5V16"/>
-    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M47.4505,56h-22.901C19.8473,56,16,52.1527,16,47.4505v-22.901C16,19.8473,19.8473,16,24.5495,16h22.901 C52.1527,16,56,19.8473,56,24.5495v22.901C56,52.1527,52.1527,56,47.4505,56z"/>
-    <ellipse cx="44.8346" cy="29.0022" rx="2.8338" ry="2.8338" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
-    <ellipse cx="27.3342" cy="29.0017" rx="2.8338" ry="2.8338" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
-    <path fill="none" stroke="#000000" stroke-miterlimit="2" stroke-width="2" d="M44.5,47.5h-17c-2.2,0-4-1.8-4-4l0,0 c0-2.2,1.8-4,4-4h17c2.2,0,4,1.8,4,4l0,0C48.5,45.7,46.7,47.5,44.5,47.5z"/>
-    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M13.5,41L13.5,41c-1.3807,0-2.5-1.1193-2.5-2.5v-8c0-1.3807,1.1193-2.5,2.5-2.5l0,0c1.3807,0,2.5,1.1193,2.5,2.5v8 C16,39.8807,14.8807,41,13.5,41z"/>
-    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M58.5,41L58.5,41c1.3807,0,2.5-1.1193,2.5-2.5v-8c0-1.3807-1.1193-2.5-2.5-2.5l0,0c-1.3807,0-2.5,1.1193-2.5,2.5v8 C56,39.8807,57.1193,41,58.5,41z"/>
-    <line x1="28" x2="28" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
-    <line x1="33" x2="33" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
-    <line x1="38" x2="38" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
-    <line x1="43" x2="43" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
-  </g></g>
-<text x="168" y="142" font-size="18" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">A</text>
-<rect x="80" y="166" width="132" height="26" rx="7" fill="#ffffff" stroke="#0f8a5f" stroke-width="2.6"/><text x="146.0" y="184.0" font-size="14" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">e</text>
-<rect x="80" y="200" width="132" height="26" rx="7" fill="#ffffff" stroke="#0f8a5f" stroke-width="2.6"/><text x="146.0" y="218.0" font-size="14" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">&#8230;</text>
-<rect x="80" y="240" width="132" height="26" rx="7" fill="#d6f5e6" stroke="#0f8a5f" stroke-width="2.6" stroke-dasharray="6 4"/><text x="146.0" y="258.0" font-size="13" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">reflection</text>
-<g transform="translate(356.0,112.0) scale(0.6111)"><g>
-    <path fill="#D22F27" d="M34,16.1123v-2.5109c0-1.3807,1.1193-2.5,2.5-2.5l0,0c1.3807,0,2.5,1.1193,2.5,2.5v2.5"/>
-    <path fill="#D0CFCE" d="M13.5,41.1014L13.5,41.1014c-1.3807,0-2.5-1.1193-2.5-2.5v-8c0-1.3807,1.1193-2.5,2.5-2.5l0,0 c1.3807,0,2.5,1.1193,2.5,2.5v8C16,39.9821,14.8807,41.1014,13.5,41.1014z"/>
-    <path fill="#D0CFCE" d="M58.5,41.1014L58.5,41.1014c1.3807,0,2.5-1.1193,2.5-2.5v-8c0-1.3807-1.1193-2.5-2.5-2.5l0,0 c-1.3807,0-2.5,1.1193-2.5,2.5v8C56,39.9821,57.1193,41.1014,58.5,41.1014z"/>
-    <path fill="#D0CFCE" d="M47.4505,56.1123h-22.901c-4.7022,0-8.5495-3.8473-8.5495-8.5495v-22.901 c0-4.7022,3.8473-8.5495,8.5495-8.5495h22.901c4.7022,0,8.5495,3.8473,8.5495,8.5495v22.901 C56,52.2649,52.1527,56.1123,47.4505,56.1123z"/>
-    <path fill="#9B9B9A" d="M35.4977,56.1115h13.2865c3.9687,0,7.2158-3.8473,7.2158-8.5495V24.661 c0-4.7022-3.2471-8.5495-7.2158-8.5495h-2.3526"/>
-    <ellipse cx="44.8346" cy="29.0027" rx="2.8338" ry="2.8338" fill="#FFFFFF"/>
-    <ellipse cx="27.3342" cy="29.0022" rx="2.8338" ry="2.8338" fill="#FFFFFF"/>
-    <path fill="#FFFFFF" d="M44.5,47.5005h-17c-2.2,0-4-1.8-4-4l0,0c0-2.2,1.8-4,4-4h17c2.2,0,4,1.8,4,4l0,0 C48.5,45.7005,46.7,47.5005,44.5,47.5005z"/>
-  </g>
-  <g/>
-  <g/>
-  <g/>
-  <g>
-    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M34,16.0109V13.5c0-1.3807,1.1193-2.5,2.5-2.5l0,0c1.3807,0,2.5,1.1193,2.5,2.5V16"/>
-    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M47.4505,56h-22.901C19.8473,56,16,52.1527,16,47.4505v-22.901C16,19.8473,19.8473,16,24.5495,16h22.901 C52.1527,16,56,19.8473,56,24.5495v22.901C56,52.1527,52.1527,56,47.4505,56z"/>
-    <ellipse cx="44.8346" cy="29.0022" rx="2.8338" ry="2.8338" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
-    <ellipse cx="27.3342" cy="29.0017" rx="2.8338" ry="2.8338" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
-    <path fill="none" stroke="#000000" stroke-miterlimit="2" stroke-width="2" d="M44.5,47.5h-17c-2.2,0-4-1.8-4-4l0,0 c0-2.2,1.8-4,4-4h17c2.2,0,4,1.8,4,4l0,0C48.5,45.7,46.7,47.5,44.5,47.5z"/>
-    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M13.5,41L13.5,41c-1.3807,0-2.5-1.1193-2.5-2.5v-8c0-1.3807,1.1193-2.5,2.5-2.5l0,0c1.3807,0,2.5,1.1193,2.5,2.5v8 C16,39.8807,14.8807,41,13.5,41z"/>
-    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M58.5,41L58.5,41c1.3807,0,2.5-1.1193,2.5-2.5v-8c0-1.3807-1.1193-2.5-2.5-2.5l0,0c-1.3807,0-2.5,1.1193-2.5,2.5v8 C56,39.8807,57.1193,41,58.5,41z"/>
-    <line x1="28" x2="28" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
-    <line x1="33" x2="33" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
-    <line x1="38" x2="38" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
-    <line x1="43" x2="43" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
-  </g></g>
-<text x="416" y="142" font-size="18" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">B</text>
-<rect x="328" y="166" width="132" height="26" rx="7" fill="#ffffff" stroke="#0f8a5f" stroke-width="2.6"/><text x="394.0" y="184.0" font-size="14" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">e</text>
-<rect x="328" y="200" width="132" height="26" rx="7" fill="#ffffff" stroke="#0f8a5f" stroke-width="2.6"/><text x="394.0" y="218.0" font-size="14" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">&#8230;</text>
-<rect x="328" y="240" width="132" height="26" rx="7" fill="#d6f5e6" stroke="#0f8a5f" stroke-width="2.6" stroke-dasharray="6 4"/><text x="394.0" y="258.0" font-size="13" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">reflection</text>
-<g transform="translate(252.0,188.0) scale(0.5000)"><g>
-    <circle cx="36" cy="36" r="26" fill="#fff"/>
-    <path fill="#ea5a47" stroke-miterlimit="10" d="m36 7c-16.02 0-29 12.98-29 29s12.98 29 29 29 29-12.98 29-29-12.98-29-29-29zm-25.21 29.27c0-5.075 3.417-12.69 6.202-16.49l35.2 35.27c-3.805 2.784-10.93 5.904-16.01 5.904-12.7 0-25.39-11.98-25.39-24.68zm44.87 15.18-35.06-35.13c3.805-2.784 10.77-5.441 15.84-5.441 12.7 0 24.68 12.25 24.68 24.95 0 5.075-2.686 11.81-5.47 15.62z"/>
-  </g>
-  <g/>
-  <g/>
-  <g/>
-  <g>
-    <circle cx="36" cy="36" r="30" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
-    <path fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m55.66 51.44a24.99 24.99 0 0 0-35.06-35.13z"/>
-    <path fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m16.99 19.77a24.99 24.99 0 0 0 35.2 35.27z"/>
-  </g></g>
-<text x="270" y="248" font-size="13.5" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">no link</text>
-<text x="270" y="336" font-size="19" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">One Copy per Witness</text>
-<text x="270" y="362" font-size="14" fill="#5b6470" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">recency × importance × relevance</text>
-<rect x="534" y="12" width="512" height="376" rx="20" fill="#fbead6" stroke="#e0a05a" stroke-width="4"/>
-<text x="790.0" y="58" font-size="26" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">(b) G-Memory</text>
-<rect x="556" y="76" width="468" height="220" rx="15" fill="#fffaf3" stroke="#e0a05a" stroke-width="2.6" stroke-dasharray="9 6"/>
-<text x="790.0" y="106" font-size="18" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">Two-Tier Graph, per Owner</text>
-<g transform="translate(629.0,111.0) scale(0.5833)"><g>
-    <path fill="#D22F27" d="M34,16.1123v-2.5109c0-1.3807,1.1193-2.5,2.5-2.5l0,0c1.3807,0,2.5,1.1193,2.5,2.5v2.5"/>
-    <path fill="#D0CFCE" d="M13.5,41.1014L13.5,41.1014c-1.3807,0-2.5-1.1193-2.5-2.5v-8c0-1.3807,1.1193-2.5,2.5-2.5l0,0 c1.3807,0,2.5,1.1193,2.5,2.5v8C16,39.9821,14.8807,41.1014,13.5,41.1014z"/>
-    <path fill="#D0CFCE" d="M58.5,41.1014L58.5,41.1014c1.3807,0,2.5-1.1193,2.5-2.5v-8c0-1.3807-1.1193-2.5-2.5-2.5l0,0 c-1.3807,0-2.5,1.1193-2.5,2.5v8C56,39.9821,57.1193,41.1014,58.5,41.1014z"/>
-    <path fill="#D0CFCE" d="M47.4505,56.1123h-22.901c-4.7022,0-8.5495-3.8473-8.5495-8.5495v-22.901 c0-4.7022,3.8473-8.5495,8.5495-8.5495h22.901c4.7022,0,8.5495,3.8473,8.5495,8.5495v22.901 C56,52.2649,52.1527,56.1123,47.4505,56.1123z"/>
-    <path fill="#9B9B9A" d="M35.4977,56.1115h13.2865c3.9687,0,7.2158-3.8473,7.2158-8.5495V24.661 c0-4.7022-3.2471-8.5495-7.2158-8.5495h-2.3526"/>
-    <ellipse cx="44.8346" cy="29.0027" rx="2.8338" ry="2.8338" fill="#FFFFFF"/>
-    <ellipse cx="27.3342" cy="29.0022" rx="2.8338" ry="2.8338" fill="#FFFFFF"/>
-    <path fill="#FFFFFF" d="M44.5,47.5005h-17c-2.2,0-4-1.8-4-4l0,0c0-2.2,1.8-4,4-4h17c2.2,0,4,1.8,4,4l0,0 C48.5,45.7005,46.7,47.5005,44.5,47.5005z"/>
-  </g>
-  <g/>
-  <g/>
-  <g/>
-  <g>
-    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M34,16.0109V13.5c0-1.3807,1.1193-2.5,2.5-2.5l0,0c1.3807,0,2.5,1.1193,2.5,2.5V16"/>
-    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M47.4505,56h-22.901C19.8473,56,16,52.1527,16,47.4505v-22.901C16,19.8473,19.8473,16,24.5495,16h22.901 C52.1527,16,56,19.8473,56,24.5495v22.901C56,52.1527,52.1527,56,47.4505,56z"/>
-    <ellipse cx="44.8346" cy="29.0022" rx="2.8338" ry="2.8338" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
-    <ellipse cx="27.3342" cy="29.0017" rx="2.8338" ry="2.8338" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
-    <path fill="none" stroke="#000000" stroke-miterlimit="2" stroke-width="2" d="M44.5,47.5h-17c-2.2,0-4-1.8-4-4l0,0 c0-2.2,1.8-4,4-4h17c2.2,0,4,1.8,4,4l0,0C48.5,45.7,46.7,47.5,44.5,47.5z"/>
-    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M13.5,41L13.5,41c-1.3807,0-2.5-1.1193-2.5-2.5v-8c0-1.3807,1.1193-2.5,2.5-2.5l0,0c1.3807,0,2.5,1.1193,2.5,2.5v8 C16,39.8807,14.8807,41,13.5,41z"/>
-    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M58.5,41L58.5,41c1.3807,0,2.5-1.1193,2.5-2.5v-8c0-1.3807-1.1193-2.5-2.5-2.5l0,0c-1.3807,0-2.5,1.1193-2.5,2.5v8 C56,39.8807,57.1193,41,58.5,41z"/>
-    <line x1="28" x2="28" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
-    <line x1="33" x2="33" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
-    <line x1="38" x2="38" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
-    <line x1="43" x2="43" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
-  </g></g>
-<text x="688" y="140" font-size="18" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">A</text>
-<ellipse cx="666" cy="192" rx="62" ry="21" fill="#fceccb" stroke="#c97e14" stroke-width="2.6" stroke-dasharray="6 4"/>
-<text x="666" y="198" font-size="15" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">insight</text>
-<rect x="594" y="248" width="44" height="26" rx="7" fill="#ffffff" stroke="#c97e14" stroke-width="2.6"/><text x="616.0" y="266.0" font-size="13" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">e</text>
-<polygon points="664.8,212.1 624.3,236.4 622.6,233.6 616.0,244.0 628.3,243.1 626.6,240.3 667.2,215.9" fill="#c97e14"/>
-<rect x="644" y="248" width="44" height="26" rx="7" fill="#ffffff" stroke="#c97e14" stroke-width="2.6"/><text x="666.0" y="266.0" font-size="13" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">&#8230;</text>
-<polygon points="663.8,214.0 663.8,233.0 660.5,233.0 666.0,244.0 671.5,233.0 668.2,233.0 668.2,214.0" fill="#c97e14"/>
-<rect x="694" y="248" width="44" height="26" rx="7" fill="#ffffff" stroke="#c97e14" stroke-width="2.6"/><text x="716.0" y="266.0" font-size="13" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">&#8230;</text>
-<polygon points="664.8,215.9 705.4,240.3 703.7,243.1 716.0,244.0 709.4,233.6 707.7,236.4 667.2,212.1" fill="#c97e14"/>
-<g transform="translate(877.0,111.0) scale(0.5833)"><g>
-    <path fill="#D22F27" d="M34,16.1123v-2.5109c0-1.3807,1.1193-2.5,2.5-2.5l0,0c1.3807,0,2.5,1.1193,2.5,2.5v2.5"/>
-    <path fill="#D0CFCE" d="M13.5,41.1014L13.5,41.1014c-1.3807,0-2.5-1.1193-2.5-2.5v-8c0-1.3807,1.1193-2.5,2.5-2.5l0,0 c1.3807,0,2.5,1.1193,2.5,2.5v8C16,39.9821,14.8807,41.1014,13.5,41.1014z"/>
-    <path fill="#D0CFCE" d="M58.5,41.1014L58.5,41.1014c1.3807,0,2.5-1.1193,2.5-2.5v-8c0-1.3807-1.1193-2.5-2.5-2.5l0,0 c-1.3807,0-2.5,1.1193-2.5,2.5v8C56,39.9821,57.1193,41.1014,58.5,41.1014z"/>
-    <path fill="#D0CFCE" d="M47.4505,56.1123h-22.901c-4.7022,0-8.5495-3.8473-8.5495-8.5495v-22.901 c0-4.7022,3.8473-8.5495,8.5495-8.5495h22.901c4.7022,0,8.5495,3.8473,8.5495,8.5495v22.901 C56,52.2649,52.1527,56.1123,47.4505,56.1123z"/>
-    <path fill="#9B9B9A" d="M35.4977,56.1115h13.2865c3.9687,0,7.2158-3.8473,7.2158-8.5495V24.661 c0-4.7022-3.2471-8.5495-7.2158-8.5495h-2.3526"/>
-    <ellipse cx="44.8346" cy="29.0027" rx="2.8338" ry="2.8338" fill="#FFFFFF"/>
-    <ellipse cx="27.3342" cy="29.0022" rx="2.8338" ry="2.8338" fill="#FFFFFF"/>
-    <path fill="#FFFFFF" d="M44.5,47.5005h-17c-2.2,0-4-1.8-4-4l0,0c0-2.2,1.8-4,4-4h17c2.2,0,4,1.8,4,4l0,0 C48.5,45.7005,46.7,47.5005,44.5,47.5005z"/>
-  </g>
-  <g/>
-  <g/>
-  <g/>
-  <g>
-    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M34,16.0109V13.5c0-1.3807,1.1193-2.5,2.5-2.5l0,0c1.3807,0,2.5,1.1193,2.5,2.5V16"/>
-    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M47.4505,56h-22.901C19.8473,56,16,52.1527,16,47.4505v-22.901C16,19.8473,19.8473,16,24.5495,16h22.901 C52.1527,16,56,19.8473,56,24.5495v22.901C56,52.1527,52.1527,56,47.4505,56z"/>
-    <ellipse cx="44.8346" cy="29.0022" rx="2.8338" ry="2.8338" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
-    <ellipse cx="27.3342" cy="29.0017" rx="2.8338" ry="2.8338" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
-    <path fill="none" stroke="#000000" stroke-miterlimit="2" stroke-width="2" d="M44.5,47.5h-17c-2.2,0-4-1.8-4-4l0,0 c0-2.2,1.8-4,4-4h17c2.2,0,4,1.8,4,4l0,0C48.5,45.7,46.7,47.5,44.5,47.5z"/>
-    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M13.5,41L13.5,41c-1.3807,0-2.5-1.1193-2.5-2.5v-8c0-1.3807,1.1193-2.5,2.5-2.5l0,0c1.3807,0,2.5,1.1193,2.5,2.5v8 C16,39.8807,14.8807,41,13.5,41z"/>
-    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M58.5,41L58.5,41c1.3807,0,2.5-1.1193,2.5-2.5v-8c0-1.3807-1.1193-2.5-2.5-2.5l0,0c-1.3807,0-2.5,1.1193-2.5,2.5v8 C56,39.8807,57.1193,41,58.5,41z"/>
-    <line x1="28" x2="28" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
-    <line x1="33" x2="33" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
-    <line x1="38" x2="38" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
-    <line x1="43" x2="43" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
-  </g></g>
-<text x="936" y="140" font-size="18" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">B</text>
-<ellipse cx="914" cy="192" rx="62" ry="21" fill="#fceccb" stroke="#c97e14" stroke-width="2.6" stroke-dasharray="6 4"/>
-<text x="914" y="198" font-size="15" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">insight</text>
-<rect x="842" y="248" width="44" height="26" rx="7" fill="#ffffff" stroke="#c97e14" stroke-width="2.6"/><text x="864.0" y="266.0" font-size="13" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">e</text>
-<polygon points="912.8,212.1 872.3,236.4 870.6,233.6 864.0,244.0 876.3,243.1 874.6,240.3 915.2,215.9" fill="#c97e14"/>
-<rect x="892" y="248" width="44" height="26" rx="7" fill="#ffffff" stroke="#c97e14" stroke-width="2.6"/><text x="914.0" y="266.0" font-size="13" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">&#8230;</text>
-<polygon points="911.8,214.0 911.8,233.0 908.5,233.0 914.0,244.0 919.5,233.0 916.2,233.0 916.2,214.0" fill="#c97e14"/>
-<rect x="942" y="248" width="44" height="26" rx="7" fill="#ffffff" stroke="#c97e14" stroke-width="2.6"/><text x="964.0" y="266.0" font-size="13" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">&#8230;</text>
-<polygon points="912.8,215.9 953.4,240.3 951.7,243.1 964.0,244.0 957.4,233.6 955.7,236.4 915.2,212.1" fill="#c97e14"/>
-<text x="790" y="200" font-size="13" fill="#5b6470" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">derived_from</text>
-<text x="790" y="336" font-size="18" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">A Graph — Never Across Owners</text>
-<text x="790" y="362" font-size="14" fill="#5b6470" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">insights distilled every 20 rounds</text>
-<rect x="14" y="400" width="512" height="376" rx="20" fill="#fbe6e6" stroke="#df8c8c" stroke-width="4"/>
-<text x="270.0" y="446" font-size="26" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">(c) Collaborative</text>
-<rect x="36" y="464" width="468" height="220" rx="15" fill="#fff8f8" stroke="#df8c8c" stroke-width="2.6" stroke-dasharray="9 6"/>
-<text x="270.0" y="494" font-size="18" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">One Store, Split by Permission</text>
-<g transform="translate(108.0,500.0) scale(0.6111)"><g>
-    <path fill="#D22F27" d="M34,16.1123v-2.5109c0-1.3807,1.1193-2.5,2.5-2.5l0,0c1.3807,0,2.5,1.1193,2.5,2.5v2.5"/>
-    <path fill="#D0CFCE" d="M13.5,41.1014L13.5,41.1014c-1.3807,0-2.5-1.1193-2.5-2.5v-8c0-1.3807,1.1193-2.5,2.5-2.5l0,0 c1.3807,0,2.5,1.1193,2.5,2.5v8C16,39.9821,14.8807,41.1014,13.5,41.1014z"/>
-    <path fill="#D0CFCE" d="M58.5,41.1014L58.5,41.1014c1.3807,0,2.5-1.1193,2.5-2.5v-8c0-1.3807-1.1193-2.5-2.5-2.5l0,0 c-1.3807,0-2.5,1.1193-2.5,2.5v8C56,39.9821,57.1193,41.1014,58.5,41.1014z"/>
-    <path fill="#D0CFCE" d="M47.4505,56.1123h-22.901c-4.7022,0-8.5495-3.8473-8.5495-8.5495v-22.901 c0-4.7022,3.8473-8.5495,8.5495-8.5495h22.901c4.7022,0,8.5495,3.8473,8.5495,8.5495v22.901 C56,52.2649,52.1527,56.1123,47.4505,56.1123z"/>
-    <path fill="#9B9B9A" d="M35.4977,56.1115h13.2865c3.9687,0,7.2158-3.8473,7.2158-8.5495V24.661 c0-4.7022-3.2471-8.5495-7.2158-8.5495h-2.3526"/>
-    <ellipse cx="44.8346" cy="29.0027" rx="2.8338" ry="2.8338" fill="#FFFFFF"/>
-    <ellipse cx="27.3342" cy="29.0022" rx="2.8338" ry="2.8338" fill="#FFFFFF"/>
-    <path fill="#FFFFFF" d="M44.5,47.5005h-17c-2.2,0-4-1.8-4-4l0,0c0-2.2,1.8-4,4-4h17c2.2,0,4,1.8,4,4l0,0 C48.5,45.7005,46.7,47.5005,44.5,47.5005z"/>
-  </g>
-  <g/>
-  <g/>
-  <g/>
-  <g>
-    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M34,16.0109V13.5c0-1.3807,1.1193-2.5,2.5-2.5l0,0c1.3807,0,2.5,1.1193,2.5,2.5V16"/>
-    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M47.4505,56h-22.901C19.8473,56,16,52.1527,16,47.4505v-22.901C16,19.8473,19.8473,16,24.5495,16h22.901 C52.1527,16,56,19.8473,56,24.5495v22.901C56,52.1527,52.1527,56,47.4505,56z"/>
-    <ellipse cx="44.8346" cy="29.0022" rx="2.8338" ry="2.8338" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
-    <ellipse cx="27.3342" cy="29.0017" rx="2.8338" ry="2.8338" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
-    <path fill="none" stroke="#000000" stroke-miterlimit="2" stroke-width="2" d="M44.5,47.5h-17c-2.2,0-4-1.8-4-4l0,0 c0-2.2,1.8-4,4-4h17c2.2,0,4,1.8,4,4l0,0C48.5,45.7,46.7,47.5,44.5,47.5z"/>
-    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M13.5,41L13.5,41c-1.3807,0-2.5-1.1193-2.5-2.5v-8c0-1.3807,1.1193-2.5,2.5-2.5l0,0c1.3807,0,2.5,1.1193,2.5,2.5v8 C16,39.8807,14.8807,41,13.5,41z"/>
-    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M58.5,41L58.5,41c1.3807,0,2.5-1.1193,2.5-2.5v-8c0-1.3807-1.1193-2.5-2.5-2.5l0,0c-1.3807,0-2.5,1.1193-2.5,2.5v8 C56,39.8807,57.1193,41,58.5,41z"/>
-    <line x1="28" x2="28" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
-    <line x1="33" x2="33" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
-    <line x1="38" x2="38" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
-    <line x1="43" x2="43" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
-  </g></g>
-<text x="168" y="530" font-size="18" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">A</text>
-<g transform="translate(356.0,500.0) scale(0.6111)"><g>
-    <path fill="#D22F27" d="M34,16.1123v-2.5109c0-1.3807,1.1193-2.5,2.5-2.5l0,0c1.3807,0,2.5,1.1193,2.5,2.5v2.5"/>
-    <path fill="#D0CFCE" d="M13.5,41.1014L13.5,41.1014c-1.3807,0-2.5-1.1193-2.5-2.5v-8c0-1.3807,1.1193-2.5,2.5-2.5l0,0 c1.3807,0,2.5,1.1193,2.5,2.5v8C16,39.9821,14.8807,41.1014,13.5,41.1014z"/>
-    <path fill="#D0CFCE" d="M58.5,41.1014L58.5,41.1014c1.3807,0,2.5-1.1193,2.5-2.5v-8c0-1.3807-1.1193-2.5-2.5-2.5l0,0 c-1.3807,0-2.5,1.1193-2.5,2.5v8C56,39.9821,57.1193,41.1014,58.5,41.1014z"/>
-    <path fill="#D0CFCE" d="M47.4505,56.1123h-22.901c-4.7022,0-8.5495-3.8473-8.5495-8.5495v-22.901 c0-4.7022,3.8473-8.5495,8.5495-8.5495h22.901c4.7022,0,8.5495,3.8473,8.5495,8.5495v22.901 C56,52.2649,52.1527,56.1123,47.4505,56.1123z"/>
-    <path fill="#9B9B9A" d="M35.4977,56.1115h13.2865c3.9687,0,7.2158-3.8473,7.2158-8.5495V24.661 c0-4.7022-3.2471-8.5495-7.2158-8.5495h-2.3526"/>
-    <ellipse cx="44.8346" cy="29.0027" rx="2.8338" ry="2.8338" fill="#FFFFFF"/>
-    <ellipse cx="27.3342" cy="29.0022" rx="2.8338" ry="2.8338" fill="#FFFFFF"/>
-    <path fill="#FFFFFF" d="M44.5,47.5005h-17c-2.2,0-4-1.8-4-4l0,0c0-2.2,1.8-4,4-4h17c2.2,0,4,1.8,4,4l0,0 C48.5,45.7005,46.7,47.5005,44.5,47.5005z"/>
-  </g>
-  <g/>
-  <g/>
-  <g/>
-  <g>
-    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M34,16.0109V13.5c0-1.3807,1.1193-2.5,2.5-2.5l0,0c1.3807,0,2.5,1.1193,2.5,2.5V16"/>
-    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M47.4505,56h-22.901C19.8473,56,16,52.1527,16,47.4505v-22.901C16,19.8473,19.8473,16,24.5495,16h22.901 C52.1527,16,56,19.8473,56,24.5495v22.901C56,52.1527,52.1527,56,47.4505,56z"/>
-    <ellipse cx="44.8346" cy="29.0022" rx="2.8338" ry="2.8338" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
-    <ellipse cx="27.3342" cy="29.0017" rx="2.8338" ry="2.8338" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
-    <path fill="none" stroke="#000000" stroke-miterlimit="2" stroke-width="2" d="M44.5,47.5h-17c-2.2,0-4-1.8-4-4l0,0 c0-2.2,1.8-4,4-4h17c2.2,0,4,1.8,4,4l0,0C48.5,45.7,46.7,47.5,44.5,47.5z"/>
-    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M13.5,41L13.5,41c-1.3807,0-2.5-1.1193-2.5-2.5v-8c0-1.3807,1.1193-2.5,2.5-2.5l0,0c1.3807,0,2.5,1.1193,2.5,2.5v8 C16,39.8807,14.8807,41,13.5,41z"/>
-    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M58.5,41L58.5,41c1.3807,0,2.5-1.1193,2.5-2.5v-8c0-1.3807-1.1193-2.5-2.5-2.5l0,0c-1.3807,0-2.5,1.1193-2.5,2.5v8 C56,39.8807,57.1193,41,58.5,41z"/>
-    <line x1="28" x2="28" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
-    <line x1="33" x2="33" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
-    <line x1="38" x2="38" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
-    <line x1="43" x2="43" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
-  </g></g>
-<text x="416" y="530" font-size="18" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">B</text>
-<rect x="80" y="554" width="132" height="28" rx="7" fill="#fbdede" stroke="#cf4444" stroke-width="2.6"/><text x="146.0" y="573.0" font-size="14" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">e &#183; {A}</text>
-<rect x="328" y="554" width="132" height="28" rx="7" fill="#fbdede" stroke="#cf4444" stroke-width="2.6"/><text x="394.0" y="573.0" font-size="14" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">e &#183; {A, B}</text>
-<rect x="80" y="592" width="132" height="28" rx="7" fill="#ffffff" stroke="#cf4444" stroke-width="2.6"/><text x="146.0" y="611.0" font-size="14" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">&#8230; &#183; {A}</text>
-<rect x="328" y="592" width="132" height="28" rx="7" fill="#ffffff" stroke="#cf4444" stroke-width="2.6"/><text x="394.0" y="611.0" font-size="14" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">&#8230; &#183; {B}</text>
-<g transform="translate(251.0,555.0) scale(0.5278)"><g>
-    <path fill="#D0CFCE" stroke="#D0CFCE" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="2" d="M21.3751,31.1747c-0.3501-8.7708,6.4491-18.5395,14.387-18.7794c8.0047-0.2419,16.5412,10.9698,14.333,19.052h-4.0394 c0,0,1.5619-7.922-2.2164-11.2535c-1.8494-1.6307-5.2556-4.771-8.6396-4.2922c-2.2829,0.323-6.8677,3.4518-7.9271,5.4209 c-2.0643,3.8367-1.7248,9.8169-1.7248,9.8169L21.3751,31.1747z"/>
-    <polygon fill="#FCEA2B" stroke="none" points="53,32.2969 54.875,32.2969 54.875,59.1719 16.875,59.1719 16.875,32.2969 18.75,32.2969"/>
-    <polygon fill="#F1B31C" stroke="none" points="54.4302,32.493 35.66,58.9944 54.9675,58.9944"/>
-  </g>
-  <g/>
-  <g/>
-  <g/>
-  <g>
-    <polygon fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="2" points="53,32.25 54.875,32.25 54.875,59.125 16.875,59.125 16.875,32.25 18.75,32.25"/>
-    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="2" d="M21.3751,28.9146c0-8.3786,6.4151-16.2744,14.3184-16.523c7.9697-0.2507,15.4098,7.2847,14.7416,16.523"/>
-    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="2" d="M25.5478,28.9146c0-6.3352,4.5755-12.3054,10.2123-12.4934c5.6843-0.1896,10.9908,5.5081,10.5142,12.4934"/>
-  </g></g>
-<polygon points="214.0,647.5 309.0,647.5 309.0,652.5 326.0,644.0 309.0,635.5 309.0,640.5 214.0,640.5" fill="#cf4444"/>
-<text x="270" y="672" font-size="14" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">grant</text>
-<text x="270" y="724" font-size="19" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">A Permission, Not a Merge</text>
-<text x="270" y="750" font-size="14" fill="#5b6470" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">two rows survive, one event</text>
-<rect x="534" y="400" width="512" height="376" rx="20" fill="#dfeef9" stroke="#5b93cf" stroke-width="4"/>
-<text x="790.0" y="446" font-size="26" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">(d) Consensus  (ours)</text>
-<rect x="556" y="464" width="468" height="220" rx="15" fill="#f5fbff" stroke="#5b93cf" stroke-width="2.6" stroke-dasharray="9 6"/>
-<text x="790.0" y="494" font-size="18" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">One Record, Several Owners</text>
-<g transform="translate(637.0,499.0) scale(0.5833)"><g>
-    <path fill="#D22F27" d="M34,16.1123v-2.5109c0-1.3807,1.1193-2.5,2.5-2.5l0,0c1.3807,0,2.5,1.1193,2.5,2.5v2.5"/>
-    <path fill="#D0CFCE" d="M13.5,41.1014L13.5,41.1014c-1.3807,0-2.5-1.1193-2.5-2.5v-8c0-1.3807,1.1193-2.5,2.5-2.5l0,0 c1.3807,0,2.5,1.1193,2.5,2.5v8C16,39.9821,14.8807,41.1014,13.5,41.1014z"/>
-    <path fill="#D0CFCE" d="M58.5,41.1014L58.5,41.1014c1.3807,0,2.5-1.1193,2.5-2.5v-8c0-1.3807-1.1193-2.5-2.5-2.5l0,0 c-1.3807,0-2.5,1.1193-2.5,2.5v8C56,39.9821,57.1193,41.1014,58.5,41.1014z"/>
-    <path fill="#D0CFCE" d="M47.4505,56.1123h-22.901c-4.7022,0-8.5495-3.8473-8.5495-8.5495v-22.901 c0-4.7022,3.8473-8.5495,8.5495-8.5495h22.901c4.7022,0,8.5495,3.8473,8.5495,8.5495v22.901 C56,52.2649,52.1527,56.1123,47.4505,56.1123z"/>
-    <path fill="#9B9B9A" d="M35.4977,56.1115h13.2865c3.9687,0,7.2158-3.8473,7.2158-8.5495V24.661 c0-4.7022-3.2471-8.5495-7.2158-8.5495h-2.3526"/>
-    <ellipse cx="44.8346" cy="29.0027" rx="2.8338" ry="2.8338" fill="#FFFFFF"/>
-    <ellipse cx="27.3342" cy="29.0022" rx="2.8338" ry="2.8338" fill="#FFFFFF"/>
-    <path fill="#FFFFFF" d="M44.5,47.5005h-17c-2.2,0-4-1.8-4-4l0,0c0-2.2,1.8-4,4-4h17c2.2,0,4,1.8,4,4l0,0 C48.5,45.7005,46.7,47.5005,44.5,47.5005z"/>
-  </g>
-  <g/>
-  <g/>
-  <g/>
-  <g>
-    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M34,16.0109V13.5c0-1.3807,1.1193-2.5,2.5-2.5l0,0c1.3807,0,2.5,1.1193,2.5,2.5V16"/>
-    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M47.4505,56h-22.901C19.8473,56,16,52.1527,16,47.4505v-22.901C16,19.8473,19.8473,16,24.5495,16h22.901 C52.1527,16,56,19.8473,56,24.5495v22.901C56,52.1527,52.1527,56,47.4505,56z"/>
-    <ellipse cx="44.8346" cy="29.0022" rx="2.8338" ry="2.8338" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
-    <ellipse cx="27.3342" cy="29.0017" rx="2.8338" ry="2.8338" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
-    <path fill="none" stroke="#000000" stroke-miterlimit="2" stroke-width="2" d="M44.5,47.5h-17c-2.2,0-4-1.8-4-4l0,0 c0-2.2,1.8-4,4-4h17c2.2,0,4,1.8,4,4l0,0C48.5,45.7,46.7,47.5,44.5,47.5z"/>
-    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M13.5,41L13.5,41c-1.3807,0-2.5-1.1193-2.5-2.5v-8c0-1.3807,1.1193-2.5,2.5-2.5l0,0c1.3807,0,2.5,1.1193,2.5,2.5v8 C16,39.8807,14.8807,41,13.5,41z"/>
-    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M58.5,41L58.5,41c1.3807,0,2.5-1.1193,2.5-2.5v-8c0-1.3807-1.1193-2.5-2.5-2.5l0,0c-1.3807,0-2.5,1.1193-2.5,2.5v8 C56,39.8807,57.1193,41,58.5,41z"/>
-    <line x1="28" x2="28" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
-    <line x1="33" x2="33" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
-    <line x1="38" x2="38" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
-    <line x1="43" x2="43" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
-  </g></g>
-<text x="696" y="528" font-size="18" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">A</text>
-<polygon points="669.0,548.6 685.1,567.1 681.4,570.4 700.0,578.0 694.9,558.5 691.2,561.8 675.0,543.4" fill="#e0564e"/>
-<g transform="translate(755.0,499.0) scale(0.5833)"><g>
-    <path fill="#D22F27" d="M34,16.1123v-2.5109c0-1.3807,1.1193-2.5,2.5-2.5l0,0c1.3807,0,2.5,1.1193,2.5,2.5v2.5"/>
-    <path fill="#D0CFCE" d="M13.5,41.1014L13.5,41.1014c-1.3807,0-2.5-1.1193-2.5-2.5v-8c0-1.3807,1.1193-2.5,2.5-2.5l0,0 c1.3807,0,2.5,1.1193,2.5,2.5v8C16,39.9821,14.8807,41.1014,13.5,41.1014z"/>
-    <path fill="#D0CFCE" d="M58.5,41.1014L58.5,41.1014c1.3807,0,2.5-1.1193,2.5-2.5v-8c0-1.3807-1.1193-2.5-2.5-2.5l0,0 c-1.3807,0-2.5,1.1193-2.5,2.5v8C56,39.9821,57.1193,41.1014,58.5,41.1014z"/>
-    <path fill="#D0CFCE" d="M47.4505,56.1123h-22.901c-4.7022,0-8.5495-3.8473-8.5495-8.5495v-22.901 c0-4.7022,3.8473-8.5495,8.5495-8.5495h22.901c4.7022,0,8.5495,3.8473,8.5495,8.5495v22.901 C56,52.2649,52.1527,56.1123,47.4505,56.1123z"/>
-    <path fill="#9B9B9A" d="M35.4977,56.1115h13.2865c3.9687,0,7.2158-3.8473,7.2158-8.5495V24.661 c0-4.7022-3.2471-8.5495-7.2158-8.5495h-2.3526"/>
-    <ellipse cx="44.8346" cy="29.0027" rx="2.8338" ry="2.8338" fill="#FFFFFF"/>
-    <ellipse cx="27.3342" cy="29.0022" rx="2.8338" ry="2.8338" fill="#FFFFFF"/>
-    <path fill="#FFFFFF" d="M44.5,47.5005h-17c-2.2,0-4-1.8-4-4l0,0c0-2.2,1.8-4,4-4h17c2.2,0,4,1.8,4,4l0,0 C48.5,45.7005,46.7,47.5005,44.5,47.5005z"/>
-  </g>
-  <g/>
-  <g/>
-  <g/>
-  <g>
-    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M34,16.0109V13.5c0-1.3807,1.1193-2.5,2.5-2.5l0,0c1.3807,0,2.5,1.1193,2.5,2.5V16"/>
-    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M47.4505,56h-22.901C19.8473,56,16,52.1527,16,47.4505v-22.901C16,19.8473,19.8473,16,24.5495,16h22.901 C52.1527,16,56,19.8473,56,24.5495v22.901C56,52.1527,52.1527,56,47.4505,56z"/>
-    <ellipse cx="44.8346" cy="29.0022" rx="2.8338" ry="2.8338" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
-    <ellipse cx="27.3342" cy="29.0017" rx="2.8338" ry="2.8338" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
-    <path fill="none" stroke="#000000" stroke-miterlimit="2" stroke-width="2" d="M44.5,47.5h-17c-2.2,0-4-1.8-4-4l0,0 c0-2.2,1.8-4,4-4h17c2.2,0,4,1.8,4,4l0,0C48.5,45.7,46.7,47.5,44.5,47.5z"/>
-    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M13.5,41L13.5,41c-1.3807,0-2.5-1.1193-2.5-2.5v-8c0-1.3807,1.1193-2.5,2.5-2.5l0,0c1.3807,0,2.5,1.1193,2.5,2.5v8 C16,39.8807,14.8807,41,13.5,41z"/>
-    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M58.5,41L58.5,41c1.3807,0,2.5-1.1193,2.5-2.5v-8c0-1.3807-1.1193-2.5-2.5-2.5l0,0c-1.3807,0-2.5,1.1193-2.5,2.5v8 C56,39.8807,57.1193,41,58.5,41z"/>
-    <line x1="28" x2="28" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
-    <line x1="33" x2="33" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
-    <line x1="38" x2="38" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
-    <line x1="43" x2="43" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
-  </g></g>
-<text x="814" y="528" font-size="18" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">B</text>
-<polygon points="786.0,546.0 786.0,560.0 781.0,560.0 790.0,578.0 799.0,560.0 794.0,560.0 794.0,546.0" fill="#e0564e"/>
-<g transform="translate(873.0,499.0) scale(0.5833)"><g>
-    <path fill="#D22F27" d="M34,16.1123v-2.5109c0-1.3807,1.1193-2.5,2.5-2.5l0,0c1.3807,0,2.5,1.1193,2.5,2.5v2.5"/>
-    <path fill="#D0CFCE" d="M13.5,41.1014L13.5,41.1014c-1.3807,0-2.5-1.1193-2.5-2.5v-8c0-1.3807,1.1193-2.5,2.5-2.5l0,0 c1.3807,0,2.5,1.1193,2.5,2.5v8C16,39.9821,14.8807,41.1014,13.5,41.1014z"/>
-    <path fill="#D0CFCE" d="M58.5,41.1014L58.5,41.1014c1.3807,0,2.5-1.1193,2.5-2.5v-8c0-1.3807-1.1193-2.5-2.5-2.5l0,0 c-1.3807,0-2.5,1.1193-2.5,2.5v8C56,39.9821,57.1193,41.1014,58.5,41.1014z"/>
-    <path fill="#D0CFCE" d="M47.4505,56.1123h-22.901c-4.7022,0-8.5495-3.8473-8.5495-8.5495v-22.901 c0-4.7022,3.8473-8.5495,8.5495-8.5495h22.901c4.7022,0,8.5495,3.8473,8.5495,8.5495v22.901 C56,52.2649,52.1527,56.1123,47.4505,56.1123z"/>
-    <path fill="#9B9B9A" d="M35.4977,56.1115h13.2865c3.9687,0,7.2158-3.8473,7.2158-8.5495V24.661 c0-4.7022-3.2471-8.5495-7.2158-8.5495h-2.3526"/>
-    <ellipse cx="44.8346" cy="29.0027" rx="2.8338" ry="2.8338" fill="#FFFFFF"/>
-    <ellipse cx="27.3342" cy="29.0022" rx="2.8338" ry="2.8338" fill="#FFFFFF"/>
-    <path fill="#FFFFFF" d="M44.5,47.5005h-17c-2.2,0-4-1.8-4-4l0,0c0-2.2,1.8-4,4-4h17c2.2,0,4,1.8,4,4l0,0 C48.5,45.7005,46.7,47.5005,44.5,47.5005z"/>
-  </g>
-  <g/>
-  <g/>
-  <g/>
-  <g>
-    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M34,16.0109V13.5c0-1.3807,1.1193-2.5,2.5-2.5l0,0c1.3807,0,2.5,1.1193,2.5,2.5V16"/>
-    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M47.4505,56h-22.901C19.8473,56,16,52.1527,16,47.4505v-22.901C16,19.8473,19.8473,16,24.5495,16h22.901 C52.1527,16,56,19.8473,56,24.5495v22.901C56,52.1527,52.1527,56,47.4505,56z"/>
-    <ellipse cx="44.8346" cy="29.0022" rx="2.8338" ry="2.8338" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
-    <ellipse cx="27.3342" cy="29.0017" rx="2.8338" ry="2.8338" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
-    <path fill="none" stroke="#000000" stroke-miterlimit="2" stroke-width="2" d="M44.5,47.5h-17c-2.2,0-4-1.8-4-4l0,0 c0-2.2,1.8-4,4-4h17c2.2,0,4,1.8,4,4l0,0C48.5,45.7,46.7,47.5,44.5,47.5z"/>
-    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M13.5,41L13.5,41c-1.3807,0-2.5-1.1193-2.5-2.5v-8c0-1.3807,1.1193-2.5,2.5-2.5l0,0c1.3807,0,2.5,1.1193,2.5,2.5v8 C16,39.8807,14.8807,41,13.5,41z"/>
-    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2" d="M58.5,41L58.5,41c1.3807,0,2.5-1.1193,2.5-2.5v-8c0-1.3807-1.1193-2.5-2.5-2.5l0,0c-1.3807,0-2.5,1.1193-2.5,2.5v8 C56,39.8807,57.1193,41,58.5,41z"/>
-    <line x1="28" x2="28" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
-    <line x1="33" x2="33" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
-    <line x1="38" x2="38" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
-    <line x1="43" x2="43" y1="40" y2="47" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="2" stroke-width="2"/>
-  </g></g>
-<text x="932" y="528" font-size="18" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">C</text>
-<polygon points="905.0,543.4 888.8,561.8 885.1,558.5 880.0,578.0 898.6,570.4 894.9,567.1 911.0,548.6" fill="#e0564e"/>
-<rect x="610" y="584" width="360" height="34" rx="7" fill="#dceafa" stroke="#2f6fd0" stroke-width="2.6"/><text x="790.0" y="606.0" font-size="16" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">e &#183; owners {A, B, C}</text>
-<rect x="586" y="634" width="142" height="28" rx="7" fill="#e9e0fb" stroke="#7c4dd6" stroke-width="2.6"/><text x="657.0" y="653.0" font-size="13" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">sibling &#183; {A, B}</text>
-<rect x="852" y="634" width="130" height="28" rx="7" fill="#e9e0fb" stroke="#7c4dd6" stroke-width="2.6"/><text x="917.0" y="653.0" font-size="13" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">sibling &#183; {C}</text>
-<polygon points="624.6,622.6 634.3,627.9 632.4,631.4 648.0,632.0 639.1,619.2 637.1,622.7 627.4,617.4" fill="#7c4dd6"/>
-<polygon points="952.6,617.4 942.9,622.7 940.9,619.2 932.0,632.0 947.6,631.4 945.7,627.9 955.4,622.6" fill="#7c4dd6"/>
-<text x="790" y="654" font-size="13.5" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">affiliated</text>
-<text x="790" y="724" font-size="19" fill="#161616" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">Computed at Deposit Time</text>
-<text x="790" y="750" font-size="14" fill="#5b6470" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">owner set is the union</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 830" font-family="Arial Rounded MT Bold,Arial Rounded MT,SF Pro Rounded,Helvetica Rounded,Nunito,Helvetica,Arial,sans-serif" style="max-width:100%;height:auto">
+<defs><pattern id="hx" width="9" height="9" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="9" stroke="#ffffff" stroke-width="3" opacity="0.30"/></pattern></defs>
+<rect width="1120" height="830" fill="#ffffff"/>
+<rect x="14" y="12" width="542" height="396" rx="22" fill="#e8f6e6" stroke="#4faa6a" stroke-width="5"/>
+<text x="285.0" y="64" font-size="30" fill="#141414" text-anchor="middle" font-family="Arial Rounded MT Bold,Arial Rounded MT,SF Pro Rounded,Helvetica Rounded,Nunito,Helvetica,Arial,sans-serif">(a) Generative Agents</text>
+<rect x="38" y="84" width="494" height="234" rx="16" fill="#f4fdf4" stroke="#4faa6a" stroke-width="3.4" stroke-dasharray="12 9" stroke-linecap="round"/>
+<text x="285.0" y="118" font-size="21" fill="#141414" text-anchor="middle" font-family="Arial Rounded MT Bold,Arial Rounded MT,SF Pro Rounded,Helvetica Rounded,Nunito,Helvetica,Arial,sans-serif">One Private Stream per Agent</text>
+<g transform="translate(106.0,126.0) scale(0.7222)"><g stroke="#141414" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" fill="none"><path d="M36 11 v6"/><circle cx="36" cy="8.5" r="3.4" fill="#f0b429"/><rect x="16" y="17" width="40" height="27" rx="8" fill="#cdd6de"/><path d="M48 17 a8 8 0 0 1 8 8 v11 a8 8 0 0 1 -8 8 z" fill="#aab6c2" stroke="none"/><rect x="16" y="17" width="40" height="27" rx="8"/><circle cx="27" cy="30" r="5" fill="#f0b429"/><circle cx="45" cy="30" r="5" fill="#f0b429"/><circle cx="27" cy="30" r="1.8" fill="#141414" stroke="none"/><circle cx="45" cy="30" r="1.8" fill="#141414" stroke="none"/><rect x="6" y="49" width="9" height="12" rx="4" fill="#aab6c2"/><rect x="57" y="49" width="9" height="12" rx="4" fill="#aab6c2"/><rect x="17" y="47" width="38" height="17" rx="5" fill="#cdd6de"/><rect x="24" y="52" width="24" height="8" rx="2" fill="#eef3f7"/><circle cx="29" cy="56" r="1.5" fill="#f0b429" stroke="none"/><circle cx="36" cy="56" r="1.5" fill="#e0564e" stroke="none"/><circle cx="43" cy="56" r="1.5" fill="#5fc44a" stroke="none"/></g></g>
+<text x="180" y="158" font-size="20" fill="#141414" text-anchor="middle" font-family="Arial Rounded MT Bold,Arial Rounded MT,SF Pro Rounded,Helvetica Rounded,Nunito,Helvetica,Arial,sans-serif">A</text>
+<rect x="82" y="182" width="144" height="28" rx="8" fill="#ffffff" stroke="#0f8a5f" stroke-width="3"/><text x="154.0" y="202.0" font-size="16" fill="#141414" text-anchor="middle" font-family="Arial Rounded MT Bold,Arial Rounded MT,SF Pro Rounded,Helvetica Rounded,Nunito,Helvetica,Arial,sans-serif">e</text>
+<rect x="82" y="218" width="144" height="28" rx="8" fill="#ffffff" stroke="#0f8a5f" stroke-width="3"/><text x="154.0" y="238.0" font-size="16" fill="#141414" text-anchor="middle" font-family="Arial Rounded MT Bold,Arial Rounded MT,SF Pro Rounded,Helvetica Rounded,Nunito,Helvetica,Arial,sans-serif">&#8230;</text>
+<rect x="82" y="262" width="144" height="28" rx="8" fill="#d6f5e6" stroke="#0f8a5f" stroke-width="3" stroke-dasharray="7 5"/><text x="154.0" y="282.0" font-size="14" fill="#141414" text-anchor="middle" font-family="Arial Rounded MT Bold,Arial Rounded MT,SF Pro Rounded,Helvetica Rounded,Nunito,Helvetica,Arial,sans-serif">reflection</text>
+<g transform="translate(368.0,126.0) scale(0.7222)"><g stroke="#141414" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" fill="none"><path d="M36 11 v6"/><circle cx="36" cy="8.5" r="3.4" fill="#f0b429"/><rect x="16" y="17" width="40" height="27" rx="8" fill="#cdd6de"/><path d="M48 17 a8 8 0 0 1 8 8 v11 a8 8 0 0 1 -8 8 z" fill="#aab6c2" stroke="none"/><rect x="16" y="17" width="40" height="27" rx="8"/><circle cx="27" cy="30" r="5" fill="#f0b429"/><circle cx="45" cy="30" r="5" fill="#f0b429"/><circle cx="27" cy="30" r="1.8" fill="#141414" stroke="none"/><circle cx="45" cy="30" r="1.8" fill="#141414" stroke="none"/><rect x="6" y="49" width="9" height="12" rx="4" fill="#aab6c2"/><rect x="57" y="49" width="9" height="12" rx="4" fill="#aab6c2"/><rect x="17" y="47" width="38" height="17" rx="5" fill="#cdd6de"/><rect x="24" y="52" width="24" height="8" rx="2" fill="#eef3f7"/><circle cx="29" cy="56" r="1.5" fill="#f0b429" stroke="none"/><circle cx="36" cy="56" r="1.5" fill="#e0564e" stroke="none"/><circle cx="43" cy="56" r="1.5" fill="#5fc44a" stroke="none"/></g></g>
+<text x="442" y="158" font-size="20" fill="#141414" text-anchor="middle" font-family="Arial Rounded MT Bold,Arial Rounded MT,SF Pro Rounded,Helvetica Rounded,Nunito,Helvetica,Arial,sans-serif">B</text>
+<rect x="344" y="182" width="144" height="28" rx="8" fill="#ffffff" stroke="#0f8a5f" stroke-width="3"/><text x="416.0" y="202.0" font-size="16" fill="#141414" text-anchor="middle" font-family="Arial Rounded MT Bold,Arial Rounded MT,SF Pro Rounded,Helvetica Rounded,Nunito,Helvetica,Arial,sans-serif">e</text>
+<rect x="344" y="218" width="144" height="28" rx="8" fill="#ffffff" stroke="#0f8a5f" stroke-width="3"/><text x="416.0" y="238.0" font-size="16" fill="#141414" text-anchor="middle" font-family="Arial Rounded MT Bold,Arial Rounded MT,SF Pro Rounded,Helvetica Rounded,Nunito,Helvetica,Arial,sans-serif">&#8230;</text>
+<rect x="344" y="262" width="144" height="28" rx="8" fill="#d6f5e6" stroke="#0f8a5f" stroke-width="3" stroke-dasharray="7 5"/><text x="416.0" y="282.0" font-size="14" fill="#141414" text-anchor="middle" font-family="Arial Rounded MT Bold,Arial Rounded MT,SF Pro Rounded,Helvetica Rounded,Nunito,Helvetica,Arial,sans-serif">reflection</text>
+<g transform="translate(265.0,204.0) scale(0.5556)"><circle cx="36" cy="36" r="24" fill="#ffffff" stroke="#d33a3a" stroke-width="6.5"/><path d="M19 19 L53 53" stroke="#d33a3a" stroke-width="6.5" stroke-linecap="round"/></g>
+<text x="285" y="268" font-size="15" fill="#141414" text-anchor="middle" font-family="Arial Rounded MT Bold,Arial Rounded MT,SF Pro Rounded,Helvetica Rounded,Nunito,Helvetica,Arial,sans-serif">no link</text>
+<text x="285" y="356" font-size="21" fill="#141414" text-anchor="middle" font-family="Arial Rounded MT Bold,Arial Rounded MT,SF Pro Rounded,Helvetica Rounded,Nunito,Helvetica,Arial,sans-serif">One Copy per Witness</text>
+<text x="285" y="384" font-size="15" fill="#5b6470" text-anchor="middle" font-family="Arial Rounded MT Bold,Arial Rounded MT,SF Pro Rounded,Helvetica Rounded,Nunito,Helvetica,Arial,sans-serif">recency × importance × relevance</text>
+<rect x="564" y="12" width="542" height="396" rx="22" fill="#fbead6" stroke="#e0a05a" stroke-width="5"/>
+<text x="835.0" y="64" font-size="30" fill="#141414" text-anchor="middle" font-family="Arial Rounded MT Bold,Arial Rounded MT,SF Pro Rounded,Helvetica Rounded,Nunito,Helvetica,Arial,sans-serif">(b) G-Memory</text>
+<rect x="588" y="84" width="494" height="234" rx="16" fill="#fffaf3" stroke="#e0a05a" stroke-width="3.4" stroke-dasharray="12 9" stroke-linecap="round"/>
+<text x="835.0" y="118" font-size="21" fill="#141414" text-anchor="middle" font-family="Arial Rounded MT Bold,Arial Rounded MT,SF Pro Rounded,Helvetica Rounded,Nunito,Helvetica,Arial,sans-serif">Two-Tier Graph, per Owner</text>
+<g transform="translate(657.0,125.0) scale(0.6944)"><g stroke="#141414" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" fill="none"><path d="M36 11 v6"/><circle cx="36" cy="8.5" r="3.4" fill="#f0b429"/><rect x="16" y="17" width="40" height="27" rx="8" fill="#cdd6de"/><path d="M48 17 a8 8 0 0 1 8 8 v11 a8 8 0 0 1 -8 8 z" fill="#aab6c2" stroke="none"/><rect x="16" y="17" width="40" height="27" rx="8"/><circle cx="27" cy="30" r="5" fill="#f0b429"/><circle cx="45" cy="30" r="5" fill="#f0b429"/><circle cx="27" cy="30" r="1.8" fill="#141414" stroke="none"/><circle cx="45" cy="30" r="1.8" fill="#141414" stroke="none"/><rect x="6" y="49" width="9" height="12" rx="4" fill="#aab6c2"/><rect x="57" y="49" width="9" height="12" rx="4" fill="#aab6c2"/><rect x="17" y="47" width="38" height="17" rx="5" fill="#cdd6de"/><rect x="24" y="52" width="24" height="8" rx="2" fill="#eef3f7"/><circle cx="29" cy="56" r="1.5" fill="#f0b429" stroke="none"/><circle cx="36" cy="56" r="1.5" fill="#e0564e" stroke="none"/><circle cx="43" cy="56" r="1.5" fill="#5fc44a" stroke="none"/></g></g>
+<text x="728" y="156" font-size="20" fill="#141414" text-anchor="middle" font-family="Arial Rounded MT Bold,Arial Rounded MT,SF Pro Rounded,Helvetica Rounded,Nunito,Helvetica,Arial,sans-serif">A</text>
+<ellipse cx="704" cy="208" rx="66" ry="23" fill="#fceccb" stroke="#c97e14" stroke-width="3" stroke-dasharray="7 5"/>
+<text x="704" y="215" font-size="17" fill="#141414" text-anchor="middle" font-family="Arial Rounded MT Bold,Arial Rounded MT,SF Pro Rounded,Helvetica Rounded,Nunito,Helvetica,Arial,sans-serif">insight</text>
+<rect x="628" y="268" width="46" height="28" rx="8" fill="#ffffff" stroke="#c97e14" stroke-width="3"/><text x="651.0" y="288.0" font-size="14" fill="#141414" text-anchor="middle" font-family="Arial Rounded MT Bold,Arial Rounded MT,SF Pro Rounded,Helvetica Rounded,Nunito,Helvetica,Arial,sans-serif">e</text>
+<polygon points="702.8,230.8 660.2,254.9 658.5,251.9 651.0,263.0 664.4,262.3 662.7,259.3 705.2,235.2" fill="#c97e14" stroke="#9c5f0d" stroke-width="1.6" stroke-linejoin="round"/><polygon points="702.8,230.8 660.2,254.9 658.5,251.9 651.0,263.0 664.4,262.3 662.7,259.3 705.2,235.2" fill="url(#hx)"/>
+<rect x="681" y="268" width="46" height="28" rx="8" fill="#ffffff" stroke="#c97e14" stroke-width="3"/><text x="704.0" y="288.0" font-size="14" fill="#141414" text-anchor="middle" font-family="Arial Rounded MT Bold,Arial Rounded MT,SF Pro Rounded,Helvetica Rounded,Nunito,Helvetica,Arial,sans-serif">&#8230;</text>
+<polygon points="701.5,233.0 701.5,251.0 698.0,251.0 704.0,263.0 710.0,251.0 706.5,251.0 706.5,233.0" fill="#c97e14" stroke="#9c5f0d" stroke-width="1.6" stroke-linejoin="round"/><polygon points="701.5,233.0 701.5,251.0 698.0,251.0 704.0,263.0 710.0,251.0 706.5,251.0 706.5,233.0" fill="url(#hx)"/>
+<rect x="734" y="268" width="46" height="28" rx="8" fill="#ffffff" stroke="#c97e14" stroke-width="3"/><text x="757.0" y="288.0" font-size="14" fill="#141414" text-anchor="middle" font-family="Arial Rounded MT Bold,Arial Rounded MT,SF Pro Rounded,Helvetica Rounded,Nunito,Helvetica,Arial,sans-serif">&#8230;</text>
+<polygon points="702.8,235.2 745.3,259.3 743.6,262.3 757.0,263.0 749.5,251.9 747.8,254.9 705.2,230.8" fill="#c97e14" stroke="#9c5f0d" stroke-width="1.6" stroke-linejoin="round"/><polygon points="702.8,235.2 745.3,259.3 743.6,262.3 757.0,263.0 749.5,251.9 747.8,254.9 705.2,230.8" fill="url(#hx)"/>
+<g transform="translate(919.0,125.0) scale(0.6944)"><g stroke="#141414" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" fill="none"><path d="M36 11 v6"/><circle cx="36" cy="8.5" r="3.4" fill="#f0b429"/><rect x="16" y="17" width="40" height="27" rx="8" fill="#cdd6de"/><path d="M48 17 a8 8 0 0 1 8 8 v11 a8 8 0 0 1 -8 8 z" fill="#aab6c2" stroke="none"/><rect x="16" y="17" width="40" height="27" rx="8"/><circle cx="27" cy="30" r="5" fill="#f0b429"/><circle cx="45" cy="30" r="5" fill="#f0b429"/><circle cx="27" cy="30" r="1.8" fill="#141414" stroke="none"/><circle cx="45" cy="30" r="1.8" fill="#141414" stroke="none"/><rect x="6" y="49" width="9" height="12" rx="4" fill="#aab6c2"/><rect x="57" y="49" width="9" height="12" rx="4" fill="#aab6c2"/><rect x="17" y="47" width="38" height="17" rx="5" fill="#cdd6de"/><rect x="24" y="52" width="24" height="8" rx="2" fill="#eef3f7"/><circle cx="29" cy="56" r="1.5" fill="#f0b429" stroke="none"/><circle cx="36" cy="56" r="1.5" fill="#e0564e" stroke="none"/><circle cx="43" cy="56" r="1.5" fill="#5fc44a" stroke="none"/></g></g>
+<text x="990" y="156" font-size="20" fill="#141414" text-anchor="middle" font-family="Arial Rounded MT Bold,Arial Rounded MT,SF Pro Rounded,Helvetica Rounded,Nunito,Helvetica,Arial,sans-serif">B</text>
+<ellipse cx="966" cy="208" rx="66" ry="23" fill="#fceccb" stroke="#c97e14" stroke-width="3" stroke-dasharray="7 5"/>
+<text x="966" y="215" font-size="17" fill="#141414" text-anchor="middle" font-family="Arial Rounded MT Bold,Arial Rounded MT,SF Pro Rounded,Helvetica Rounded,Nunito,Helvetica,Arial,sans-serif">insight</text>
+<rect x="890" y="268" width="46" height="28" rx="8" fill="#ffffff" stroke="#c97e14" stroke-width="3"/><text x="913.0" y="288.0" font-size="14" fill="#141414" text-anchor="middle" font-family="Arial Rounded MT Bold,Arial Rounded MT,SF Pro Rounded,Helvetica Rounded,Nunito,Helvetica,Arial,sans-serif">e</text>
+<polygon points="964.8,230.8 922.2,254.9 920.5,251.9 913.0,263.0 926.4,262.3 924.7,259.3 967.2,235.2" fill="#c97e14" stroke="#9c5f0d" stroke-width="1.6" stroke-linejoin="round"/><polygon points="964.8,230.8 922.2,254.9 920.5,251.9 913.0,263.0 926.4,262.3 924.7,259.3 967.2,235.2" fill="url(#hx)"/>
+<rect x="943" y="268" width="46" height="28" rx="8" fill="#ffffff" stroke="#c97e14" stroke-width="3"/><text x="966.0" y="288.0" font-size="14" fill="#141414" text-anchor="middle" font-family="Arial Rounded MT Bold,Arial Rounded MT,SF Pro Rounded,Helvetica Rounded,Nunito,Helvetica,Arial,sans-serif">&#8230;</text>
+<polygon points="963.5,233.0 963.5,251.0 960.0,251.0 966.0,263.0 972.0,251.0 968.5,251.0 968.5,233.0" fill="#c97e14" stroke="#9c5f0d" stroke-width="1.6" stroke-linejoin="round"/><polygon points="963.5,233.0 963.5,251.0 960.0,251.0 966.0,263.0 972.0,251.0 968.5,251.0 968.5,233.0" fill="url(#hx)"/>
+<rect x="996" y="268" width="46" height="28" rx="8" fill="#ffffff" stroke="#c97e14" stroke-width="3"/><text x="1019.0" y="288.0" font-size="14" fill="#141414" text-anchor="middle" font-family="Arial Rounded MT Bold,Arial Rounded MT,SF Pro Rounded,Helvetica Rounded,Nunito,Helvetica,Arial,sans-serif">&#8230;</text>
+<polygon points="964.8,235.2 1007.3,259.3 1005.6,262.3 1019.0,263.0 1011.5,251.9 1009.8,254.9 967.2,230.8" fill="#c97e14" stroke="#9c5f0d" stroke-width="1.6" stroke-linejoin="round"/><polygon points="964.8,235.2 1007.3,259.3 1005.6,262.3 1019.0,263.0 1011.5,251.9 1009.8,254.9 967.2,230.8" fill="url(#hx)"/>
+<text x="835" y="216" font-size="15" fill="#5b6470" text-anchor="middle" font-family="Arial Rounded MT Bold,Arial Rounded MT,SF Pro Rounded,Helvetica Rounded,Nunito,Helvetica,Arial,sans-serif">derived_from</text>
+<text x="835" y="356" font-size="20" fill="#141414" text-anchor="middle" font-family="Arial Rounded MT Bold,Arial Rounded MT,SF Pro Rounded,Helvetica Rounded,Nunito,Helvetica,Arial,sans-serif">A Graph — Never Across Owners</text>
+<text x="835" y="384" font-size="15" fill="#5b6470" text-anchor="middle" font-family="Arial Rounded MT Bold,Arial Rounded MT,SF Pro Rounded,Helvetica Rounded,Nunito,Helvetica,Arial,sans-serif">insights distilled every 20 rounds</text>
+<rect x="14" y="426" width="542" height="392" rx="22" fill="#fbe6e6" stroke="#d97f7f" stroke-width="5"/>
+<text x="285.0" y="478" font-size="30" fill="#141414" text-anchor="middle" font-family="Arial Rounded MT Bold,Arial Rounded MT,SF Pro Rounded,Helvetica Rounded,Nunito,Helvetica,Arial,sans-serif">(c) Collaborative</text>
+<rect x="38" y="498" width="494" height="234" rx="16" fill="#fff8f8" stroke="#d97f7f" stroke-width="3.4" stroke-dasharray="12 9" stroke-linecap="round"/>
+<text x="285.0" y="532" font-size="21" fill="#141414" text-anchor="middle" font-family="Arial Rounded MT Bold,Arial Rounded MT,SF Pro Rounded,Helvetica Rounded,Nunito,Helvetica,Arial,sans-serif">One Store, Split by Permission</text>
+<g transform="translate(106.0,540.0) scale(0.7222)"><g stroke="#141414" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" fill="none"><path d="M36 11 v6"/><circle cx="36" cy="8.5" r="3.4" fill="#f0b429"/><rect x="16" y="17" width="40" height="27" rx="8" fill="#cdd6de"/><path d="M48 17 a8 8 0 0 1 8 8 v11 a8 8 0 0 1 -8 8 z" fill="#aab6c2" stroke="none"/><rect x="16" y="17" width="40" height="27" rx="8"/><circle cx="27" cy="30" r="5" fill="#f0b429"/><circle cx="45" cy="30" r="5" fill="#f0b429"/><circle cx="27" cy="30" r="1.8" fill="#141414" stroke="none"/><circle cx="45" cy="30" r="1.8" fill="#141414" stroke="none"/><rect x="6" y="49" width="9" height="12" rx="4" fill="#aab6c2"/><rect x="57" y="49" width="9" height="12" rx="4" fill="#aab6c2"/><rect x="17" y="47" width="38" height="17" rx="5" fill="#cdd6de"/><rect x="24" y="52" width="24" height="8" rx="2" fill="#eef3f7"/><circle cx="29" cy="56" r="1.5" fill="#f0b429" stroke="none"/><circle cx="36" cy="56" r="1.5" fill="#e0564e" stroke="none"/><circle cx="43" cy="56" r="1.5" fill="#5fc44a" stroke="none"/></g></g>
+<text x="180" y="572" font-size="20" fill="#141414" text-anchor="middle" font-family="Arial Rounded MT Bold,Arial Rounded MT,SF Pro Rounded,Helvetica Rounded,Nunito,Helvetica,Arial,sans-serif">A</text>
+<g transform="translate(368.0,540.0) scale(0.7222)"><g stroke="#141414" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" fill="none"><path d="M36 11 v6"/><circle cx="36" cy="8.5" r="3.4" fill="#f0b429"/><rect x="16" y="17" width="40" height="27" rx="8" fill="#cdd6de"/><path d="M48 17 a8 8 0 0 1 8 8 v11 a8 8 0 0 1 -8 8 z" fill="#aab6c2" stroke="none"/><rect x="16" y="17" width="40" height="27" rx="8"/><circle cx="27" cy="30" r="5" fill="#f0b429"/><circle cx="45" cy="30" r="5" fill="#f0b429"/><circle cx="27" cy="30" r="1.8" fill="#141414" stroke="none"/><circle cx="45" cy="30" r="1.8" fill="#141414" stroke="none"/><rect x="6" y="49" width="9" height="12" rx="4" fill="#aab6c2"/><rect x="57" y="49" width="9" height="12" rx="4" fill="#aab6c2"/><rect x="17" y="47" width="38" height="17" rx="5" fill="#cdd6de"/><rect x="24" y="52" width="24" height="8" rx="2" fill="#eef3f7"/><circle cx="29" cy="56" r="1.5" fill="#f0b429" stroke="none"/><circle cx="36" cy="56" r="1.5" fill="#e0564e" stroke="none"/><circle cx="43" cy="56" r="1.5" fill="#5fc44a" stroke="none"/></g></g>
+<text x="442" y="572" font-size="20" fill="#141414" text-anchor="middle" font-family="Arial Rounded MT Bold,Arial Rounded MT,SF Pro Rounded,Helvetica Rounded,Nunito,Helvetica,Arial,sans-serif">B</text>
+<rect x="84" y="596" width="144" height="32" rx="8" fill="#fbdede" stroke="#cf4444" stroke-width="3"/><text x="156.0" y="618.0" font-size="16" fill="#141414" text-anchor="middle" font-family="Arial Rounded MT Bold,Arial Rounded MT,SF Pro Rounded,Helvetica Rounded,Nunito,Helvetica,Arial,sans-serif">e &#183; {A}</text>
+<rect x="346" y="596" width="144" height="32" rx="8" fill="#fbdede" stroke="#cf4444" stroke-width="3"/><text x="418.0" y="618.0" font-size="16" fill="#141414" text-anchor="middle" font-family="Arial Rounded MT Bold,Arial Rounded MT,SF Pro Rounded,Helvetica Rounded,Nunito,Helvetica,Arial,sans-serif">e &#183; {A, B}</text>
+<rect x="84" y="638" width="144" height="32" rx="8" fill="#ffffff" stroke="#cf4444" stroke-width="3"/><text x="156.0" y="660.0" font-size="16" fill="#141414" text-anchor="middle" font-family="Arial Rounded MT Bold,Arial Rounded MT,SF Pro Rounded,Helvetica Rounded,Nunito,Helvetica,Arial,sans-serif">&#8230; &#183; {A}</text>
+<rect x="346" y="638" width="144" height="32" rx="8" fill="#ffffff" stroke="#cf4444" stroke-width="3"/><text x="418.0" y="660.0" font-size="16" fill="#141414" text-anchor="middle" font-family="Arial Rounded MT Bold,Arial Rounded MT,SF Pro Rounded,Helvetica Rounded,Nunito,Helvetica,Arial,sans-serif">&#8230; &#183; {B}</text>
+<g transform="translate(262.0,595.0) scale(0.6389)"><g stroke="#141414" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" fill="none"><path d="M24 33 v-8 a12 12 0 0 1 24 0 v8" stroke-width="3.6"/><rect x="15" y="33" width="42" height="28" rx="6" fill="#f0b429"/><path d="M45 33 h6 a6 6 0 0 1 6 6 v16 a6 6 0 0 1 -6 6 h-6 z" fill="#d99a15" stroke="none"/><rect x="15" y="33" width="42" height="28" rx="6"/><circle cx="36" cy="44" r="4.4" fill="#141414"/><path d="M36 47 v6" stroke-width="3.4"/></g></g>
+<polygon points="232.0,694.5 322.0,694.5 322.0,700.0 342.0,690.0 322.0,680.0 322.0,685.5 232.0,685.5" fill="#cf4444" stroke="#a33" stroke-width="1.6" stroke-linejoin="round"/><polygon points="232.0,694.5 322.0,694.5 322.0,700.0 342.0,690.0 322.0,680.0 322.0,685.5 232.0,685.5" fill="url(#hx)"/>
+<text x="285" y="718" font-size="16" fill="#141414" text-anchor="middle" font-family="Arial Rounded MT Bold,Arial Rounded MT,SF Pro Rounded,Helvetica Rounded,Nunito,Helvetica,Arial,sans-serif">grant</text>
+<text x="285" y="774" font-size="21" fill="#141414" text-anchor="middle" font-family="Arial Rounded MT Bold,Arial Rounded MT,SF Pro Rounded,Helvetica Rounded,Nunito,Helvetica,Arial,sans-serif">A Permission, Not a Merge</text>
+<text x="285" y="802" font-size="15" fill="#5b6470" text-anchor="middle" font-family="Arial Rounded MT Bold,Arial Rounded MT,SF Pro Rounded,Helvetica Rounded,Nunito,Helvetica,Arial,sans-serif">two rows survive, one event</text>
+<rect x="564" y="426" width="542" height="392" rx="22" fill="#e4f0fb" stroke="#3f7fc4" stroke-width="5"/>
+<text x="835.0" y="478" font-size="30" fill="#141414" text-anchor="middle" font-family="Arial Rounded MT Bold,Arial Rounded MT,SF Pro Rounded,Helvetica Rounded,Nunito,Helvetica,Arial,sans-serif">(d) Consensus  (ours)</text>
+<rect x="588" y="498" width="494" height="234" rx="16" fill="#f4faff" stroke="#3f7fc4" stroke-width="3.4" stroke-dasharray="12 9" stroke-linecap="round"/>
+<text x="835.0" y="532" font-size="21" fill="#141414" text-anchor="middle" font-family="Arial Rounded MT Bold,Arial Rounded MT,SF Pro Rounded,Helvetica Rounded,Nunito,Helvetica,Arial,sans-serif">One Record, Several Owners</text>
+<g transform="translate(667.0,539.0) scale(0.6944)"><g stroke="#141414" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" fill="none"><path d="M36 11 v6"/><circle cx="36" cy="8.5" r="3.4" fill="#f0b429"/><rect x="16" y="17" width="40" height="27" rx="8" fill="#cdd6de"/><path d="M48 17 a8 8 0 0 1 8 8 v11 a8 8 0 0 1 -8 8 z" fill="#aab6c2" stroke="none"/><rect x="16" y="17" width="40" height="27" rx="8"/><circle cx="27" cy="30" r="5" fill="#f0b429"/><circle cx="45" cy="30" r="5" fill="#f0b429"/><circle cx="27" cy="30" r="1.8" fill="#141414" stroke="none"/><circle cx="45" cy="30" r="1.8" fill="#141414" stroke="none"/><rect x="6" y="49" width="9" height="12" rx="4" fill="#aab6c2"/><rect x="57" y="49" width="9" height="12" rx="4" fill="#aab6c2"/><rect x="17" y="47" width="38" height="17" rx="5" fill="#cdd6de"/><rect x="24" y="52" width="24" height="8" rx="2" fill="#eef3f7"/><circle cx="29" cy="56" r="1.5" fill="#f0b429" stroke="none"/><circle cx="36" cy="56" r="1.5" fill="#e0564e" stroke="none"/><circle cx="43" cy="56" r="1.5" fill="#5fc44a" stroke="none"/></g></g>
+<text x="738" y="570" font-size="20" fill="#141414" text-anchor="middle" font-family="Arial Rounded MT Bold,Arial Rounded MT,SF Pro Rounded,Helvetica Rounded,Nunito,Helvetica,Arial,sans-serif">A</text>
+<polygon points="708.7,595.1 725.0,612.5 721.0,616.2 742.0,624.0 735.6,602.6 731.6,606.3 715.3,588.9" fill="#e0564e" stroke="#b8433c" stroke-width="1.6" stroke-linejoin="round"/><polygon points="708.7,595.1 725.0,612.5 721.0,616.2 742.0,624.0 735.6,602.6 731.6,606.3 715.3,588.9" fill="url(#hx)"/>
+<g transform="translate(790.0,539.0) scale(0.6944)"><g stroke="#141414" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" fill="none"><path d="M36 11 v6"/><circle cx="36" cy="8.5" r="3.4" fill="#f0b429"/><rect x="16" y="17" width="40" height="27" rx="8" fill="#cdd6de"/><path d="M48 17 a8 8 0 0 1 8 8 v11 a8 8 0 0 1 -8 8 z" fill="#aab6c2" stroke="none"/><rect x="16" y="17" width="40" height="27" rx="8"/><circle cx="27" cy="30" r="5" fill="#f0b429"/><circle cx="45" cy="30" r="5" fill="#f0b429"/><circle cx="27" cy="30" r="1.8" fill="#141414" stroke="none"/><circle cx="45" cy="30" r="1.8" fill="#141414" stroke="none"/><rect x="6" y="49" width="9" height="12" rx="4" fill="#aab6c2"/><rect x="57" y="49" width="9" height="12" rx="4" fill="#aab6c2"/><rect x="17" y="47" width="38" height="17" rx="5" fill="#cdd6de"/><rect x="24" y="52" width="24" height="8" rx="2" fill="#eef3f7"/><circle cx="29" cy="56" r="1.5" fill="#f0b429" stroke="none"/><circle cx="36" cy="56" r="1.5" fill="#e0564e" stroke="none"/><circle cx="43" cy="56" r="1.5" fill="#5fc44a" stroke="none"/></g></g>
+<text x="861" y="570" font-size="20" fill="#141414" text-anchor="middle" font-family="Arial Rounded MT Bold,Arial Rounded MT,SF Pro Rounded,Helvetica Rounded,Nunito,Helvetica,Arial,sans-serif">B</text>
+<polygon points="830.5,592.0 830.5,604.0 825.0,604.0 835.0,624.0 845.0,604.0 839.5,604.0 839.5,592.0" fill="#e0564e" stroke="#b8433c" stroke-width="1.6" stroke-linejoin="round"/><polygon points="830.5,592.0 830.5,604.0 825.0,604.0 835.0,624.0 845.0,604.0 839.5,604.0 839.5,592.0" fill="url(#hx)"/>
+<g transform="translate(913.0,539.0) scale(0.6944)"><g stroke="#141414" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" fill="none"><path d="M36 11 v6"/><circle cx="36" cy="8.5" r="3.4" fill="#f0b429"/><rect x="16" y="17" width="40" height="27" rx="8" fill="#cdd6de"/><path d="M48 17 a8 8 0 0 1 8 8 v11 a8 8 0 0 1 -8 8 z" fill="#aab6c2" stroke="none"/><rect x="16" y="17" width="40" height="27" rx="8"/><circle cx="27" cy="30" r="5" fill="#f0b429"/><circle cx="45" cy="30" r="5" fill="#f0b429"/><circle cx="27" cy="30" r="1.8" fill="#141414" stroke="none"/><circle cx="45" cy="30" r="1.8" fill="#141414" stroke="none"/><rect x="6" y="49" width="9" height="12" rx="4" fill="#aab6c2"/><rect x="57" y="49" width="9" height="12" rx="4" fill="#aab6c2"/><rect x="17" y="47" width="38" height="17" rx="5" fill="#cdd6de"/><rect x="24" y="52" width="24" height="8" rx="2" fill="#eef3f7"/><circle cx="29" cy="56" r="1.5" fill="#f0b429" stroke="none"/><circle cx="36" cy="56" r="1.5" fill="#e0564e" stroke="none"/><circle cx="43" cy="56" r="1.5" fill="#5fc44a" stroke="none"/></g></g>
+<text x="984" y="570" font-size="20" fill="#141414" text-anchor="middle" font-family="Arial Rounded MT Bold,Arial Rounded MT,SF Pro Rounded,Helvetica Rounded,Nunito,Helvetica,Arial,sans-serif">C</text>
+<polygon points="954.7,588.9 938.4,606.3 934.4,602.6 928.0,624.0 949.0,616.2 945.0,612.5 961.3,595.1" fill="#e0564e" stroke="#b8433c" stroke-width="1.6" stroke-linejoin="round"/><polygon points="954.7,588.9 938.4,606.3 934.4,602.6 928.0,624.0 949.0,616.2 945.0,612.5 961.3,595.1" fill="url(#hx)"/>
+<rect x="648" y="630" width="376" height="38" rx="8" fill="#dceafa" stroke="#2f6fd0" stroke-width="3"/><text x="836.0" y="655.0" font-size="19" fill="#141414" text-anchor="middle" font-family="Arial Rounded MT Bold,Arial Rounded MT,SF Pro Rounded,Helvetica Rounded,Nunito,Helvetica,Arial,sans-serif">e &#183; owners {A, B, C}</text>
+<rect x="618" y="686" width="156" height="30" rx="8" fill="#e9e0fb" stroke="#7c4dd6" stroke-width="3"/><text x="696.0" y="707.0" font-size="14" fill="#141414" text-anchor="middle" font-family="Arial Rounded MT Bold,Arial Rounded MT,SF Pro Rounded,Helvetica Rounded,Nunito,Helvetica,Arial,sans-serif">sibling &#183; {A, B}</text>
+<rect x="900" y="686" width="142" height="30" rx="8" fill="#e9e0fb" stroke="#7c4dd6" stroke-width="3"/><text x="971.0" y="707.0" font-size="14" fill="#141414" text-anchor="middle" font-family="Arial Rounded MT Bold,Arial Rounded MT,SF Pro Rounded,Helvetica Rounded,Nunito,Helvetica,Arial,sans-serif">sibling &#183; {C}</text>
+<polygon points="662.6,672.1 670.6,677.4 668.7,680.3 682.0,682.0 675.3,670.4 673.4,673.3 665.4,667.9" fill="#7c4dd6" stroke="#5b2fa8" stroke-width="1.6" stroke-linejoin="round"/><polygon points="662.6,672.1 670.6,677.4 668.7,680.3 682.0,682.0 675.3,670.4 673.4,673.3 665.4,667.9" fill="url(#hx)"/>
+<polygon points="1006.6,667.9 998.6,673.3 996.7,670.4 990.0,682.0 1003.3,680.3 1001.4,677.4 1009.4,672.1" fill="#7c4dd6" stroke="#5b2fa8" stroke-width="1.6" stroke-linejoin="round"/><polygon points="1006.6,667.9 998.6,673.3 996.7,670.4 990.0,682.0 1003.3,680.3 1001.4,677.4 1009.4,672.1" fill="url(#hx)"/>
+<text x="835" y="718" font-size="15" fill="#141414" text-anchor="middle" font-family="Arial Rounded MT Bold,Arial Rounded MT,SF Pro Rounded,Helvetica Rounded,Nunito,Helvetica,Arial,sans-serif">affiliated</text>
+<text x="835" y="774" font-size="21" fill="#141414" text-anchor="middle" font-family="Arial Rounded MT Bold,Arial Rounded MT,SF Pro Rounded,Helvetica Rounded,Nunito,Helvetica,Arial,sans-serif">Computed at Deposit Time</text>
+<text x="835" y="802" font-size="15" fill="#5b6470" text-anchor="middle" font-family="Arial Rounded MT Bold,Arial Rounded MT,SF Pro Rounded,Helvetica Rounded,Nunito,Helvetica,Arial,sans-serif">owner set is the union</text>
 </svg>
