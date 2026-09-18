@@ -78,6 +78,23 @@ def macros():
         cmd("KeepDropRange", f"{drop[0]:.0f}--{drop[-1]:.0f}")
         cmd("KeepSeen", sum(v["observable_rewrites"] for v in kt.values()))
         cmd("KeepMerges", sum(v["merges"] for v in kt.values()))
+
+    # ---- what keep-the-shorter actually discards, at the level of named
+    # characters rather than characters of text; see experiments/merge_loss.py.
+    ML = load("merge_loss") if os.path.exists("runs/merge_loss.json") else None
+    if ML:
+        o, w = ML["overall"], ML["worlds"]
+        cmd("MergeTotal", f"{o['merges_total']:,}")
+        cmd("MergeRecov", o["pairs_recovered"])
+        cmd("MergeCov", f"{o['coverage_pct']}\\%")
+        cmd("MergeChars", f"{o['chars_median']:.0f}")
+        cmd("MergeCharsMax", f"{o['chars_max']:.0f}")
+        cmd("MergeLossN", o["lost_person"])
+        cmd("MergeLossPct", f"{o['lost_person_pct']}\\%")
+        cmd("MergePrincN", o["lost_principal"])
+        cmd("MergePrincPct", f"{o['lost_principal_pct']}\\%")
+        lp = sorted(v["lost_person_pct"] for v in w.values())
+        cmd("MergeLossRange", f"{lp[0]}--{lp[-1]}\\%")
         d = W["red_chamber"]["store"]["by_depth"]
         cmd("AffRcLow", f"{d['1']['median_aff']:.0f}")
         cmd("AffRcHigh", f"{d['4plus']['median_aff']:.0f}")
@@ -372,14 +389,20 @@ def samples():
 
 
 def tab_cost():
-    """Appendix table: what the mechanism costs, per world."""
+    """Appendix table: what the mechanism costs, per world.
+
+    The keep-shorter columns come from experiments/merge_loss.py, which
+    recovers both sides of a merge wherever the log allows and counts the loss
+    in named characters; review_stats counts only characters of text, which
+    misses the defect."""
     RV = load("review_stats")
+    ML = load("merge_loss")["worlds"]
     rows = []
     for w, title, _, _, _ in WORLDS:
         v = RV["worlds"][w]
         r = v["expansion"].get("recall")
         d = v["store"]["by_depth"]
-        kt = v["keeptext"]
+        kt = ML[w]
         if not r:
             continue
         qb = "--" if r["q_in_base_pct"] is None else f"{r['q_in_base_pct']}\\%"
@@ -389,14 +412,16 @@ def tab_cost():
             f"{r['median_base']:.0f}+{r['median_expanded']:.0f} & "
             f"{r['amplification']}$\\times$ & {qb} & {qe} & "
             f"{d['1']['median_aff']:.0f}$\\to${d['4plus']['median_aff']:.0f} & "
-            f"{kt['observable_rewrites']}/{kt['merges']} & "
-            f"{kt['median_chars_dropped']:.0f} \\\\")
-    return ("% generated\n\\begin{tabular}{lrrlrrrrrr}\n\\toprule\n"
+            f"{kt['pairs_recovered']}/{kt['merges_total']} & "
+            f"{kt['chars_median']:.0f} & "
+            f"{kt['lost_person_pct']}\\% & {kt['lost_principal_pct']}\\% \\\\")
+    return ("% generated\n\\begin{tabular}{lrrlrrrrrrrr}\n\\toprule\n"
             "& & \\multicolumn{5}{c}{\\emph{recall}} & \\emph{affiliated}"
-            " & \\multicolumn{2}{c}{\\emph{keep-shorter}} \\\\\n"
-            "\\cmidrule(lr){3-7}\\cmidrule(lr){8-8}\\cmidrule(lr){9-10}\n"
+            " & \\multicolumn{4}{c}{\\emph{keep-shorter}} \\\\\n"
+            "\\cmidrule(lr){3-7}\\cmidrule(lr){8-8}\\cmidrule(lr){9-12}\n"
             "World & rows & $n$ & hits+exp. & amp. & q\\,in hits & q\\,in exp."
-            " & 1$\\to$4+ own. & seen & chars \\\\\n\\midrule\n"
+            " & 1$\\to$4+ own. & seen & chars & $-$name & $-$principal"
+            " \\\\\n\\midrule\n"
             + "\n".join(rows) + "\n\\bottomrule\n\\end{tabular}\n")
 
 

@@ -122,12 +122,20 @@ venv/bin/python -m experiments.translate_case_study runs/hl40full_consensus
 venv/bin/python -m experiments.appendix_screenplays hamlet
 venv/bin/python -m experiments.scene_grid_fig
 venv/bin/python -m experiments.review_stats
+venv/bin/python -m experiments.merge_loss
 venv/bin/python -m experiments.build_paper_academic     # -> docs/index.html
 ```
 
 `review_stats.py` needs no LLM: it recomputes what auto-expansion returns,
-what the keep-shorter merge rule discards, and how far the quality metrics sit
-from their ceiling, straight from the event logs and final stores.
+how much text the keep-shorter merge rule discards, and how far the quality
+metrics sit from their ceiling, straight from the event logs and final stores.
+
+`merge_loss.py` also needs no LLM. It recovers both sides of a merge wherever
+the event log allows and measures the loss at the level of named characters
+rather than characters of text — which is where the keep-shorter rule actually
+costs something, since among descriptions of one event the shorter is the one
+that omits whoever gave the order. Writes `runs/merge_loss.json`, which
+`build_paper_latex.py` turns into the keep-shorter columns of Table 9.
 
 `build_paper_academic.py` reads what steps 1&ndash;5 wrote into `runs/` and
 emits the whole paper as one self-contained HTML file — every figure, table

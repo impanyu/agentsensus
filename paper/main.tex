@@ -506,9 +506,11 @@ Consensus compression buys structure and footprint at no measurable cost in
 judged behaviour. What is new is not the components---atomization, an embedding
 pre-filter and an LLM equivalence judge are each standard---but making ownership
 a property of the record rather than of the store. Three costs follow, measured
-in Appendix~\ref{app:cost}. Keeping the shorter of two equivalent texts discards
-the longer, though where both are recoverable the median loss is
-\KeepDropRange{} characters and surviving text does not erode with merge depth.
+in Appendix~\ref{app:cost}. Keeping the shorter of two equivalent texts is not the
+neutral choice it looks: on the \MergeCov{} of merges whose discarded side the
+log preserves, the surviving text drops a named character in \MergeLossPct{} of
+cases and the ordering party specifically in \MergePrincPct{}, so the store
+keeps the event and loses the chain of command.
 Auto-expansion is the expensive one: recall appends every affiliated sibling the
 agent owns, unranked and uncapped, returning \ExpAmpRange{} the rows, and those
 rows are markedly less on-query than the semantic hits---and the payload grows
@@ -613,7 +615,7 @@ varies this policy and finds it changes no structural quantity.
 
 Table~\ref{tab:cost} collects the measurements behind \S\ref{sec:discussion}.
 All of it is arithmetic over event logs and final stores already on disk
-(\code{experiments/review\_stats.py}); no rerun is involved.
+(\code{experiments/review\_stats.py} and \code{experiments/merge\_loss.py}); no rerun is involved.
 
 \paragraph{Auto-expansion.} A \code{recall} runs a semantic query for
 \ExpBaseK{} rows the agent owns, then follows each hit's affiliation edges one
@@ -633,14 +635,34 @@ candidate pool and truncate, rather than append them; we have not run that, nor
 run the mechanism with expansion off, so the \emph{benefit} of expansion is
 unmeasured here even though its cost is not.
 
-\paragraph{Keeping the shorter text.} A merge reveals both texts only when the
-surviving text changes, which happens when the incoming atom is the shorter one;
-a merge into a row that was already shorter leaves the discarded text unlogged.
-The ``seen'' column is therefore an observable subset and the character counts a
-lower bound. On that subset the rule is cheap, and the store shows no erosion
-with depth: Red Chamber's median row grows from \LenRcLow{} to \LenRcHigh{}
-characters between one and four-or-more owners, and no world shrinks by more
-than a sixth.
+\paragraph{Keeping the shorter text.} When two items are judged equivalent the
+store keeps whichever text is shorter. That rule is not neutral. The judge's
+criterion is that the two describe the same event, and among descriptions of one
+event the shorter is systematically the one that omits the principal: ``X ordered
+Y to do Z'' is necessarily longer than ``Y did Z''. Measuring this needs both
+input texts, which the log preserves only when the surviving text changed or the
+deposit was a single atom---\MergeRecov{} of \MergeTotal{} merges (\MergeCov{}).
+On that subset the loss is small in characters (median \MergeChars{}, at most
+\MergeCharsMax{}) but not in content: in \MergeLossN{} of \MergeRecov{} merges
+(\MergeLossPct{}; \MergeLossRange{} across worlds) the surviving text drops a
+named character the discarded text carried, and in \MergePrincN{}
+(\MergePrincPct{}) the dropped name is the party that ordered, authorized or
+dispatched the act. Names resolve through the scenario registry, so two aliases
+of one person do not count as a loss. Two cases stand for the rest: ``Emperor
+Xian ordered Xiahou Yuan to ride out from Xuchang with three hundred light
+cavalry'' survives as ``Xiahou Yuan rode out from Xuchang with three hundred
+light cavalry'', and ``Zelenskyy authorized the SBU and GUR to nominate liaison
+officers'' as ``SBU and GUR will nominate liaison officers''. The event is kept;
+the chain of command is not. The subset is not a random sample---it is the
+merges the log happens to expose---so the rate is an estimate over observable
+merges rather than a population figure. Set against this, the store shows no
+erosion in length with depth: Red Chamber's median row grows from \LenRcLow{}
+to \LenRcHigh{} characters between one and four-or-more owners, which is why
+counting characters misses the defect entirely. The rule is one line in the
+merge path and the repair is equally small---keep the longer text, or the
+union---costing \MergeCharsMax{} characters in the worst case seen here. We did
+not make that change: every run reported here was produced under the shipped
+rule, and we did not rerun. The defect is characterized, not fixed.
 
 \paragraph{Two caveats on the relevance columns.} Whether a returned row
 contains the query string is a keyword proxy: it counts a row as off-query when
@@ -656,8 +678,10 @@ issued only three recalls in forty rounds, too few to carry an estimate.
 median semantic hits plus rows added by one-hop expansion, the resulting
 amplification, and how often the query string appears in each group.
 \emph{affiliated}: median siblings carried by a row at one owner versus four or
-more. \emph{keep-shorter}: merges where both texts are observable, over all
-merges, and the median characters discarded there.}
+more. \emph{keep-shorter}: merges whose discarded side the log
+preserves, over all merges; the median characters discarded; the share of those
+merges whose surviving text loses a named character; and the share where the
+lost name is the party that ordered the act.}
 \label{tab:cost}
 \resizebox{\textwidth}{!}{\input{tab_cost}}
 \end{table}
