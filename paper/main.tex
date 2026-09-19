@@ -505,34 +505,33 @@ either. What the merge does cost is write latency
 Consensus compression buys structure and footprint at no measurable cost in
 judged behaviour. What is new is not the components---atomization, an embedding
 pre-filter and an LLM equivalence judge are each standard---but making ownership
-a property of the record rather than of the store. Three costs follow, measured
+a property of the record, not the store. Three costs follow, measured
 in Appendix~\ref{app:cost}. Keeping the shorter of two equivalent texts is not the
 neutral choice it looks: on the \MergeCov{} of merges whose discarded side the
 log preserves, the surviving text drops a named character in \MergeLossPct{} of
 cases and the ordering party specifically in \MergePrincPct{}, so the store
 keeps the event and loses the chain of command.
 Auto-expansion is the expensive one: recall appends every affiliated sibling the
-agent owns, unranked and uncapped, returning \ExpAmpRange{} the rows, and those
-rows are markedly less on-query than the semantic hits---and the payload grows
-with the very merging that shrinks the store. Equivalence is decided by a single
-LLM call over five candidates with no verification, so a wrong merge is
-permanent; we report no precision for that judge, which is the largest gap here.
+agent owns, unranked and uncapped, returning \ExpAmpRange{} the rows---markedly
+less on-query than the semantic hits, and a payload that grows with the very
+merging that shrinks the store. Equivalence is decided by a single
+unverified LLM call over five candidates, so a wrong merge is permanent; of the
+\MergeRecov{} merges we can recover and check by hand, five conflate distinct
+events.
 Scale bounds all of it: the largest store is \StoreRowsMax{} rows, where a
-vector index is not under strain, so the case at this size is footprint and
+vector index is not under strain, so the case here is footprint and
 structure rather than retrieval feasibility, and merging roughly doubles write
-latency (\S\ref{sec:ablation}). Every number comes from single stochastic runs;
-the one cell we reran replicated to within 1\%.
+latency (\S\ref{sec:ablation}). Every number comes from a single stochastic run.
 
 \section{Conclusion}
 Agentsensus treats a story world's memory as a single consensus store: equivalent
 memories merge across witnesses, split memories link into a graph, and recall
 walks that graph automatically. Across four worlds this yields the smallest
-memory footprint at equal granularity, the only shared and linked memory
-structure among four backends, and an emergent graph that mirrors the story's
-social structure, while judged continuation quality stays within noise of the
-baselines. The broader lesson is narrower than it looks: agents
+footprint at equal granularity, the only shared and linked memory structure
+among four backends, and an emergent graph mirroring the story's social
+structure, at judged quality within noise of the baselines. The broader lesson is narrower than it looks: agents
 reliably used only \code{remember} and \code{recall}, so a design that waits for
-agent-side curation gets no structure---at this horizon, and under the one
+agent-side curation gets no structure---at this horizon, under the one
 prompting regime we tested.
 
 \section*{Reproducibility Statement}
