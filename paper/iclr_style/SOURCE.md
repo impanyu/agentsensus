@@ -1,6 +1,6 @@
 Official ICLR 2026 template files, fetched verbatim from
 
-    https://github.com/ICLR/Master-Template/tree/master/iclr2026
+    https://github.com/ICLR/Master-Template/tree/master/iclr2027
 
 Kept here only so the draft compiles in the submission format out of the box;
 they are ICLR's files, not ours. `main.tex` detects them: with them present it

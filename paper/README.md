@@ -1,7 +1,7 @@
 # LaTeX draft (ICLR format)
 
 Upload these to an Overleaf project created from the ICLR template — the
-template supplies `iclr2026_conference.sty`, `iclr2026_conference.bst`,
+template supplies `iclr2027_conference.sty`, `iclr2027_conference.bst`,
 `fancyhdr.sty` and `math_commands.tex`, which are not duplicated here.
 
     main.tex          the paper

@@ -5,7 +5,7 @@
 % come from experiments/build_paper_latex.py, so re-run it after a rerun and
 % the paper follows the data.
 %
-% Expects the ICLR style files (iclr2026_conference.sty, .bst, fancyhdr.sty,
+% Expects the ICLR style files (iclr2027_conference.sty, .bst, fancyhdr.sty,
 % math_commands.tex) that ship with the Overleaf ICLR template.
 
 \documentclass{article}
@@ -13,15 +13,15 @@
 % The ICLR style files are not redistributed here. With them present the
 % paper typesets in the submission format; without them it falls back to a
 % plain two-column-free article so the draft still compiles and can be read.
-\IfFileExists{iclr2026_conference.sty}{%
-  \usepackage{iclr2026_conference,times}%
+\IfFileExists{iclr2027_conference.sty}{%
+  \usepackage{iclr2027_conference,times}%
   \IfFileExists{math_commands.tex}{\input{math_commands.tex}}{}%
   % \iclrfinalcopy  % uncomment for the camera-ready, NOT for submission
 }{%
   \usepackage[margin=1in]{geometry}%
   \usepackage{natbib}%
   \bibliographystyle{plainnat}%
-  \typeout{^^JNOTE: iclr2026_conference.sty not found -- using article layout.^^J}%
+  \typeout{^^JNOTE: iclr2027_conference.sty not found -- using article layout.^^J}%
 }
 
 \usepackage{amsmath,amssymb}
@@ -552,7 +552,7 @@ granularity, sharing and linking exclusive to consensus, and sharing rising
 with the horizon. The one cell we reran under identical settings landed
 within 1\% of its original (\S\ref{sec:ablation}).
 
-\IfFileExists{iclr2026_conference.bst}{\bibliographystyle{iclr2026_conference}}{}
+\IfFileExists{iclr2027_conference.bst}{\bibliographystyle{iclr2027_conference}}{}
 \bibliography{references}
 
 \appendix
