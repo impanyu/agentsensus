@@ -3,7 +3,7 @@ Reads: runs/paper_stats_g80.json, runs/results_g60.json, figures in
 runs/paper_figs_g80/ + runs/g80full_consensus/case_study/.
 """
 import base64, os, json, re
-os.chdir("/Users/ypan12/git_repo/bookworld_paper/agentsensus")
+os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 FIGS = {
     "growth": "runs/paper_figs_g80/growth_q.png",

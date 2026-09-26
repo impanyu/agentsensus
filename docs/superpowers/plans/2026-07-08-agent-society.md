@@ -10,7 +10,7 @@
 
 ## Global Constraints
 
-- Working dir for ALL commands: `/Users/ypan12/git_repo/bookworld_paper/agent_society`. Test command: `venv/bin/python -m pytest`.
+- Working dir for ALL commands: `~/git_repo/bookworld_paper/agent_society`. Test command: `venv/bin/python -m pytest`.
 - This directory IS a git repo. Commit at the end of each task with the given message.
 - Package layout: code in `society/`, tests in `tests/`. No dependency on BookWorld/GMemory code.
 - Defaults (from spec §12, all configurable): FIFO=20 pairs; memory_max_chars=80; consensus sim threshold=0.86, top-k=5; map default distance=20 ticks; stats_interval=10; LLM concurrency=16; retries=3; message delivery delay=1 tick; recall top_k=5.
