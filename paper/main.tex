@@ -57,11 +57,10 @@ Institution\\
 \maketitle
 
 \begin{abstract}
-A story world is simulated by what it accumulates---who learned what, when, and
+A agentic story world is a dynamic system simulating who learned what, when, and
 from whom---yet the standard design gives each character a private memory
 stream. A shared event is therefore stored once per witness, large duplication will be incurred in terms of storage.
-We present Agentsensus, a story-world simulation framework whose long-term
-memory is a single store shared by all the characters. Records of the same event merge into one owned by all its
+We present Agentsensus, a story-world simulation framework in which there is an unified long-term memory. Records of the same event merge into one owned by all its
 witnesses, and semantically relevant memory records are linked.
 We evaluate on four worlds---two classical Chinese novels, \emph{Hamlet}, and
 a real-world conflict timeline---run for 40 to 80 rounds against three
@@ -526,7 +525,9 @@ agent-side curation gets no structure---at this horizon, under the one
 prompting regime we tested.
 
 \section*{Reproducibility Statement}
-Everything needed to run the method is released: the framework, all four
+Everything needed to run the method is released, anonymised for review at
+\url{https://anonymous.4open.science/r/agentsensus-562C/}: the framework,
+all four
 memory backends, the four scenarios with their source texts and information
 carriers, and the scripts for every stage of the pipeline --- sedimentation,
 the runs, the structure statistics, the four quality metrics, the ablation
