@@ -57,24 +57,28 @@ Institution\\
 \maketitle
 
 \begin{abstract}
-In a simulated story world each character normally keeps its own private
-memory. Ten officers at one council write the meeting down ten times, the
-copies drift apart as each rewords them, and nothing connects a messenger's
-report to the battle it describes. Agentsensus keeps the world's memories in
-one place. When two characters record the same event it merges them into one
-memory and notes that both know it. Pieces split from a single memory stay
-linked, and a lookup follows those links one step. Characters still see only
-what they witnessed, so a shared store is not a shared mind. All of this runs
-inside the only two operations characters actually use---writing a memory and
-looking one up---because across our runs they never once touched the other
-memory tools we gave them. We ran four worlds---two classical Chinese novels,
-\emph{Hamlet}, and a real conflict timeline---for 40 to 80 rounds against
-three designs that give each character its own memory. Ours writes
-\SaveRange{} fewer entries, and is the only one whose memories end up shared
-(\ShRange{} belong to more than one character, some to \MaxOwners{}) and
-linked (\AffRange{}), with stories judged just as good. The memory alone
-reveals the story's social structure: characters who talk share far more
-memories than those who don't.
+A story world is judged by what it accumulates---who learned what, when, and
+from whom---yet the standard design gives each character a private memory
+stream. A shared event is therefore stored once per witness, the copies
+diverge as characters reword them, and no record knows that its counterparts
+exist.
+We present Agentsensus, a story-world simulation framework whose long-term
+memory is a single store whose records carry the set of characters who hold them. Records of the same event merge into one owned by all its
+witnesses, and records split from a single deposit stay linked.
+Retrieval remains owner-scoped and follows those links one hop, so a shared
+store never widens what a character knows. Both mechanisms run inside the
+ordinary write and read operations.
+We evaluate on four worlds---two classical Chinese novels, \emph{Hamlet}, and
+a real-world conflict timeline---run for 40 to 80 rounds against three
+per-character memory designs under an equal-granularity protocol. Agentsensus
+writes \SaveRange{} fewer entries than the closest baseline and is the only
+design whose memory becomes shared (\ShRange{} of records held by more than
+one character, some by \MaxOwners{}) and linked (\AffRange{}), at judged
+continuation quality indistinguishable from the baselines. Two further findings: characters issued no calls to any explicit
+memory-management action, so structure left to agent-side curation does not
+arrive; and the memory alone recovers the story's social organization, with
+characters who converse sharing an order of magnitude more memory than those
+who do not.
 \end{abstract}
 
 \section{Introduction}
