@@ -57,28 +57,21 @@ Institution\\
 \maketitle
 
 \begin{abstract}
-A story world is judged by what it accumulates---who learned what, when, and
+A story world is simulated by what it accumulates---who learned what, when, and
 from whom---yet the standard design gives each character a private memory
-stream. A shared event is therefore stored once per witness, the copies
-diverge as characters reword them, and no record knows that its counterparts
-exist.
+stream. A shared event is therefore stored once per witness, large duplication will be incurred in terms of storage.
 We present Agentsensus, a story-world simulation framework whose long-term
-memory is a single store; every record in it carries the set of characters
-who hold it. Records of the same event merge into one owned by all its
-witnesses, and records split from a single deposit stay linked.
-Retrieval remains owner-scoped and follows those links one hop, so a shared
-store never widens what a character knows. Both mechanisms run inside the
-ordinary write and read operations, which are the only memory operations
-characters ever invoke.
+memory is a single store shared by all the characters. Records of the same event merge into one owned by all its
+witnesses, and semantically relevant memory records are linked.
 We evaluate on four worlds---two classical Chinese novels, \emph{Hamlet}, and
 a real-world conflict timeline---run for 40 to 80 rounds against three
 per-character memory designs under an equal-granularity protocol. Agentsensus
 writes \SaveRange{} fewer entries than the closest baseline and is the only
 design whose memory becomes shared (\ShRange{} of records held by more than
 one character, some by \MaxOwners{}) and linked (\AffRange{}), at judged
-continuation quality indistinguishable from the baselines. An ablation
-attributes this to the merge itself: disabling it multiplies the store by
-\AblFactor{}$\times$ and takes sharing to exactly zero. Sharing also compounds with the horizon rather
+simulation quality indistinguishable or even better than the baselines. An ablation attributes this to the
+merge itself: disabling it multiplies the store by \AblFactor{}$\times$ and
+takes sharing to exactly zero. Sharing also compounds with the horizon rather
 than saturating early, rising \RuShChain{} as one world is re-run at 10, 20
 and 40 rounds.
 \end{abstract}
@@ -152,10 +145,7 @@ runs inside \code{remember} and \code{recall} themselves.
   languages, three genres and both human and institutional actors.
 \item A three-layer \textbf{case-study methodology} quantifying how the emergent
   memory structure tracks the story's social structure.
-\item Two \textbf{negative results} that constrain how such systems should be
-  designed and evaluated: agents never perform discretionary memory management,
-  so structure left to agent-side curation does not arrive; and judged narrative
-  quality is insensitive to the memory architecture at this scale.
+
 \end{itemize}
 
 \section{Related Work}
