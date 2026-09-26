@@ -63,7 +63,8 @@ stream. A shared event is therefore stored once per witness, the copies
 diverge as characters reword them, and no record knows that its counterparts
 exist.
 We present Agentsensus, a story-world simulation framework whose long-term
-memory is a single store whose records carry the set of characters who hold them. Records of the same event merge into one owned by all its
+memory is a single store; every record in it carries the set of characters
+who hold it. Records of the same event merge into one owned by all its
 witnesses, and records split from a single deposit stay linked.
 Retrieval remains owner-scoped and follows those links one hop, so a shared
 store never widens what a character knows. Both mechanisms run inside the
