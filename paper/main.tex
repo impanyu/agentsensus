@@ -57,29 +57,24 @@ Institution\\
 \maketitle
 
 \begin{abstract}
-Multi-agent story-world simulations give every character a private memory
-stream, so one shared event is stored once per witness, its copies drift apart
-as agents paraphrase and summarize them, and nothing links a courier's report
-to the battle it describes. We present \textbf{Agentsensus}, a story-world
-simulation framework whose long-term memory is a single store in which
-\emph{sharing is computed rather than assumed}. Each deposit is atomized into
-self-contained statements; a statement close to an existing one is put to an
-LLM equivalence judge and, if the two are equivalent, merged into one record
-whose \emph{owner set} is the union of its witnesses. Statements split from one
-deposit are cross-linked, and recall expands one hop along those links.
-Ownership stays scoped---an agent recalls only what it owns---so compression
-never leaks knowledge between characters, and every mechanism runs inside
-\code{remember} and \code{recall}, the only two memory operations agents
-demonstrably use: across two models and four backends, discretionary memory
-management was invoked zero times. Across four worlds---two classical Chinese
-novels, \emph{Hamlet}, and a real-world conflict timeline---run for 40 to 80
-rounds against three per-agent memory baselines under an equal-granularity
-protocol, consensus writes \SaveRange{} fewer entries than the closest baseline
-and is the only backend whose memories become shared (\ShRange{} multi-owner,
-single records reaching \MaxOwners{} witnesses) and linked (\AffRange{}), at
-judged continuation quality indistinguishable from the baselines. The memory
-substrate alone recovers the story's social organization: agents who converse
-overlap in memory an order of magnitude more than those who do not.
+In a simulated story world each character normally keeps its own private
+memory. Ten officers at one council write the meeting down ten times, the
+copies drift apart as each rewords them, and nothing connects a messenger's
+report to the battle it describes. Agentsensus keeps the world's memories in
+one place. When two characters record the same event it merges them into one
+memory and notes that both know it. Pieces split from a single memory stay
+linked, and a lookup follows those links one step. Characters still see only
+what they witnessed, so a shared store is not a shared mind. All of this runs
+inside the only two operations characters actually use---writing a memory and
+looking one up---because across our runs they never once touched the other
+memory tools we gave them. We ran four worlds---two classical Chinese novels,
+\emph{Hamlet}, and a real conflict timeline---for 40 to 80 rounds against
+three designs that give each character its own memory. Ours writes
+\SaveRange{} fewer entries, and is the only one whose memories end up shared
+(\ShRange{} belong to more than one character, some to \MaxOwners{}) and
+linked (\AffRange{}), with stories judged just as good. The memory alone
+reveals the story's social structure: characters who talk share far more
+memories than those who don't.
 \end{abstract}
 
 \section{Introduction}
