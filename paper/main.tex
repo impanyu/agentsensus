@@ -68,18 +68,20 @@ who hold it. Records of the same event merge into one owned by all its
 witnesses, and records split from a single deposit stay linked.
 Retrieval remains owner-scoped and follows those links one hop, so a shared
 store never widens what a character knows. Both mechanisms run inside the
-ordinary write and read operations.
+ordinary write and read operations, which are the only memory operations
+characters ever invoke.
 We evaluate on four worlds---two classical Chinese novels, \emph{Hamlet}, and
 a real-world conflict timeline---run for 40 to 80 rounds against three
 per-character memory designs under an equal-granularity protocol. Agentsensus
 writes \SaveRange{} fewer entries than the closest baseline and is the only
 design whose memory becomes shared (\ShRange{} of records held by more than
 one character, some by \MaxOwners{}) and linked (\AffRange{}), at judged
-continuation quality indistinguishable from the baselines. Two further findings: characters issued no calls to any explicit
-memory-management action, so structure left to agent-side curation does not
-arrive; and the memory alone recovers the story's social organization, with
-characters who converse sharing an order of magnitude more memory than those
-who do not.
+continuation quality indistinguishable from the baselines. An ablation
+attributes this to the merge itself: disabling it multiplies the store by
+\AblFactor{}$\times$ and takes sharing to exactly zero, while the short-term cache policy leaves every
+structural quantity unchanged. Sharing also compounds with the horizon rather
+than saturating early, rising \RuShChain{} as one world is re-run at 10, 20
+and 40 rounds.
 \end{abstract}
 
 \section{Introduction}
@@ -384,8 +386,8 @@ worlds (Appendix~\ref{app:growth}).
 
 \subsection{Structure compounds with horizon}
 Sharing is not a fixed property but a function of how long the world has run:
-Red Chamber, run at four horizons, goes 13\%$\to$20\%$\to$23\%$\to$24\% at
-rounds 10/40/60/80, and Russia--Ukraine 6\%$\to$9\%$\to$14\% at 10/20/40. Later
+Red Chamber, run at four horizons, goes \RcShChain{} at
+rounds 10/40/60/80, and Russia--Ukraine \RuShChain{} at 10/20/40. Later
 deposits meet a store that already holds their equivalents, so the compression
 compounds rather than saturating early.
 

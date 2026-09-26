@@ -81,6 +81,18 @@ def macros():
 
     # ---- what keep-the-shorter actually discards, at the level of named
     # characters rather than characters of text; see experiments/merge_loss.py.
+    # ---- sharing as a function of horizon: the same world re-run longer.
+    # The prose quoted these inline; they belong here like every other number.
+    HZ = {"ru": ["ru10", "ru20", "ru40"], "rc": ["rc10", "rc40", "rc60", "rc80"]}
+    for key, tags in HZ.items():
+        got = [load(f"paper_stats_{t}")["consensus"]["sh_pct"] for t in tags
+               if os.path.exists(f"runs/paper_stats_{t}.json")]
+        if len(got) == len(tags):
+            cmd(f"{key.capitalize()}ShChain",
+                "$\\to$".join(f"{v}\\%" for v in got))
+            cmd(f"{key.capitalize()}ShLow", f"{got[0]}\\%")
+            cmd(f"{key.capitalize()}ShHigh", f"{got[-1]}\\%")
+
     ML = load("merge_loss") if os.path.exists("runs/merge_loss.json") else None
     if ML:
         o, w = ML["overall"], ML["worlds"]
