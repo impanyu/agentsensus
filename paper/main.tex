@@ -551,6 +551,28 @@ granularity, sharing and linking exclusive to consensus, and sharing rising
 with the horizon. The one cell we reran under identical settings landed
 within 1\% of its original (\S\ref{sec:ablation}).
 
+\section*{AI Use Statement}
+Large language models appear in this work in two distinct roles, which we
+separate here.
+
+\paragraph{As the object of study.} The simulation is LLM-driven and the
+continuation-quality metrics are LLM-judged. Both are part of the method
+rather than of its preparation; the models, versions and prompts are
+specified in \S\ref{sec:framework}, \S\ref{sec:setup} and
+Appendix~\ref{app:impl}.
+
+\paragraph{As a tool in preparing this paper.} An LLM-based coding assistant
+was used to draft sections of the text, to write the analysis and
+figure-generation scripts released with the code, and to run the post-hoc
+measurements reported in Appendix~\ref{app:cost}. Every quantity we report is
+produced by those scripts reading the event logs and stores on disk, and the
+authors read the scripts and checked their output against the underlying
+records; no number or claim in this paper rests on an assistant's assertion
+alone. Where an assistant's initial analysis was wrong it was corrected
+against the data, and the corrected measurement is what appears here. The
+authors take full responsibility for the content of the paper, including any
+remaining errors.
+
 \IfFileExists{iclr2027_conference.bst}{\bibliographystyle{iclr2027_conference}}{}
 \bibliography{references}
 
